@@ -1,0 +1,5 @@
+*.tlog
+*.ini
+x64/
+Librarues/
+Resource/
