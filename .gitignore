@@ -1,5 +1,6 @@
 *.tlog
 *.ini
 x64/
-Librarues/
+Libraries/
 Resource/
+.vs/
