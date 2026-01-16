@@ -1,53 +1,29 @@
-/*
+ï»¿/*
 	Singleton
 
-	½Ì±ÛÅæ ÆĞÅÏ : ´ÜÀÏ °´Ã¼ °ü¸®
-	- ÀÎ½ºÅÏ½º¸¦ È£Ãâ ½Ã Ã³À½ È£Ãâ(ÀÎ½ºÅÏ½º°¡ »ı¼º µÇ±â Àü)ÀÌ µÇ¸é ÀÎ½ºÅÏ½º¸¦ »ı¼ºÇØ¼­ ¹İÈ¯ÇÑ´Ù.
-	- ÀÎ½ºÅÏ½º°¡ »ı¼º µÈ ÀÌÈÄ È£Ãâ ÇÏ°Ô µÇ¸é ±âÁ¸¿¡ »ı¼º µÈ ÀÎ½ºÅÏ½º¸¦ ¹İÈ¯ÇÑ´Ù.
+	ì‹±ê¸€í†¤ íŒ¨í„´ : ë‹¨ì¼ ê°ì²´ ê´€ë¦¬
+	- ì¸ìŠ¤í„´ìŠ¤ë¥¼ í˜¸ì¶œ ì‹œ ì²˜ìŒ í˜¸ì¶œ(ì¸ìŠ¤í„´ìŠ¤ê°€ ìƒì„± ë˜ê¸° ì „)ì´ ë˜ë©´ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•´ì„œ ë°˜í™˜í•œë‹¤.
+	- ì¸ìŠ¤í„´ìŠ¤ê°€ ìƒì„± ëœ ì´í›„ í˜¸ì¶œ í•˜ê²Œ ë˜ë©´ ê¸°ì¡´ì— ìƒì„± ëœ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë°˜í™˜í•œë‹¤.
 
-	ÅÛÇÃ¸´(Template, ÇüÆÇ) : ÇÔ¼ö ¶Ç´Â Å¬·¡½º¸¦ ¸¸µé¾î³»±â À§ÇÑ Æ²
-	- Á¤ÇØÁöÁö ¾ÊÀº ÀÚ·áÇü¿¡ ´ëÇÑ ¼±¾ğÀ» ÅÛÇÃ¸´À» »ç¿ëÇÏ¿© ÇÏ°í ±â´ÉµéÀ» ±¸ÇöÇÑ´Ù.
-	- ÇÔ¼ö ¶Ç´Â Å¬·¡½º ÀÛ¼º½Ã ÅÛÇÃ¸´¿¡ »ç¿ë µÉ ÀÚ·áÇüÀ» °áÁ¤ÇØÁØ´Ù.
+	í…œí”Œë¦¿(Template, í˜•íŒ) : í•¨ìˆ˜ ë˜ëŠ” í´ë˜ìŠ¤ë¥¼ ë§Œë“¤ì–´ë‚´ê¸° ìœ„í•œ í‹€
+	- ì •í•´ì§€ì§€ ì•Šì€ ìë£Œí˜•ì— ëŒ€í•œ ì„ ì–¸ì„ í…œí”Œë¦¿ì„ ì‚¬ìš©í•˜ì—¬ í•˜ê³  ê¸°ëŠ¥ë“¤ì„ êµ¬í˜„í•œë‹¤.
+	- í•¨ìˆ˜ ë˜ëŠ” í´ë˜ìŠ¤ ì‘ì„±ì‹œ í…œí”Œë¦¿ì— ì‚¬ìš© ë  ìë£Œí˜•ì„ ê²°ì •í•´ì¤€ë‹¤.
 */
 
 #pragma once
 template <typename T> // template<class T>
-class Singleton
+class singleton
 {
 protected:
-	static T* m_pInstance;
+	singleton() = default;
+	~singleton() = default;
 
-	Singleton() {};
-	~Singleton() {};
+	singleton(const singleton&) = delete;
+	singleton& operator=(const singleton&) = delete;
 
 public:
-	static T* Get();
-	void Release();
+	static T& Get() {
+		static T instance;
+		return instance;
+	}
 };
-
-// ½Ì±ÛÅæ ÃÊ±âÈ­
-template<typename T>
-T* Singleton<T>::m_pInstance = nullptr;
-
-// ½Ì±ÛÅæ ÀÎ½ºÅÏ½º °¡Á®¿À±â
-template<typename T>
-inline T* Singleton<T>::Get()
-{
-	// ½Ì±ÛÅæ ÀÎ½ºÅÏ½º°¡ »ı¼ºµÇ¾î ÀÖÁö ¾Ê´Ù¸é »õ·Î »ı¼º
-	if (nullptr == m_pInstance)
-	{
-		m_pInstance = new T;
-	}
-	return m_pInstance;
-}
-
-// ½Ì±ÛÅæ ÀÎ½ºÅÏ½º ÇØÁ¦ÇÏ±â
-template<typename T>
-inline void Singleton<T>::Release()
-{
-	if (nullptr == m_pInstance)
-	{
-		delete m_pInstance;
-		m_pInstance = nullptr;
-	}
-}

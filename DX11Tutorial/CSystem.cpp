@@ -1,6 +1,7 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Resource.h"
 #include "CSystem.h"
+#include "CDummyThread.h"
 
 System::System()
 {
@@ -31,6 +32,7 @@ void System::Relase()
 {
 	if (nullptr != m_pApplication)
 	{
+		m_pApplication->Release(); 
 		delete m_pApplication;
 		m_pApplication = nullptr;
 	}
@@ -91,10 +93,10 @@ void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 	iScreenWidth_ = GetSystemMetrics(SM_CXSCREEN);
 	iScreenHeight_ = GetSystemMetrics(SM_CYSCREEN);
 
-	// Çö ½ÃÁ¡¿¡¼­´Â ÀÇµµµÈ »ó¼ö
+	// í˜„ ì‹œì ì—ì„œëŠ” ì˜ë„ëœ ìƒìˆ˜
 	if (true == FULL_SCREEN)
 	{
-		// ¿Ö ZeromemÀÌ ¾Æ´Ï¶ó memsetÀÌÁö?
+		// ì™œ Zeromemì´ ì•„ë‹ˆë¼ memsetì´ì§€?
 		memset(&kScreenSettings, 0, sizeof(DEVMODE));
 		kScreenSettings.dmSize = sizeof(kScreenSettings);
 		kScreenSettings.dmPelsWidth = (ULONG)iScreenWidth_;
@@ -133,14 +135,16 @@ void System::_Tick()
 
 LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
-	//if (ImGui_ImplWin32_WndProcHandler(hWnd_, uMessage_, wParam_, lParam_)) return true;
+#ifdef IMGUI_ACTIVATE
+	if (ImGui_ImplWin32_WndProcHandler(hWnd_, uMessage_, wParam_, lParam_)) return true;
+#endif // IMGUI_ACTIVATE
 
 	switch (uMessage_)
 	{
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
-			PostQuitMessage(0);    
+			PostQuitMessage(0);
 			return 0;
 		}
 		

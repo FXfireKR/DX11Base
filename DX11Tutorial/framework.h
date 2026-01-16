@@ -7,21 +7,35 @@
 // Windows 헤더 파일
 #include <windows.h>
 
-// C 런타임 헤더 파일입니다.
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
 #include <stdio.h>
+
+#ifdef _DEBUG
+#include <iostream>
+#endif // _DEBUG
+
 #include <fstream>
 #include <functional>
-
+#include <thread>
+#include <mutex>
+#include <ctime>
+#include <atomic>
+#include <condition_variable>
 using namespace std;
+
 
 // STL
 #include <vector>
 #include <map>
 #include <list>
+#include <array>
+#include <unordered_map>
+#include <queue>
+#include <stack>
 
 // DIRECTX 11 x64
 #include <D3D11.h>
@@ -38,9 +52,14 @@ using namespace std;
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 using namespace DirectX;
 using namespace Microsoft::WRL;
+
+
+// util header
+#include "util.h"
 
 
 // DirectX Tex
@@ -53,6 +72,7 @@ using namespace Microsoft::WRL;
 
 // DirectXTK
 #include <DirectXTK/WICTextureLoader.h>
+#include <DirectXTK/SimpleMath.h>
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTK\\x64\\debug\\DirectXTK.lib")
 #else // _DEBUG
@@ -67,22 +87,32 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "FMOD\\release\\fmod_vc.lib")
 #endif // _DEBUG
 
+
 // ImGuI
-//#define IMGUI_ACTIVATE
+#define IMGUI_ACTIVATE 1
 
 #ifdef IMGUI_ACTIVATE
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#else // IMGUI_ACTIVATE
+#define IMGUI_DISABLE
 #endif // IMGUI_ACTIVATE
 
 
-// singleton
-#include "DirectX11Com.h"
-
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
 
+// singleton
+#include "DirectX11Com.h"
+#include "CDeltaTimeManager.h"
+#include "CSceneManager.h"
+
+
 #define DXCOM DirectX11Com::Get()
-#define g_Device DXCOM->GetDevice()
-#define g_DeviceContext DXCOM->GetDeviceContext()
+#define GAMETIME CDeltaTimeManager::Get()
+#define SCENE CSceneManager::Get()
+
+// DirectX 11 Global Device
+#define g_Device DXCOM.GetDevice()
+#define g_DeviceContext DXCOM.GetDeviceContext()

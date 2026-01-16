@@ -4,13 +4,13 @@
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
 
 D3D11_INPUT_ELEMENT_DESC imgLayout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
 
 ShaderManager::ShaderManager()
@@ -27,16 +27,16 @@ HRESULT ShaderManager::Init()
 
 	// Create Vertex Shader
 	hr = LoadShaderFromFile(L"..//Shader//image.hlsl", "VS", VERTEX_SHADER_VERSION, m_pVertexShaderBlob);
-	hr = DXCOM->GetDevice()->CreateVertexShader(m_pVertexShaderBlob->GetBufferPointer(), m_pVertexShaderBlob->GetBufferSize(), nullptr, m_pVertexShader.GetAddressOf());
+	hr = g_Device->CreateVertexShader(m_pVertexShaderBlob->GetBufferPointer(), m_pVertexShaderBlob->GetBufferSize(), nullptr, m_pVertexShader.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	// Create Layout
 	const unsigned long long count = sizeof(imgLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
-	DXCOM->GetDevice()->CreateInputLayout(imgLayout, count, m_pVertexShaderBlob->GetBufferPointer(), m_pVertexShaderBlob->GetBufferSize(), m_pInputLayOut.GetAddressOf());
+	g_Device->CreateInputLayout(imgLayout, count, m_pVertexShaderBlob->GetBufferPointer(), m_pVertexShaderBlob->GetBufferSize(), m_pInputLayOut.GetAddressOf());
 
 	// Create Pixel Shader
 	LoadShaderFromFile(L"..//Shader//image.hlsl", "PS", PIXEL_SHADER_VERSION, m_pPixelShaderBlob);
-	hr = DXCOM->GetDevice()->CreatePixelShader(m_pPixelShaderBlob->GetBufferPointer(), m_pPixelShaderBlob->GetBufferSize(), nullptr, m_pPixelShader.GetAddressOf());
+	hr = g_Device->CreatePixelShader(m_pPixelShaderBlob->GetBufferPointer(), m_pPixelShaderBlob->GetBufferSize(), nullptr, m_pPixelShader.GetAddressOf());
 	assert(SUCCEEDED(hr));
 
 	_CreateSamplerState();
@@ -52,7 +52,8 @@ HRESULT ShaderManager::LoadShaderFromFile(const wstring& wstrPath_, const string
 		, D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, pBlob_.GetAddressOf(), nullptr);
 }
 
-void ShaderManager::Render(ID3D11ShaderResourceView* const* pShaderResourceView_ ,ID3D11Buffer* const* pVertexBuffer_, ID3D11Buffer* pIndexBuffer, const UINT& stride_, const UINT& offset_, const UINT& vertcnt_)
+void ShaderManager::Render(ID3D11ShaderResourceView* const* pShaderResourceView_ ,ID3D11Buffer* const* pVertexBuffer_, ID3D11Buffer* const* constBuffer_
+	, ID3D11Buffer* pIndexBuffer, const UINT& stride_, const UINT& offset_, const UINT& vertcnt_)
 {
 	// IA
 	g_DeviceContext->IASetVertexBuffers(0, 1, pVertexBuffer_, &stride_, &offset_);
@@ -62,6 +63,7 @@ void ShaderManager::Render(ID3D11ShaderResourceView* const* pShaderResourceView_
 
 	// VS
 	g_DeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
+	g_DeviceContext->VSSetConstantBuffers(0, 1, constBuffer_);
 
 	// RS
 	g_DeviceContext->RSSetState(m_pRasterizerState.Get());
@@ -69,10 +71,11 @@ void ShaderManager::Render(ID3D11ShaderResourceView* const* pShaderResourceView_
 	// PS
 	g_DeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
 	g_DeviceContext->PSSetShaderResources(0, 1, pShaderResourceView_);
+	g_DeviceContext->PSSetConstantBuffers(0, 1, constBuffer_);
 	g_DeviceContext->PSSetSamplers(0, 1, m_pSamplerState.GetAddressOf());
 
 	// OM
-	g_DeviceContext->OMSetBlendState(m_pBlendState.Get(), nullptr, 0xFFFFFFFF);
+	//g_DeviceContext->OMSetBlendState(m_pBlendState.Get(), nullptr, 0xFFFFFFFF);
 
 	g_DeviceContext->DrawIndexed(6, 0, 0);
 }
@@ -103,7 +106,7 @@ void ShaderManager::_CreateRasterizerState()
 	D3D11_RASTERIZER_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.FillMode = D3D11_FILL_SOLID;
-	desc.CullMode = D3D11_CULL_NONE;
+	desc.CullMode = D3D11_CULL_BACK;
 	desc.FrontCounterClockwise = false;
 
 	HRESULT hr = g_Device->CreateRasterizerState(&desc, m_pRasterizerState.GetAddressOf());

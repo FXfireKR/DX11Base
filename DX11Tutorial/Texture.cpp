@@ -19,13 +19,13 @@ bool Texture::LoadFromFile(const wstring& wstrFileName_)
 	if (FAILED(pResource->QueryInterface(IID_ID3D11Texture2D, (void**)m_pTexture.GetAddressOf())))
 		return false;
 
-	D3D11_TEXTURE2D_DESC textureDesc;
-	m_pTexture->GetDesc(&textureDesc);
+	//D3D11_TEXTURE2D_DESC textureDesc;
+	//m_pTexture->GetDesc(&textureDesc);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	m_pTextureView->GetDesc(&srvDesc);
+	//D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	//m_pTextureView->GetDesc(&srvDesc);
 
-	g_DeviceContext->GenerateMips(m_pTextureView.Get());
+	//g_DeviceContext->GenerateMips(m_pTextureView.Get());
 
 
 	//DirectX::TexMetadata md;

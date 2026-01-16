@@ -1,9 +1,9 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "DirectX11Com.h"
 
 DirectX11Com::DirectX11Com()
 {
-	m_bVerticalSync = false;
+	m_bVerticalSync = true;
 	m_dVideoCardMemory = 0.0;
 	m_uDXGIDisplayWidth = m_uDXGIDisplayHeight = 0;
 	ZeroMemory(&m_uDXGIDisplayRational, sizeof(DXGI_RATIONAL));
@@ -27,24 +27,12 @@ DirectX11Com::~DirectX11Com()
 
 	if (nullptr != m_pSwapChain)
 	{
-		// Ã¢¸ðµå ¼³Á¤ Àü Á¾·á³ª ÇØÁ¦µÇ´Â °æ¿ì ¿¹¿Ü ¹ß»ý ¹æÁö
-		m_pSwapChain->SetFullscreenState(false, nullptr);
+		// ì°½ëª¨ë“œ ì„¤ì • ì „ ì¢…ë£Œë‚˜ í•´ì œë˜ëŠ” ê²½ìš° ì˜ˆì™¸ ë°œìƒ ë°©ì§€
+		m_pSwapChain->SetFullscreenState(false, nullptr); 
 	}
-
-	// ¼³Á¤ÀÇ ¿ª¼øÀ¸·Î ÇØÁ¦
-	RELEASE(m_pRasterState);
-	RELEASE(m_pDepthStencilView);
-	RELEASE(m_pDepthStencilState);
-	RELEASE(m_pDepthStencilBuffer);
-	RELEASE(m_pRenderTargetView);
-	RELEASE(m_pDeviceContext);
-	RELEASE(m_pDevice);
-	RELEASE(m_pSwapChain);
-
 }
 
-HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_
-	, bool bFullScreen_, float fScreenDepth_, float fScreenNear_)
+HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_, bool bFullScreen_, float fScreenDepth_, float fScreenNear_)
 {	
 	HRESULT hResult;
 
@@ -119,12 +107,12 @@ HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeigh
 
 		// SwapChain Setting
 		ZeroMemory(&kDXGISwapChainDesc, sizeof(kDXGISwapChainDesc));
-		kDXGISwapChainDesc.BufferCount = 1;	// ´ÜÀÏ ¹é¹öÆÛ ¼³Á¤ÇÑ´Ù´Â ¶æ
+		kDXGISwapChainDesc.BufferCount = 1;	// ë‹¨ì¼ ë°±ë²„í¼ ì„¤ì •í•œë‹¤ëŠ” ëœ»
 		kDXGISwapChainDesc.BufferDesc.Width = iScreenWidth_;
 		kDXGISwapChainDesc.BufferDesc.Height = iScreenHeight_;
-		kDXGISwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 32ºñÆ® Ç¥¸é ¼³Á¤
+		kDXGISwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 32ë¹„íŠ¸ í‘œë©´ ì„¤ì •
 		
-		// ¼öÁ÷ µ¿±âÈ­ ¼³Á¤ (hz)
+		// ìˆ˜ì§ ë™ê¸°í™” ì„¤ì • (hz)
 		if (true == m_bVerticalSync)
 		{
 			kDXGISwapChainDesc.BufferDesc.RefreshRate = m_uDXGIDisplayRational;
@@ -135,30 +123,30 @@ HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeigh
 			kDXGISwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		}
 
-		// ¹é¹öÆÛ »ç¿ë ¼³Á¤
+		// ë°±ë²„í¼ ì‚¬ìš© ì„¤ì •
 		kDXGISwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
-		// ·£´õ¸µÇÒ Ã¢ÀÇ ÇÚµé
+		// ëžœë”ë§í•  ì°½ì˜ í•¸ë“¤
 		kDXGISwapChainDesc.OutputWindow = hWnd_;
 
-		// ¸ÖÆ¼ »ùÇÃ¸µ
+		// ë©€í‹° ìƒ˜í”Œë§
 		kDXGISwapChainDesc.SampleDesc.Count = 1;
 		kDXGISwapChainDesc.SampleDesc.Quality = 0;
 
-		// Ã¢¸ðµå
+		// ì°½ëª¨ë“œ
 		kDXGISwapChainDesc.Windowed = !bFullScreen_;
 
-		// ½ºÄµ ¶óÀÎ ¼ø¼­ ¹× Å©±â Á¶Àý ÁöÁ¤ ¼³Á¤
+		// ìŠ¤ìº” ë¼ì¸ ìˆœì„œ ë° í¬ê¸° ì¡°ì ˆ ì§€ì • ì„¤ì •
 		kDXGISwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		kDXGISwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-		// Ç¥½Ã ÈÄ ¹é ¹öÆÛ ³»¿ë ¼³Á¤
+		// í‘œì‹œ í›„ ë°± ë²„í¼ ë‚´ìš© ì„¤ì •
 		kDXGISwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-		// °í±Þ ÇÃ·¡±× ¼³Á¤
+		// ê³ ê¸‰ í”Œëž˜ê·¸ ì„¤ì •
 		kDXGISwapChainDesc.Flags = 0;
 
-		// ±â´É ¼öÁØ ¼³Á¤
+		// ê¸°ëŠ¥ ìˆ˜ì¤€ ì„¤ì •
 		kFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 		
 		// try to create device and swapchain
@@ -203,13 +191,13 @@ HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeigh
 			kDepthStencilDesc.StencilReadMask = 0xFF;
 			kDepthStencilDesc.StencilWriteMask = 0xFF;
 
-			// ÇÈ¼¿ÀÌ Á¤¸éÀ» ÇâÇÏ´Â °æ¿ì ½ºÅÙ½Ç ¼³Á¤
+			// í”½ì…€ì´ ì •ë©´ì„ í–¥í•˜ëŠ” ê²½ìš° ìŠ¤í…ì‹¤ ì„¤ì •
 			kDepthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 			kDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
 			kDepthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 			kDepthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-			// ÇÈ¼¿ÀÌ ÈÄ¸éÀ» ÇâÇÏ´Â °æ¿ì ½ºÅÙ½Ç ¼³Á¤
+			// í”½ì…€ì´ í›„ë©´ì„ í–¥í•˜ëŠ” ê²½ìš° ìŠ¤í…ì‹¤ ì„¤ì •
 			kDepthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 			kDepthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
 			kDepthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
@@ -218,7 +206,7 @@ HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeigh
 			hResult = m_pDevice->CreateDepthStencilState(&kDepthStencilDesc, &m_pDepthStencilState);
 			if (FAILED(hResult)) return hResult;
 
-			// ±íÀÌ ½ºÅÙ½Ç ¹öÆÛ ¼¼ÆÃ
+			// ê¹Šì´ ìŠ¤í…ì‹¤ ë²„í¼ ì„¸íŒ…
 			m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState, 1);
 		}
 
@@ -233,7 +221,7 @@ HRESULT DirectX11Com::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeigh
 			hResult = m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &kDepthStencilViewDesc, &m_pDepthStencilView);
 			if (FAILED(hResult)) return hResult;
 
-			// Render target view ¿Í Depth stencil buffer °¡ ·»´õ ÆÄÀÌÇÁ¶óÀÎ¿¡ ¹ÙÀÎµù µÈ´Ù.
+			// Render target view ì™€ Depth stencil buffer ê°€ ë Œë” íŒŒì´í”„ë¼ì¸ì— ë°”ì¸ë”© ëœë‹¤.
 			m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView);
 		}
 
@@ -287,10 +275,12 @@ void DirectX11Com::BeginRender()
 {
 	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-	// ¹é¹öÆÛ¸¦ Áö¿ó´Ï´Ù
+	//SetBackBufferRenderTarget();
+
+	// ë°±ë²„í¼ë¥¼ ì§€ì›ë‹ˆë‹¤
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), color);
 
-	// ±íÀÌ ¹öÆÛ¸¦ Áö¿ó´Ï´Ù
+	// ê¹Šì´ ë²„í¼ë¥¼ ì§€ì›ë‹ˆë‹¤
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
@@ -310,6 +300,7 @@ void DirectX11Com::EndRender()
 
 void DirectX11Com::SetBackBufferRenderTarget()
 {
+	// í›„ë©´ ë²„í¼ì— ê·¸ë¦¬ë¼ê³  ì§€ì •í•´ì£¼ëŠ” ê²ƒ.
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView);
 }
 

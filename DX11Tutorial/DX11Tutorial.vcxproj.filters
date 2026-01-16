@@ -16,66 +16,180 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{754b613b-7fb8-49f5-a805-1617d189c3e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ImGui">
-      <UniqueIdentifier>{bfe758d6-71ab-422c-98e6-ab81a2d15bdf}</UniqueIdentifier>
+    <Filter Include="Code">
+      <UniqueIdentifier>{671af836-b008-49d2-a12b-f4f56bbae1ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\00_WindowFramework">
+      <UniqueIdentifier>{597e796c-8d93-4015-b909-0ac7863d25b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager">
+      <UniqueIdentifier>{4768e63e-43fa-4efc-b075-10cace8b11b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\02_Object">
+      <UniqueIdentifier>{94023a36-c0aa-452d-9916-9ebf7b3fd7b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render">
+      <UniqueIdentifier>{bddb24aa-d8da-45fe-9529-5c96dde4899b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager\GameTime">
+      <UniqueIdentifier>{a5106333-123f-445e-ad1c-baa4c4bd90b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager\Scene">
+      <UniqueIdentifier>{daa799bc-4c8a-4c68-b32b-82e005c88667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager\Component">
+      <UniqueIdentifier>{a0662ba1-a11b-4ce9-a93a-703e9aaa7286}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="__ImGui__">
+      <UniqueIdentifier>{841892f2-0533-41ea-b7c3-cd31f3d8dc54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\99_Scene">
+      <UniqueIdentifier>{0889b098-3941-4b9e-9814-380c6f62affc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="Resource.h">
+      <Filter>리소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11Tutorial.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>리소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>리소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX11Com.h">
+    <ClInclude Include="DX11Tutorial.h">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="CSystem.h">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="CObject.h">
+      <Filter>Code\02_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="CRenderFrame.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CDeltaTimeManager.h">
+      <Filter>Code\01_Manager\GameTime</Filter>
+    </ClInclude>
+    <ClInclude Include="CSceneManager.h">
+      <Filter>Code\01_Manager\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="CTransform.h">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CComponent.h">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CCamera.h">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CRenderManager.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>Code\01_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CApplication.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CSystem.h">
+    <ClInclude Include="DirectX11Com.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h">
+    <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui\imgui_internal.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imconfig.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\backend\imgui_impl_win32.h">
-      <Filter>ImGui</Filter>
+    <ClInclude Include="CDummyThread.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\backend\imgui_impl_dx11.h">
-      <Filter>ImGui</Filter>
+      <Filter>__ImGui__</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderManager.h">
+    <ClInclude Include="ImGui\backend\imgui_impl_win32.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>__ImGui__</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="CObjectManager.h">
+      <Filter>Code\02_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneHeader.h">
+      <Filter>Code\02_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Components.h">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CComponentBase.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CScene.h">
+      <Filter>Code\01_Manager\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="CTestScene.h">
+      <Filter>Code\99_Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DX11Tutorial.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>리소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Tutorial.cpp">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="CSystem.cpp">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>Code\02_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="CRenderFrame.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CDeltaTimeManager.cpp">
+      <Filter>Code\01_Manager\GameTime</Filter>
+    </ClCompile>
+    <ClCompile Include="CSceneManager.cpp">
+      <Filter>Code\01_Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CTransform.cpp">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="CComponent.cpp">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="CCamera.cpp">
+      <Filter>Code\01_Manager\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="CRenderManager.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Code\01_Manager\Component</Filter>
     </ClCompile>
     <ClCompile Include="DirectX11Com.cpp">
       <Filter>소스 파일</Filter>
@@ -83,35 +197,44 @@
     <ClCompile Include="CApplication.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CSystem.cpp">
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>Code\01_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="CDummyThread.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\backend\imgui_impl_dx11.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>__ImGui__</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\backend\imgui_impl_win32.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>__ImGui__</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderManager.cpp">
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>__ImGui__</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <Filter>__ImGui__</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>__ImGui__</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>__ImGui__</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>__ImGui__</Filter>
+    </ClCompile>
+    <ClCompile Include="CObjectManager.cpp">
+      <Filter>Code\02_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="CComponentBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CScene.cpp">
+      <Filter>Code\01_Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CTestScene.cpp">
+      <Filter>Code\99_Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

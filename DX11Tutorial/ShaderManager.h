@@ -11,7 +11,7 @@ public:
 
 	HRESULT Init();
 	HRESULT LoadShaderFromFile(const wstring& wstrPath_, const string& strName_, const string& strVersion_, ComPtr<ID3DBlob>& pBlob_);
-	void Render(ID3D11ShaderResourceView* const* pShaderResourceView_, ID3D11Buffer*const* pVertexBuffer_, ID3D11Buffer* pIndexBuffer, const UINT& stride_, const UINT& offset_, const UINT& vertcnt_);
+	void Render(ID3D11ShaderResourceView* const* pShaderResourceView_, ID3D11Buffer*const* pVertexBuffer_, ID3D11Buffer* const* constBuffer_, ID3D11Buffer* pIndexBuffer, const UINT& stride_, const UINT& offset_, const UINT& vertcnt_);
 
 private:
 	void _CreateSamplerState();

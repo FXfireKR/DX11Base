@@ -1,7 +1,12 @@
-#pragma once
-#include "Singleton.h"
+ï»¿#pragma once
+#include "singleton.h"
 
-class DirectX11Com : public Singleton<DirectX11Com>
+//struct DirectXOVariable
+//{
+//	
+//}; 
+
+class DirectX11Com : public singleton<DirectX11Com>
 {
 public:
 	DirectX11Com();
@@ -51,5 +56,5 @@ private:
     D3D11_VIEWPORT m_kViewPort;
     XMMATRIX m_matProjection;
     XMMATRIX m_matWorld;
-    XMMATRIX m_matOrtho;    // Orthographic - Á÷±³ÀûÀÎ/Á¤·ÄµÈ
+    XMMATRIX m_matOrtho;    // Orthographic - ì§êµì ì¸/ì •ë ¬ëœ
 };
