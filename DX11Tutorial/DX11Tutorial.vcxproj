@@ -149,11 +149,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CApplication.h" />
+    <ClInclude Include="CBootScene.h" />
     <ClInclude Include="CCamera.h" />
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
     <ClInclude Include="CDummyThread.h" />
+    <ClInclude Include="CGameWorld.h" />
+    <ClInclude Include="CMaterial.h" />
+    <ClInclude Include="CMesh.h" />
     <ClInclude Include="CObject.h" />
     <ClInclude Include="CObjectManager.h" />
     <ClInclude Include="Components.h" />
@@ -161,6 +165,7 @@
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CScene.h" />
     <ClInclude Include="CSceneManager.h" />
+    <ClInclude Include="CShader.h" />
     <ClInclude Include="CTestScene.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="DirectX11Com.h" />
@@ -201,17 +206,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CApplication.cpp" />
+    <ClCompile Include="CBootScene.cpp" />
     <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CComponent.cpp" />
     <ClCompile Include="CComponentBase.cpp" />
     <ClCompile Include="CDeltaTimeManager.cpp" />
     <ClCompile Include="CDummyThread.cpp" />
+    <ClCompile Include="CGameWorld.cpp" />
+    <ClCompile Include="CMaterial.cpp" />
+    <ClCompile Include="CMesh.cpp" />
     <ClCompile Include="CObject.cpp" />
     <ClCompile Include="CObjectManager.cpp" />
     <ClCompile Include="CRenderFrame.cpp" />
     <ClCompile Include="CRenderManager.cpp" />
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="CSceneManager.cpp" />
+    <ClCompile Include="CShader.cpp" />
     <ClCompile Include="CTestScene.cpp" />
     <ClCompile Include="CTransform.cpp" />
     <ClCompile Include="DirectX11Com.cpp" />

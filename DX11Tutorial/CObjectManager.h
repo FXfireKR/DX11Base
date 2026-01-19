@@ -17,6 +17,8 @@ public:
 
 	void ProcessPeddingDestroy();
 
+	CObject* Get(const string& strName_);
+	CObject* Get(ObjectID uObjectID_);
 	const CObject* Get(const string& strName_) const;
 	const CObject* Get(ObjectID uObjectID_) const;
 

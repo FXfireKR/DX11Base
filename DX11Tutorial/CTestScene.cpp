@@ -28,6 +28,12 @@ void CTestScene::FixedUpdate()
 
 void CTestScene::Update()
 {
+#ifdef IMGUI_ACTIVATE
+	// ImGui
+	{
+		ImGui::Text("This is TestScene!");
+	}
+#endif // IMGUI_ACTIVATE
 }
 
 void CTestScene::LateUpdate()

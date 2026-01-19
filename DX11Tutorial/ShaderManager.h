@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define VERTEX_SHADER_VERSION "vs_5_0"
 #define PIXEL_SHADER_VERSION "ps_5_0"

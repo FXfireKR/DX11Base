@@ -4,7 +4,8 @@
 
 enum class SCENE_TYPE : unsigned char
 {
-	TEST_SCENE = 0,
+	BOOT_SCENE = 0,
+	TEST_SCENE,
 
 	//Add Scene here...
 	END_SCENE,

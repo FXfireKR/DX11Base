@@ -36,8 +36,6 @@ public:
 
 	void UpdateCameraMatrix();
 
-	inline static COMPONENT_TYPE GetStaticType() { return COMPONENT_TYPE::CAMERA; }
-
 	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() { return m_eProjectionType; }
 	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_) { m_eProjectionType = eProjectionType_; }
 

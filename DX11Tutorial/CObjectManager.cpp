@@ -92,6 +92,21 @@ void CObjectManager::_RemoveObjectAtIndex(uint32_t uIndex_)
 	m_vecFreeIDs.push_back(removedID);
 }
 
+CObject* CObjectManager::Get(const string& strName_)
+{
+	uint64_t strHash = fnv1a_64(strName_);
+	auto iter = m_hashIDMap.find(strHash);
+	return Get(iter->second);
+}
+
+CObject* CObjectManager::Get(ObjectID uObjectID_)
+{
+	if (uObjectID_ >= m_vecSparse.size()) return nullptr;
+
+	uint32_t uIndex = m_vecSparse[uObjectID_];
+	return m_vecObjects[uIndex].get();
+}
+
 const CObject* CObjectManager::Get(const string& strName_) const
 {
 	uint64_t strHash = fnv1a_64(strName_);

@@ -36,6 +36,8 @@ public:
 	inline void SetEnable(bool bEnable_) { m_bEnable = bEnable_; }
 	inline bool GetEnable() { return m_bEnable; }
 
+	inline void SetOwner(CObject* pOwner_) { m_pOwner = pOwner_; }
+
 protected:
 	bool m_bAlive = false;
 	bool m_bEnable = false;

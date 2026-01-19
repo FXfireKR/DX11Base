@@ -18,6 +18,10 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	GAMETIME.Init();
 
+	SCENE.Initialize();
+
+	SCENE.Create(SCENE_TYPE::TEST_SCENE);
+	SCENE.ChangeScene(SCENE_TYPE::TEST_SCENE);
 	return true;
 }
 
@@ -27,11 +31,8 @@ void Application::Release()
 
 void Application::Tick()
 {
-	// game world update
-
-	// render world update
-
 	DXCOM.ImGuiTick();
+	GAMETIME.Tick();
 
 #ifdef IMGUI_ACTIVATE
 	// ImGui
@@ -40,8 +41,11 @@ void Application::Tick()
 	}
 #endif // IMGUI_ACTIVATE
 
-	GAMETIME.Tick();
+	// game world update
+	SCENE.Update();
 
+
+	// render world update
 	DXCOM.BeginRender();
 	{
 		//{
@@ -53,20 +57,6 @@ void Application::Tick()
 	DXCOM.EndRender();
 
 }
-
-//void Application::Render()
-//{
-//	DXCOM->BeginRender();
-//	{
-//		//{
-//		//	shaderManager.Render(otakuTexture.GetShaderResourceView().GetAddressOf(), pVertexBuffer.GetAddressOf(), pDynamicConstBuffer.GetAddressOf()
-//		//		, pIndexBuffer.Get(), sizeof(Vertex), 0, vertices.size());
-//		//}
-//
-//		//DXCOM->ImGuiRender();
-//	}
-//	DXCOM->EndRender();
-//}
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {

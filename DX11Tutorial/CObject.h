@@ -19,13 +19,14 @@ public:
 public:
 	template<typename T> T* AddComponent() {
 		static_assert(is_base_of_v<CComponent, T>, "AddComponent template type must derive from CComponent");
+		static_assert(std::is_same_v<decltype(this), CObject*>);
 
 		constexpr uint64_t uType = static_cast<uint64_t>(T::GetStaticType());
-		if (nullptr == m_arrComponents[uType]) {
-			m_arrComponents[uType] = make_unique<T>();
+		if (nullptr == this->m_arrComponents[uType]) {
+			this->m_arrComponents[uType] = make_unique<T>();
+			this->m_arrComponents[uType].get()->SetOwner(this);
 		}
-
-		return static_cast<T*>(m_arrComponents[uType].get());
+		return static_cast<T*>(this->m_arrComponents[uType].get());
 	}
 
 	template<typename T> T* GetComponent() {
@@ -33,7 +34,7 @@ public:
 
 		constexpr uint64_t uType = static_cast<uint64_t>(T::GetStaticType());
 		if (nullptr != m_arrComponents[uType]) {
-			return static_cast<T*>(m_arrComponents[uType].get());;
+			return static_cast<T*>(m_arrComponents[uType].get());
 		}
 		return nullptr;
 	}

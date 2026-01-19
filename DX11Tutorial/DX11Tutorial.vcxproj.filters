@@ -153,6 +153,21 @@
     <ClInclude Include="CTestScene.h">
       <Filter>Code\99_Scene</Filter>
     </ClInclude>
+    <ClInclude Include="CGameWorld.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CBootScene.h">
+      <Filter>Code\99_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="CMaterial.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CMesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -235,6 +250,21 @@
     </ClCompile>
     <ClCompile Include="CTestScene.cpp">
       <Filter>Code\99_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameWorld.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CBootScene.cpp">
+      <Filter>Code\99_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CMaterial.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CMesh.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CShader.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
