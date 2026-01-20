@@ -46,6 +46,9 @@
     <Filter Include="Code\99_Scene">
       <UniqueIdentifier>{0889b098-3941-4b9e-9814-380c6f62affc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\01_Manager\Component\MeshRender">
+      <UniqueIdentifier>{d215b3cd-07b7-48f5-bac7-492b00942ef6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -159,14 +162,23 @@
     <ClInclude Include="CBootScene.h">
       <Filter>Code\99_Scene</Filter>
     </ClInclude>
-    <ClInclude Include="CMaterial.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="CMeshRenderer.h">
+      <Filter>Code\01_Manager\Component</Filter>
     </ClInclude>
     <ClInclude Include="CMesh.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
+    </ClInclude>
+    <ClInclude Include="CMaterial.h">
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClInclude>
     <ClInclude Include="CShader.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
+    </ClInclude>
+    <ClInclude Include="CPipeline.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CInputLayer.h">
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -257,14 +269,23 @@
     <ClCompile Include="CBootScene.cpp">
       <Filter>Code\99_Scene</Filter>
     </ClCompile>
-    <ClCompile Include="CMaterial.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CMeshRenderer.cpp">
+      <Filter>Code\01_Manager\Component</Filter>
     </ClCompile>
     <ClCompile Include="CMesh.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
+    </ClCompile>
+    <ClCompile Include="CMaterial.cpp">
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClCompile>
     <ClCompile Include="CShader.cpp">
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
+    </ClCompile>
+    <ClCompile Include="CPipeline.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputLayer.cpp">
+      <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
