@@ -15,6 +15,7 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	if (FAILED(DXCOM.Initialize(hWnd_, iScreenWidth_, iScreenHeight_, false, 1000.0f, 0.3f))) 
 		return false;
 
+	SHADER.Initialize();
 
 	GAMETIME.Init();
 

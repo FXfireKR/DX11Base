@@ -27,28 +27,36 @@ struct ShaderKeyHash
 	}
 };
 
-struct ShaderDesc
-{
-};
-
-// TODO : 여기를 나중에 json으로 묶어서 로드하도록 바꾸면 좋을 것 같은데...
-
-class CShaderManager
+class CShaderManager : public singleton<CShaderManager>
 {
 public:
 	CShaderManager() = default;
 	~CShaderManager() = default;
 
-	uint64_t RegisterShaderName(const string& strName_);
-	CShader* GetShader(const ShaderKey& key_);
-	uint64_t GetShaderID(const string& strName_);
+	void Initialize();
+	void BeginCompile();
+
+
+	void CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_);
+	void CreateShaderByName(const string& strName_, uint32_t uShaderMacroFlags_);
+
+	const CShader* GetShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const;
+	const CShader* GetShaderByName(const string& strName_, uint32_t uShaderMacroFlags_) const;
+
+	bool GetShaderDesc(__in uint64_t uShaderID_, __out SHADER_DESC& refShaderDesc_);
+	bool GetShaderDescByName(__in const string& strName_, __out SHADER_DESC& refShaderDesc_);
+	
+	
+	bool IsCompiled();
 
 private:
-	CShader* _CreateShader(const ShaderKey& key_);
-
+	void _LoadShaderDescs();
 
 private:
-	unordered_map<string, uint64_t> m_mapShaderNameToID;
-	unordered_map<uint64_t, ShaderDesc> m_mapShaderNameToID;
+	unordered_map<string, uint64_t> m_mapShaderNameToID; // 1:1 name-id
+	unordered_map<uint64_t, SHADER_DESC> m_mapShaderDesc; // 1:1 id-desc
 	unordered_map<ShaderKey, unique_ptr<CShader>, ShaderKeyHash> m_mapShaders;
 };
+
+
+// TODO : 여기를 나중에 json으로 묶어서 로드하도록 바꾸면 좋을 것 같은데...

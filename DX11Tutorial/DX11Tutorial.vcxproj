@@ -169,6 +169,7 @@
     <ClInclude Include="CScene.h" />
     <ClInclude Include="CSceneManager.h" />
     <ClInclude Include="CShader.h" />
+    <ClInclude Include="CShaderManager.h" />
     <ClInclude Include="CTestScene.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="DirectX11Com.h" />
@@ -228,6 +229,7 @@
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="CSceneManager.cpp" />
     <ClCompile Include="CShader.cpp" />
+    <ClCompile Include="CShaderManager.cpp" />
     <ClCompile Include="CTestScene.cpp" />
     <ClCompile Include="CTransform.cpp" />
     <ClCompile Include="DirectX11Com.cpp" />
@@ -302,6 +304,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shader\shaders.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

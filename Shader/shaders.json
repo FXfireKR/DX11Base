@@ -1,0 +1,31 @@
+{
+
+  "ColorForward": {
+    "VS": {
+      "path": "Color.hlsl",
+      "entry": "VS",
+      "version": "vs_5_0"
+    },
+
+    "PS": {
+      "path": "Color.hlsl",
+      "entry": "PS",
+      "version": "ps_5_0"
+    }
+  }, // ColorForward
+
+  "ImageForward": {
+    "VS": {
+      "path": "Image.hlsl",
+      "entry": "VS",
+      "version": "vs_5_0"
+    },
+
+    "PS": {
+      "path": "Image.hlsl",
+      "entry": "PS",
+      "version": "ps_5_0"
+    }
+  } // ImageForward
+
+}

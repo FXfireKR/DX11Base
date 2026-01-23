@@ -25,6 +25,8 @@
 #include <ctime>
 #include <atomic>
 #include <condition_variable>
+#include <sstream>
+#include <filesystem>
 using namespace std;
 
 
@@ -87,6 +89,12 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "FMOD\\release\\fmod_vc.lib")
 #endif // _DEBUG
 
+// Rapid-JSON
+#include <rapidjson\rapidjson.h>
+#include <rapidjson\document.h>
+#include <rapidjson\stringbuffer.h>
+using namespace rapidjson;
+
 
 // ImGuI
 #define IMGUI_ACTIVATE 1
@@ -107,11 +115,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "DirectX11Com.h"
 #include "CDeltaTimeManager.h"
 #include "CSceneManager.h"
-
+#include "CShaderManager.h"
 
 #define DXCOM DirectX11Com::Get()
 #define GAMETIME CDeltaTimeManager::Get()
 #define SCENE CSceneManager::Get()
+#define SHADER CShaderManager::Get()
+
 
 // DirectX 11 Global Device
 #define g_Device DXCOM.GetDevice()

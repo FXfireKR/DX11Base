@@ -1,5 +1,15 @@
 ﻿#pragma once
 
+struct SHADER_DESC
+{
+	string strVertexShaderPath;
+	string strVertexShaderVersion = "vs_5_0";
+	string strVertexShaderEntry = "VS";
+	string strPixelShaderPath;
+	string strPixelShaderVersion = "ps_5_0";
+	string strPixelShaderEntry = "PS";
+};
+
 class CShader
 {
 public:
@@ -10,18 +20,17 @@ public:
 	~CShader();
 
 	void Apply(ID3D11DeviceContext* pContext_) const;
+	void Compile();
 	
 	inline ID3D11VertexShader* GetVertexShader() const { return m_pVertexShader.Get(); }
 	inline ID3D11PixelShader* GetPixelShader() const { return m_pPixelShader.Get(); }
 	
-
 private:
 	ComPtr<ID3D11VertexShader> m_pVertexShader = nullptr;
 	ComPtr<ID3D11PixelShader> m_pPixelShader = nullptr;
 	ComPtr<ID3DBlob> m_pVertexBlob = nullptr;
 	ComPtr<ID3DBlob> m_pPixelBlob = nullptr;
 	
-
 	vector<ComPtr<ID3D11Buffer>> m_vecVertexConstBuffers;
 	vector<ComPtr<ID3D11Buffer>> m_vecPixelConstBuffers;
 };
