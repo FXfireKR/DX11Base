@@ -13,6 +13,7 @@ void CShaderManager::CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlag
 
 void CShaderManager::CreateShaderByName(const string& strName_, uint32_t uShaderMacroFlags_)
 {
+
 }
 
 const CShader* CShaderManager::GetShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const
