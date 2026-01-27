@@ -11,7 +11,7 @@ CInputLayer::~CInputLayer()
 
 HRESULT CInputLayer::Create(const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_)
 {
-	const uint32_t uElemSize = layoutDesc_.vecElements.size();
+	const uint32_t uElemSize = static_cast<uint32_t>(layoutDesc_.vecElements.size());
 	vector<D3D11_INPUT_ELEMENT_DESC> layout(uElemSize);
 
 	for (size_t i = 0; i < layoutDesc_.vecElements.size(); ++i) {

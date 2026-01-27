@@ -116,12 +116,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "CDeltaTimeManager.h"
 #include "CSceneManager.h"
 #include "CShaderManager.h"
+#include "CInputLayerManager.h"
 
 #define DXCOM DirectX11Com::Get()
 #define GAMETIME CDeltaTimeManager::Get()
 #define SCENE CSceneManager::Get()
 #define SHADER CShaderManager::Get()
-
+#define IALAYOUT CInputLayerManager::Get()
 
 // DirectX 11 Global Device
 #define g_Device DXCOM.GetDevice()

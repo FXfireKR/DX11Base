@@ -157,6 +157,7 @@
     <ClInclude Include="CDummyThread.h" />
     <ClInclude Include="CGameWorld.h" />
     <ClInclude Include="CInputLayer.h" />
+    <ClInclude Include="CInputLayerManager.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMesh.h" />
     <ClInclude Include="CMeshRenderer.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="CDummyThread.cpp" />
     <ClCompile Include="CGameWorld.cpp" />
     <ClCompile Include="CInputLayer.cpp" />
+    <ClCompile Include="CInputLayerManager.cpp" />
     <ClCompile Include="CMaterial.cpp" />
     <ClCompile Include="CMesh.cpp" />
     <ClCompile Include="CMeshRenderer.cpp" />

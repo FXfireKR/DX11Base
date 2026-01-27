@@ -57,6 +57,3 @@ private:
 	unordered_map<uint64_t, SHADER_DESC> m_mapShaderDesc; // 1:1 id-desc
 	unordered_map<ShaderKey, unique_ptr<CShader>, ShaderKeyHash> m_mapShaders;
 };
-
-
-// TODO : 여기를 나중에 json으로 묶어서 로드하도록 바꾸면 좋을 것 같은데...

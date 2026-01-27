@@ -49,6 +49,9 @@
     <Filter Include="Code\01_Manager\Component\MeshRender">
       <UniqueIdentifier>{d215b3cd-07b7-48f5-bac7-492b00942ef6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\01_Manager\Canonicalize">
+      <UniqueIdentifier>{0bde6944-bdc1-4269-972e-2199c5666492}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -183,6 +186,9 @@
     <ClInclude Include="CShaderManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CInputLayerManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -291,6 +297,9 @@
       <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClCompile>
     <ClCompile Include="CShaderManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputLayerManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

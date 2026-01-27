@@ -6,6 +6,10 @@ void CShaderManager::Initialize()
 	_LoadShaderDescs();
 }
 
+void CShaderManager::BeginCompile()
+{
+}
+
 void CShaderManager::CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_)
 {
 	

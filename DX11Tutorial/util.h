@@ -97,6 +97,17 @@ struct VertexElementDesc
         , eInputSlotClass(eInputSlotClass_)
         , uInstanceDataStepRate(uInstanceDataStepRate_)
     {}
+
+    bool operator==(const VertexElementDesc& rhs_) const
+    {
+        return eSemantic == rhs_.eSemantic &&
+            uSemanticIndex == rhs_.uSemanticIndex &&
+            dxgiFormat == rhs_.dxgiFormat &&
+            uOffset == rhs_.uOffset &&
+            uInputSlot == rhs_.uInputSlot &&
+            eInputSlotClass == rhs_.eInputSlotClass &&
+            uInstanceDataStepRate == rhs_.uInstanceDataStepRate;
+    }
 };
 
 struct VertexLayoutDesc
@@ -111,13 +122,34 @@ struct VertexLayoutDesc
         for (size_t i = 0; i < vecElements.size(); ++i) {
             const auto& lhs = vecElements[i];
             const auto& rhs = rhs_.vecElements[i];
-
-            if (lhs.eSemantic != rhs.eSemantic) return false;
-            if (lhs.uSemanticIndex != rhs.uSemanticIndex) return false;
-            if (lhs.dxgiFormat != rhs.dxgiFormat) return false;
-            if (lhs.uOffset != rhs.uOffset) return false;
-            if (lhs.uInputSlot != rhs.uInputSlot) return false;
+            if (lhs != rhs) return false;
         }
         return true;
+    }
+};
+
+struct VertexLayoutDescHash
+{
+    size_t operator()(const VertexLayoutDesc& desc) const
+    {
+        size_t seed = 0;
+        auto hash_combine = [&seed](size_t v) {
+            seed ^= v + 0x9e3779b97f4a7c15ull + (seed << 6) + (seed >> 2);
+        };
+
+        hash_combine(std::hash<uint32_t>{}(desc.uStride));
+        hash_combine(std::hash<size_t>{}(desc.vecElements.size()));
+
+        for (const auto& e : desc.vecElements)
+        {
+            hash_combine(std::hash<uint32_t>{}(static_cast<uint32_t>(e.eSemantic)));
+            hash_combine(std::hash<uint32_t>{}(e.uSemanticIndex));
+            hash_combine(std::hash<uint32_t>{}(static_cast<uint32_t>(e.dxgiFormat)));
+            hash_combine(std::hash<uint32_t>{}(e.uOffset));
+            hash_combine(std::hash<uint32_t>{}(e.uInputSlot));
+            hash_combine(std::hash<uint32_t>{}(static_cast<uint32_t>(e.eInputSlotClass)));
+            hash_combine(std::hash<uint32_t>{}(e.uInstanceDataStepRate));
+        }
+        return seed;
     }
 };
