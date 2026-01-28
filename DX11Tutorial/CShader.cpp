@@ -62,7 +62,7 @@ HRESULT CShader::Compile()
 		}
 
 		// Create Vertex Blob
-		hr = g_Device->CreateVertexShader(
+		hr = DirectX11Com::Device()->CreateVertexShader(
 			m_pVertexBlob->GetBufferPointer(),
 			m_pVertexBlob->GetBufferSize(),
 			nullptr,
@@ -104,7 +104,7 @@ HRESULT CShader::Compile()
 		}
 
 		// Create Pixel Blob
-		hr = g_Device->CreatePixelShader(
+		hr = DirectX11Com::Device()->CreatePixelShader(
 			m_pPixelBlob->GetBufferPointer(),
 			m_pPixelBlob->GetBufferSize(),
 			nullptr,

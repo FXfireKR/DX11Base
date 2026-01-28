@@ -27,6 +27,8 @@
 #include <condition_variable>
 #include <sstream>
 #include <filesystem>
+#include <locale>
+#include <codecvt>
 using namespace std;
 
 
@@ -74,6 +76,7 @@ using namespace Microsoft::WRL;
 
 // DirectXTK
 #include <DirectXTK/WICTextureLoader.h>
+#include <DirectXTK/DDSTextureLoader.h>
 #include <DirectXTK/SimpleMath.h>
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTK\\x64\\debug\\DirectXTK.lib")
@@ -123,7 +126,3 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #define SCENE CSceneManager::Get()
 #define SHADER CShaderManager::Get()
 #define IALAYOUT CInputLayerManager::Get()
-
-// DirectX 11 Global Device
-#define g_Device DXCOM.GetDevice()
-#define g_DeviceContext DXCOM.GetDeviceContext()

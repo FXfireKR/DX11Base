@@ -29,8 +29,12 @@ private:
 	void _ImGuiRelease();
 
 public:
-	inline ComPtr<ID3D11Device> GetDevice() const { return m_pDevice; }
-	inline ComPtr<ID3D11DeviceContext> GetDeviceContext() const { return m_pDeviceContext; }
+	inline ID3D11Device* GetDevice() const { return m_pDevice.Get(); }
+	inline ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext.Get(); }
+
+	static ID3D11Device* Device() { return Get().GetDevice(); }
+	static ID3D11DeviceContext* Context() { return Get().GetDeviceContext(); }
+
 
 	inline void GetProjectionMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matProjection; }
 	inline void GetWorldMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matWorld; }

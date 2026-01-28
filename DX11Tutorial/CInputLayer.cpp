@@ -26,5 +26,5 @@ HRESULT CInputLayer::Create(const VertexLayoutDesc& layoutDesc_, const void* pSh
 		layout[i].InstanceDataStepRate = elem.uInstanceDataStepRate;
 	}
 
-	return g_Device->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_, pShaderBufferSize_, m_pInputLayout.GetAddressOf());
+	return DirectX11Com::Device()->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_, pShaderBufferSize_, m_pInputLayout.GetAddressOf());
 }

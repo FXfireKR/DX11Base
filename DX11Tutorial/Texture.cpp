@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Texture.h"
 
 Texture::Texture()
@@ -13,7 +13,7 @@ bool Texture::LoadFromFile(const wstring& wstrFileName_)
 {
 	ComPtr<ID3D11Resource> pResource = nullptr;
 	
-	if (FAILED(CreateWICTextureFromFile(g_Device.Get(), wstrFileName_.c_str(), pResource.GetAddressOf(), m_pTextureView.GetAddressOf())))
+	if (FAILED(CreateWICTextureFromFile(DirectX11Com::Device(), wstrFileName_.c_str(), pResource.GetAddressOf(), m_pTextureView.GetAddressOf())))
 		return false;
 
 	if (FAILED(pResource->QueryInterface(IID_ID3D11Texture2D, (void**)m_pTexture.GetAddressOf())))

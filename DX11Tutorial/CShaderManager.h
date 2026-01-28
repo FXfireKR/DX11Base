@@ -36,7 +36,6 @@ public:
 	void Initialize();
 	void BeginCompile();
 
-
 	void CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_);
 	void CreateShaderByName(const string& strName_, uint32_t uShaderMacroFlags_);
 

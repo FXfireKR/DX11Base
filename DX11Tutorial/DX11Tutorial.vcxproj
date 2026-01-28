@@ -172,6 +172,7 @@
     <ClInclude Include="CShader.h" />
     <ClInclude Include="CShaderManager.h" />
     <ClInclude Include="CTestScene.h" />
+    <ClInclude Include="CTexture.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="CShader.cpp" />
     <ClCompile Include="CShaderManager.cpp" />
     <ClCompile Include="CTestScene.cpp" />
+    <ClCompile Include="CTexture.cpp" />
     <ClCompile Include="CTransform.cpp" />
     <ClCompile Include="DirectX11Com.cpp" />
     <ClCompile Include="DX11Tutorial.cpp" />
