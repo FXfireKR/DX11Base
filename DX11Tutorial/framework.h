@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <locale>
 #include <codecvt>
+#include <cstdint>
 using namespace std;
 
 
@@ -38,6 +39,7 @@ using namespace std;
 #include <list>
 #include <array>
 #include <unordered_map>
+#include <unordered_set>
 #include <queue>
 #include <stack>
 

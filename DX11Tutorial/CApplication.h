@@ -1,7 +1,4 @@
-#pragma once
-#include "Texture.h"
-#include "ShaderManager.h"
-#include "CDummyThread.h"
+﻿#pragma once
 
 const bool FULL_SCREEN = false;
 const int SCREENX = 1440;

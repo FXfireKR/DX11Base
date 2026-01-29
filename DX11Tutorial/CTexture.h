@@ -65,11 +65,6 @@ protected:
 	TextureUsage m_eUsage;
 };
 
-class CTexture2DArray : public CTexture
-{
-
-};
-
 //class CTextureCube
 
 class CTexture2D : public CTexture 

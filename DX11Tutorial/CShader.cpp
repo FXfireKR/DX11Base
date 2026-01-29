@@ -9,10 +9,11 @@ CShader::CShader(SHADER_DESC shaderDesc_,  vector<D3D_SHADER_MACRO>&& vecMacros_
 	if (true == m_vecShaderMacro.empty() || nullptr != m_vecShaderMacro.back().Name) {
 		m_vecShaderMacro.push_back({ nullptr, nullptr });
 	}
+
+	m_eCompileState = SHADER_COMPILE_STATE::NOT_READY;
 }
 
-CShader::~CShader() 
-{}
+CShader::~CShader() {}
 
 void CShader::Apply(ID3D11DeviceContext* pContext_) const
 {
@@ -28,7 +29,8 @@ void CShader::Apply(ID3D11DeviceContext* pContext_) const
 HRESULT CShader::Compile()
 {
 	// duplicate compile protection
-	if (true == m_bIsCompiled) return S_OK;
+	if (m_eCompileState != SHADER_COMPILE_STATE::NOT_READY) return S_OK;
+	m_eCompileState = SHADER_COMPILE_STATE::COMPILING;
 
 	HRESULT hr = S_OK;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -56,8 +58,11 @@ HRESULT CShader::Compile()
 
 		if (FAILED(hr)) {
 			if (nullptr != errorBlob) {
+#ifdef _DEBUG
 				cout << (char*)errorBlob->GetBufferPointer() << endl;
+#endif // _DEBUG
 			}
+			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;
 		}
 
@@ -98,8 +103,11 @@ HRESULT CShader::Compile()
 
 		if (FAILED(hr)) {
 			if (nullptr != errorBlob) {
+#ifdef _DEBUG
 				cout << (char*)errorBlob->GetBufferPointer() << endl;
+#endif // _DEBUG
 			}
+			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;
 		}
 
@@ -116,7 +124,7 @@ HRESULT CShader::Compile()
 		}
 	}
 
-	m_bIsCompiled = true;
+	m_eCompileState = SHADER_COMPILE_STATE::READY;
 	return hr;
 }
 

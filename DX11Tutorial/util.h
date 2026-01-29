@@ -3,23 +3,20 @@
 #include <cstdint>
 #include <string_view>
 
-namespace CustomEncoding
+inline std::wstring UTF8ToWstring(const char* str_)
 {
-    std::wstring UTF8ToWstring(const char* str_)
-    {
-        int size = MultiByteToWideChar(CP_UTF8, 0, str_, -1, nullptr, 0);
-        std::wstring result(size, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, str_, -1, result.data(), size);
-        result.pop_back();
-        return result;
-    }
-};
+    int size = MultiByteToWideChar(CP_UTF8, 0, str_, -1, nullptr, 0);
+    std::wstring result(size, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, str_, -1, result.data(), size);
+    result.pop_back();
+    return result;
+}
 
 //#define INVALID_OBJECT_ID UINT_MAX
 typedef uint32_t ObjectID;
 constexpr ObjectID INVALID_OBJECT_ID = UINT_MAX;
 
-static bool IsValidObject(ObjectID checkID_) {
+inline bool IsValidObject(ObjectID checkID_) {
     return (checkID_ != INVALID_OBJECT_ID);
 }
 

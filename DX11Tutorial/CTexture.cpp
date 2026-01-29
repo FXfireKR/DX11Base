@@ -66,11 +66,9 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 
 bool CTexture2D::LoadFromFile(const char* path_, TextureUsage eUsage_)
 {
-	
-
 	ComPtr<ID3D11Resource> pResource = nullptr;
 	TextureCreateInfo info = _GetCreateInfo(eUsage_);
-	wstring path = CustomEncoding::UTF8ToWstring(path_);
+	wstring path = UTF8ToWstring(path_);
 	UINT uLoaderFlags = 0;
 
 	m_kDesc.bSRGB = info.bSRGB;

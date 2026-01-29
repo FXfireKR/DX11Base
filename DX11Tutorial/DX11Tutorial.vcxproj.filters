@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{754b613b-7fb8-49f5-a805-1617d189c3e7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code">
       <UniqueIdentifier>{671af836-b008-49d2-a12b-f4f56bbae1ea}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,18 @@
     <Filter Include="Code\01_Manager\Canonicalize">
       <UniqueIdentifier>{0bde6944-bdc1-4269-972e-2199c5666492}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\03_Render\Texture">
+      <UniqueIdentifier>{c517edfb-8d91-4609-a6a8-bee7ba90f41d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager\Component\_Base">
+      <UniqueIdentifier>{26da3e71-2fb5-4670-94b5-dba1cd6439ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render\Pipeline">
+      <UniqueIdentifier>{f9c911a9-519b-4037-acc2-3bd22bcd4481}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\_etc">
+      <UniqueIdentifier>{15d92955-df8d-4392-b4d0-390fb8700dbf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -84,9 +93,6 @@
     <ClInclude Include="CTransform.h">
       <Filter>Code\01_Manager\Component</Filter>
     </ClInclude>
-    <ClInclude Include="CComponent.h">
-      <Filter>Code\01_Manager\Component</Filter>
-    </ClInclude>
     <ClInclude Include="CCamera.h">
       <Filter>Code\01_Manager\Component</Filter>
     </ClInclude>
@@ -96,19 +102,10 @@
     <ClInclude Include="Texture.h">
       <Filter>Code\01_Manager\Component</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderManager.h">
-      <Filter>Code\01_Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="singleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CApplication.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DirectX11Com.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CDummyThread.h">
@@ -138,9 +135,6 @@
     <ClInclude Include="ImGui\imstb_truetype.h">
       <Filter>__ImGui__</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CObjectManager.h">
       <Filter>Code\02_Object</Filter>
     </ClInclude>
@@ -149,9 +143,6 @@
     </ClInclude>
     <ClInclude Include="Components.h">
       <Filter>Code\01_Manager\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="CComponentBase.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CScene.h">
       <Filter>Code\01_Manager\Scene</Filter>
@@ -177,20 +168,35 @@
     <ClInclude Include="CShader.h">
       <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClInclude>
-    <ClInclude Include="CPipeline.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CInputLayer.h">
       <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClInclude>
+    <ClInclude Include="CTexture.h">
+      <Filter>Code\03_Render\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="CComponentBase.h">
+      <Filter>Code\01_Manager\Component\_Base</Filter>
+    </ClInclude>
+    <ClInclude Include="CComponent.h">
+      <Filter>Code\01_Manager\Component\_Base</Filter>
+    </ClInclude>
+    <ClInclude Include="CPipeline.h">
+      <Filter>Code\03_Render\Pipeline</Filter>
+    </ClInclude>
     <ClInclude Include="CShaderManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\01_Manager</Filter>
     </ClInclude>
     <ClInclude Include="CInputLayerManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\01_Manager</Filter>
     </ClInclude>
-    <ClInclude Include="CTexture.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="util.h">
+      <Filter>헤더 파일\_etc</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일\_etc</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.h">
+      <Filter>헤더 파일\_etc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,9 +224,6 @@
     <ClCompile Include="CTransform.cpp">
       <Filter>Code\01_Manager\Component</Filter>
     </ClCompile>
-    <ClCompile Include="CComponent.cpp">
-      <Filter>Code\01_Manager\Component</Filter>
-    </ClCompile>
     <ClCompile Include="CCamera.cpp">
       <Filter>Code\01_Manager\Component</Filter>
     </ClCompile>
@@ -235,9 +238,6 @@
     </ClCompile>
     <ClCompile Include="CApplication.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderManager.cpp">
-      <Filter>Code\01_Manager</Filter>
     </ClCompile>
     <ClCompile Include="CDummyThread.cpp">
       <Filter>소스 파일</Filter>
@@ -266,9 +266,6 @@
     <ClCompile Include="CObjectManager.cpp">
       <Filter>Code\02_Object</Filter>
     </ClCompile>
-    <ClCompile Include="CComponentBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CScene.cpp">
       <Filter>Code\01_Manager\Scene</Filter>
     </ClCompile>
@@ -293,20 +290,26 @@
     <ClCompile Include="CShader.cpp">
       <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClCompile>
-    <ClCompile Include="CPipeline.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CInputLayer.cpp">
       <Filter>Code\01_Manager\Component\MeshRender</Filter>
     </ClCompile>
-    <ClCompile Include="CShaderManager.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CTexture.cpp">
+      <Filter>Code\03_Render\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="CComponentBase.cpp">
+      <Filter>Code\01_Manager\Component\_Base</Filter>
+    </ClCompile>
+    <ClCompile Include="CComponent.cpp">
+      <Filter>Code\01_Manager\Component\_Base</Filter>
+    </ClCompile>
+    <ClCompile Include="CPipeline.cpp">
+      <Filter>Code\03_Render\Pipeline</Filter>
     </ClCompile>
     <ClCompile Include="CInputLayerManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\01_Manager</Filter>
     </ClCompile>
-    <ClCompile Include="CTexture.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CShaderManager.cpp">
+      <Filter>Code\01_Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -321,18 +324,5 @@
     <Image Include="DX11Tutorial.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Shader\Color.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shader\image.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Shader\shaders.json">
-      <Filter>Shader</Filter>
-    </None>
   </ItemGroup>
 </Project>
