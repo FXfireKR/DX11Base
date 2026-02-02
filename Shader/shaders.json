@@ -1,14 +1,28 @@
 {
 
-  "ColorForward": {
+  "Error": {
     "VS": {
-      "path": "Color.hlsl",
+      "path": "error",
       "entry": "VS",
       "version": "vs_5_0"
     },
 
     "PS": {
-      "path": "Color.hlsl",
+      "path": "error",
+      "entry": "PS",
+      "version": "ps_5_0"
+    }
+  }, // Error
+
+  "ColorForward": {
+    "VS": {
+      "path": "Color",
+      "entry": "VS",
+      "version": "vs_5_0"
+    },
+
+    "PS": {
+      "path": "Color",
       "entry": "PS",
       "version": "ps_5_0"
     }
@@ -16,13 +30,13 @@
 
   "ImageForward": {
     "VS": {
-      "path": "Image.hlsl",
+      "path": "Image",
       "entry": "VS",
       "version": "vs_5_0"
     },
 
     "PS": {
-      "path": "Image.hlsl",
+      "path": "Image",
       "entry": "PS",
       "version": "ps_5_0"
     }

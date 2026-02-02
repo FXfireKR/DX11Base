@@ -72,7 +72,7 @@ private:
 
 	// shader compile queue
 	queue<ShaderKey> m_queCompileWait;
-	uint32_t m_uMaxShaderCompileCount = 1; // 한번에 컴파일 할 쉐이더 최대 갯수
+	uint64_t m_uMaxShaderCompileCount = 1; // 한번에 컴파일 할 쉐이더 최대 갯수
 
-	uint32_t m_uErrorShaderID = UINT_MAX;
+	uint64_t m_uErrorShaderID = UINT64_MAX;
 };

@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+
+constexpr const char* SHADER_BASE_PATH = "";
+
 enum class SHADER_COMPILE_STATE
 {
 	NOT_READY,
