@@ -6,6 +6,7 @@ enum class COMPONENT_TYPE : BYTE
 {
 	TRANSFORM = 0,
 	CAMERA,
+	MESHRENDER,
 	// ADD
 
 	END,
@@ -24,8 +25,9 @@ public:
 
 	virtual void Init() {}
 	virtual void FixedUpdate() {}
-	virtual void Update() {}
+	virtual void Update(float fDelta) {}
 	virtual void LateUpdate() {}
+	virtual void Render() {}
 
 	virtual COMPONENT_TYPE GetType() const PURE;
 

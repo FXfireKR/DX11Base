@@ -25,11 +25,11 @@ void CObject::FixedUpdate()
 	}
 }
 
-void CObject::Update()
+void CObject::Update(float fDelta)
 {
 	for (const auto& iter : m_arrComponents) {
 		if (iter->GetAlive() && iter->GetEnable()) {
-			iter->Update();
+			iter->Update(fDelta);
 		}
 	}
 }
@@ -39,6 +39,15 @@ void CObject::LateUpdate()
 	for (const auto& iter : m_arrComponents) {
 		if (iter->GetAlive() && iter->GetEnable()) {
 			iter->LateUpdate();
+		}
+	}
+}
+
+void CObject::Render()
+{
+	for (const auto& iter : m_arrComponents) {
+		if (iter->GetAlive() && iter->GetEnable()) {
+			iter->Render();
 		}
 	}
 }

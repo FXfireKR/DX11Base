@@ -11,8 +11,9 @@ public:
 
 	void Init();
 	void FixedUpdate();
-	void Update();
+	void Update(float fDelta);
 	void LateUpdate();
+	void Render();
 
 	void Destroy();
 

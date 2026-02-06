@@ -17,7 +17,7 @@ public:
 	~CTransform();
 
 	void Init() override;
-	void Update() override;
+	void Update(float fDelta) override;
 	void LateUpdate() override;
 
 	void SetOrig(const KTransform& newTransform_);

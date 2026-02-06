@@ -15,7 +15,7 @@ void CTransform::Init()
 {
 }
 
-void CTransform::Update()
+void CTransform::Update(float fDelta)
 {
 }
 
