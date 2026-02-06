@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CTestScene.h"
+#include "CSceneManager.h"
 
 namespace // auto register
 {

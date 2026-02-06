@@ -1,8 +1,10 @@
 ﻿#include "pch.h"
 #include "CShaderManager.h"
 
-void CShaderManager::Initialize()
+void CShaderManager::Initialize(ID3D11Device& refDevice_)
 {
+	m_pDevice = &refDevice_;
+
 	_LoadShaderDescs();
 	_LoadErrorFallbackShader();
 }
@@ -21,7 +23,7 @@ void CShaderManager::Compile()
 			if (nullptr != pShader) 
 			{
 				assert(SHADER_COMPILE_STATE::NOT_READY == pShader->GetCompileState());
-				HRESULT hr = pShader->Compile();
+				HRESULT hr = pShader->Compile(m_pDevice);
 #ifdef _DEBUG
 				if (FAILED(hr)) {
 					cout << "[Shader Compile Error] ID : " << shaderKey.uBaseShaderID << ", Flags : " << shaderKey.uMacroFlags << endl;
@@ -216,7 +218,7 @@ void CShaderManager::_LoadErrorFallbackShader()
 		iterShader = m_mapShaders.insert(make_pair(toMakeShaderKey, make_unique<CShader>(desc, _ConvertFlagToShaderMacro(toMakeShaderKey.uMacroFlags)))). first;
 
 		// 에러 쉐이더는 바로 컴파일
-		HRESULT hr = iterShader->second.get()->Compile();
+		HRESULT hr = iterShader->second.get()->Compile(m_pDevice);
 		assert(SUCCEEDED(hr));
 	}
 }

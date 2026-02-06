@@ -6,7 +6,7 @@
 //	
 //}; 
 
-class DirectX11Com : public singleton<DirectX11Com>
+class DirectX11Com
 {
 public:
 	DirectX11Com();
@@ -30,11 +30,10 @@ private:
 
 public:
 	inline ID3D11Device* GetDevice() const { return m_pDevice.Get(); }
-	inline ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext.Get(); }
+	inline ID3D11DeviceContext* GetContext() const { return m_pDeviceContext.Get(); }
 
-	static ID3D11Device* Device() { return Get().GetDevice(); }
-	static ID3D11DeviceContext* Context() { return Get().GetDeviceContext(); }
-
+	inline ID3D11Device& GetDeviceRef() { return *(m_pDevice.Get()); }
+	inline ID3D11DeviceContext& GetContextRef() { return *(m_pDeviceContext.Get()); }
 
 	inline void GetProjectionMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matProjection; }
 	inline void GetWorldMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matWorld; }

@@ -12,9 +12,9 @@ class CRenderFrame;
 class CRenderManager
 {
 public:
-	CRenderManager(const size_t& uMaxRenderFrame_);
-	~CRenderManager();
-
+	CRenderManager() = default;
+	~CRenderManager() = default;
+	void Initialize(size_t uMaxRenderFrame_);
 	void SetRenderFrame(shared_ptr<CRenderFrame> newRenderFrame_);
 
 public:

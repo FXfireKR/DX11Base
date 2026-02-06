@@ -64,8 +64,13 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 	return {};
 }
 
-bool CTexture2D::LoadFromFile(const char* path_, TextureUsage eUsage_)
+bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TextureUsage eUsage_)
 {
+	if (nullptr == pDevice_ || nullptr == pContext_) {
+		assert(false && "Device or Context is nullptr");
+		return false;
+	}
+
 	ComPtr<ID3D11Resource> pResource = nullptr;
 	TextureCreateInfo info = _GetCreateInfo(eUsage_);
 	wstring path = UTF8ToWstring(path_);
@@ -84,8 +89,8 @@ bool CTexture2D::LoadFromFile(const char* path_, TextureUsage eUsage_)
 		}
 
 		hr = CreateDDSTextureFromFileEx(
-			DirectX11Com::Device(),
-			DirectX11Com::Context(),
+			pDevice_,
+			pContext_,
 			path.c_str(),
 			0,
 			info.usage,
@@ -104,8 +109,8 @@ bool CTexture2D::LoadFromFile(const char* path_, TextureUsage eUsage_)
 		}
 
 		hr = CreateWICTextureFromFileEx(
-			DirectX11Com::Device(),
-			DirectX11Com::Context(),
+			pDevice_,
+			pContext_,
 			path.c_str(),
 			0,
 			info.usage,
@@ -122,7 +127,7 @@ bool CTexture2D::LoadFromFile(const char* path_, TextureUsage eUsage_)
 	if (nullptr == m_pShaderResourceView) return false;
 
 	if (m_kDesc.bMipmap) {
-		DirectX11Com::Context()->GenerateMips(m_pShaderResourceView.Get());
+		pContext_->GenerateMips(m_pShaderResourceView.Get());
 	}
 
 	hr = pResource.As(&m_pTexture);

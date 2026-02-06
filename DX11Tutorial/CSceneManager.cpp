@@ -1,14 +1,6 @@
 ﻿#include "pch.h"
 #include "CSceneManager.h"
 
-CSceneManager::CSceneManager()
-{
-}
-
-CSceneManager::~CSceneManager()
-{
-}
-
 void CSceneManager::Initialize()
 {
 	Create(SCENE_TYPE::BOOT_SCENE);

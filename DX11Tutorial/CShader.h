@@ -31,7 +31,7 @@ public:
 	~CShader();
 
 	void Apply(ID3D11DeviceContext* pContext_) const;
-	HRESULT Compile();
+	HRESULT Compile(ID3D11Device* const pDevice_);
 	void ReleaseBlobs();
 	
 public:

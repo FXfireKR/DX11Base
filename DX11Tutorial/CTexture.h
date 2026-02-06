@@ -70,7 +70,7 @@ protected:
 class CTexture2D : public CTexture 
 {
 public:
-	bool LoadFromFile(const char* path_, TextureUsage eUsage_);
+	bool LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TextureUsage eUsage_);
 
 private:
 	void _CheckTextureSource(const char* path_);

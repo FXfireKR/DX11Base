@@ -19,7 +19,7 @@ uint32_t CInputLayerManager::Create(const VertexLayoutDesc& layoutDesc_, const S
     return static_cast<uint32_t>(m_vecInputLayoutData.size() - 1);
 }
 
-const CInputLayer* CInputLayerManager::Get(uint32_t id_) const
+const CInputLayer* CInputLayerManager::GetData(uint32_t id_) const
 {
     if (id_ < m_vecInputLayoutData.size()) {
         return m_vecInputLayoutData[id_].data.get();

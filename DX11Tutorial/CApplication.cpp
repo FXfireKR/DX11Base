@@ -12,7 +12,10 @@ Application::~Application()
 
 bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
-	if (FAILED(DXCOM.Initialize(hWnd_, iScreenWidth_, iScreenHeight_, false, 1000.0f, 0.3f))) 
+	m_renderWorld.Initialize(hWnd_, iScreenWidth_, iScreenHeight_);
+	m_gameWorld.Initialize(m_renderWorld);
+
+	/*if (FAILED(DXCOM.Initialize(hWnd_, iScreenWidth_, iScreenHeight_, false, 1000.0f, 0.3f))) 
 		return false;
 
 	SHADER.Initialize();
@@ -22,7 +25,7 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	SCENE.Initialize();
 
 	SCENE.Create(SCENE_TYPE::TEST_SCENE);
-	SCENE.ChangeScene(SCENE_TYPE::TEST_SCENE);
+	SCENE.ChangeScene(SCENE_TYPE::TEST_SCENE);*/
 	return true;
 }
 
@@ -32,30 +35,33 @@ void Application::Release()
 
 void Application::Tick()
 {
-	DXCOM.ImGuiTick();
-	GAMETIME.Tick();
-
-#ifdef IMGUI_ACTIVATE
-	// ImGui
-	{
-		ImGui::Text("%u", GAMETIME.GetFps());
-	}
-#endif // IMGUI_ACTIVATE
-
-	// game world update
-	SCENE.Update();
+	
 
 
-	// render world update
-	DXCOM.BeginRender();
-	{
-		//{
-		//	shaderManager.Render(otakuTexture.GetShaderResourceView().GetAddressOf(), pVertexBuffer.GetAddressOf(), pDynamicConstBuffer.GetAddressOf()
-		//		, pIndexBuffer.Get(), sizeof(Vertex), 0, vertices.size());
-		//}
-		DXCOM.ImGuiRender();
-	}
-	DXCOM.EndRender();
+//	DXCOM.ImGuiTick();
+//	GAMETIME.Tick();
+//
+//#ifdef IMGUI_ACTIVATE
+//	// ImGui
+//	{
+//		ImGui::Text("%u", GAMETIME.GetFps());
+//	}
+//#endif // IMGUI_ACTIVATE
+//
+//	// game world update
+//	SCENE.Update();
+//
+//
+//	// render world update
+//	DXCOM.BeginRender();
+//	{
+//		//{
+//		//	shaderManager.Render(otakuTexture.GetShaderResourceView().GetAddressOf(), pVertexBuffer.GetAddressOf(), pDynamicConstBuffer.GetAddressOf()
+//		//		, pIndexBuffer.Get(), sizeof(Vertex), 0, vertices.size());
+//		//}
+//		DXCOM.ImGuiRender();
+//	}
+//	DXCOM.EndRender();
 
 }
 

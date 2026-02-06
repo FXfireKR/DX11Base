@@ -115,16 +115,3 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
-
-// singleton
-#include "DirectX11Com.h"
-#include "CDeltaTimeManager.h"
-#include "CSceneManager.h"
-#include "CShaderManager.h"
-#include "CInputLayerManager.h"
-
-#define DXCOM DirectX11Com::Get()
-#define GAMETIME CDeltaTimeManager::Get()
-#define SCENE CSceneManager::Get()
-#define SHADER CShaderManager::Get()
-#define IALAYOUT CInputLayerManager::Get()

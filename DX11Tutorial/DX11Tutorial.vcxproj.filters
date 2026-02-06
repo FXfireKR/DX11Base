@@ -40,9 +40,6 @@
     <Filter Include="__ImGui__">
       <UniqueIdentifier>{841892f2-0533-41ea-b7c3-cd31f3d8dc54}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\99_Scene">
-      <UniqueIdentifier>{0889b098-3941-4b9e-9814-380c6f62affc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\01_Manager\Component\MeshRender">
       <UniqueIdentifier>{d215b3cd-07b7-48f5-bac7-492b00942ef6}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,15 @@
     </Filter>
     <Filter Include="헤더 파일\_etc">
       <UniqueIdentifier>{15d92955-df8d-4392-b4d0-390fb8700dbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\04_Game">
+      <UniqueIdentifier>{dbeb80af-3c1b-48e0-afd2-087c13418bf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\99_Scene">
+      <UniqueIdentifier>{0889b098-3941-4b9e-9814-380c6f62affc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render\DirectX11">
+      <UniqueIdentifier>{15520119-4891-46b4-bef6-0cbb7bc8a46c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -98,15 +104,6 @@
     </ClInclude>
     <ClInclude Include="CRenderManager.h">
       <Filter>Code\03_Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Code\01_Manager\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="CApplication.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX11Com.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CDummyThread.h">
       <Filter>헤더 파일</Filter>
@@ -149,9 +146,6 @@
     </ClInclude>
     <ClInclude Include="CTestScene.h">
       <Filter>Code\99_Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="CGameWorld.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CBootScene.h">
       <Filter>Code\99_Scene</Filter>
@@ -198,6 +192,18 @@
     <ClInclude Include="singleton.h">
       <Filter>헤더 파일\_etc</Filter>
     </ClInclude>
+    <ClInclude Include="CRenderWorld.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameWorld.h">
+      <Filter>Code\04_Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CApplication.h">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX11Com.h">
+      <Filter>Code\03_Render\DirectX11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -229,15 +235,6 @@
     </ClCompile>
     <ClCompile Include="CRenderManager.cpp">
       <Filter>Code\03_Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Code\01_Manager\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX11Com.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CApplication.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CDummyThread.cpp">
       <Filter>소스 파일</Filter>
@@ -271,9 +268,6 @@
     </ClCompile>
     <ClCompile Include="CTestScene.cpp">
       <Filter>Code\99_Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="CGameWorld.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CBootScene.cpp">
       <Filter>Code\99_Scene</Filter>
@@ -310,6 +304,18 @@
     </ClCompile>
     <ClCompile Include="CShaderManager.cpp">
       <Filter>Code\01_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="CRenderWorld.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameWorld.cpp">
+      <Filter>Code\04_Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CApplication.cpp">
+      <Filter>Code\00_WindowFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX11Com.cpp">
+      <Filter>Code\03_Render\DirectX11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

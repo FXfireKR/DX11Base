@@ -8,40 +8,13 @@
 
 constexpr const char* ERROR_SHADER_NAME = "Error";
 
-enum class SHADER_MACRO : uint32_t
-{
-	USE_INSTANCING = 1 << 0,
-	USE_SKINNING = 1 << 1,
-	USE_SHADOW = 1 << 2,
-	// 여기 추가되면 _ConvertFlagToShaderMacro 함수에도 추가해야함.
-};
-
-struct ShaderKey
-{
-	uint64_t uBaseShaderID = 0;
-	uint32_t uMacroFlags = 0;
-
-	bool operator==(const ShaderKey& other_) const {
-		return (uBaseShaderID == other_.uBaseShaderID) && (uMacroFlags == other_.uMacroFlags);
-	}
-};
-
-struct ShaderKeyHash
-{
-	size_t operator()(const ShaderKey& key_) const {
-		size_t h1 = std::hash<uint64_t>{}(key_.uBaseShaderID);
-		size_t h2 = std::hash<uint32_t>{}(key_.uMacroFlags);
-		return h1 ^ (h2 << 1); // Combine hashes
-	}
-};
-
-class CShaderManager : public singleton<CShaderManager>
+class CShaderManager
 {
 public:
 	CShaderManager() = default;
 	~CShaderManager() = default;
 
-	void Initialize();
+	void Initialize(ID3D11Device& refDevice_);
 	void Compile();
 
 	const CShader* CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_);
@@ -66,6 +39,8 @@ private:
 	vector<D3D_SHADER_MACRO> _ConvertFlagToShaderMacro(uint32_t uMacroFlags_);
 
 private:
+	ID3D11Device* m_pDevice = nullptr; // not-own
+
 	unordered_map<string, uint64_t> m_mapShaderNameToID;
 	unordered_map<uint64_t, SHADER_DESC> m_mapShaderDesc;
 	unordered_map<ShaderKey, unique_ptr<CShader>, ShaderKeyHash> m_mapShaders;

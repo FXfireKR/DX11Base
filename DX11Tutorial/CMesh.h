@@ -4,7 +4,6 @@ struct SubMesh
 {
 	UINT uVertexStart;
 	UINT uVertexCount;
-	ComPtr<ID3D11Buffer> pVertexBuffer;
 };
 
 class CMesh
@@ -17,4 +16,5 @@ public:
 
 private:
 	vector<SubMesh> m_vecSubMesh;
+	ComPtr<ID3D11Buffer> pVertexBuffer;
 };

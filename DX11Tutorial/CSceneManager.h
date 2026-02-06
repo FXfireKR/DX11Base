@@ -15,8 +15,8 @@ using SceneFactory = std::function<unique_ptr<CScene>()>;
 class CSceneManager : public singleton<CSceneManager>
 {
 public:
-	CSceneManager();
-	~CSceneManager();
+	CSceneManager() = default;
+	~CSceneManager() = default;
 
 	void Initialize();
 	void Register(SCENE_TYPE eType_, SceneFactory factory_);

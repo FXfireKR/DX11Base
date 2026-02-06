@@ -6,10 +6,10 @@ public:
 	CInputLayer(const CInputLayer&) = delete;
 	CInputLayer& operator=(const CInputLayer&) = delete;
 
-	CInputLayer();
-	~CInputLayer();
+	CInputLayer() = default;
+	~CInputLayer() = default;
 
-	HRESULT Create(const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_);
+	HRESULT Create(ID3D11Device* const pDevice_, const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_);
 
 public:
 	inline ID3D11InputLayout* GetInputLayout() const { return m_pInputLayout.Get(); }

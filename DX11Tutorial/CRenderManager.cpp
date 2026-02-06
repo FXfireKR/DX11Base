@@ -1,13 +1,9 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CRenderManager.h"
 
-CRenderManager::CRenderManager(const size_t& uMaxRenderFrame_)
-	: m_uMaxRenderFrame(uMaxRenderFrame_)
+void CRenderManager::Initialize(size_t uMaxRenderFrame_)
 {
-}
-
-CRenderManager::~CRenderManager()
-{
+	m_uMaxRenderFrame = uMaxRenderFrame_;
 }
 
 void CRenderManager::SetRenderFrame(shared_ptr<CRenderFrame> newRenderFrame_)

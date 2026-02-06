@@ -52,7 +52,6 @@ void System::Run()
 		}
 
 		if (WM_QUIT == kMessage.message) return;
-
 		_Tick();
 	}
 }

@@ -26,8 +26,13 @@ void CShader::Apply(ID3D11DeviceContext* pContext_) const
 	}
 }
 
-HRESULT CShader::Compile()
+HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 {
+	if (nullptr == pDevice_) {
+		assert(false && "Device is null");
+		return E_FAIL;
+	}
+
 	// duplicate compile protection
 	if (m_eCompileState != SHADER_COMPILE_STATE::NOT_READY) return S_OK;
 	m_eCompileState = SHADER_COMPILE_STATE::COMPILING;
@@ -67,7 +72,7 @@ HRESULT CShader::Compile()
 		}
 
 		// Create Vertex Blob
-		hr = DirectX11Com::Device()->CreateVertexShader(
+		hr = pDevice_->CreateVertexShader(
 			m_pVertexBlob->GetBufferPointer(),
 			m_pVertexBlob->GetBufferSize(),
 			nullptr,
@@ -112,7 +117,7 @@ HRESULT CShader::Compile()
 		}
 
 		// Create Pixel Blob
-		hr = DirectX11Com::Device()->CreatePixelShader(
+		hr = pDevice_->CreatePixelShader(
 			m_pPixelBlob->GetBufferPointer(),
 			m_pPixelBlob->GetBufferSize(),
 			nullptr,

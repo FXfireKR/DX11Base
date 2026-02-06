@@ -1,15 +1,7 @@
 ﻿#include "pch.h"
 #include "CInputLayer.h"
 
-CInputLayer::CInputLayer()
-{
-}
-
-CInputLayer::~CInputLayer()
-{
-}
-
-HRESULT CInputLayer::Create(const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_)
+HRESULT CInputLayer::Create(ID3D11Device* const pDevice_, const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_)
 {
 	const uint32_t uElemSize = static_cast<uint32_t>(layoutDesc_.vecElements.size());
 	vector<D3D11_INPUT_ELEMENT_DESC> layout(uElemSize);
@@ -26,5 +18,5 @@ HRESULT CInputLayer::Create(const VertexLayoutDesc& layoutDesc_, const void* pSh
 		layout[i].InstanceDataStepRate = elem.uInstanceDataStepRate;
 	}
 
-	return DirectX11Com::Device()->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_, pShaderBufferSize_, m_pInputLayout.GetAddressOf());
+	return pDevice_->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_, pShaderBufferSize_, m_pInputLayout.GetAddressOf());
 }
