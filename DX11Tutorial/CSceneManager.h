@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "SceneHeader.h"
-#include "singleton.h"
 
 enum class SCENE_CHANGE_STATE : uint32_t
 {
@@ -12,7 +11,7 @@ enum class SCENE_CHANGE_STATE : uint32_t
 
 using SceneFactory = std::function<unique_ptr<CScene>()>;
 
-class CSceneManager : public singleton<CSceneManager>
+class CSceneManager
 {
 public:
 	CSceneManager() = default;
@@ -26,13 +25,14 @@ public:
 
 	void ChangeScene(SCENE_TYPE eNext_);
 
-
-	void Update();
+	void FixedUpdate(float fDelta);
+	void Update(float fDelta);
+	void LateUpdate(float fDelta);
 
 private:
-	void _FixedUpdate();
-	void _Update();
-	void _LateUpdate();
+	void _FixedUpdate(float fDelta);
+	void _Update(float fDelta);
+	void _LateUpdate(float fDelta);
 
 	void _UnloadCurrentScene();
 	void _LoadNextScene();
@@ -42,8 +42,8 @@ public:
 	inline SCENE_TYPE GetCurrentSceneType() const { return m_eCurrentSceneType; }
 
 private:
-	inline CScene* _GetCurrent() { return m_arrayScene[static_cast<uint32_t>(m_eCurrentSceneType)].get(); }
-	inline CScene* _GetNext() { return m_arrayScene[static_cast<uint32_t>(m_eNextSceneType)].get(); }
+	inline CScene* const _GetCurrent() { return m_arrayScene[static_cast<uint32_t>(m_eCurrentSceneType)].get(); }
+	inline CScene* const _GetNext() { return m_arrayScene[static_cast<uint32_t>(m_eNextSceneType)].get(); }
 
 private:
 	unordered_map<SCENE_TYPE, SceneFactory> m_mapFactories;

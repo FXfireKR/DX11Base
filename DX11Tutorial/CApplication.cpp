@@ -35,8 +35,10 @@ void Application::Release()
 
 void Application::Tick()
 {
-	
+	m_gameWorld.Tick();
 
+	m_renderWorld.BeginFrame();
+	m_renderWorld.EndFrame();
 
 //	DXCOM.ImGuiTick();
 //	GAMETIME.Tick();

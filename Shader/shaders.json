@@ -2,13 +2,13 @@
 
   "Error": {
     "VS": {
-      "path": "error",
+      "path": "error.hlsl",
       "entry": "VS",
       "version": "vs_5_0"
     },
 
     "PS": {
-      "path": "error",
+      "path": "error.hlsl",
       "entry": "PS",
       "version": "ps_5_0"
     }
@@ -16,13 +16,13 @@
 
   "ColorForward": {
     "VS": {
-      "path": "Color",
+      "path": "Color.hlsl",
       "entry": "VS",
       "version": "vs_5_0"
     },
 
     "PS": {
-      "path": "Color",
+      "path": "Color.hlsl",
       "entry": "PS",
       "version": "ps_5_0"
     }
@@ -30,13 +30,13 @@
 
   "ImageForward": {
     "VS": {
-      "path": "Image",
+      "path": "Image.hlsl",
       "entry": "VS",
       "version": "vs_5_0"
     },
 
     "PS": {
-      "path": "Image",
+      "path": "Image.hlsl",
       "entry": "PS",
       "version": "ps_5_0"
     }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "singleton.h"
 
 class CDeltaTimeManager : public singleton<CDeltaTimeManager>

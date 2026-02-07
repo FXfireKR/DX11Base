@@ -1,15 +1,5 @@
 ﻿#include "pch.h"
 #include "CTestScene.h"
-#include "CSceneManager.h"
-
-namespace // auto register
-{
-	bool registered = []() 
-	{
-		CSceneManager::Get().Register(SCENE_TYPE::TEST_SCENE, []() { return make_unique<CTestScene>(); });
-		return true;
-	}();
-}
 
 CTestScene::CTestScene()
 {
@@ -23,11 +13,11 @@ void CTestScene::Awake()
 {
 }
 
-void CTestScene::FixedUpdate()
+void CTestScene::FixedUpdate(float fDelta)
 {
 }
 
-void CTestScene::Update()
+void CTestScene::Update(float fDelta)
 {
 #ifdef IMGUI_ACTIVATE
 	// ImGui
@@ -37,6 +27,6 @@ void CTestScene::Update()
 #endif // IMGUI_ACTIVATE
 }
 
-void CTestScene::LateUpdate()
+void CTestScene::LateUpdate(float fDelta)
 {
 }

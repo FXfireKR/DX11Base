@@ -8,10 +8,7 @@ DirectX11Com::DirectX11Com()
 	m_uDXGIDisplayWidth = m_uDXGIDisplayHeight = 0;
 	ZeroMemory(&m_uDXGIDisplayRational, sizeof(DXGI_RATIONAL));
 
-
-	m_pDepthStencilBuffer = nullptr;
 	m_pDepthStencilState = nullptr;
-	m_pDepthStencilView = nullptr;
 	m_pRasterState = nullptr;
 
 	ZeroMemory(&m_kViewPort, sizeof(m_kViewPort));

@@ -178,7 +178,7 @@ void CShaderManager::_LoadShaderDescs()
 		 if (true == shaderObject.HasMember("VS")) {
 			 const Value& vs = shaderObject["VS"];
 			 if (true == vs.IsObject()) {
-				 newShaderDESC.strVertexShaderPath = string(vs["path"].GetString());
+				 newShaderDESC.strVertexShaderPath = string(SHADER_BASE_PATH) + string(vs["path"].GetString());
 				 newShaderDESC.strVertexShaderEntry = string(vs["entry"].GetString());
 				 newShaderDESC.strVertexShaderVersion = string(vs["version"].GetString());
 			 }
@@ -188,7 +188,7 @@ void CShaderManager::_LoadShaderDescs()
 		 if (true == shaderObject.HasMember("PS")) {
 			 const Value& ps = shaderObject["PS"];
 			 if (true == ps.IsObject()) {
-				 newShaderDESC.strPixelShaderPath = string(ps["path"].GetString());
+				 newShaderDESC.strPixelShaderPath = string(SHADER_BASE_PATH) + string(ps["path"].GetString());
 				 newShaderDESC.strPixelShaderEntry = string(ps["entry"].GetString());
 				 newShaderDESC.strPixelShaderVersion = string(ps["version"].GetString());
 			 }

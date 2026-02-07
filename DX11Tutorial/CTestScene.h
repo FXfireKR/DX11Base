@@ -8,9 +8,9 @@ public:
 	virtual ~CTestScene();
 
 	void Awake() override;
-	void FixedUpdate() override;
-	void Update() override;
-	void LateUpdate() override;
+	void FixedUpdate(float fDelta) override;
+	void Update(float fDelta) override;
+	void LateUpdate(float fDelta) override;
 
 
 private:

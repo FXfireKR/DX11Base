@@ -30,10 +30,14 @@ private:
 
 public:
 	inline ID3D11Device* GetDevice() const { return m_pDevice.Get(); }
-	inline ID3D11DeviceContext* GetContext() const { return m_pDeviceContext.Get(); }
-
 	inline ID3D11Device& GetDeviceRef() { return *(m_pDevice.Get()); }
+
+	inline ID3D11DeviceContext* GetContext() const { return m_pDeviceContext.Get(); }
 	inline ID3D11DeviceContext& GetContextRef() { return *(m_pDeviceContext.Get()); }
+
+	inline IDXGISwapChain* GetSwapChain() const { return m_pSwapChain.Get(); }
+
+	inline const bool GetVerticalSync() const { return m_bVerticalSync; }
 
 	inline void GetProjectionMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matProjection; }
 	inline void GetWorldMatrix(XMMATRIX& matWorld_) { matWorld_ = m_matWorld; }
@@ -49,11 +53,8 @@ private:
 	ComPtr<ID3D11Device> m_pDevice = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;
-	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
 
-    ID3D11Texture2D* m_pDepthStencilBuffer;
     ID3D11DepthStencilState* m_pDepthStencilState;
-    ID3D11DepthStencilView* m_pDepthStencilView;
     ID3D11RasterizerState* m_pRasterState;
 
     D3D11_VIEWPORT m_kViewPort;

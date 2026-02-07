@@ -39,32 +39,38 @@ void CSceneManager::ChangeScene(SCENE_TYPE eNext_)
 	m_eSceneChangeState = SCENE_CHANGE_STATE::UNLOADING;
 }
 
-
-
-void CSceneManager::Update()
+void CSceneManager::FixedUpdate(float fDelta)
 {
-	_FixedUpdate();
-	_Update();
-	_LateUpdate();
+	_FixedUpdate(fDelta);
 }
 
-void CSceneManager::_FixedUpdate()
+void CSceneManager::Update(float fDelta)
 {
-	_GetCurrent()->FixedUpdate();
+	_Update(fDelta);
 }
 
-void CSceneManager::_Update()
+void CSceneManager::LateUpdate(float fDelta)
 {
-	_GetCurrent()->Update();
+	_LateUpdate(fDelta);
 }
 
-void CSceneManager::_LateUpdate()
+void CSceneManager::_FixedUpdate(float fDelta)
+{
+	_GetCurrent()->FixedUpdate(fDelta);
+}
+
+void CSceneManager::_Update(float fDelta)
+{
+	_GetCurrent()->Update(fDelta);
+}
+
+void CSceneManager::_LateUpdate(float fDelta)
 {
 	switch (m_eSceneChangeState)
 	{
 		case SCENE_CHANGE_STATE::NONE:
 		{
-			_GetCurrent()->LateUpdate();
+			_GetCurrent()->LateUpdate(fDelta);
 		} break;
 
 		case SCENE_CHANGE_STATE::UNLOADING: 

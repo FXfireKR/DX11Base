@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-constexpr const char* SHADER_BASE_PATH = "";
+constexpr const char* SHADER_BASE_PATH = "../Shader/";
 
 enum class SHADER_COMPILE_STATE
 {

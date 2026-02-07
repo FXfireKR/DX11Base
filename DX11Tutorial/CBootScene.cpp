@@ -1,17 +1,5 @@
 ﻿#include "pch.h"
 #include "CBootScene.h"
-#include "CSceneManager.h"
-
-namespace // auto register
-{
-	bool registered = []() {
-		CSceneManager::Get().Register(SCENE_TYPE::BOOT_SCENE, []() { 
-			return make_unique<CBootScene>();
-		});
-
-		return true;
-	}();
-}
 
 CBootScene::CBootScene()
 {
@@ -25,14 +13,14 @@ void CBootScene::Awake()
 {
 }
 
-void CBootScene::FixedUpdate()
+void CBootScene::FixedUpdate(float fDelta)
 {
 }
 
-void CBootScene::Update()
+void CBootScene::Update(float fDelta)
 {
 }
 
-void CBootScene::LateUpdate()
+void CBootScene::LateUpdate(float fDelta)
 {
 }

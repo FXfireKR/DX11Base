@@ -12,9 +12,9 @@ public:
 
 public: // Object 라이프 사이클
 	virtual void Awake() {}
-	virtual void FixedUpdate() {}
-	virtual void Update() {}
-	virtual void LateUpdate() {}
+	virtual void FixedUpdate(float fDelta) {}
+	virtual void Update(float fDelta) {}
+	virtual void LateUpdate(float fDelta) {}
 
 public: // Object 중계
 	void AddObject(const string& strName_);

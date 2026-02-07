@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "CBootScene.h"
 #include "CTestScene.h"
 
 enum class SCENE_TYPE : unsigned char
