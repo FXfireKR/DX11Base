@@ -13,58 +13,55 @@ Application::~Application()
 bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
 	m_renderWorld.Initialize(hWnd_, iScreenWidth_, iScreenHeight_);
+
 	m_gameWorld.Initialize(m_renderWorld);
 
-	/*if (FAILED(DXCOM.Initialize(hWnd_, iScreenWidth_, iScreenHeight_, false, 1000.0f, 0.3f))) 
+#ifdef IMGUI_ACTIVATE
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+	ImGui::StyleColorsDark();
+
+	if (false == ImGui_ImplWin32_Init(hWnd_))
 		return false;
 
-	SHADER.Initialize();
+	if (false == ImGui_ImplDX11_Init(m_renderWorld.GetDevice(), m_renderWorld.GetContext()))
+		return false;
+#endif // IMGUI_ACTIVATE
 
-	GAMETIME.Init();
-
-	SCENE.Initialize();
-
-	SCENE.Create(SCENE_TYPE::TEST_SCENE);
-	SCENE.ChangeScene(SCENE_TYPE::TEST_SCENE);*/
 	return true;
 }
 
 void Application::Release()
 {
+#ifdef IMGUI_ACTIVATE
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+#endif // IMGUI_ACTIVATE
 }
 
 void Application::Tick()
 {
+#ifdef IMGUI_ACTIVATE
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+#endif // IMGUI_ACTIVATE
+
 	m_gameWorld.Tick();
 
 	m_renderWorld.BeginFrame();
+
+#ifdef IMGUI_ACTIVATE
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif // IMGUI_ACTIVATE
+
 	m_renderWorld.EndFrame();
-
-//	DXCOM.ImGuiTick();
-//	GAMETIME.Tick();
-//
-//#ifdef IMGUI_ACTIVATE
-//	// ImGui
-//	{
-//		ImGui::Text("%u", GAMETIME.GetFps());
-//	}
-//#endif // IMGUI_ACTIVATE
-//
-//	// game world update
-//	SCENE.Update();
-//
-//
-//	// render world update
-//	DXCOM.BeginRender();
-//	{
-//		//{
-//		//	shaderManager.Render(otakuTexture.GetShaderResourceView().GetAddressOf(), pVertexBuffer.GetAddressOf(), pDynamicConstBuffer.GetAddressOf()
-//		//		, pIndexBuffer.Get(), sizeof(Vertex), 0, vertices.size());
-//		//}
-//		DXCOM.ImGuiRender();
-//	}
-//	DXCOM.EndRender();
-
 }
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)

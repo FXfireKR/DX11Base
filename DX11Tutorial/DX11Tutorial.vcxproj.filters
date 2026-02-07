@@ -204,6 +204,9 @@
     <ClInclude Include="DirectX11Com.h">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClInclude>
+    <ClInclude Include="CDirectX11Adapter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -316,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="DirectX11Com.cpp">
       <Filter>Code\03_Render\DirectX11</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirectX11Adapter.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

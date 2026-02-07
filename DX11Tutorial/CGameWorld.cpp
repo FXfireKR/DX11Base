@@ -19,6 +19,8 @@ void CGameWorld::Tick()
 	m_gameTimeManager.Tick();
 	float fDelta = m_gameTimeManager.GetDeltaTime();
 
+	ImGui::Text("FPS : %u", m_gameTimeManager.GetFps());
+
 	m_fAccumulatedTime += fDelta;
 	m_iFixedUpdateProcCnt = 0;
 

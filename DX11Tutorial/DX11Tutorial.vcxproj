@@ -175,6 +175,7 @@
     <ClInclude Include="CTestScene.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CTransform.h" />
+    <ClInclude Include="CDirectX11Adapter.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="CTestScene.cpp" />
     <ClCompile Include="CTexture.cpp" />
     <ClCompile Include="CTransform.cpp" />
+    <ClCompile Include="CDirectX11Adapter.cpp" />
     <ClCompile Include="DirectX11Com.cpp" />
     <ClCompile Include="DX11Tutorial.cpp" />
     <ClCompile Include="ImGui\backend\imgui_impl_dx11.cpp">

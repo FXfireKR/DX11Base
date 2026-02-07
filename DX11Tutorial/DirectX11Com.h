@@ -1,10 +1,4 @@
 ﻿#pragma once
-#include "singleton.h"
-
-//struct DirectXOVariable
-//{
-//	
-//}; 
 
 class DirectX11Com
 {
