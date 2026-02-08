@@ -207,6 +207,9 @@
     <ClInclude Include="CDirectX11Adapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="VertexTypes.h">
+      <Filter>헤더 파일\_etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

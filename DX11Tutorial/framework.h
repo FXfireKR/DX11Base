@@ -66,6 +66,7 @@ using namespace Microsoft::WRL;
 
 // util header
 #include "util.h"
+#include "VertexTypes.h"
 
 
 // DirectX Tex

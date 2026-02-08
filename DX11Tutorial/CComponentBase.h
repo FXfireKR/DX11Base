@@ -12,6 +12,7 @@ public:
 	virtual void FixedUpdate() {}
 	virtual void Update() {}
 	virtual void LateUpdate() {}
+	virtual void Render() {}
 
 	inline static constexpr COMPONENT_TYPE GetStaticType() { return type; }
 	inline COMPONENT_TYPE GetType() const override { return GetStaticType(); }

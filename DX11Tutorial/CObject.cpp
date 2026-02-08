@@ -1,14 +1,6 @@
 ﻿#include "pch.h"
 #include "CObject.h"
 
-CObject::CObject()
-{
-}
-
-CObject::~CObject()
-{
-}
-
 void CObject::Init()
 {
 	for (const auto& iter : m_arrComponents) {

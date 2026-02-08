@@ -282,6 +282,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CSystem.cpp" />
+    <ClInclude Include="VertexTypes.h" />
     <ClInclude Include="singleton.h" />
   </ItemGroup>
   <ItemGroup>

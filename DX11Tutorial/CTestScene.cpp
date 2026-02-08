@@ -14,6 +14,9 @@ void CTestScene::Awake()
 	m_pTriangle = AddAndGetObject("test_mesh");
 	
 	CMeshRenderer* const pMeshRender = m_pTriangle->AddComponent<CMeshRenderer>();
+	//pMeshRender->SetMesh();
+	//pMeshRender->SetPipeline();
+
 }
 
 void CTestScene::FixedUpdate(float fDelta)
@@ -34,4 +37,5 @@ void CTestScene::LateUpdate(float fDelta)
 void CTestScene::BuildRenderFrame()
 {
 	
+
 }

@@ -94,16 +94,16 @@ constexpr const char* GetVertexSemanticString(VERTEX_SEMANTIC eVertexSemantic_)
 {
     switch (eVertexSemantic_)
     {
-        case VERTEX_SEMANTIC::COLOR: return "COLOR";
-        case VERTEX_SEMANTIC::NORMAL: return "NORMAL";
-        case VERTEX_SEMANTIC::POSITION: return "POSITION";
-        case VERTEX_SEMANTIC::POSITIONT: return "POSITIONT";
-        case VERTEX_SEMANTIC::PSIZE: return "PSIZE";
-        case VERTEX_SEMANTIC::TANGENT: return "TANGENT";
-        case VERTEX_SEMANTIC::TEXCOORD: return "TEXCOORD";
-        case VERTEX_SEMANTIC::BINORMAL: return "BINORMAL";
-        case VERTEX_SEMANTIC::BLENDINDICES: return "BLENDINDICES";
-        case VERTEX_SEMANTIC::BLENDWEIGHT: return "BLENDWEIGHT";
+    case VERTEX_SEMANTIC::COLOR: return "COLOR";
+    case VERTEX_SEMANTIC::NORMAL: return "NORMAL";
+    case VERTEX_SEMANTIC::POSITION: return "POSITION";
+    case VERTEX_SEMANTIC::POSITIONT: return "POSITIONT";
+    case VERTEX_SEMANTIC::PSIZE: return "PSIZE";
+    case VERTEX_SEMANTIC::TANGENT: return "TANGENT";
+    case VERTEX_SEMANTIC::TEXCOORD: return "TEXCOORD";
+    case VERTEX_SEMANTIC::BINORMAL: return "BINORMAL";
+    case VERTEX_SEMANTIC::BLENDINDICES: return "BLENDINDICES";
+    case VERTEX_SEMANTIC::BLENDWEIGHT: return "BLENDWEIGHT";
     }
     assert(false && "Invalid VERTEX_SEMANTIC");
     return "";
@@ -132,7 +132,8 @@ struct VertexElementDesc
         , uInputSlot(uInputSlot_)
         , eInputSlotClass(eInputSlotClass_)
         , uInstanceDataStepRate(uInstanceDataStepRate_)
-    {}
+    {
+    }
 
     bool operator==(const VertexElementDesc& rhs_) const
     {
@@ -154,7 +155,7 @@ struct VertexLayoutDesc
     bool operator==(const VertexLayoutDesc& rhs_) const {
         if (uStride != rhs_.uStride) return false;
         if (vecElements.size() != rhs_.vecElements.size()) return false;
-        
+
         for (size_t i = 0; i < vecElements.size(); ++i) {
             const auto& lhs = vecElements[i];
             const auto& rhs = rhs_.vecElements[i];
@@ -171,7 +172,7 @@ struct VertexLayoutDescHash
         size_t seed = 0;
         auto hash_combine = [&seed](size_t v) {
             seed ^= v + 0x9e3779b97f4a7c15ull + (seed << 6) + (seed >> 2);
-        };
+            };
 
         hash_combine(std::hash<uint32_t>{}(desc.uStride));
         hash_combine(std::hash<size_t>{}(desc.vecElements.size()));

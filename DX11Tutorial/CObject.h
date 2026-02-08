@@ -6,8 +6,8 @@ class CScene;
 class CObject
 {
 public:
-	CObject();
-	~CObject();
+	CObject() = default;
+	~CObject() = default;
 
 	void Init();
 	void FixedUpdate();

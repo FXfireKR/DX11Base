@@ -5,6 +5,9 @@
 #include "CShaderManager.h"
 #include "CInputLayerManager.h"
 
+// RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
+// 즉 다수로 구성될 수 있다...
+
 class CRenderWorld
 {
 public:
