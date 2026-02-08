@@ -29,6 +29,8 @@ public:
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
 
+	void BuildRenderFrame();
+
 private:
 	void _FixedUpdate(float fDelta);
 	void _Update(float fDelta);

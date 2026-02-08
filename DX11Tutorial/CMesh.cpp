@@ -1,14 +1,15 @@
 ﻿#include "pch.h"
 #include "CMesh.h"
 
-CMesh::CMesh()
+void CMesh::Draw(ID3D11DeviceContext* pContext)
 {
-}
+	UINT stride = 0;
+	UINT offset = 0;
 
-CMesh::~CMesh()
-{
-}
+	pContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset);
+	//pContext->IASetIndexBuffer()
 
-void CMesh::Draw()
-{
+	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	pContext->Draw(0, 0);
 }

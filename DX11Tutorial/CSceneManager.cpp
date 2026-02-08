@@ -54,6 +54,11 @@ void CSceneManager::LateUpdate(float fDelta)
 	_LateUpdate(fDelta);
 }
 
+void CSceneManager::BuildRenderFrame()
+{
+	_GetCurrent()->BuildRenderFrame();
+}
+
 void CSceneManager::_FixedUpdate(float fDelta)
 {
 	_GetCurrent()->FixedUpdate(fDelta);

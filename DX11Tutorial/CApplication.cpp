@@ -54,7 +54,12 @@ void Application::Tick()
 
 	m_gameWorld.Tick();
 
+
+	m_gameWorld.BuildRenderFrame();
+
 	m_renderWorld.BeginFrame();
+
+	m_renderWorld.DrawFrame();
 
 #ifdef IMGUI_ACTIVATE
 	ImGui::Render();

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CGameWorld.h"
+#include "CRenderWorld.h"
 
 void CGameWorld::Initialize(CRenderWorld& renderWorld_)
 {
@@ -36,14 +37,15 @@ void CGameWorld::Tick()
 	m_sceneManager.LateUpdate(fDelta);
 
 	// pedding destroy
-
-	// build
-	_BuildRenderFrame();
 }
 
-void CGameWorld::_BuildRenderFrame()
+void CGameWorld::BuildRenderFrame()
 {
-
+	m_pRenderWorld->BeginBuildFrame();
+	{
+		m_sceneManager.BuildRenderFrame();
+	}
+	m_pRenderWorld->EndBuildFrame();
 }
 
 void CGameWorld::_RegisterScenes()

@@ -12,9 +12,20 @@ public:
 	~CRenderWorld();
 
 	void Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_);
+
+	// Render
 	void BeginFrame();
 	void DrawFrame();
 	void EndFrame();
+
+	// Build render item
+	void BeginBuildFrame();
+	void Submit(const RenderItem& renderItem);
+	void EndBuildFrame();
+
+private:
+	void _CreateRenderTargetView();
+	void _CreateDepthStencilView();
 
 public:
 	inline CShaderManager& GetShaderManager() { return m_shaderManager; }
@@ -22,6 +33,13 @@ public:
 
 	inline ID3D11Device* GetDevice() const { return m_dxAdapter.GetDevice(); }
 	inline ID3D11DeviceContext* GetContext() const { return m_dxAdapter.GetContext(); }
+
+	inline void SetBackColor(float r, float g, float b, float a) {
+		m_fBackColor[0] = r;
+		m_fBackColor[1] = g;
+		m_fBackColor[2] = b;
+		m_fBackColor[3] = a;
+	}
 
 private:
 	CRenderManager m_renderManager;
@@ -41,4 +59,11 @@ private:
 	IDXGISwapChain* m_pSwapChain = nullptr; // not-own
 
 	D3D11_VIEWPORT m_kViewPort;
+	UINT m_uWidth = 0;
+	UINT m_uHeight = 0;
+
+	float m_fBackColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+private:
+	const size_t MAX_FRAME_WAIT_QUEUE = 3;
 };

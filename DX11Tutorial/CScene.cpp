@@ -15,9 +15,14 @@ void CScene::OnCreate()
 	}
 }
 
-void CScene::AddObject(const string& strName_)
+ObjectID CScene::AddObject(const string& strName_)
 {
-	m_objectManager.Add(strName_, this);
+	return m_objectManager.Add(strName_, this);
+}
+
+CObject* CScene::AddAndGetObject(const string& strName_)
+{
+	return FindObject(m_objectManager.Add(strName_, this));
 }
 
 void CScene::DestroyObject(const string& strName_)
@@ -28,6 +33,16 @@ void CScene::DestroyObject(const string& strName_)
 void CScene::DestroyObject(ObjectID uObjectID_)
 {
 	m_objectManager.Destroy(uObjectID_);
+}
+
+CObject* CScene::FindObject(const string& strName_)
+{
+	return m_objectManager.Get(strName_);
+}
+
+CObject* CScene::FindObject(ObjectID uObjectID_)
+{
+	return m_objectManager.Get(uObjectID_);
 }
 
 const CObject* CScene::FindObject(const string& strName_) const

@@ -1,6 +1,5 @@
 ﻿#pragma once
-
-class CRenderFrame;
+#include "CRenderFrame.h"
 
 //	class RenderManager
 //	
@@ -14,14 +13,21 @@ class CRenderManager
 public:
 	CRenderManager() = default;
 	~CRenderManager() = default;
+
 	void Initialize(size_t uMaxRenderFrame_);
-	void SetRenderFrame(shared_ptr<CRenderFrame> newRenderFrame_);
+	void BeginFrame();
+	void Submit(const RenderItem& renderItem);
+	void EndFrame();
+
+	void Draw(ID3D11DeviceContext* pContext);
 
 public:
-	inline const bool& CheckGPUOverload() { return m_queueRenderFrames.size() > m_uMaxRenderFrame; }
+	inline const bool CheckGPUOverload() { return m_queueReadyFrames.size() > m_uMaxRenderFrame; }
 	inline const size_t& GetMaxWaitRenderFrame() { return m_uMaxRenderFrame; }
 
 private:
-	queue<shared_ptr<CRenderFrame>> m_queueRenderFrames;
+	queue<unique_ptr<CRenderFrame>> m_queueReadyFrames;
+	unique_ptr<CRenderFrame> m_pBuildingFrame = nullptr;
+
 	size_t m_uMaxRenderFrame = 3; // default
 }; 

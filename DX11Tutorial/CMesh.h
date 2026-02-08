@@ -9,12 +9,16 @@ struct SubMesh
 class CMesh
 {
 public:
-	CMesh();
-	~CMesh();
+	CMesh() = default;
+	~CMesh() = default;
 
-	void Draw();
+	void Draw(ID3D11DeviceContext* pContext);
 
+public:
+	inline vector<SubMesh>& GetSubMesh() { return m_vecSubMesh; }
+	inline ID3D11Buffer* GetVertexBuffer() const { return m_pVertexBuffer.Get(); }
+	
 private:
 	vector<SubMesh> m_vecSubMesh;
-	ComPtr<ID3D11Buffer> pVertexBuffer;
+	ComPtr<ID3D11Buffer> m_pVertexBuffer;
 };

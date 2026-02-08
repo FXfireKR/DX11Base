@@ -12,9 +12,9 @@ public:
 
 	void Initialize(CRenderWorld& renderWorld_);
 	void Tick();
+	void BuildRenderFrame();
 
 private:
-	void _BuildRenderFrame();
 	void _RegisterScenes();
 
 private:
@@ -22,8 +22,6 @@ private:
 	CSceneManager m_sceneManager;
 
 	CRenderWorld* m_pRenderWorld = nullptr;
-
-
 
 private: // fixed-update logic elements
 	const float FIXED_DELTA = 1.0f / 60.0f; // 120.f는 추후

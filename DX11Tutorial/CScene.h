@@ -15,11 +15,18 @@ public: // Object 라이프 사이클
 	virtual void FixedUpdate(float fDelta) {}
 	virtual void Update(float fDelta) {}
 	virtual void LateUpdate(float fDelta) {}
+	virtual void BuildRenderFrame() {}
 
 public: // Object 중계
-	void AddObject(const string& strName_);
+	ObjectID AddObject(const string& strName_);
+	CObject* AddAndGetObject(const string& strName_);
+
 	void DestroyObject(const string& strName_);
 	void DestroyObject(ObjectID uObjectID_);
+
+	CObject* FindObject(const string& strName_);
+	CObject* FindObject(ObjectID uObjectID_);
+
 	const CObject* FindObject(const string& strName_) const;
 	const CObject* FindObject(ObjectID uObjectID_) const;
 
