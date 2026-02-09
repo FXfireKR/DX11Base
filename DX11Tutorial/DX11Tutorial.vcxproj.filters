@@ -222,9 +222,6 @@
     <ClInclude Include="CPipelineManager.h">
       <Filter>Code\03_Render\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="sparse_set.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -346,6 +343,9 @@
     </ClCompile>
     <ClCompile Include="CPipelineManager.cpp">
       <Filter>Code\03_Render\Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="sparse_set.hpp">
+      <Filter>헤더 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -15,12 +15,15 @@ void CBootScene::Awake()
 
 void CBootScene::FixedUpdate(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
 }
 
 void CBootScene::Update(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
 }
 
 void CBootScene::LateUpdate(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
 }

@@ -209,7 +209,10 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
-    <ClInclude Include="sparse_set.h" />
+    <ClCompile Include="sparse_set.hpp">
+      <FileType>Document</FileType>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClInclude Include="targetver.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

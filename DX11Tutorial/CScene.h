@@ -12,9 +12,9 @@ public:
 
 public: // Object 라이프 사이클
 	virtual void Awake() {}
-	virtual void FixedUpdate(float fDelta) {}
-	virtual void Update(float fDelta) {}
-	virtual void LateUpdate(float fDelta) {}
+	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
+	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
+	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void BuildRenderFrame() {}
 
 public: // Object 중계

@@ -21,10 +21,13 @@ void CTestScene::Awake()
 
 void CTestScene::FixedUpdate(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
 }
 
 void CTestScene::Update(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
+
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
 #endif // IMGUI_ACTIVATE
@@ -32,6 +35,8 @@ void CTestScene::Update(float fDelta)
 
 void CTestScene::LateUpdate(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
+
 }
 
 void CTestScene::BuildRenderFrame()

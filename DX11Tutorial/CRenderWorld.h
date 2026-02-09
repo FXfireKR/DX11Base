@@ -4,6 +4,7 @@
 #include "CRenderManager.h"
 #include "CShaderManager.h"
 #include "CInputLayerManager.h"
+#include "CPipelineManager.h"
 
 // RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
 // 즉 다수로 구성될 수 있다...
@@ -45,11 +46,11 @@ public:
 	}
 
 private:
+	CDirectX11Adapter m_dxAdapter;
 	CRenderManager m_renderManager;
-
 	CShaderManager m_shaderManager;
 	CInputLayerManager m_inputLayerManager;
-	CDirectX11Adapter m_dxAdapter;
+	CPipelineManager m_pipelineManager;
 
 private:
 	ComPtr<ID3D11Texture2D> m_pBackBuffer = nullptr;

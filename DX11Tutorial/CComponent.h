@@ -25,7 +25,7 @@ public:
 
 	virtual void Init() {}
 	virtual void FixedUpdate() {}
-	virtual void Update(float fDelta) {}
+	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void LateUpdate() {}
 	virtual void Render() {}
 

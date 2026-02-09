@@ -4,11 +4,13 @@
 class CPipelineManager
 {
 public:
-	CPipelineManager() = default;
+	CPipelineManager() {
+		wow.reserve(10);
+	}
 	~CPipelineManager() = default;
 
 
 
 private:
-
+	sparse_set<CPipeline> wow;
 };
