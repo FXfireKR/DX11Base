@@ -11,11 +11,15 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 	while (!m_queueRenderItem.empty())
 	{
 		const RenderItem& renderItem = m_queueRenderItem.front();
+		{
+			renderItem.pPipeline->Bind(pContext);
+			//renderItem. // constant buffer update
 
-		renderItem.pPipeline->Bind(pContext);
+			renderItem.pMesh->Bind(pContext);
 
-		//renderItem.pMesh->
-
+			// index, vertex 분리
+			renderItem.pMesh->Draw(pContext);
+		}
 		m_queueRenderItem.pop();
 	}
 }

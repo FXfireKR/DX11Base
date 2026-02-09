@@ -9,7 +9,7 @@ void CGameWorld::Initialize(CRenderWorld& renderWorld_)
 	m_gameTimeManager.Init();
 
 	_RegisterScenes();
-	m_sceneManager.Initialize();
+	m_sceneManager.Initialize(*this);
 	
 	m_sceneManager.Create(SCENE_TYPE::TEST_SCENE);
 	m_sceneManager.ChangeScene(SCENE_TYPE::TEST_SCENE);

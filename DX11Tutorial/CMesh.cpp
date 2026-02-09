@@ -5,9 +5,9 @@ void CMesh::CreateTriangle(ID3D11Device* pDevice)
 {
 	VERTEX_POSITION_COLOR vert[3] =
 	{
-		{ {0.0f, 0.5f, 0.0f, 0.0f}, {1,0,0,1} },
-		{ {0.5f, -0.5f, 0.0f, 0.0f}, {0,1,0,1} },
-		{ {-0.5f, -0.5f, 0.0f, 0.0f}, {0,0,1,1} } ,
+		{ {0.0f, 0.5f, 0.0f}, {1,0,0,1} },
+		{ {0.5f, -0.5f, 0.0f}, {0,1,0,1} },
+		{ {-0.5f, -0.5f, 0.0f}, {0,0,1,1} } ,
 	};
 
 	D3D11_BUFFER_DESC desc{};

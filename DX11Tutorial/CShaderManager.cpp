@@ -68,7 +68,18 @@ const CShader* CShaderManager::CreateShaderByName(const string& strName_, uint32
 	return CreateShader(iter->second, uShaderMacroFlags_);
 }
 
-const CShader* CShaderManager::GetShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const
+CShader* CShaderManager::Get(uint64_t uShaderID_, uint32_t uShaderMacroFlags_)
+{
+	ShaderKey toFindShaderKey{ uShaderID_, uShaderMacroFlags_ };
+	auto iterShader = m_mapShaders.find(toFindShaderKey);
+	if (iterShader == m_mapShaders.end()) {
+		assert(false && "Shader not found");
+		return nullptr;
+	}
+	return iterShader->second.get();
+}
+
+const CShader* CShaderManager::Get(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const
 {
 	ShaderKey toFindShaderKey {uShaderID_, uShaderMacroFlags_};
 	auto iterShader = m_mapShaders.find(toFindShaderKey);
@@ -79,19 +90,34 @@ const CShader* CShaderManager::GetShader(uint64_t uShaderID_, uint32_t uShaderMa
 	return iterShader->second.get();
 }
 
-const CShader* CShaderManager::GetShaderByName(const string& strName_, uint32_t uShaderMacroFlags_) const
+CShader* CShaderManager::Get(const string& strName_, uint32_t uShaderMacroFlags_)
 {
 	auto shaderIDPair = m_mapShaderNameToID.find(strName_);
 	if (shaderIDPair == m_mapShaderNameToID.end()) {
 		assert(false && "Shader not found");
 		return nullptr;
 	}
-	return GetShader(shaderIDPair->second, uShaderMacroFlags_);
+	return Get(shaderIDPair->second, uShaderMacroFlags_);
+}
+
+const CShader* CShaderManager::Get(const string& strName_, uint32_t uShaderMacroFlags_) const
+{
+	auto shaderIDPair = m_mapShaderNameToID.find(strName_);
+	if (shaderIDPair == m_mapShaderNameToID.end()) {
+		assert(false && "Shader not found");
+		return nullptr;
+	}
+	return Get(shaderIDPair->second, uShaderMacroFlags_);
+}
+
+CShader* CShaderManager::GetErrorShader()
+{
+	return Get(m_uErrorShaderID, 0);
 }
 
 const CShader* CShaderManager::GetErrorShader() const
 {
-	return GetShader(m_uErrorShaderID, 0);
+	return Get(m_uErrorShaderID, 0);
 }
 
 bool CShaderManager::GetShaderDesc(__in uint64_t uShaderID_, __out SHADER_DESC& refShaderDesc_)

@@ -20,9 +20,13 @@ public:
 	const CShader* CreateShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_);
 	const CShader* CreateShaderByName(const string& strName_, uint32_t uShaderMacroFlags_);
 
-	const CShader* GetShader(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const;
-	const CShader* GetShaderByName(const string& strName_, uint32_t uShaderMacroFlags_) const;
+	CShader* Get(uint64_t uShaderID_, uint32_t uShaderMacroFlags_);
+	const CShader* Get(uint64_t uShaderID_, uint32_t uShaderMacroFlags_) const;
 
+	CShader* Get(const string& strName_, uint32_t uShaderMacroFlags_);
+	const CShader* Get(const string& strName_, uint32_t uShaderMacroFlags_) const;
+
+	CShader* GetErrorShader();
 	const CShader* GetErrorShader() const;
 
 	bool GetShaderDesc(__in uint64_t uShaderID_, __out SHADER_DESC& refShaderDesc_);

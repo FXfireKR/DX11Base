@@ -8,7 +8,8 @@ public:
 	CPipeline() = default;
 	~CPipeline() = default;
 
-	void Initialize(CShader* const pShader_, CInputLayer* const pInputLayer_);
+	void SetShader(CShader* const pShader_);
+	void SetInputLayout(CInputLayer* const pInputLayout_);
 
 	void Bind(ID3D11DeviceContext* pDeviceContext_);
 	void Begin(ID3D11DeviceContext* pDeviceContext_);

@@ -19,9 +19,12 @@ public:
 	CInputLayerManager() = default;
 	~CInputLayerManager() = default;
 
-	uint32_t Create(const VertexLayoutDesc& layoutDesc_, const ShaderKey& shaderKey_);
-	const CInputLayer* GetData(uint32_t id_) const;
+    void Initialize(ID3D11Device& refDevice_);
+	uint32_t Create(const VertexLayoutDesc& layoutDesc_, const ShaderKey& shaderKey_, ID3DBlob* pVertexBlob);
+    CInputLayer* Get(uint32_t id_);
+	const CInputLayer* Get(uint32_t id_) const;
 
 private:
 	vector<InputLayoutData> m_vecInputLayoutData;
+    ID3D11Device* m_pDevice = nullptr;
 };

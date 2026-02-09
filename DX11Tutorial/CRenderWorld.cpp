@@ -9,8 +9,11 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
 	m_dxAdapter.Initialize(hWnd_);
 
-	m_shaderManager.Initialize(m_dxAdapter.GetDeviceRef());
 	m_renderManager.Initialize(MAX_FRAME_WAIT_QUEUE);
+
+	m_shaderManager.Initialize(m_dxAdapter.GetDeviceRef());
+	m_inputLayerManager.Initialize(m_dxAdapter.GetDeviceRef());
+	m_meshManager.Initialize(m_dxAdapter.GetDeviceRef());
 
 	m_pDevice = m_dxAdapter.GetDevice();
 	assert(m_pDevice);

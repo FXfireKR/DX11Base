@@ -4,13 +4,13 @@
 class CPipelineManager
 {
 public:
-	CPipelineManager() {
-		wow.reserve(10);
-	}
+	CPipelineManager() = default;
 	~CPipelineManager() = default;
 
-
+	uint64_t Create(uint64_t id);
+	CPipeline* Get(uint64_t id);
+	const CPipeline* Get(uint64_t id) const;
 
 private:
-	sparse_set<CPipeline> wow;
+	unordered_map<uint64_t, unique_ptr<CPipeline>> m_mapPipeline;
 };

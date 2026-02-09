@@ -1,8 +1,10 @@
 ﻿#include "pch.h"
 #include "CSceneManager.h"
 
-void CSceneManager::Initialize()
+void CSceneManager::Initialize(CGameWorld& gameWorld)
 {
+	m_pGameWorld = &gameWorld;
+
 	Create(SCENE_TYPE::BOOT_SCENE);
 	m_eCurrentSceneType = SCENE_TYPE::BOOT_SCENE;
 
@@ -22,7 +24,7 @@ void CSceneManager::Create(SCENE_TYPE eType_)
 		uint32_t uIndex = static_cast<uint32_t>(eType_);
 		m_arrayScene[uIndex] = iter->second();
 
-		m_arrayScene[uIndex]->OnCreate();
+		m_arrayScene[uIndex]->OnCreate(*m_pGameWorld);
 	}
 }
 
@@ -106,10 +108,11 @@ void CSceneManager::_UnloadCurrentScene()
 
 void CSceneManager::_LoadNextScene()
 {
+	_GetNext()->Awake();
 }
 
 void CSceneManager::_ActivatingCurrentScene()
 {
-	_GetNext()->Awake();
+	_GetNext()->Start();
 	m_eCurrentSceneType = m_eNextSceneType;
 }

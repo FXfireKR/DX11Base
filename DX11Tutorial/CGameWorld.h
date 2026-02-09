@@ -17,6 +17,9 @@ public:
 private:
 	void _RegisterScenes();
 
+public:
+	inline CRenderWorld* GetRenderWorld() const { return m_pRenderWorld; }
+
 private:
 	CDeltaTimeManager m_gameTimeManager;
 	CSceneManager m_sceneManager;

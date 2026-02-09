@@ -14,6 +14,8 @@ public:
 public:
 	inline void SetMesh(CMesh* pMesh_) { m_pMesh = pMesh_; }
 	inline void SetPipeline(CPipeline* pPipeline_) { m_pPipeline = pPipeline_; }
+	inline CMesh* GetMesh() { return m_pMesh; }
+	inline CPipeline* GetPipeline() { return m_pPipeline; }
 
 private:
 	CMesh* m_pMesh = nullptr;

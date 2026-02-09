@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <memory>
+#include <unordered_map>
 #include <vector>
 #include <cstdint>
 #include <cassert>
+#include <string>
 
 template <typename T>
 class sparse_set
@@ -98,3 +100,39 @@ private:
 	std::vector<uint32_t> free;
 	std::vector<DenseEntry> dense;
 };
+
+// 일단 보류.
+//template <typename T>
+//class sparse_string_set
+//{
+//public:
+//	sparse_string_set() {}
+//	~sparse_string_set() {}
+//
+//	template<typename... Args>
+//	uint32_t add(const std::string& name, Args&&... args)
+//	{
+//		uint32_t id = sparse.add(std::forward<Args>(args)...);
+//		stringmap[name] = id;
+//		return id;
+//	}
+//
+//	T* get(uint32_t id)
+//	{
+//		return sparse.get(id);
+//	}
+//
+//	const T* get(uint32_t id) const
+//	{
+//		return sparse.get(id);
+//	}
+//
+//	void remove(uint32_t id)
+//	{
+//		sparse.remove(id);
+//	}
+//
+//private:
+//	sparse_set<T> sparse;
+//	std::unordered_map<uint32_t, std::string> stringmap;
+//};

@@ -17,7 +17,7 @@ public:
 	CSceneManager() = default;
 	~CSceneManager() = default;
 
-	void Initialize();
+	void Initialize(CGameWorld& gameWorld);
 	void Register(SCENE_TYPE eType_, SceneFactory factory_);
 
 	void Create(SCENE_TYPE eType_);
@@ -54,4 +54,6 @@ private:
 	SCENE_CHANGE_STATE m_eSceneChangeState = SCENE_CHANGE_STATE::NONE;
 	SCENE_TYPE m_eCurrentSceneType = SCENE_TYPE::END_SCENE;
 	SCENE_TYPE m_eNextSceneType = SCENE_TYPE::END_SCENE;
+
+	CGameWorld* m_pGameWorld = nullptr;
 };

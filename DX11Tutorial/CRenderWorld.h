@@ -5,6 +5,7 @@
 #include "CShaderManager.h"
 #include "CInputLayerManager.h"
 #include "CPipelineManager.h"
+#include "CMeshManager.h"
 
 // RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
 // 즉 다수로 구성될 수 있다...
@@ -32,11 +33,13 @@ private:
 	void _CreateDepthStencilView();
 
 public:
-	inline CShaderManager& GetShaderManager() { return m_shaderManager; }
-	inline CInputLayerManager& GetIALayoutManager() { return m_inputLayerManager; }
-
 	inline ID3D11Device* GetDevice() const { return m_dxAdapter.GetDevice(); }
 	inline ID3D11DeviceContext* GetContext() const { return m_dxAdapter.GetContext(); }
+
+	inline CShaderManager& GetShaderManager() { return m_shaderManager; }
+	inline CInputLayerManager& GetIALayoutManager() { return m_inputLayerManager; }
+	inline CPipelineManager& GetPipelineManager() { return m_pipelineManager; }
+	inline CMeshManager& GetMeshManager() { return m_meshManager; }
 
 	inline void SetBackColor(float r, float g, float b, float a) {
 		m_fBackColor[0] = r;
@@ -47,10 +50,13 @@ public:
 
 private:
 	CDirectX11Adapter m_dxAdapter;
+
 	CRenderManager m_renderManager;
+
 	CShaderManager m_shaderManager;
 	CInputLayerManager m_inputLayerManager;
 	CPipelineManager m_pipelineManager;
+	CMeshManager m_meshManager;
 
 private:
 	ComPtr<ID3D11Texture2D> m_pBackBuffer = nullptr;

@@ -9,6 +9,7 @@ public:
 	CInputLayer() = default;
 	~CInputLayer() = default;
 
+	HRESULT Create(ID3D11Device* const pDevice_, const VertexLayoutDesc& layoutDesc_, ID3DBlob* pVertexBlob_);
 	HRESULT Create(ID3D11Device* const pDevice_, const VertexLayoutDesc& layoutDesc_, const void* pShaderByteCode_, size_t pShaderBufferSize_);
 
 public:

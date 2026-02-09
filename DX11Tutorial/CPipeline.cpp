@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
 #include "CPipeline.h"
 
-void CPipeline::Initialize(CShader* const pShader_, CInputLayer* const pInputLayer_)
+void CPipeline::SetShader(CShader* const pShader_)
 {
-	if (nullptr == pShader_ || nullptr == pInputLayer_) {
-		assert(false && "Shader or InputLayout nullptr");
+	if (nullptr == pShader_) {
+		assert(false && "Shader nullptr");
 		return;
 	}
 
@@ -13,9 +13,17 @@ void CPipeline::Initialize(CShader* const pShader_, CInputLayer* const pInputLay
 
 	// pixel shader
 	m_pPixelShader = pShader_->GetPixelShader();
+}
+
+void CPipeline::SetInputLayout(CInputLayer* const pInputLayout_)
+{
+	if (nullptr == pInputLayout_) {
+		assert(false && "InputLayout nullptr");
+		return;
+	}
 
 	// ia layout
-	m_pInputLayout = pInputLayer_->GetInputLayout();
+	m_pInputLayout = pInputLayout_->GetInputLayout();
 }
 
 void CPipeline::Bind(ID3D11DeviceContext* pDeviceContext_)
