@@ -43,6 +43,8 @@ using namespace std;
 #include <queue>
 #include <stack>
 
+#include "sparse_set.h"
+
 // DIRECTX 11 x64
 #include <D3D11.h>
 #include <DXGI.h>

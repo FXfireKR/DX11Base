@@ -40,9 +40,6 @@
     <Filter Include="__ImGui__">
       <UniqueIdentifier>{841892f2-0533-41ea-b7c3-cd31f3d8dc54}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\01_Manager\Component\MeshRender">
-      <UniqueIdentifier>{d215b3cd-07b7-48f5-bac7-492b00942ef6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\01_Manager\Canonicalize">
       <UniqueIdentifier>{0bde6944-bdc1-4269-972e-2199c5666492}</UniqueIdentifier>
     </Filter>
@@ -66,6 +63,15 @@
     </Filter>
     <Filter Include="Code\03_Render\DirectX11">
       <UniqueIdentifier>{15520119-4891-46b4-bef6-0cbb7bc8a46c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render\Shader">
+      <UniqueIdentifier>{2af97ac7-0fd6-413c-a1b1-07d2a9a425d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render\InputLayout">
+      <UniqueIdentifier>{7c91a116-f45c-4909-8280-008e7e9e6e83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\03_Render\Mesh">
+      <UniqueIdentifier>{bec66f85-fbd0-4297-a514-0236306793b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -153,18 +159,6 @@
     <ClInclude Include="CMeshRenderer.h">
       <Filter>Code\01_Manager\Component</Filter>
     </ClInclude>
-    <ClInclude Include="CMesh.h">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClInclude>
-    <ClInclude Include="CMaterial.h">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClInclude>
-    <ClInclude Include="CShader.h">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClInclude>
-    <ClInclude Include="CInputLayer.h">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>Code\03_Render\Texture</Filter>
     </ClInclude>
@@ -176,12 +170,6 @@
     </ClInclude>
     <ClInclude Include="CPipeline.h">
       <Filter>Code\03_Render\Pipeline</Filter>
-    </ClInclude>
-    <ClInclude Include="CShaderManager.h">
-      <Filter>Code\01_Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="CInputLayerManager.h">
-      <Filter>Code\01_Manager</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
       <Filter>헤더 파일\_etc</Filter>
@@ -204,11 +192,38 @@
     <ClInclude Include="DirectX11Com.h">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClInclude>
-    <ClInclude Include="CDirectX11Adapter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="VertexTypes.h">
       <Filter>헤더 파일\_etc</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirectX11Adapter.h">
+      <Filter>Code\03_Render\DirectX11</Filter>
+    </ClInclude>
+    <ClInclude Include="CMaterial.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CShader.h">
+      <Filter>Code\03_Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="CShaderManager.h">
+      <Filter>Code\03_Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="CInputLayerManager.h">
+      <Filter>Code\03_Render\InputLayout</Filter>
+    </ClInclude>
+    <ClInclude Include="CInputLayer.h">
+      <Filter>Code\03_Render\InputLayout</Filter>
+    </ClInclude>
+    <ClInclude Include="CMesh.h">
+      <Filter>Code\03_Render\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="CMeshManager.h">
+      <Filter>Code\03_Render\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="CPipelineManager.h">
+      <Filter>Code\03_Render\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="sparse_set.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,18 +296,6 @@
     <ClCompile Include="CMeshRenderer.cpp">
       <Filter>Code\01_Manager\Component</Filter>
     </ClCompile>
-    <ClCompile Include="CMesh.cpp">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClCompile>
-    <ClCompile Include="CMaterial.cpp">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClCompile>
-    <ClCompile Include="CShader.cpp">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClCompile>
-    <ClCompile Include="CInputLayer.cpp">
-      <Filter>Code\01_Manager\Component\MeshRender</Filter>
-    </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>Code\03_Render\Texture</Filter>
     </ClCompile>
@@ -304,12 +307,6 @@
     </ClCompile>
     <ClCompile Include="CPipeline.cpp">
       <Filter>Code\03_Render\Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="CInputLayerManager.cpp">
-      <Filter>Code\01_Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="CShaderManager.cpp">
-      <Filter>Code\01_Manager</Filter>
     </ClCompile>
     <ClCompile Include="CRenderWorld.cpp">
       <Filter>Code\03_Render</Filter>
@@ -324,7 +321,31 @@
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClCompile>
     <ClCompile Include="CDirectX11Adapter.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\03_Render\DirectX11</Filter>
+    </ClCompile>
+    <ClCompile Include="CMaterial.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CShader.cpp">
+      <Filter>Code\03_Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="CShaderManager.cpp">
+      <Filter>Code\03_Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputLayerManager.cpp">
+      <Filter>Code\03_Render\InputLayout</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputLayer.cpp">
+      <Filter>Code\03_Render\InputLayout</Filter>
+    </ClCompile>
+    <ClCompile Include="CMesh.cpp">
+      <Filter>Code\03_Render\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="CMeshManager.cpp">
+      <Filter>Code\03_Render\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="CPipelineManager.cpp">
+      <Filter>Code\03_Render\Pipeline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

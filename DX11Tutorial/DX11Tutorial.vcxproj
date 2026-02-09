@@ -160,11 +160,13 @@
     <ClInclude Include="CInputLayerManager.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMesh.h" />
+    <ClInclude Include="CMeshManager.h" />
     <ClInclude Include="CMeshRenderer.h" />
     <ClInclude Include="CObject.h" />
     <ClInclude Include="CObjectManager.h" />
     <ClInclude Include="Components.h" />
     <ClInclude Include="CPipeline.h" />
+    <ClInclude Include="CPipelineManager.h" />
     <ClInclude Include="CRenderFrame.h" />
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CRenderWorld.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
+    <ClInclude Include="sparse_set.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
@@ -223,10 +226,12 @@
     <ClCompile Include="CInputLayerManager.cpp" />
     <ClCompile Include="CMaterial.cpp" />
     <ClCompile Include="CMesh.cpp" />
+    <ClCompile Include="CMeshManager.cpp" />
     <ClCompile Include="CMeshRenderer.cpp" />
     <ClCompile Include="CObject.cpp" />
     <ClCompile Include="CObjectManager.cpp" />
     <ClCompile Include="CPipeline.cpp" />
+    <ClCompile Include="CPipelineManager.cpp" />
     <ClCompile Include="CRenderFrame.cpp" />
     <ClCompile Include="CRenderManager.cpp" />
     <ClCompile Include="CRenderWorld.cpp" />
