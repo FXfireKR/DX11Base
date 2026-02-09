@@ -13,6 +13,7 @@ public:
 	~CMesh() = default;
 
 	void CreateTriangle(ID3D11Device* pDevice);
+	void CreateQuad(ID3D11Device* pDevice);
 
 	void Bind(ID3D11DeviceContext* pContext);
 	void Draw(ID3D11DeviceContext* pContext);
@@ -23,8 +24,7 @@ public:
 	
 private:
 	vector<SubMesh> m_vecSubMesh;
-	ComPtr<ID3D11Buffer> m_pVertexBuffer;
 
-	// temp
-	
+	ComPtr<ID3D11Buffer> m_pVertexBuffer;
+	ComPtr<ID3D11Buffer> m_pIndexBuffer;
 };

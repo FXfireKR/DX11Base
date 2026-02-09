@@ -1,6 +1,15 @@
 ﻿#include "pch.h"
 #include "CPipeline.h"
 
+void CPipeline::CreateRaster(ID3D11Device* pDevice)
+{
+	D3D11_RASTERIZER_DESC rs = {};
+	rs.FillMode = D3D11_FILL_SOLID;
+	rs.CullMode = D3D11_CULL_NONE;
+	rs.FrontCounterClockwise = FALSE;
+	pDevice->CreateRasterizerState(&rs, m_pRasterizerState.GetAddressOf());
+}
+
 void CPipeline::SetShader(CShader* const pShader_)
 {
 	if (nullptr == pShader_) {
@@ -28,8 +37,6 @@ void CPipeline::SetInputLayout(CInputLayer* const pInputLayout_)
 
 void CPipeline::Bind(ID3D11DeviceContext* pDeviceContext_)
 {
-	assert(pDeviceContext_);
-
 	pDeviceContext_->IASetInputLayout(m_pInputLayout);
 	pDeviceContext_->VSSetShader(m_pVertexShader, nullptr, 0);
 	pDeviceContext_->PSSetShader(m_pPixelShader, nullptr, 0);

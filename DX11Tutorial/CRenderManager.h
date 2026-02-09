@@ -14,7 +14,7 @@ public:
 	CRenderManager() = default;
 	~CRenderManager() = default;
 
-	void Initialize(size_t uMaxRenderFrame_);
+	void Initialize(size_t uMaxRenderFrame_, ID3D11Buffer& cbBuffer);
 	void BeginFrame();
 	void Submit(const RenderItem& renderItem);
 	void EndFrame();
@@ -30,4 +30,5 @@ private:
 	unique_ptr<CRenderFrame> m_pBuildingFrame = nullptr;
 
 	size_t m_uMaxRenderFrame = 3; // default
+	ID3D11Buffer* m_pCBBuffer = nullptr;
 }; 

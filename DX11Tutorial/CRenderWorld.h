@@ -10,6 +10,12 @@
 // RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
 // 즉 다수로 구성될 수 있다...
 
+struct CB_FrameData
+{
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 proj;
+};
+
 class CRenderWorld
 {
 public:
@@ -29,8 +35,22 @@ public:
 	void EndBuildFrame();
 
 private:
+	void _CreateConstFrameBuffer();
+	void _CreateConstObjectBuffer();
 	void _CreateRenderTargetView();
 	void _CreateDepthStencilView();
+
+public:
+	inline void SetBackColor(float r, float g, float b, float a) {
+		m_fBackColor[0] = r;
+		m_fBackColor[1] = g;
+		m_fBackColor[2] = b;
+		m_fBackColor[3] = a;
+	}
+
+	inline void SetViewMatrix(XMMATRIX view) { m_matView = view; }
+	inline void SetProjectionMatrix(XMMATRIX proj) { m_matProjection = proj; }
+
 
 public:
 	inline ID3D11Device* GetDevice() const { return m_dxAdapter.GetDevice(); }
@@ -40,13 +60,6 @@ public:
 	inline CInputLayerManager& GetIALayoutManager() { return m_inputLayerManager; }
 	inline CPipelineManager& GetPipelineManager() { return m_pipelineManager; }
 	inline CMeshManager& GetMeshManager() { return m_meshManager; }
-
-	inline void SetBackColor(float r, float g, float b, float a) {
-		m_fBackColor[0] = r;
-		m_fBackColor[1] = g;
-		m_fBackColor[2] = b;
-		m_fBackColor[3] = a;
-	}
 
 private:
 	CDirectX11Adapter m_dxAdapter;
@@ -63,6 +76,11 @@ private:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
 	ComPtr<ID3D11Texture2D> m_pDepthBuffer = nullptr;
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;
+
+	XMMATRIX m_matView;
+	XMMATRIX m_matProjection;
+	ComPtr<ID3D11Buffer> m_pCBFrame; // b0
+	ComPtr<ID3D11Buffer> m_pCBObject; // b1
 
 	ID3D11Device* m_pDevice = nullptr; // not-own
 	ID3D11DeviceContext* m_pContext = nullptr; // not-own

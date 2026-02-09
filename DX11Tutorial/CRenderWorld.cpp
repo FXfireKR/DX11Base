@@ -9,12 +9,6 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
 	m_dxAdapter.Initialize(hWnd_);
 
-	m_renderManager.Initialize(MAX_FRAME_WAIT_QUEUE);
-
-	m_shaderManager.Initialize(m_dxAdapter.GetDeviceRef());
-	m_inputLayerManager.Initialize(m_dxAdapter.GetDeviceRef());
-	m_meshManager.Initialize(m_dxAdapter.GetDeviceRef());
-
 	m_pDevice = m_dxAdapter.GetDevice();
 	assert(m_pDevice);
 
@@ -23,6 +17,15 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	m_pSwapChain = m_dxAdapter.GetSwapChain();
 	assert(m_pSwapChain);
+
+	_CreateConstFrameBuffer();
+	_CreateConstObjectBuffer();
+
+	m_renderManager.Initialize(MAX_FRAME_WAIT_QUEUE, *(m_pCBObject.Get()));
+
+	m_shaderManager.Initialize(m_dxAdapter.GetDeviceRef());
+	m_inputLayerManager.Initialize(m_dxAdapter.GetDeviceRef());
+	m_meshManager.Initialize(m_dxAdapter.GetDeviceRef());
 
 	RECT rc;
 	GetClientRect(hWnd_, &rc);
@@ -43,6 +46,18 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 void CRenderWorld::BeginFrame()
 {
+	CB_FrameData cb;
+	XMStoreFloat4x4(&cb.view, XMMatrixTranspose(m_matView));
+	XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(m_matProjection));
+
+	D3D11_MAPPED_SUBRESOURCE mapped{};
+	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	memcpy(mapped.pData, &cb, sizeof(CB_FrameData));
+	m_pContext->Unmap(m_pCBFrame.Get(), 0);
+	//m_pContext->UpdateSubresource(m_pCBFrame.Get(), 0, nullptr, &cb, 0, 0);
+
+	m_pContext->VSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
+
 	m_pContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
 	m_pContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_fBackColor);
@@ -74,6 +89,32 @@ void CRenderWorld::Submit(const RenderItem& renderItem)
 void CRenderWorld::EndBuildFrame()
 {
 	m_renderManager.EndFrame();
+}
+
+void CRenderWorld::_CreateConstFrameBuffer()
+{
+	// Create Frame const buffer
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Usage = D3D11_USAGE_DYNAMIC; // CPU_Write + GPU_Read
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(CB_FrameData);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	m_pDevice->CreateBuffer(&desc, nullptr, m_pCBFrame.GetAddressOf());
+}
+
+void CRenderWorld::_CreateConstObjectBuffer()
+{
+	// Create Frame const buffer
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Usage = D3D11_USAGE_DYNAMIC; // CPU_Write + GPU_Read
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(CB_ObjectData);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	m_pDevice->CreateBuffer(&desc, nullptr, m_pCBObject.GetAddressOf());
 }
 
 void CRenderWorld::_CreateRenderTargetView()

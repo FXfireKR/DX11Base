@@ -71,3 +71,6 @@ private:
 	// transform-dirty pattern
 	bool m_bDirty = false; 
 };
+
+// local은 진짜 그 자체의 내용
+// orig는 전반적인 내용이 합쳐진 world에서의 쓰임새

@@ -13,6 +13,7 @@ CTransform::~CTransform()
 
 void CTransform::Init()
 {
+	SetDirty(true);
 }
 
 void CTransform::Update(float fDelta)
@@ -21,6 +22,7 @@ void CTransform::Update(float fDelta)
 
 void CTransform::LateUpdate()
 {
+	BuildTransform();
 }
 
 void CTransform::SetOrig(const KTransform& newTransform_)
@@ -28,6 +30,8 @@ void CTransform::SetOrig(const KTransform& newTransform_)
 	SetOrigScale(newTransform_.Scale);
 	SetOrigRotate(newTransform_.Rotate);
 	SetOrigPosition(newTransform_.Pos);
+
+	SetDirty(true);
 }
 
 void CTransform::SetOrigScale(const XMFLOAT3& newScale_)
@@ -43,6 +47,8 @@ void CTransform::SetOrigScale(const XMFLOAT3& newScale_)
 		);
 	}
 	SetLocalScale(newScale);
+
+	SetDirty(true);
 }
 
 void CTransform::SetOrigRotate(const XMFLOAT3& newRotate_)
@@ -54,6 +60,8 @@ void CTransform::SetOrigRotate(const XMFLOAT3& newRotate_)
 		XMStoreFloat3(&newRotate, XMVector3TransformNormal(XMLoadFloat3(&newRotate_), matParentWorldInverse));
 	}
 	SetLocalRotate(newRotate);
+
+	SetDirty(true);
 }
 
 void CTransform::SetOrigPosition(const XMFLOAT3& newPosition_)
@@ -65,26 +73,40 @@ void CTransform::SetOrigPosition(const XMFLOAT3& newPosition_)
 		XMStoreFloat3(&newPosition, XMVector3TransformCoord(XMLoadFloat3(&newPosition_), matParentWorldInverse));
 	}
 	SetLocalPosition(newPosition);
+
+	SetDirty(true);
 }
 
 XMFLOAT3 CTransform::GetRight() const
 {
+	XMVECTOR right = m_matWorld.r[0];
+	right = XMVectorSetW(right, 0.f);
+	right = XMVector3Normalize(right);
+
 	XMFLOAT3 fRight;
-	XMStoreFloat3(&fRight, m_matWorld.r[0]);
+	XMStoreFloat3(&fRight, right);
 	return fRight;
 }
 
 XMFLOAT3 CTransform::GetUp() const
 {
+	XMVECTOR up = m_matWorld.r[1];
+	up = XMVectorSetW(up, 0.f);
+	up = XMVector3Normalize(up);
+
 	XMFLOAT3 fUp;
-	XMStoreFloat3(&fUp, m_matWorld.r[1]);
+	XMStoreFloat3(&fUp, up);
 	return fUp;
 }
 
 XMFLOAT3 CTransform::GetLook() const
 {
+	XMVECTOR look = m_matWorld.r[2];
+	look = XMVectorSetW(look, 0.f);
+	look = XMVector3Normalize(look);
+
 	XMFLOAT3 fLook;
-	XMStoreFloat3(&fLook, m_matWorld.r[2]);
+	XMStoreFloat3(&fLook, look);
 	return fLook;
 }
 
@@ -94,9 +116,7 @@ void CTransform::BuildTransform()
 	{	
 		// Scale, Rotate, Trans
 		XMMATRIX matScale = XMMatrixScaling(m_kLocalTransform.Scale.x, m_kLocalTransform.Scale.y, m_kLocalTransform.Scale.z);
-		XMMATRIX matRotate = XMMatrixRotationX(m_kLocalTransform.Rotate.x);
-		matRotate *= XMMatrixRotationY(m_kLocalTransform.Rotate.y);
-		matRotate *= XMMatrixRotationZ(m_kLocalTransform.Rotate.z);
+		XMMATRIX matRotate = XMMatrixRotationRollPitchYaw(m_kLocalTransform.Rotate.x, m_kLocalTransform.Rotate.y, m_kLocalTransform.Rotate.z);
 		XMMATRIX matTranslation = XMMatrixTranslation(m_kLocalTransform.Pos.x, m_kLocalTransform.Pos.y, m_kLocalTransform.Pos.z);
 
 		m_matWorld = m_matLocal = matScale * matRotate * matTranslation;
@@ -105,7 +125,7 @@ void CTransform::BuildTransform()
 		}
 
 		XMVECTOR s, r, t;
-		if (true == XMMatrixDecompose(&s, &r, &t, m_matWorld)) {
+		if (false == XMMatrixDecompose(&s, &r, &t, m_matWorld)) {
 			// Decompose error!..
 			return;
 		}

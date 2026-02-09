@@ -14,6 +14,10 @@ CCamera::~CCamera()
 
 void CCamera::Init()
 {
+	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
+	if (nullptr == pTransform) return;
+
+	pTransform->SetOrigPosition({0.f, 0.f, -5.f});
 }
 
 void CCamera::LateUpdate()
@@ -22,8 +26,9 @@ void CCamera::LateUpdate()
 
 void CCamera::UpdateCameraMatrix()
 {
-	const CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
+	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
 	if (nullptr == pTransform) return;
+	pTransform->BuildTransform();
 
 	XMFLOAT3 fEye = pTransform->GetOrig().Pos;
 	XMFLOAT3 fLook = pTransform->GetLook();

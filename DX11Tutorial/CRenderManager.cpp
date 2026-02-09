@@ -1,15 +1,18 @@
 ﻿#include "pch.h"
 #include "CRenderManager.h"
 
-void CRenderManager::Initialize(size_t uMaxRenderFrame_)
+void CRenderManager::Initialize(size_t uMaxRenderFrame_, ID3D11Buffer& cbBuffer)
 {
 	m_uMaxRenderFrame = uMaxRenderFrame_;
+	m_pCBBuffer = &cbBuffer;
+
 	m_pBuildingFrame = nullptr;
 }
 
 void CRenderManager::BeginFrame()
 {
 	m_pBuildingFrame = make_unique<CRenderFrame>();
+	m_pBuildingFrame->Initialize(*m_pCBBuffer);
 }
 
 void CRenderManager::Submit(const RenderItem& renderItem)

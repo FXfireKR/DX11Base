@@ -26,6 +26,9 @@ public:
 		if (nullptr == this->m_arrComponents[uType]) {
 			this->m_arrComponents[uType] = make_unique<T>();
 			this->m_arrComponents[uType].get()->SetOwner(this);
+			this->m_arrComponents[uType].get()->SetAlive(true);
+			this->m_arrComponents[uType].get()->SetEnable(true);
+			this->m_arrComponents[uType].get()->Init();
 		}
 		return static_cast<T*>(this->m_arrComponents[uType].get());
 	}

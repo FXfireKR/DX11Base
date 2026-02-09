@@ -1,4 +1,3 @@
-
 struct VS_INPUT
 {
     float4 position : POSITION;
@@ -11,13 +10,28 @@ struct VS_OUTPUT
     float4 color : COLOR;
 };
 
+cbuffer CBFrame : register(b0)
+{
+    float4x4 viewMatrix;
+    float4x4 projMatrix;
+};
+
+cbuffer CBObject : register(b1)
+{
+    float4x4 worldMatrix;
+};
+
 // IA - VS - RS - PS - OM
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
-    output.position = input.position;
-    output.color = input.color;
+    
+    float4 worldPos = mul(input.position, worldMatrix);
+    float4 viewPos = mul(worldPos, viewMatrix);
+    float4 projPos = mul(viewPos, projMatrix);
 
+    output.position = projPos;
+    output.color = input.color;
     return output;
 }
 

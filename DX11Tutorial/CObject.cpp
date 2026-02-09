@@ -4,6 +4,8 @@
 void CObject::Init()
 {
 	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
 		iter->Init();
 	}
 }
@@ -11,6 +13,8 @@ void CObject::Init()
 void CObject::FixedUpdate()
 {
 	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
 		if (iter->GetAlive() && iter->GetEnable()) {
 			iter->FixedUpdate();
 		}
@@ -20,6 +24,8 @@ void CObject::FixedUpdate()
 void CObject::Update(float fDelta)
 {
 	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
 		if (iter->GetAlive() && iter->GetEnable()) {
 			iter->Update(fDelta);
 		}
@@ -29,6 +35,8 @@ void CObject::Update(float fDelta)
 void CObject::LateUpdate()
 {
 	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
 		if (iter->GetAlive() && iter->GetEnable()) {
 			iter->LateUpdate();
 		}
@@ -38,6 +46,8 @@ void CObject::LateUpdate()
 void CObject::Render()
 {
 	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
 		if (iter->GetAlive() && iter->GetEnable()) {
 			iter->Render();
 		}

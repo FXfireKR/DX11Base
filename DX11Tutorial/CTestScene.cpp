@@ -31,19 +31,36 @@ void CTestScene::Update(float fDelta)
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
 #endif // IMGUI_ACTIVATE
+
+	m_pTriangle->Update(fDelta);
 }
 
 void CTestScene::LateUpdate(float fDelta)
 {
 	UNREFERENCED_PARAMETER(fDelta);
+
+	m_pTriangle->LateUpdate();
 }
 
 void CTestScene::BuildRenderFrame()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
+	GetCurrentCamera()->UpdateCameraMatrix();
+
+	// matrix setting
+	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
+	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
+
 	auto render = m_pTriangle->GetComponent<CMeshRenderer>();
-	rw.Submit({ render->GetMesh(), render->GetPipeline() });
+	auto transform = m_pTriangle->GetComponent<CTransform>();
+	
+	RenderItem item;
+	item.pMesh = render->GetMesh();
+	item.pPipeline = render->GetPipeline();
+	XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+
+	rw.Submit(item);
 }
 
 void CTestScene::_CreateTriangle()
@@ -66,6 +83,8 @@ void CTestScene::_CreateTriangle()
 	auto pipeID = pipelineManager.Create(fnv1a_64("TrianglePipeline"));
 	pipelineManager.Get(pipeID)->SetShader(shaderManager.Get(shaderID, 0));
 	pipelineManager.Get(pipeID)->SetInputLayout(ilManager.Get(layoutID));
+	pipelineManager.Get(pipeID)->CreateRaster(rw.GetDevice());
+
 
 	// mesh
 	auto& meshManager = rw.GetMeshManager();

@@ -12,7 +12,7 @@ enum class CAMERA_PROJECTION_TYPE
 struct KPerspectiveParams
 {
 	float fFieldOfView = XM_PI / 4.0f;
-	float fAspectRatio = 16.0f / 9.0f;
+	float fAspectRatio = 1440.0f / 1024.0f;
 	float fNearZ = 0.1f;
 	float fFarZ = 1000.0f;
 };
@@ -36,14 +36,14 @@ public:
 
 	void UpdateCameraMatrix();
 
-	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() { return m_eProjectionType; }
+	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() const { return m_eProjectionType; }
 	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_) { m_eProjectionType = eProjectionType_; }
 
-	inline const XMMATRIX& GetView() { return m_matView; }
-	inline const XMMATRIX& GetProjection() { return m_matProjection; }
+	inline const XMMATRIX& GetViewMatrix() const { return m_matView; }
+	inline const XMMATRIX& GetProjMatrix() const { return m_matProjection; }
 
-	inline const KPerspectiveParams& GetPerspectiveParams() { return m_kPerspective; }
-	inline const KOrthographicParams& GetOrthographicParams() { return m_kOrthographic; }
+	inline const KPerspectiveParams& GetPerspectiveParams() const { return m_kPerspective; }
+	inline const KOrthographicParams& GetOrthographicParams() const { return m_kOrthographic; }
 
 private:
 	CAMERA_PROJECTION_TYPE m_eProjectionType = CAMERA_PROJECTION_TYPE::PERSPECTIVE;
