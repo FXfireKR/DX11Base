@@ -32,6 +32,8 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 		return false;
 #endif // IMGUI_ACTIVATE
 
+	_RegisterRawInput(hWnd_);
+
 	return true;
 }
 
@@ -75,11 +77,53 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 
 	switch (uMessage_)
 	{
+		case WM_INPUT :
+		{
+			UINT size = 0;
+			UINT ret = GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
+
+			static BYTE buffer[1024];
+			if (size > sizeof(buffer)) break;
+
+			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer, &size, sizeof(RAWINPUTHEADER)) != size) break;
+
+			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(buffer);
+			m_rawInputManager.OnRawInput(*raw);
+		} break;
+
 		case WM_KEYUP: {
 			if (wParam_ == VK_ESCAPE) 
 				DestroyWindow(hWnd_);
 		} break;
 
 		default: return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
+	}
+}
+
+void Application::_RegisterRawInput(HWND hWnd_)
+{
+	const UINT SIZE_OF_DEVICE = 3;
+	RAWINPUTDEVICE devices[SIZE_OF_DEVICE] = {};
+
+	// keyboard
+	devices[0].usUsagePage = 0x01;
+	devices[0].usUsage = 0x06; // keyboard
+	devices[0].dwFlags = 0;
+	devices[0].hwndTarget = hWnd_;
+
+	// mouse
+	devices[1].usUsagePage = 0x01;
+	devices[1].usUsage = 0x02; // mouse
+	devices[1].dwFlags = 0;
+	devices[1].hwndTarget = hWnd_;
+
+	// game pad
+	devices[2].usUsagePage = 0x01;
+	devices[2].usUsage = 0x05; // game pad
+	devices[2].dwFlags = 0;
+	devices[2].hwndTarget = hWnd_;
+
+	if (FALSE == RegisterRawInputDevices(devices, SIZE_OF_DEVICE, sizeof(RAWINPUTDEVICE))) {
+		assert(false && "RegisterRawInputDevice failed!");
 	}
 }

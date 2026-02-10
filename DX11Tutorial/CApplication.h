@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CGameWorld.h"
 #include "CRenderWorld.h"
+#include "CRawInputManager.h"
 
 const bool FULL_SCREEN = false;
 const int SCREENX = 1440;
@@ -18,6 +19,10 @@ public:
 	LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_);
 
 private:
+	void _RegisterRawInput(HWND hWnd_);
+
+private:
 	CGameWorld m_gameWorld;
 	CRenderWorld m_renderWorld;
+	CRawInputManager m_rawInputManager;
 };

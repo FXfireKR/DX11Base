@@ -40,6 +40,8 @@ void CTestScene::LateUpdate(float fDelta)
 	UNREFERENCED_PARAMETER(fDelta);
 
 	m_pTriangle->LateUpdate();
+
+	GetCurrentCamera()->LateUpdate();
 }
 
 void CTestScene::BuildRenderFrame()

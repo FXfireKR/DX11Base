@@ -53,4 +53,6 @@ private:
 
 	KPerspectiveParams m_kPerspective;
 	KOrthographicParams m_kOrthographic;
+
+	XMFLOAT3 pos;
 }; 

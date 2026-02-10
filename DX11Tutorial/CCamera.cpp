@@ -18,10 +18,19 @@ void CCamera::Init()
 	if (nullptr == pTransform) return;
 
 	pTransform->SetOrigPosition({0.f, 0.f, -5.f});
+	pos = { 0.f, 0.f, -5.f };
 }
 
 void CCamera::LateUpdate()
 {
+#ifdef IMGUI_ACTIVATE
+	ImGui::SliderFloat("Camera X", &pos.x, -10.f, 10.f);
+	ImGui::SliderFloat("Camera Y", &pos.y, -10.f, 10.f);
+	ImGui::SliderFloat("Camera Z", &pos.z, -10.f, 10.f);
+#endif // IMGUI_ACTIVATE
+
+	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
+	pTransform->SetOrigPosition(pos);
 }
 
 void CCamera::UpdateCameraMatrix()

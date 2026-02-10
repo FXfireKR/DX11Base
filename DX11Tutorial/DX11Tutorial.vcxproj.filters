@@ -73,6 +73,9 @@
     <Filter Include="Code\03_Render\Mesh">
       <UniqueIdentifier>{bec66f85-fbd0-4297-a514-0236306793b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\01_Manager\RawInput">
+      <UniqueIdentifier>{f988f819-c2bf-4dc0-9e9c-7f8ba7193aa7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -222,6 +225,9 @@
     <ClInclude Include="CPipelineManager.h">
       <Filter>Code\03_Render\Pipeline</Filter>
     </ClInclude>
+    <ClInclude Include="CRawInputManager.h">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -346,6 +352,9 @@
     </ClCompile>
     <ClCompile Include="sparse_set.hpp">
       <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CRawInputManager.cpp">
+      <Filter>Code\01_Manager\RawInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

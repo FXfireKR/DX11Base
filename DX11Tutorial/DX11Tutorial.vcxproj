@@ -167,6 +167,7 @@
     <ClInclude Include="Components.h" />
     <ClInclude Include="CPipeline.h" />
     <ClInclude Include="CPipelineManager.h" />
+    <ClInclude Include="CRawInputManager.h" />
     <ClInclude Include="CRenderFrame.h" />
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CRenderWorld.h" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
+    <ClCompile Include="CRawInputManager.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
