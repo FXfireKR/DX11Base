@@ -90,7 +90,7 @@ void CTestScene::_CreateTriangle()
 
 	// mesh
 	auto& meshManager = rw.GetMeshManager();
-	auto meshID = meshManager.CreateTriangle(fnv1a_64("TriangleMesh"));
+	auto meshID = meshManager.CreateQuad(fnv1a_64("TriangleMesh"));
 
 	// Object Create
 	m_pTriangle = AddAndGetObject("TestObject #1");

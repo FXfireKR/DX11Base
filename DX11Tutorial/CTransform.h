@@ -20,6 +20,11 @@ public:
 	void Update(float fDelta) override;
 	void LateUpdate(float fDelta) override;
 
+	void SetLocal(const KTransform& newTransform_);
+	void SetLocalScale(const XMFLOAT3& newScale_);
+	void SetLocalRotate(const XMFLOAT3& newRotate_);
+	void SetLocalPosition(const XMFLOAT3& newPosition_);
+
 	void SetOrig(const KTransform& newTransform_);
 	void SetOrigScale(const XMFLOAT3& newScale_);
 	void SetOrigRotate(const XMFLOAT3& newRotate_);
@@ -47,14 +52,9 @@ public:
 	inline const XMMATRIX& GetWorldMatrix() const { return m_matWorld; }
 
 	// setter
-	inline void SetLocal(const KTransform& newTransform_) { m_kLocalTransform = newTransform_; }
-	inline void SetLocalScale(const XMFLOAT3& newScale_) { m_kLocalTransform.Scale = newScale_; }
-	inline void SetLocalRotate(const XMFLOAT3& newRotate_) { m_kLocalTransform.Rotate = newRotate_; }
-	inline void SetLocalPosition(const XMFLOAT3& newPosition_) { m_kLocalTransform.Pos = newPosition_; }
-	inline bool GetDirty() { return m_bDirty; }
-	inline void SetDirty(bool bDirty_) { m_bDirty = bDirty_; }
 
 private:
+	inline void _MarkDirty() { m_bDirty = true; }
 	void _QuaternionToEuler(XMFLOAT3* euler_, const XMVECTOR& vQuaternion_) const;
 
 private:

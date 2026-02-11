@@ -14,6 +14,7 @@ public:
 
 public:
 	uint64_t CreateTriangle(uint64_t id);
+	uint64_t CreateQuad(uint64_t id);
 
 private:
 	std::unordered_map<uint64_t, unique_ptr<CMesh>> m_mapMesh;

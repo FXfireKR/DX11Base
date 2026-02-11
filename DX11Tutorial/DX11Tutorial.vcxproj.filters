@@ -34,9 +34,6 @@
     <Filter Include="Code\01_Manager\Scene">
       <UniqueIdentifier>{daa799bc-4c8a-4c68-b32b-82e005c88667}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\01_Manager\Component">
-      <UniqueIdentifier>{a0662ba1-a11b-4ce9-a93a-703e9aaa7286}</UniqueIdentifier>
-    </Filter>
     <Filter Include="__ImGui__">
       <UniqueIdentifier>{841892f2-0533-41ea-b7c3-cd31f3d8dc54}</UniqueIdentifier>
     </Filter>
@@ -45,9 +42,6 @@
     </Filter>
     <Filter Include="Code\03_Render\Texture">
       <UniqueIdentifier>{c517edfb-8d91-4609-a6a8-bee7ba90f41d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\01_Manager\Component\_Base">
-      <UniqueIdentifier>{26da3e71-2fb5-4670-94b5-dba1cd6439ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\03_Render\Pipeline">
       <UniqueIdentifier>{f9c911a9-519b-4037-acc2-3bd22bcd4481}</UniqueIdentifier>
@@ -82,6 +76,12 @@
     <Filter Include="Code\01_Manager\RawInput\__Interface">
       <UniqueIdentifier>{1be49d01-ea4f-443e-a4a3-c13b5066b76c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\02_Object\Component">
+      <UniqueIdentifier>{a0662ba1-a11b-4ce9-a93a-703e9aaa7286}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\02_Object\Component\_Base">
+      <UniqueIdentifier>{26da3e71-2fb5-4670-94b5-dba1cd6439ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -112,10 +112,10 @@
       <Filter>Code\01_Manager\Scene</Filter>
     </ClInclude>
     <ClInclude Include="CTransform.h">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="CCamera.h">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="CRenderManager.h">
       <Filter>Code\03_Render</Filter>
@@ -154,7 +154,7 @@
       <Filter>Code\02_Object</Filter>
     </ClInclude>
     <ClInclude Include="Components.h">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="CScene.h">
       <Filter>Code\01_Manager\Scene</Filter>
@@ -166,16 +166,16 @@
       <Filter>Code\99_Scene</Filter>
     </ClInclude>
     <ClInclude Include="CMeshRenderer.h">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>Code\03_Render\Texture</Filter>
     </ClInclude>
     <ClInclude Include="CComponentBase.h">
-      <Filter>Code\01_Manager\Component\_Base</Filter>
+      <Filter>Code\02_Object\Component\_Base</Filter>
     </ClInclude>
     <ClInclude Include="CComponent.h">
-      <Filter>Code\01_Manager\Component\_Base</Filter>
+      <Filter>Code\02_Object\Component\_Base</Filter>
     </ClInclude>
     <ClInclude Include="CPipeline.h">
       <Filter>Code\03_Render\Pipeline</Filter>
@@ -279,10 +279,10 @@
       <Filter>Code\01_Manager\Scene</Filter>
     </ClCompile>
     <ClCompile Include="CTransform.cpp">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClCompile>
     <ClCompile Include="CCamera.cpp">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClCompile>
     <ClCompile Include="CRenderManager.cpp">
       <Filter>Code\03_Render</Filter>
@@ -324,16 +324,16 @@
       <Filter>Code\99_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CMeshRenderer.cpp">
-      <Filter>Code\01_Manager\Component</Filter>
+      <Filter>Code\02_Object\Component</Filter>
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>Code\03_Render\Texture</Filter>
     </ClCompile>
     <ClCompile Include="CComponentBase.cpp">
-      <Filter>Code\01_Manager\Component\_Base</Filter>
+      <Filter>Code\02_Object\Component\_Base</Filter>
     </ClCompile>
     <ClCompile Include="CComponent.cpp">
-      <Filter>Code\01_Manager\Component\_Base</Filter>
+      <Filter>Code\02_Object\Component\_Base</Filter>
     </ClCompile>
     <ClCompile Include="CPipeline.cpp">
       <Filter>Code\03_Render\Pipeline</Filter>

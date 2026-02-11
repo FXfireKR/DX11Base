@@ -13,7 +13,6 @@ CTransform::~CTransform()
 
 void CTransform::Init()
 {
-	SetDirty(true);
 }
 
 void CTransform::Update(float fDelta)
@@ -25,13 +24,39 @@ void CTransform::LateUpdate(float fDelta)
 	BuildTransform();
 }
 
+void CTransform::SetLocal(const KTransform& newTransform_)
+{
+	m_kLocalTransform = newTransform_;
+
+	_MarkDirty();
+}
+
+void CTransform::SetLocalScale(const XMFLOAT3& newScale_)
+{
+	m_kLocalTransform.Scale = newScale_;
+
+	_MarkDirty();
+}
+
+void CTransform::SetLocalRotate(const XMFLOAT3& newRotate_)
+{
+	m_kLocalTransform.Rotate = newRotate_;
+
+	_MarkDirty();
+}
+
+void CTransform::SetLocalPosition(const XMFLOAT3& newPosition_)
+{
+	m_kLocalTransform.Pos = newPosition_;
+
+	_MarkDirty();
+}
+
 void CTransform::SetOrig(const KTransform& newTransform_)
 {
 	SetOrigScale(newTransform_.Scale);
 	SetOrigRotate(newTransform_.Rotate);
 	SetOrigPosition(newTransform_.Pos);
-
-	SetDirty(true);
 }
 
 void CTransform::SetOrigScale(const XMFLOAT3& newScale_)
@@ -47,8 +72,6 @@ void CTransform::SetOrigScale(const XMFLOAT3& newScale_)
 		);
 	}
 	SetLocalScale(newScale);
-
-	SetDirty(true);
 }
 
 void CTransform::SetOrigRotate(const XMFLOAT3& newRotate_)
@@ -60,8 +83,6 @@ void CTransform::SetOrigRotate(const XMFLOAT3& newRotate_)
 		XMStoreFloat3(&newRotate, XMVector3TransformNormal(XMLoadFloat3(&newRotate_), matParentWorldInverse));
 	}
 	SetLocalRotate(newRotate);
-
-	SetDirty(true);
 }
 
 void CTransform::SetOrigPosition(const XMFLOAT3& newPosition_)
@@ -73,8 +94,6 @@ void CTransform::SetOrigPosition(const XMFLOAT3& newPosition_)
 		XMStoreFloat3(&newPosition, XMVector3TransformCoord(XMLoadFloat3(&newPosition_), matParentWorldInverse));
 	}
 	SetLocalPosition(newPosition);
-
-	SetDirty(true);
 }
 
 XMFLOAT3 CTransform::GetRight() const
