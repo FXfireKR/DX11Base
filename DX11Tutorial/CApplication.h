@@ -27,5 +27,4 @@ private:
 	CRenderWorld m_renderWorld;
 
 	CRawInputDispatcher m_rawInputDispatcher;
-	CInputManager m_inputManager;
 };

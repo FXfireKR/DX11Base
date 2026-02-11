@@ -18,7 +18,7 @@ public:
 
 	void Init() override;
 	void Update(float fDelta) override;
-	void LateUpdate() override;
+	void LateUpdate(float fDelta) override;
 
 	void SetOrig(const KTransform& newTransform_);
 	void SetOrigScale(const XMFLOAT3& newScale_);

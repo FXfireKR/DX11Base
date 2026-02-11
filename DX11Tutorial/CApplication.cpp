@@ -35,7 +35,7 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	_RegisterRawInput(hWnd_);
 
 	//m_rawInputDispatcher.init();
-	m_inputManager.Initialize(m_rawInputDispatcher.GetMouse(), m_rawInputDispatcher.GetKeyboard(), m_rawInputDispatcher.GetGamePad());
+	CInputManager::Get().Initialize(m_rawInputDispatcher.GetMouse(), m_rawInputDispatcher.GetKeyboard(), m_rawInputDispatcher.GetGamePad());
 
 	return true;
 }
@@ -51,7 +51,7 @@ void Application::Release()
 
 void Application::Tick()
 {
-	m_inputManager.BeginFrame();
+	CInputManager::Get().BeginFrame();
 	{
 		// Input Dispatch
 		m_rawInputDispatcher.DispatchRawQueue();
@@ -83,7 +83,7 @@ void Application::Tick()
 			m_renderWorld.EndFrame();
 		}
 	}
-	m_inputManager.EndFrame();
+	CInputManager::Get().EndFrame();
 }
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)

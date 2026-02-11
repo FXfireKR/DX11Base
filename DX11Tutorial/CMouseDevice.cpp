@@ -10,7 +10,7 @@ void CMouseDevice::BeginFrame()
 
 	m_iDeltaX = 0;
 	m_iDeltaY = 0;
-	m_fWheel = 0.f;
+	m_sWheel = 0;
 }
 
 void CMouseDevice::OnRawInput(const RAWINPUT& raw)
@@ -41,12 +41,45 @@ void CMouseDevice::OnRawInput(const RAWINPUT& raw)
 	// wheel
 	if (mouse.usButtonFlags & RI_MOUSE_WHEEL)
 	{
-		 m_fWheel = (float)mouse.usButtonData;
+		m_sWheel = static_cast<short>(mouse.usButtonData) / WHEEL_DELTA;
 	}
 }
 
 void CMouseDevice::EndFrame()
 {
+}
+
+const bool CMouseDevice::GetKey(uint16_t vk) const
+{
+	switch (vk)
+	{
+		case VK_LBUTTON: return m_buttons[(int)MOUSE_BUTTON::LEFT].isHeld;
+		case VK_RBUTTON: return m_buttons[(int)MOUSE_BUTTON::RIGHT].isHeld;
+		case VK_MBUTTON: return m_buttons[(int)MOUSE_BUTTON::MIDDLE].isHeld;
+	}
+	return false;
+}
+
+const bool CMouseDevice::GetKeyDown(uint16_t vk) const
+{
+	switch (vk)
+	{
+		case VK_LBUTTON: return m_buttons[(int)MOUSE_BUTTON::LEFT].down;
+		case VK_RBUTTON: return m_buttons[(int)MOUSE_BUTTON::RIGHT].down;
+		case VK_MBUTTON: return m_buttons[(int)MOUSE_BUTTON::MIDDLE].down;
+	}
+	return false;
+}
+
+const bool CMouseDevice::GetKeyUp(uint16_t vk) const
+{
+	switch (vk)
+	{
+		case VK_LBUTTON: return m_buttons[(int)MOUSE_BUTTON::LEFT].up;
+		case VK_RBUTTON: return m_buttons[(int)MOUSE_BUTTON::RIGHT].up;
+		case VK_MBUTTON: return m_buttons[(int)MOUSE_BUTTON::MIDDLE].up;
+	}
+	return false;
 }
 
 void CMouseDevice::_Handle(MOUSE_BUTTON eMouseButton, bool bDown)

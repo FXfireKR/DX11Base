@@ -20,11 +20,14 @@ public:
 	inline CKeyboardDevice& GetKeyboard() { return m_keyBoard; }
 	inline CGamePadHub& GetGamePad() { return m_gamePad; }
 
+	inline const bool& IsGamePadMode() const { return m_bGamePadMode; }
+
 private:
 	CMouseDevice m_mouse;
 	CKeyboardDevice m_keyBoard;
 	CGamePadHub m_gamePad;
 
 	queue<RAWINPUT> m_queueRawInput;
+	bool m_bGamePadMode = false;
 };
 

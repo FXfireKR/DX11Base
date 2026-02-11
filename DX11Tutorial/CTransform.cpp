@@ -20,7 +20,7 @@ void CTransform::Update(float fDelta)
 {
 }
 
-void CTransform::LateUpdate()
+void CTransform::LateUpdate(float fDelta)
 {
 	BuildTransform();
 }

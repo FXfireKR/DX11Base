@@ -9,8 +9,7 @@ CDualSenseDevice::CDualSenseDevice(GAMEPAD_CONNECT_TYPE eConnectType, GAMEPAD_TY
 
 void CDualSenseDevice::BeginFrame()
 {
-	for (auto& iter : m_buttons)
-	{
+	for (auto& iter : m_buttons) {
 		iter.down = false;
 		iter.up = false;
 	}
@@ -23,11 +22,12 @@ void CDualSenseDevice::OnRawInput(const RAWINPUT& raw)
 
 	m_uLastInputTime = GetTickCount64();
 
-	for (int i = 0; i < hid.dwSizeHid; ++i)
-	{
-		printf("%02X ", hid.bRawData[i]);
-	}
-	printf("\n");
+	// Debuging
+	//for (int i = 0; i < hid.dwSizeHid; ++i)
+	//{
+	//	printf("%02X ", hid.bRawData[i]);
+	//}
+	//printf("\n");
 
 	if (GAMEPAD_CONNECT_TYPE::BLUETOOTH == m_eConnectType)
 	{

@@ -3,8 +3,7 @@
 
 void CKeyboardDevice::BeginFrame()
 {
-	for (auto& iter : m_buttons)
-	{
+	for (auto& iter : m_buttons) {
 		iter.down = false;
 		iter.up = false;
 	}

@@ -32,13 +32,13 @@ void CObject::Update(float fDelta)
 	}
 }
 
-void CObject::LateUpdate()
+void CObject::LateUpdate(float fDelta)
 {
 	for (const auto& iter : m_arrComponents) {
 		if (!iter) continue;
 
 		if (iter->GetAlive() && iter->GetEnable()) {
-			iter->LateUpdate();
+			iter->LateUpdate(fDelta);
 		}
 	}
 }

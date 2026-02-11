@@ -11,6 +11,14 @@ void CRawInputDispatcher::DispatchRawQueue()
 
 void CRawInputDispatcher::_OnRawInput(const RAWINPUT& raw)
 {
+	DWORD dwType = raw.header.dwType;
+	if (false == m_bGamePadMode) {
+		if (RIM_TYPEHID == dwType) return;
+	}
+	else {
+		if (RIM_TYPEHID != dwType) return;
+	}
+
 	switch (raw.header.dwType)
 	{
 	case RIM_TYPEMOUSE:

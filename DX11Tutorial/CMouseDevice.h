@@ -17,6 +17,16 @@ public:
 	void OnRawInput(const RAWINPUT& raw) override;
 	void EndFrame() override;
 
+	const bool GetKey(uint16_t vk) const;
+	const bool GetKeyDown(uint16_t vk) const;
+	const bool GetKeyUp(uint16_t vk) const;
+
+	inline const short& GetWheelCnt() const { return m_sWheel; }
+	inline const short GetWheelDir() const { return m_sWheel > 0 ? 1 : -1; }
+
+	inline const int& GetDeltaX() const { return m_iDeltaX; }
+	inline const int& GetDeltaY() const { return m_iDeltaY; }
+
 private:
 	void _Handle(MOUSE_BUTTON eMouseButton, bool bDown);
 
@@ -25,5 +35,5 @@ private:
 
 	int m_iDeltaX = 0;
 	int m_iDeltaY = 0;
-	float m_fWheel = 0.f;
+	short m_sWheel = 0;
 };

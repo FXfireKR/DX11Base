@@ -26,7 +26,7 @@ public:
 	virtual void Init() {}
 	virtual void FixedUpdate() {}
 	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
-	virtual void LateUpdate() {}
+	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Render() {}
 
 	virtual COMPONENT_TYPE GetType() const PURE;

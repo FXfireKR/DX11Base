@@ -21,13 +21,17 @@ void CCamera::Init()
 	pos = { 0.f, 0.f, -5.f };
 }
 
-void CCamera::LateUpdate()
+void CCamera::LateUpdate(float fDelta)
 {
 #ifdef IMGUI_ACTIVATE
-	ImGui::SliderFloat("Camera X", &pos.x, -10.f, 10.f);
-	ImGui::SliderFloat("Camera Y", &pos.y, -10.f, 10.f);
-	ImGui::SliderFloat("Camera Z", &pos.z, -10.f, 10.f);
+	ImGui::Text("X delta : %d", CInputManager::Get().Mouse().GetDeltaX());
+	ImGui::Text("Y delta : %d", CInputManager::Get().Mouse().GetDeltaY());
 #endif // IMGUI_ACTIVATE
+
+	if (CInputManager::Get().Mouse().GetWheelCnt() != 0)
+	{
+		pos.z += static_cast<float>(CInputManager::Get().Mouse().GetWheelCnt()) * fDelta * 50.f;
+	}
 
 	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
 	pTransform->SetOrigPosition(pos);

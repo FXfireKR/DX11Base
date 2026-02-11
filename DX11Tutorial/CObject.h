@@ -12,7 +12,7 @@ public:
 	void Init();
 	void FixedUpdate();
 	void Update(float fDelta);
-	void LateUpdate();
+	void LateUpdate(float fDelta);
 	void Render();
 
 	void Destroy();

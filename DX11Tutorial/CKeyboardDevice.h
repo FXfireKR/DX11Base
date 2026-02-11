@@ -10,6 +10,10 @@ public:
 	void OnRawInput(const RAWINPUT& raw) override;
 	void EndFrame() override;
 
+	inline const bool& GetKey(uint16_t vk) const { return m_buttons[vk].isHeld; }
+	inline const bool& GetKeyDown(uint16_t vk) const { return m_buttons[vk].down; }
+	inline const bool& GetKeyUp(uint16_t vk) const { return m_buttons[vk].up; }
+
 private:
 	static constexpr int KEY_MAX = 256;
 

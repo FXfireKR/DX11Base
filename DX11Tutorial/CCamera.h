@@ -32,7 +32,7 @@ public:
 	virtual ~CCamera();
 
 	void Init() override;
-	void LateUpdate() override;
+	void LateUpdate(float fDelta) override;
 
 	void UpdateCameraMatrix();
 
