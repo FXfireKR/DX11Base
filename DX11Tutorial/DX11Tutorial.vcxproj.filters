@@ -76,6 +76,12 @@
     <Filter Include="Code\01_Manager\RawInput">
       <UniqueIdentifier>{f988f819-c2bf-4dc0-9e9c-7f8ba7193aa7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\01_Manager\RawInput\GamePad">
+      <UniqueIdentifier>{b4cc85c2-15f0-469c-9ebd-128ac29f5c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\01_Manager\RawInput\__Interface">
+      <UniqueIdentifier>{1be49d01-ea4f-443e-a4a3-c13b5066b76c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -225,7 +231,28 @@
     <ClInclude Include="CPipelineManager.h">
       <Filter>Code\03_Render\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="CRawInputManager.h">
+    <ClInclude Include="CKeyboardDevice.h">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClInclude>
+    <ClInclude Include="CMouseDevice.h">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClInclude>
+    <ClInclude Include="CRawInputDispatcher.h">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClInclude>
+    <ClInclude Include="CDualSenseDevice.h">
+      <Filter>Code\01_Manager\RawInput\GamePad</Filter>
+    </ClInclude>
+    <ClInclude Include="CGamePadHub.h">
+      <Filter>Code\01_Manager\RawInput\GamePad</Filter>
+    </ClInclude>
+    <ClInclude Include="IInputDevice.h">
+      <Filter>Code\01_Manager\RawInput\__Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IGamePadDevice.h">
+      <Filter>Code\01_Manager\RawInput\__Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CInputManager.h">
       <Filter>Code\01_Manager\RawInput</Filter>
     </ClInclude>
   </ItemGroup>
@@ -353,7 +380,22 @@
     <ClCompile Include="sparse_set.hpp">
       <Filter>헤더 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CRawInputManager.cpp">
+    <ClCompile Include="CKeyboardDevice.cpp">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClCompile>
+    <ClCompile Include="CRawInputDispatcher.cpp">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClCompile>
+    <ClCompile Include="CMouseDevice.cpp">
+      <Filter>Code\01_Manager\RawInput</Filter>
+    </ClCompile>
+    <ClCompile Include="CDualSenseDevice.cpp">
+      <Filter>Code\01_Manager\RawInput\GamePad</Filter>
+    </ClCompile>
+    <ClCompile Include="CGamePadHub.cpp">
+      <Filter>Code\01_Manager\RawInput\GamePad</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputManager.cpp">
       <Filter>Code\01_Manager\RawInput</Filter>
     </ClCompile>
   </ItemGroup>

@@ -25,6 +25,8 @@ bool System::Initialize()
 	if (nullptr == m_pApplication) m_pApplication = new Application;
 	if (false == m_pApplication->Initialize(m_hWnd, iScreenWidth, iScreenHeight)) return false;
 
+	m_bRunning = true;
+
 	return true;
 }
 
@@ -43,15 +45,14 @@ void System::Run()
 	MSG kMessage;
 	ZeroMemory(&kMessage, sizeof(MSG));
 
-	while (true)
+	while (m_bRunning)
 	{
-		if (PeekMessage(&kMessage, NULL, 0, 0, PM_REMOVE))
+		while (PeekMessage(&kMessage, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&kMessage);
 			DispatchMessage(&kMessage);
 		}
 
-		if (WM_QUIT == kMessage.message) return;
 		_Tick();
 	}
 }
@@ -135,7 +136,8 @@ void System::_Tick()
 LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
 #ifdef IMGUI_ACTIVATE
-	if (ImGui_ImplWin32_WndProcHandler(hWnd_, uMessage_, wParam_, lParam_)) return true;
+	if (ImGui_ImplWin32_WndProcHandler(hWnd_, uMessage_, wParam_, lParam_))
+		return true;
 #endif // IMGUI_ACTIVATE
 
 	switch (uMessage_)

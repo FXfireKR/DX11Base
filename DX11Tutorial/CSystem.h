@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CApplication.h"
 
 class System
@@ -22,6 +22,8 @@ private:
 	LPCWSTR m_lpcWstrApkName;
 
 	Application* m_pApplication;
+
+	bool m_bRunning = false;
 };
 
 static LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_);

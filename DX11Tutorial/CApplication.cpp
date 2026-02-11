@@ -34,6 +34,9 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	_RegisterRawInput(hWnd_);
 
+	//m_rawInputDispatcher.init();
+	m_inputManager.Initialize(m_rawInputDispatcher.GetMouse(), m_rawInputDispatcher.GetKeyboard(), m_rawInputDispatcher.GetGamePad());
+
 	return true;
 }
 
@@ -48,27 +51,39 @@ void Application::Release()
 
 void Application::Tick()
 {
+	m_inputManager.BeginFrame();
+	{
+		// Input Dispatch
+		m_rawInputDispatcher.DispatchRawQueue();
+
+		// Logic
+		{
 #ifdef IMGUI_ACTIVATE
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
 #endif // IMGUI_ACTIVATE
 
-	m_gameWorld.Tick();
+			m_gameWorld.Tick();
 
+			m_gameWorld.BuildRenderFrame();
+		}
 
-	m_gameWorld.BuildRenderFrame();
+		// Render
+		{
+			m_renderWorld.BeginFrame();
 
-	m_renderWorld.BeginFrame();
-
-	m_renderWorld.DrawFrame();
+			m_renderWorld.DrawFrame();
 
 #ifdef IMGUI_ACTIVATE
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+			ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif // IMGUI_ACTIVATE
 
-	m_renderWorld.EndFrame();
+			m_renderWorld.EndFrame();
+		}
+	}
+	m_inputManager.EndFrame();
 }
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
@@ -80,7 +95,7 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 		case WM_INPUT :
 		{
 			UINT size = 0;
-			UINT ret = GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
+			GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
 
 			static BYTE buffer[1024];
 			if (size > sizeof(buffer)) break;
@@ -88,16 +103,17 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer, &size, sizeof(RAWINPUTHEADER)) != size) break;
 
 			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(buffer);
-			m_rawInputManager.OnRawInput(*raw);
+			m_rawInputDispatcher.Push(*raw);
+			return 0;
 		} break;
 
 		case WM_KEYUP: {
 			if (wParam_ == VK_ESCAPE) 
 				DestroyWindow(hWnd_);
 		} break;
-
-		default: return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
 	}
+
+	return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
 }
 
 void Application::_RegisterRawInput(HWND hWnd_)

@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "CGameWorld.h"
 #include "CRenderWorld.h"
-#include "CRawInputManager.h"
+#include "CRawInputDispatcher.h"
+#include "CInputManager.h"
 
 const bool FULL_SCREEN = false;
 const int SCREENX = 1440;
@@ -24,5 +25,7 @@ private:
 private:
 	CGameWorld m_gameWorld;
 	CRenderWorld m_renderWorld;
-	CRawInputManager m_rawInputManager;
+
+	CRawInputDispatcher m_rawInputDispatcher;
+	CInputManager m_inputManager;
 };

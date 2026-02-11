@@ -154,20 +154,25 @@
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
+    <ClInclude Include="CDualSenseDevice.h" />
     <ClInclude Include="CDummyThread.h" />
+    <ClInclude Include="CGamePadHub.h" />
     <ClInclude Include="CGameWorld.h" />
     <ClInclude Include="CInputLayer.h" />
     <ClInclude Include="CInputLayerManager.h" />
+    <ClInclude Include="CInputManager.h" />
+    <ClInclude Include="CKeyboardDevice.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMesh.h" />
     <ClInclude Include="CMeshManager.h" />
     <ClInclude Include="CMeshRenderer.h" />
+    <ClInclude Include="CMouseDevice.h" />
     <ClInclude Include="CObject.h" />
     <ClInclude Include="CObjectManager.h" />
     <ClInclude Include="Components.h" />
     <ClInclude Include="CPipeline.h" />
     <ClInclude Include="CPipelineManager.h" />
-    <ClInclude Include="CRawInputManager.h" />
+    <ClInclude Include="CRawInputDispatcher.h" />
     <ClInclude Include="CRenderFrame.h" />
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CRenderWorld.h" />
@@ -182,6 +187,8 @@
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IGamePadDevice.h" />
+    <ClInclude Include="IInputDevice.h" />
     <ClInclude Include="ImGui\backend\imgui_impl_dx11.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -210,7 +217,12 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
-    <ClCompile Include="CRawInputManager.cpp" />
+    <ClCompile Include="CDualSenseDevice.cpp" />
+    <ClCompile Include="CGamePadHub.cpp" />
+    <ClCompile Include="CInputManager.cpp" />
+    <ClCompile Include="CKeyboardDevice.cpp" />
+    <ClCompile Include="CMouseDevice.cpp" />
+    <ClCompile Include="CRawInputDispatcher.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
