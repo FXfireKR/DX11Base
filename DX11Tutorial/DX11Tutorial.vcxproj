@@ -163,6 +163,7 @@
     <ClInclude Include="CInputManager.h" />
     <ClInclude Include="CKeyboardDevice.h" />
     <ClInclude Include="CMaterial.h" />
+    <ClInclude Include="CMaterialManager.h" />
     <ClInclude Include="CMesh.h" />
     <ClInclude Include="CMeshManager.h" />
     <ClInclude Include="CMeshRenderer.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="CShaderManager.h" />
     <ClInclude Include="CTestScene.h" />
     <ClInclude Include="CTexture.h" />
+    <ClInclude Include="CTextureManager.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="CDirectX11Adapter.h" />
     <ClInclude Include="DirectX11Com.h" />
@@ -221,8 +223,10 @@
     <ClCompile Include="CGamePadHub.cpp" />
     <ClCompile Include="CInputManager.cpp" />
     <ClCompile Include="CKeyboardDevice.cpp" />
+    <ClCompile Include="CMaterialManager.cpp" />
     <ClCompile Include="CMouseDevice.cpp" />
     <ClCompile Include="CRawInputDispatcher.cpp" />
+    <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

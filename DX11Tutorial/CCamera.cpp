@@ -23,10 +23,26 @@ void CCamera::Init()
 
 void CCamera::LateUpdate(float fDelta)
 {
-#ifdef IMGUI_ACTIVATE
-	ImGui::Text("X delta : %d", CInputManager::Get().Mouse().GetDeltaX());
-	ImGui::Text("Y delta : %d", CInputManager::Get().Mouse().GetDeltaY());
-#endif // IMGUI_ACTIVATE
+	const auto& keyboard = CInputManager::Get().Keyboard();
+	const float MOVE_SPEED = 15.f;
+	if (keyboard.GetKey('W'))
+	{
+		pos.z += fDelta * MOVE_SPEED;
+	}
+	else if (keyboard.GetKey('S'))
+	{
+		pos.z -= fDelta * MOVE_SPEED;
+	}
+
+	if (keyboard.GetKey('A'))
+	{
+		pos.x -= fDelta * MOVE_SPEED;
+	}
+	else if (keyboard.GetKey('D'))
+	{
+		pos.x += fDelta * MOVE_SPEED;
+	}
+
 
 	if (CInputManager::Get().Mouse().GetWheelCnt() != 0)
 	{

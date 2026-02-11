@@ -17,3 +17,21 @@ struct VERTEX_POSITION_COLOR
         return desc;
 	}
 };
+
+struct VERTEX_POSITION_UV
+{
+	XMFLOAT3 position;
+	XMFLOAT2 uv;
+
+	static VertexLayoutDesc GetLayout()
+	{
+		VertexLayoutDesc desc;
+		desc.uStride = sizeof(VERTEX_POSITION_UV);
+		desc.vecElements = {
+			{ VERTEX_SEMANTIC::POSITION, DXGI_FORMAT_R32G32B32_FLOAT },
+			{ VERTEX_SEMANTIC::TEXCOORD, DXGI_FORMAT_R32G32_FLOAT },
+		};
+
+		return desc;
+	}
+};

@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
 #include "CTexture.h"
 
-TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
+TextureCreateInfo CTexture::_GetCreateInfo(TEXTURE_USAGE eUsage_)
 {
 	switch (eUsage_)
 	{
-		case TextureUsage::StaticColor: 
+		case TEXTURE_USAGE::StaticColor:
 			return { 
 				D3D11_USAGE_DEFAULT, 
 				D3D11_BIND_SHADER_RESOURCE, 
@@ -14,7 +14,7 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 				true
 			};
 
-		case TextureUsage::StaticData:
+		case TEXTURE_USAGE::StaticData:
 			return { 
 				D3D11_USAGE_DEFAULT,
 				D3D11_BIND_SHADER_RESOURCE, 
@@ -23,7 +23,7 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 				false
 			};
 
-		case TextureUsage::StaticColorMip:
+		case TEXTURE_USAGE::StaticColorMip:
 			return { 
 				D3D11_USAGE_DEFAULT, 
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET, 
@@ -32,7 +32,7 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 				true 
 			};
 
-		case TextureUsage::RenderTarget:
+		case TEXTURE_USAGE::RenderTarget:
 			return {
 				D3D11_USAGE_DEFAULT, 
 				D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
@@ -41,7 +41,7 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 				false
 			};
 
-		case TextureUsage::Depth:
+		case TEXTURE_USAGE::Depth:
 			return { 
 				D3D11_USAGE_DEFAULT, 
 				D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 
@@ -50,9 +50,9 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 				false
 			};
 
-		case TextureUsage::CubeMapColor:
-		case TextureUsage::CubeMapData:
-		case TextureUsage::CubeMapRender:
+		case TEXTURE_USAGE::CubeMapColor:
+		case TEXTURE_USAGE::CubeMapData:
+		case TEXTURE_USAGE::CubeMapRender:
 			return { 
 				D3D11_USAGE_DEFAULT, 
 				D3D11_BIND_SHADER_RESOURCE, 
@@ -64,13 +64,8 @@ TextureCreateInfo CTexture::_GetCreateInfo(TextureUsage eUsage_)
 	return {};
 }
 
-bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TextureUsage eUsage_)
+bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TEXTURE_USAGE eUsage_)
 {
-	if (nullptr == pDevice_ || nullptr == pContext_) {
-		assert(false && "Device or Context is nullptr");
-		return false;
-	}
-
 	ComPtr<ID3D11Resource> pResource = nullptr;
 	TextureCreateInfo info = _GetCreateInfo(eUsage_);
 	wstring path = UTF8ToWstring(path_);
@@ -82,7 +77,7 @@ bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext*
 	_CheckTextureSource(path_);
 
 	HRESULT hr = S_OK;
-	if (TextureSource::DDS == m_eTextureSource) {
+	if (TEXTURE_SOURCE::DDS == m_eTextureSource) {
 
 		if (m_kDesc.bSRGB) {
 			uLoaderFlags |= DDS_LOADER_FORCE_SRGB;
@@ -152,10 +147,95 @@ void CTexture2D::_CheckTextureSource(const char* path_)
 		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 		
 		if (ext == ".dds") {
-			m_eTextureSource = TextureSource::DDS;
+			m_eTextureSource = TEXTURE_SOURCE::DDS;
 		}
 		else {
-			m_eTextureSource = TextureSource::WIC;
+			m_eTextureSource = TEXTURE_SOURCE::WIC;
 		}
 	}
+}
+
+bool CRenderTexture::Create(ID3D11Device* pDevice, uint32_t width, uint32_t height, DXGI_FORMAT eFormat, TEXTURE_USAGE eUsage)
+{
+	m_eUsage = eUsage;
+
+	TextureCreateInfo info = _GetCreateInfo(eUsage);
+
+	m_kDesc.width = width;
+	m_kDesc.height = height;
+	m_kDesc.format = eFormat;
+	m_kDesc.bMipmap = info.bMipmap;
+	m_kDesc.bSRGB = info.bSRGB;
+
+	D3D11_TEXTURE2D_DESC texDesc{};
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.MipLevels = info.bMipmap ? 0 : 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = eFormat;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Usage = info.usage;
+	texDesc.BindFlags = info.bindFlags;
+	texDesc.MiscFlags = info.miscFlags;
+
+	HRESULT hr = pDevice->CreateTexture2D(&texDesc, nullptr, m_pTexture.GetAddressOf());
+	if (FAILED(hr)) return false;
+
+	// Render Target View
+	hr = pDevice->CreateRenderTargetView(m_pTexture.Get(), nullptr, m_pRenderTargetView.GetAddressOf());
+	if (FAILED(hr)) return false;
+
+	// Shader Resource View
+	if (info.bindFlags & D3D11_BIND_SHADER_RESOURCE)
+	{
+		hr = pDevice->CreateShaderResourceView(m_pTexture.Get(), nullptr, m_pShaderResourceView.GetAddressOf());
+		if (FAILED(hr)) return false;
+	}
+
+	return true;
+}
+
+bool CDepthTexture::Create(ID3D11Device* pDevice, uint32_t width, uint32_t height)
+{
+	m_eUsage = TEXTURE_USAGE::Depth;
+	TextureCreateInfo info = _GetCreateInfo(m_eUsage);
+
+	m_kDesc.width = width;
+	m_kDesc.height = height;
+	m_kDesc.format = DXGI_FORMAT_R32_TYPELESS;
+	m_kDesc.bMipmap = info.bMipmap;
+	m_kDesc.bSRGB = info.bSRGB;
+
+	D3D11_TEXTURE2D_DESC texDesc{};
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.MipLevels = info.bMipmap ? 0 : 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Usage = info.usage;
+	texDesc.BindFlags = info.bindFlags;
+	texDesc.MiscFlags = info.miscFlags;
+
+	HRESULT hr = pDevice->CreateTexture2D(&texDesc, nullptr, m_pTexture.GetAddressOf());
+	if (FAILED(hr)) return false;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+	// Depth Stencil View
+	hr = pDevice->CreateDepthStencilView(m_pTexture.Get(), &dsvDesc, m_pDepthStencilView.GetAddressOf());
+	if (FAILED(hr)) return false;
+
+	// Shader Resource View
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	hr = pDevice->CreateShaderResourceView(m_pTexture.Get(), &srvDesc, m_pShaderResourceView.GetAddressOf());
+	if (FAILED(hr)) return false;
+
+	return true;
 }

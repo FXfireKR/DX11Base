@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CMesh.h"
 #include "CPipeline.h"
+#include "CMaterial.h"
 
 //	class RenderFrame
 // 
@@ -17,6 +18,7 @@ struct RenderItem
 {
 	CMesh* pMesh = nullptr;
 	CPipeline* pPipeline = nullptr;
+	CMaterial* pMaterial = nullptr;
 	XMFLOAT4X4 world;
 };
 
@@ -29,6 +31,9 @@ public:
 	void Initialize(ID3D11Buffer& cbObject);
 	void Submit(const RenderItem& renderItem);
 	void Draw(ID3D11DeviceContext* pContext);
+
+private:
+	void _UpdateConstantBuffer(ID3D11DeviceContext* pContext, CB_ObjectData&& objData);
 	
 private:
 	queue<RenderItem> m_queueRenderItem; // 일단 지금은 queue로 짠다.

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-enum class TextureUsage
+enum class TEXTURE_USAGE
 {
 	StaticColor,		// 알베도 / 컬러 텍스쳐
 	StaticData,			// 노멀 / 러프 / 메탈
@@ -13,7 +13,7 @@ enum class TextureUsage
 	CubeMapRender,
 };
 
-enum class TextureSource
+enum class TEXTURE_SOURCE
 {
 	WIC,
 	DDS
@@ -46,15 +46,21 @@ protected:
 public:
 	virtual ~CTexture() = default;
 
-	ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
-	ID3D11SamplerState* GetSamplerState() const { return m_pSamplerState.Get(); }
-
 protected:
-	TextureCreateInfo _GetCreateInfo(TextureUsage eUsage_);
+	TextureCreateInfo _GetCreateInfo(TEXTURE_USAGE eUsage_);
 
 public:
+	inline ID3D11Texture2D* GetTexture2D() { return m_pTexture.Get(); }
+	inline const ID3D11Texture2D* GetTexture2D() const { return m_pTexture.Get(); }
+
+	inline ID3D11ShaderResourceView* GetShaderResourceView() { return m_pShaderResourceView.Get(); }
+	inline ID3D11SamplerState* GetSamplerState() { return m_pSamplerState.Get(); }
+
+	inline const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
+	inline const ID3D11SamplerState* GetSamplerState() const { return m_pSamplerState.Get(); }
+
 	inline const TextureDesc& GetDesc() const { return m_kDesc; }
-	inline TextureUsage GetUsage() const { return m_eUsage; }
+	inline const TEXTURE_USAGE& GetUsage() const { return m_eUsage; }
 
 protected:
 	ComPtr<ID3D11Texture2D> m_pTexture;
@@ -62,7 +68,7 @@ protected:
 	ComPtr<ID3D11SamplerState> m_pSamplerState;
 
 	TextureDesc m_kDesc;
-	TextureUsage m_eUsage;
+	TEXTURE_USAGE m_eUsage;
 };
 
 //class CTextureCube
@@ -70,19 +76,24 @@ protected:
 class CTexture2D : public CTexture 
 {
 public:
-	bool LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TextureUsage eUsage_);
+	bool LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_
+		, const char* path_, TEXTURE_USAGE eUsage_);
 
 private:
 	void _CheckTextureSource(const char* path_);
 
 private:
-	TextureSource m_eTextureSource;
+	TEXTURE_SOURCE m_eTextureSource;
 };
 
 class CRenderTexture : public CTexture
 {
 public:
-	ID3D11RenderTargetView* GetRenderTargetView() const { return m_pRenderTargetView.Get(); }
+	bool Create(ID3D11Device* pDevice, uint32_t width, uint32_t height, DXGI_FORMAT eFormat, TEXTURE_USAGE eUsage);
+
+public:
+	inline ID3D11RenderTargetView* GetRenderTargetView() { return m_pRenderTargetView.Get(); }
+	inline const ID3D11RenderTargetView* GetRenderTargetView() const { return m_pRenderTargetView.Get(); }
 
 private:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
@@ -91,7 +102,11 @@ private:
 class CDepthTexture : public CTexture
 {
 public:
-	ID3D11DepthStencilView* GetDepthStencilView() const { return m_pDepthStencilView.Get(); }
+	bool Create(ID3D11Device* pDevice, uint32_t width, uint32_t height);
+
+public:
+	inline ID3D11DepthStencilView* GetDepthStencilView() { return m_pDepthStencilView.Get(); }
+	inline const ID3D11DepthStencilView* GetDepthStencilView() const { return m_pDepthStencilView.Get(); }
 
 private:
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;

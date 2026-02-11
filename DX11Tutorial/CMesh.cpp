@@ -23,12 +23,12 @@ void CMesh::CreateTriangle(ID3D11Device* pDevice)
 
 void CMesh::CreateQuad(ID3D11Device* pDevice)
 {
-	VERTEX_POSITION_COLOR vert[4] =
+	VERTEX_POSITION_UV vert[4] =
 	{
-		{ {-0.5f, 0.5f, 0.0f}, {1,0,0,1} },
-		{ {0.5f, 0.5f, 0.0f}, {0,1,0,1} },
-		{ {-0.5f, -0.5f, 0.0f}, {0,0,1,1} } ,
-		{ {0.5f, -0.5f, 0.0f}, {1,0,1,1} } ,
+		{ {-0.5f, 0.5f, 0.0f}, {0.f, 0.f} },
+		{ {0.5f, 0.5f, 0.0f}, {1.f, 0.f} },
+		{ {-0.5f, -0.5f, 0.0f}, {0.f, 1.f} } ,
+		{ {0.5f, -0.5f, 0.0f}, {1.f, 1.f} } ,
 	};
 
 	D3D11_BUFFER_DESC desc{};
@@ -60,7 +60,7 @@ void CMesh::CreateQuad(ID3D11Device* pDevice)
 
 void CMesh::Bind(ID3D11DeviceContext* pContext)
 {
-	UINT stride = sizeof(VERTEX_POSITION_COLOR);
+	UINT stride = sizeof(VERTEX_POSITION_UV);
 	UINT offset = 0;
 
 	pContext->IASetVertexBuffers(0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset);

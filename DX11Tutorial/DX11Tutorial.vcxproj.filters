@@ -82,6 +82,9 @@
     <Filter Include="Code\02_Object\Component\_Base">
       <UniqueIdentifier>{26da3e71-2fb5-4670-94b5-dba1cd6439ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\03_Render\Material">
+      <UniqueIdentifier>{cb1bfa8f-beb8-455b-9683-4db4b88a98fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -207,9 +210,6 @@
     <ClInclude Include="CDirectX11Adapter.h">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClInclude>
-    <ClInclude Include="CMaterial.h">
-      <Filter>Code\03_Render</Filter>
-    </ClInclude>
     <ClInclude Include="CShader.h">
       <Filter>Code\03_Render\Shader</Filter>
     </ClInclude>
@@ -254,6 +254,15 @@
     </ClInclude>
     <ClInclude Include="CInputManager.h">
       <Filter>Code\01_Manager\RawInput</Filter>
+    </ClInclude>
+    <ClInclude Include="CMaterial.h">
+      <Filter>Code\03_Render\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="CMaterialManager.h">
+      <Filter>Code\03_Render\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="CTextureManager.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -353,9 +362,6 @@
     <ClCompile Include="CDirectX11Adapter.cpp">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClCompile>
-    <ClCompile Include="CMaterial.cpp">
-      <Filter>Code\03_Render</Filter>
-    </ClCompile>
     <ClCompile Include="CShader.cpp">
       <Filter>Code\03_Render\Shader</Filter>
     </ClCompile>
@@ -397,6 +403,15 @@
     </ClCompile>
     <ClCompile Include="CInputManager.cpp">
       <Filter>Code\01_Manager\RawInput</Filter>
+    </ClCompile>
+    <ClCompile Include="CMaterial.cpp">
+      <Filter>Code\03_Render\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="CMaterialManager.cpp">
+      <Filter>Code\03_Render\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="CTextureManager.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

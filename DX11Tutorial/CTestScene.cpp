@@ -71,7 +71,7 @@ void CTestScene::_CreateTriangle()
 
 	// shader
 	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("ColorForward");
+	auto shaderID = fnv1a_64("ImageForward");
 	auto shader = shaderManager.CreateShader(shaderID, 0);
 
 	shaderManager.Compile();
