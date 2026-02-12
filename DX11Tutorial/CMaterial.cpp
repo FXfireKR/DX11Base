@@ -17,7 +17,7 @@ void CMaterial::SetSampler(uint32_t slot, ID3D11SamplerState* sampler)
 	m_arraySamplerState[slot] = sampler;
 }
 
-void CMaterial::Bind(ID3D11DeviceContext* pContext)
+void CMaterial::Bind(ID3D11DeviceContext* pContext) const
 {
 	pContext->PSSetShaderResources(0, MAX_TEXTURE_SLOT, m_arrayTexture.data());
 	pContext->PSSetSamplers(0, MAX_SAMPLER_SLOT, m_arraySamplerState.data());

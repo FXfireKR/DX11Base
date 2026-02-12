@@ -14,7 +14,7 @@ public:
 	void SetShader(CShader* const pShader_);
 	void SetInputLayout(CInputLayer* const pInputLayout_);
 
-	void Bind(ID3D11DeviceContext* pDeviceContext_);
+	void Bind(ID3D11DeviceContext* pDeviceContext_) const;
 	void Begin(ID3D11DeviceContext* pDeviceContext_);
 	void End(ID3D11DeviceContext* pDeviceContext_);
 

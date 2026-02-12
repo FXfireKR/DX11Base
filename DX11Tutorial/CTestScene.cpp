@@ -60,6 +60,8 @@ void CTestScene::BuildRenderFrame()
 	RenderItem item;
 	item.pMesh = render->GetMesh();
 	item.pPipeline = render->GetPipeline();
+	item.pMaterial = render->GetMaterial();
+
 	XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 
 	rw.Submit(item);
@@ -78,26 +80,47 @@ void CTestScene::_CreateTriangle()
 	
 	// input layout
 	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_COLOR::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	auto layoutID = ilManager.Create(VERTEX_POSITION_UV::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
 	// pipeline
 	auto& pipelineManager = rw.GetPipelineManager();
 	auto pipeID = pipelineManager.Create(fnv1a_64("TrianglePipeline"));
-	pipelineManager.Get(pipeID)->SetShader(shaderManager.Get(shaderID, 0));
-	pipelineManager.Get(pipeID)->SetInputLayout(ilManager.Get(layoutID));
-	pipelineManager.Get(pipeID)->CreateRaster(rw.GetDevice());
 
+	auto pipeline = pipelineManager.Get(pipeID);
+
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+
+	// dummy
+	pipeline->CreateRaster(rw.GetDevice());
 
 	// mesh
 	auto& meshManager = rw.GetMeshManager();
 	auto meshID = meshManager.CreateQuad(fnv1a_64("TriangleMesh"));
 
+	// texture
+	auto& textureManager = rw.GetTextureManager();
+	auto textureID = textureManager.LoadTexture2D(fnv1a_64("Gaki"), "../Resource/image.jpg", TEXTURE_USAGE::StaticColor);
+
+	// sampler
+	auto& samplerManager = rw.GetSamplerManager();
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_WARP);
+
+	// material
+	auto& materialManager = rw.GetMaterialManager();
+	auto materialID = materialManager.Create(fnv1a_64("GakiDrawer"));
+	materialManager.Get(materialID)->SetTexture(0, textureManager.GetTexture(textureID)->GetShaderResourceView());
+	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	
+	
 	// Object Create
 	m_pTriangle = AddAndGetObject("TestObject #1");
 
 	CTransform* const pTransform = m_pTriangle->AddComponent<CTransform>();
 
+	// Set Mesh Render
 	CMeshRenderer* const pMeshRender = m_pTriangle->AddComponent<CMeshRenderer>();
 	pMeshRender->SetMesh(meshManager.Get(meshID));
 	pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
+	pMeshRender->SetMaterial(materialManager.Get(materialID));
 }

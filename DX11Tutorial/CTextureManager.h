@@ -11,7 +11,7 @@ public:
 
 	uint64_t LoadTexture2D(uint64_t id, const char* path, TEXTURE_USAGE eUsage);
 	uint64_t CreateRenderTexture(uint32_t width, uint32_t height, DXGI_FORMAT eFormat, TEXTURE_USAGE eUsage);
-	uint64_t CreateDepthTexture(uint32_t width, uint32_t height, DXGI_FORMAT eFormat);
+	uint64_t CreateDepthTexture(uint32_t width, uint32_t height);
 
 	CTexture* GetTexture(uint64_t id);
 	const CTexture* GetTexture(uint64_t id) const;

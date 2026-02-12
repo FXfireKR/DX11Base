@@ -177,6 +177,8 @@
     <ClInclude Include="CRenderFrame.h" />
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CRenderWorld.h" />
+    <ClInclude Include="CSamplerManager.h" />
+    <ClInclude Include="CSamplerState.h" />
     <ClInclude Include="CScene.h" />
     <ClInclude Include="CSceneManager.h" />
     <ClInclude Include="CShader.h" />
@@ -226,6 +228,8 @@
     <ClCompile Include="CMaterialManager.cpp" />
     <ClCompile Include="CMouseDevice.cpp" />
     <ClCompile Include="CRawInputDispatcher.cpp" />
+    <ClCompile Include="CSamplerManager.cpp" />
+    <ClCompile Include="CSamplerState.cpp" />
     <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>

@@ -1,11 +1,15 @@
 ﻿#pragma once
 #include "DirectX11Com.h"
 #include "CDirectX11Adapter.h"
+
 #include "CRenderManager.h"
 #include "CShaderManager.h"
 #include "CInputLayerManager.h"
 #include "CPipelineManager.h"
 #include "CMeshManager.h"
+#include "CMaterialManager.h"
+#include "CTextureManager.h"
+#include "CSamplerManager.h"
 
 // RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
 // 즉 다수로 구성될 수 있다...
@@ -60,16 +64,22 @@ public:
 	inline CInputLayerManager& GetIALayoutManager() { return m_inputLayerManager; }
 	inline CPipelineManager& GetPipelineManager() { return m_pipelineManager; }
 	inline CMeshManager& GetMeshManager() { return m_meshManager; }
+	inline CMaterialManager& GetMaterialManager() { return m_materialManager; }
+	inline CTextureManager& GetTextureManager() { return m_textureManager; }
+	inline CSamplerManager& GetSamplerManager() { return m_samplerManager; }
 
 private:
 	CDirectX11Adapter m_dxAdapter;
 
 	CRenderManager m_renderManager;
 
-	CShaderManager m_shaderManager;
-	CInputLayerManager m_inputLayerManager;
-	CPipelineManager m_pipelineManager;
-	CMeshManager m_meshManager;
+	CShaderManager		m_shaderManager;
+	CInputLayerManager	m_inputLayerManager;
+	CPipelineManager	m_pipelineManager;
+	CMeshManager		m_meshManager;
+	CMaterialManager	m_materialManager;
+	CTextureManager		m_textureManager;
+	CSamplerManager		m_samplerManager;
 
 private:
 	ComPtr<ID3D11Texture2D> m_pBackBuffer = nullptr;

@@ -16,9 +16,9 @@ struct CB_ObjectData
 
 struct RenderItem
 {
-	CMesh* pMesh = nullptr;
-	CPipeline* pPipeline = nullptr;
-	CMaterial* pMaterial = nullptr;
+	const CMesh* pMesh = nullptr;
+	const CPipeline* pPipeline = nullptr;
+	const CMaterial* pMaterial = nullptr;
 	XMFLOAT4X4 world;
 };
 

@@ -264,6 +264,12 @@
     <ClInclude Include="CTextureManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CSamplerManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CSamplerState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -411,6 +417,12 @@
       <Filter>Code\03_Render\Material</Filter>
     </ClCompile>
     <ClCompile Include="CTextureManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSamplerManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSamplerState.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

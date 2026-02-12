@@ -54,10 +54,7 @@ public:
 	inline const ID3D11Texture2D* GetTexture2D() const { return m_pTexture.Get(); }
 
 	inline ID3D11ShaderResourceView* GetShaderResourceView() { return m_pShaderResourceView.Get(); }
-	inline ID3D11SamplerState* GetSamplerState() { return m_pSamplerState.Get(); }
-
 	inline const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
-	inline const ID3D11SamplerState* GetSamplerState() const { return m_pSamplerState.Get(); }
 
 	inline const TextureDesc& GetDesc() const { return m_kDesc; }
 	inline const TEXTURE_USAGE& GetUsage() const { return m_eUsage; }
@@ -65,7 +62,6 @@ public:
 protected:
 	ComPtr<ID3D11Texture2D> m_pTexture;
 	ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView;
-	ComPtr<ID3D11SamplerState> m_pSamplerState;
 
 	TextureDesc m_kDesc;
 	TEXTURE_USAGE m_eUsage;

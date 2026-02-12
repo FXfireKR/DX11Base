@@ -8,7 +8,7 @@ public:
 	void SetTexture(uint32_t slot, ID3D11ShaderResourceView* shaderReousrceView);
 	void SetSampler(uint32_t slot, ID3D11SamplerState* sampler);
 
-	void Bind(ID3D11DeviceContext* pContext);
+	void Bind(ID3D11DeviceContext* pContext) const;
 
 private:
 	static constexpr uint32_t MAX_TEXTURE_SLOT = 8;

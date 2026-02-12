@@ -15,8 +15,8 @@ public:
 	void CreateTriangle(ID3D11Device* pDevice);
 	void CreateQuad(ID3D11Device* pDevice);
 
-	void Bind(ID3D11DeviceContext* pContext);
-	void Draw(ID3D11DeviceContext* pContext);
+	void Bind(ID3D11DeviceContext* pContext) const;
+	void Draw(ID3D11DeviceContext* pContext) const;
 
 public:
 	inline vector<SubMesh>& GetSubMesh() { return m_vecSubMesh; }

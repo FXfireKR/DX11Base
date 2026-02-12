@@ -24,13 +24,22 @@ uint64_t CTextureManager::LoadTexture2D(uint64_t id, const char* path, TEXTURE_U
 
 uint64_t CTextureManager::CreateRenderTexture(uint32_t width, uint32_t height, DXGI_FORMAT eFormat, TEXTURE_USAGE eUsage)
 {
+    auto tex = make_unique<CRenderTexture>();
+    if (false == tex->Create(m_pDevice, width, height, eFormat, eUsage)) return UINT64_MAX;
 
-    return 0;
+    uint64_t newID = static_cast<uint64_t>(m_vecTextures.size());
+    m_vecTextures.push_back(std::move(tex));
+    return newID;
 }
 
-uint64_t CTextureManager::CreateDepthTexture(uint32_t width, uint32_t height, DXGI_FORMAT eFormat)
+uint64_t CTextureManager::CreateDepthTexture(uint32_t width, uint32_t height)
 {
-    return 0;
+    auto tex = make_unique<CDepthTexture>();
+    if (false == tex->Create(m_pDevice, width, height)) return UINT64_MAX;
+
+    uint64_t newID = static_cast<uint64_t>(m_vecTextures.size());
+    m_vecTextures.push_back(std::move(tex));
+    return newID;
 }
 
 CTexture* CTextureManager::GetTexture(uint64_t id)

@@ -58,7 +58,7 @@ void CMesh::CreateQuad(ID3D11Device* pDevice)
 	pDevice->CreateBuffer(&descIndex, &dataIndex, m_pIndexBuffer.GetAddressOf());
 }
 
-void CMesh::Bind(ID3D11DeviceContext* pContext)
+void CMesh::Bind(ID3D11DeviceContext* pContext) const
 {
 	UINT stride = sizeof(VERTEX_POSITION_UV);
 	UINT offset = 0;
@@ -72,7 +72,7 @@ void CMesh::Bind(ID3D11DeviceContext* pContext)
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void CMesh::Draw(ID3D11DeviceContext* pContext)
+void CMesh::Draw(ID3D11DeviceContext* pContext) const
 {
 	if (!m_pIndexBuffer) {
 		pContext->Draw(3, 0);

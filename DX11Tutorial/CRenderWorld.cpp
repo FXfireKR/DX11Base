@@ -26,6 +26,8 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	m_shaderManager.Initialize(m_dxAdapter.GetDeviceRef());
 	m_inputLayerManager.Initialize(m_dxAdapter.GetDeviceRef());
 	m_meshManager.Initialize(m_dxAdapter.GetDeviceRef());
+	m_textureManager.Initialize(m_dxAdapter.GetDeviceRef(), m_dxAdapter.GetContextRef());
+	m_samplerManager.Initialize(m_dxAdapter.GetDeviceRef());
 
 	RECT rc;
 	GetClientRect(hWnd_, &rc);
