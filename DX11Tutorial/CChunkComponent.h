@@ -16,6 +16,9 @@ public:
 	BLOCK_ID GetBlock(int x, int y, int z) const;
 	void SetBlock(int x, int y, int z, BLOCK_ID id);
 
+	inline const ChunkCoord& GetChunkCoord() const { return m_kCoord; }
+	inline void SetChunkCoord(const ChunkCoord& c) { m_kCoord = c; }
+
 	inline void SetMesh(CMesh* pMesh) { m_pMesh = pMesh; }
 	inline void SetMeshRenderer(CMeshRenderer* pMeshRenderer) { m_pMeshRender = pMeshRenderer; }
 
