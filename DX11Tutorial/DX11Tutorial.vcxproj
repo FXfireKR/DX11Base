@@ -151,6 +151,9 @@
     <ClInclude Include="CApplication.h" />
     <ClInclude Include="CBootScene.h" />
     <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CChunkComponent.h" />
+    <ClInclude Include="CChunkMesher.h" />
+    <ClInclude Include="CChunkType.h" />
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="CTextureManager.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="CDirectX11Adapter.h" />
+    <ClInclude Include="CWindow.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
@@ -221,6 +225,8 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
+    <ClCompile Include="CChunkComponent.cpp" />
+    <ClCompile Include="CChunkMesher.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
     <ClCompile Include="CInputManager.cpp" />
@@ -231,6 +237,7 @@
     <ClCompile Include="CSamplerManager.cpp" />
     <ClCompile Include="CSamplerState.cpp" />
     <ClCompile Include="CTextureManager.cpp" />
+    <ClCompile Include="CWindow.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

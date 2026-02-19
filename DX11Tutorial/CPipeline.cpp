@@ -16,15 +16,15 @@ void CPipeline::CreateRaster(ID3D11Device* pDevice)
 	dsd.StencilEnable = false; // 스텐실은 필요 없으면 끔
 	pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf());
 
-	//D3D11_BLEND_DESC bd{};
-	//bd.AlphaToCoverageEnable = false;
-	//bd.IndependentBlendEnable = false;
+	D3D11_BLEND_DESC bd{};
+	bd.AlphaToCoverageEnable = false;
+	bd.IndependentBlendEnable = false;
 
-	////auto& rt = desc.RenderTarget[0];
-	////rt.BlendEnable = false;
-	////rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	auto& rt = bd.RenderTarget[0];
+	rt.BlendEnable = false;
+	rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	//pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
+	pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
 }
 
 void CPipeline::SetShader(CShader* const pShader_)

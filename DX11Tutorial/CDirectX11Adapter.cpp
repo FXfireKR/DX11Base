@@ -63,7 +63,8 @@ HRESULT CDirectX11Adapter::_CreateSwapChain()
 	kDXGISwapChainDesc.BufferCount = 2;
 	kDXGISwapChainDesc.BufferDesc.Width = 0;
 	kDXGISwapChainDesc.BufferDesc.Height = 0;
-	kDXGISwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//kDXGISwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	kDXGISwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	// 버퍼의 refresh rate
 	kDXGISwapChainDesc.BufferDesc.RefreshRate = { 0, 1 };

@@ -53,6 +53,7 @@ using namespace std;
 #include <dxgi1_4.h>
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
+#include <wincodec.h>
 #include <wrl.h>
 
 #include <DirectXMath.h>
@@ -69,6 +70,7 @@ using namespace Microsoft::WRL;
 // util header
 #include "util.h"
 #include "VertexTypes.h"
+#include "CChunkType.h"
 
 
 // DirectX Tex
@@ -120,3 +122,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
 
 #include "CInputManager.h"
+
+constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
+constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
+
+extern unsigned long g_ScreenSizeX;
+extern unsigned long g_ScreenSizeY;

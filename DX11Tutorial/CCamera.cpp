@@ -15,57 +15,24 @@ CCamera::~CCamera()
 void CCamera::Init()
 {
 	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
-	if (nullptr == pTransform) return;
-
-	pTransform->SetOrigPosition({0.f, 0.f, -5.f});
-	pos = { 0.f, 0.f, -5.f };
+	pTransform->SetLocalTrans({0.f, 0.f, -5.f});
 }
 
 void CCamera::LateUpdate(float fDelta)
 {
-	const auto& keyboard = CInputManager::Get().Keyboard();
-	const float MOVE_SPEED = 15.f;
-	if (keyboard.GetKey('W'))
-	{
-		pos.z += fDelta * MOVE_SPEED;
-	}
-	else if (keyboard.GetKey('S'))
-	{
-		pos.z -= fDelta * MOVE_SPEED;
-	}
-
-	if (keyboard.GetKey('A'))
-	{
-		pos.x -= fDelta * MOVE_SPEED;
-	}
-	else if (keyboard.GetKey('D'))
-	{
-		pos.x += fDelta * MOVE_SPEED;
-	}
-
-
-	if (CInputManager::Get().Mouse().GetWheelCnt() != 0)
-	{
-		pos.z += static_cast<float>(CInputManager::Get().Mouse().GetWheelCnt()) * fDelta * 50.f;
-	}
-
-	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
-	pTransform->SetOrigPosition(pos);
+	UpdateCameraMatrix();
 }
 
 void CCamera::UpdateCameraMatrix()
 {
 	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
 	if (nullptr == pTransform) return;
-	pTransform->BuildTransform();
+	
+	const auto& world = pTransform->GetWorldMatrix();
 
-	XMFLOAT3 fEye = pTransform->GetOrig().Pos;
-	XMFLOAT3 fLook = pTransform->GetLook();
-	XMFLOAT3 fUp = pTransform->GetUp();
-
-	XMVECTOR eye = XMLoadFloat3(&fEye);
-	XMVECTOR look = XMVectorAdd(eye, XMLoadFloat3(&fLook));
-	XMVECTOR up = XMLoadFloat3(&fUp);
+	XMVECTOR eye = world.r[3];
+	XMVECTOR look = XMVector3Normalize(world.r[2]);
+	XMVECTOR up = XMVector3Normalize(world.r[1]);
 
 	// view-matrix
 	m_matView = XMMatrixLookAtLH(eye, look, up);

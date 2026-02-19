@@ -1,11 +1,8 @@
 ﻿#include "pch.h"
 #include "CInputManager.h"
 
-void CInputManager::Initialize(CMouseDevice& mouse, CKeyboardDevice& keyboard, CGamePadHub& gamepad)
+void CInputManager::Initialize()
 {
-	m_pMouse = &mouse;
-	m_pKeyboard = &keyboard;
-	m_pGamePad = &gamepad;
 }
 
 void CInputManager::BeginFrame()

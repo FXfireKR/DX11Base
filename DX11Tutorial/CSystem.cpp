@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "Resource.h"
 #include "CSystem.h"
-#include "CDummyThread.h"
 
 System::System()
 {
@@ -73,7 +72,7 @@ void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 
 	g_pSystem = this;
 	m_hInstance = GetModuleHandle(NULL);
-	m_lpcWstrApkName = L"Very Melon";
+	m_lpcWstrApkName = L"DirectX11 Freedom";
 
 	WNDCLASSEXW wcex;
 	wcex.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -108,12 +107,15 @@ void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 	}
 	else // (false == FULL_SCREEN)
 	{
-		iScreenWidth_ = SCREENX;
-		iScreenHeight_ = SCREENY;
+		iScreenWidth_ = INIT_SCREEN_SIZE_X;
+		iScreenHeight_ = INIT_SCREEN_SIZE_Y;
 
 		iPosX = (GetSystemMetrics(SM_CXSCREEN) - iScreenWidth_) / 2;
 		iPosY = (GetSystemMetrics(SM_CYSCREEN) - iScreenHeight_) / 2;
 	}
+
+	g_ScreenSizeX = static_cast<ULONG>(iScreenWidth_);
+	g_ScreenSizeY = static_cast<ULONG>(iScreenHeight_);
 
 	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_lpcWstrApkName, m_lpcWstrApkName, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP
 		, iPosX, iPosY, iScreenWidth_, iScreenHeight_, NULL, NULL, m_hInstance, NULL);
@@ -121,8 +123,6 @@ void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 	ShowWindow(m_hWnd, SW_SHOW);
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
-
-	//ShowCursor(false);
 
 	return;
 }

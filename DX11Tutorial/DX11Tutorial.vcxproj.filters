@@ -262,12 +262,24 @@
       <Filter>Code\03_Render\Material</Filter>
     </ClInclude>
     <ClInclude Include="CTextureManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CSamplerManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\03_Render</Filter>
     </ClInclude>
     <ClInclude Include="CSamplerState.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CSamplerManager.h">
+      <Filter>Code\03_Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CWindow.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkMesher.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -417,12 +429,21 @@
       <Filter>Code\03_Render\Material</Filter>
     </ClCompile>
     <ClCompile Include="CTextureManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CSamplerManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\03_Render</Filter>
     </ClCompile>
     <ClCompile Include="CSamplerState.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CSamplerManager.cpp">
+      <Filter>Code\03_Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CWindow.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkMesher.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

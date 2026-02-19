@@ -19,12 +19,12 @@ public: // Object 라이프 사이클
 	virtual void Start() {} // current 활성화 단계
 
 	// Physics
-	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
-	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
-	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
+	virtual void FixedUpdate(float fDelta);
+	virtual void Update(float fDelta);
+	virtual void LateUpdate(float fDelta);
 
 	// Building Frame
-	virtual void BuildRenderFrame() {}
+	virtual void BuildRenderFrame();
 
 public: // Object 중계
 	ObjectID AddObject(const string& strName_);
@@ -46,7 +46,7 @@ public: // Current camera 중계
 protected:
 	CRenderWorld& GetRenderWorld() { return *m_pRenderWorld; }
 
-private:
+protected:
 	CObjectManager m_objectManager;
 	CCamera* m_pCurrentCamera = nullptr;
 	CRenderWorld* m_pRenderWorld = nullptr; // not-own

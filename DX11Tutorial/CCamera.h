@@ -36,6 +36,9 @@ public:
 
 	void UpdateCameraMatrix();
 
+	inline void SetFov(float newFov) { m_kPerspective.fFieldOfView = newFov; }
+	inline void SetAspectRatio(float newRatio) { m_kPerspective.fAspectRatio = newRatio; }
+
 	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() const { return m_eProjectionType; }
 	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_) { m_eProjectionType = eProjectionType_; }
 
@@ -53,6 +56,4 @@ private:
 
 	KPerspectiveParams m_kPerspective;
 	KOrthographicParams m_kOrthographic;
-
-	XMFLOAT3 pos;
 }; 

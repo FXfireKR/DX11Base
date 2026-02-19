@@ -2,6 +2,7 @@
 #include "CGameWorld.h"
 #include "CRenderWorld.h"
 #include "CRawInputDispatcher.h"
+#include "CWindow.h"
 #include "CInputManager.h"
 
 const bool FULL_SCREEN = false;
@@ -25,6 +26,7 @@ private:
 private:
 	CGameWorld m_gameWorld;
 	CRenderWorld m_renderWorld;
+	CWindow m_window;
 
 	CRawInputDispatcher m_rawInputDispatcher;
 };

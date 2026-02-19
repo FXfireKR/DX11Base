@@ -46,3 +46,10 @@ uint64_t CMeshManager::CreateQuad(uint64_t id)
 	this->Get(meshID)->CreateQuad(m_pDevice);
 	return id;
 }
+
+uint64_t CMeshManager::CreateCube(uint64_t id)
+{
+	auto meshID = this->Create(id);
+	this->Get(meshID)->CreateCube(m_pDevice);
+	return id;
+}

@@ -14,6 +14,7 @@ public:
 
 	void CreateTriangle(ID3D11Device* pDevice);
 	void CreateQuad(ID3D11Device* pDevice);
+	void CreateCube(ID3D11Device* pDevice);
 
 	void Bind(ID3D11DeviceContext* pContext) const;
 	void Draw(ID3D11DeviceContext* pContext) const;

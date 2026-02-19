@@ -16,6 +16,8 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	m_gameWorld.Initialize(m_renderWorld);
 
+	m_window.Initialize(hWnd_);
+
 #ifdef IMGUI_ACTIVATE
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -35,7 +37,12 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	_RegisterRawInput(hWnd_);
 
 	//m_rawInputDispatcher.init();
-	CInputManager::Get().Initialize(m_rawInputDispatcher.GetMouse(), m_rawInputDispatcher.GetKeyboard(), m_rawInputDispatcher.GetGamePad());
+	m_rawInputDispatcher.GetMouse().SetWindowTarget(m_window);
+
+	CInputManager::Get().Initialize();
+	CInputManager::Get().SetMouseDevice(m_rawInputDispatcher.GetMouse());
+	CInputManager::Get().SetKeyboardDevice(m_rawInputDispatcher.GetKeyboard());
+	CInputManager::Get().SetGamePadDevice(m_rawInputDispatcher.GetGamePad());
 
 	return true;
 }
@@ -51,6 +58,8 @@ void Application::Release()
 
 void Application::Tick()
 {
+	m_window.CalcWindowSize();
+
 	CInputManager::Get().BeginFrame();
 	{
 		// Input Dispatch
@@ -92,6 +101,12 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 
 	switch (uMessage_)
 	{
+		case WM_MOVE:
+		case WM_SIZE:
+		{
+			
+		} break;
+
 		case WM_INPUT :
 		{
 			UINT size = 0;

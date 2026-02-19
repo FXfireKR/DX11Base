@@ -7,6 +7,8 @@ enum class COMPONENT_TYPE : BYTE
 	TRANSFORM = 0,
 	CAMERA,
 	MESHRENDER,
+
+	CUSTOM_0,
 	// ADD
 
 	END,
@@ -24,7 +26,7 @@ public:
 	virtual ~CComponent();
 
 	virtual void Init() {}
-	virtual void FixedUpdate() {}
+	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Render() {}

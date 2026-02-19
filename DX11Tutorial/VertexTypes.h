@@ -35,3 +35,23 @@ struct VERTEX_POSITION_UV
 		return desc;
 	}
 };
+
+struct VERTEX_POSITION_UV_NORMAL
+{
+	XMFLOAT3 position;
+	XMFLOAT2 uv;
+	XMFLOAT3 normal;
+
+	static VertexLayoutDesc GetLayout()
+	{
+		VertexLayoutDesc desc;
+		desc.uStride = sizeof(VERTEX_POSITION_UV_NORMAL);
+		desc.vecElements = {
+			{ VERTEX_SEMANTIC::POSITION, DXGI_FORMAT_R32G32B32_FLOAT },
+			{ VERTEX_SEMANTIC::TEXCOORD, DXGI_FORMAT_R32G32_FLOAT },
+			{ VERTEX_SEMANTIC::NORMAL, DXGI_FORMAT_R32G32B32_FLOAT },
+		};
+
+		return desc;
+	}
+};

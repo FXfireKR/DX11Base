@@ -40,6 +40,19 @@
       "entry": "PS",
       "version": "ps_5_0"
     }
-  } // ImageForward
+  }, // ImageForward
 
+  "NormalImageForward": {
+      "VS": {
+        "path": "normalImage.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "normalImage.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+    } // NormalImageForward
 }

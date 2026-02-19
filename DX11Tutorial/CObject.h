@@ -10,7 +10,7 @@ public:
 	~CObject() = default;
 
 	void Init();
-	void FixedUpdate();
+	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
 	void Render();
@@ -72,6 +72,7 @@ public:
 	inline void SetEnable(bool bEnable_) { m_bEnable = bEnable_; }
 	inline bool GetEnable() { return m_bEnable; }
 
+	inline CScene* GetOwnScene() { return m_pOwnScene; }
 	inline const CScene* GetOwnScene() const { return m_pOwnScene; }
 
 private:

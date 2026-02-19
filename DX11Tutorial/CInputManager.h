@@ -11,13 +11,18 @@ public:
 	CInputManager() = default;
 	~CInputManager() = default;
 
-	void Initialize(CMouseDevice& mouse, CKeyboardDevice& keyboard, CGamePadHub& gamepad);
+	void Initialize();
 	void BeginFrame();
 	void EndFrame();
 
-	inline const CMouseDevice& Mouse() const { return *m_pMouse; }
-	inline const CKeyboardDevice& Keyboard() const { return *m_pKeyboard; }
-	inline const CGamePadHub& GamePad() const { return *m_pGamePad; }
+public:
+	inline void SetMouseDevice(CMouseDevice& mouse) { m_pMouse = &mouse; }
+	inline void SetKeyboardDevice(CKeyboardDevice& keyboard) { m_pKeyboard = &keyboard; }
+	inline void SetGamePadDevice(CGamePadHub& gamepad) { m_pGamePad = &gamepad; }
+
+	inline CMouseDevice& Mouse() { return *m_pMouse; }
+	inline CKeyboardDevice& Keyboard() { return *m_pKeyboard; }
+	inline CGamePadHub& GamePad() { return *m_pGamePad; }
 
 private:
 	CMouseDevice* m_pMouse = nullptr;

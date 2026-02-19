@@ -18,9 +18,17 @@ public:
 	void ProcessPeddingDestroy();
 
 	CObject* Get(const string& strName_);
-	CObject* Get(ObjectID uObjectID_);
 	const CObject* Get(const string& strName_) const;
+
+	CObject* Get(ObjectID uObjectID_);
 	const CObject* Get(ObjectID uObjectID_) const;
+
+	template<typename Fn>
+	void ForEachAliveEnabled(Fn&& fn) {
+		for (size_t i = 0; i < m_vecObjects.size(); ++i) {
+			fn(*(m_vecObjects[i].get()));
+		}
+	}
 
 private:
 	void _RemoveObjectAtIndex(uint32_t uIndex_);

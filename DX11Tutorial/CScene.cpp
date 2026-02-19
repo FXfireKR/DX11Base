@@ -19,6 +19,33 @@ void CScene::OnCreate(CGameWorld& gameWorld)
 	}
 }
 
+void CScene::FixedUpdate(float fDelta)
+{
+	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
+		obj.FixedUpdate(fDelta);
+	});
+}
+
+void CScene::Update(float fDelta)
+{
+	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
+		obj.Update(fDelta);
+	});
+}
+
+void CScene::LateUpdate(float fDelta)
+{
+	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
+		obj.LateUpdate(fDelta);
+	});
+}
+
+void CScene::BuildRenderFrame()
+{
+
+}
+
+
 ObjectID CScene::AddObject(const string& strName_)
 {
 	return m_objectManager.Add(strName_, this);

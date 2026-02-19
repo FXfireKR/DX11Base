@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CMouseDevice.h"
+#include "CWindow.h"
 
 void CMouseDevice::BeginFrame()
 {
@@ -8,17 +9,18 @@ void CMouseDevice::BeginFrame()
 		iter.down = false;
 	}
 
-	m_iDeltaX = 0;
-	m_iDeltaY = 0;
+	m_delta.x = m_delta.y = 0;
 	m_sWheel = 0;
+
+	GetCursorPos(&m_pos);
 }
 
 void CMouseDevice::OnRawInput(const RAWINPUT& raw)
 {
 	const RAWMOUSE& mouse = raw.data.mouse;
 
-	m_iDeltaX += mouse.lLastX;
-	m_iDeltaY += mouse.lLastY;
+	m_delta.x += mouse.lLastX;
+	m_delta.y += mouse.lLastY;
 
 	// Left
 	if (mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
@@ -47,6 +49,10 @@ void CMouseDevice::OnRawInput(const RAWINPUT& raw)
 
 void CMouseDevice::EndFrame()
 {
+	if (m_bMouseMoveLock) {
+		const auto& center = m_pWindow->GetClientCenter();
+		SetCursorPos(center.x, center.y);
+	}
 }
 
 const bool CMouseDevice::GetKey(uint16_t vk) const

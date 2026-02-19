@@ -1,76 +1,69 @@
 ﻿#pragma once
 #include "CComponentBase.h"
 
-struct KTransform
-{
-	XMFLOAT3 Scale;
-	XMFLOAT3 Rotate;
-	XMFLOAT3 Pos;
-};
-
-using Quaternion = XMFLOAT4;
-
 class CTransform : public CComponentBase<CTransform, COMPONENT_TYPE::TRANSFORM>
 {
 public:
-	CTransform();
-	~CTransform();
+	CTransform() = default;
+	~CTransform() override = default;
 
-	void Init() override;
 	void Update(float fDelta) override;
 	void LateUpdate(float fDelta) override;
 
-	void SetLocal(const KTransform& newTransform_);
-	void SetLocalScale(const XMFLOAT3& newScale_);
-	void SetLocalRotate(const XMFLOAT3& newRotate_);
-	void SetLocalPosition(const XMFLOAT3& newPosition_);
+	void BuildWorldMatrix();
 
-	void SetOrig(const KTransform& newTransform_);
-	void SetOrigScale(const XMFLOAT3& newScale_);
-	void SetOrigRotate(const XMFLOAT3& newRotate_);
-	void SetOrigPosition(const XMFLOAT3& newPosition_);
+	void AddChild(ObjectID id);
+	void SetParent(ObjectID id);
+
+	void SetLocalScale(const XMFLOAT3& fScale);
+	void SetLocalRotateEulerDeg(const XMFLOAT3& fRotateDeg);
+	void SetLocalRotateEulerRad(const XMFLOAT3& fRotateRad);
+	void SetLocalRotateQuat(const XMVECTOR& vRotate);
+	void SetLocalTrans(const XMFLOAT3& fTrans);
+
+	inline XMFLOAT3 GetLocalScale() { return m_fScale; }
+	inline XMVECTOR GetLocalRotationQuat() { return m_qRotate; }
+	inline XMFLOAT3 GetLocalTrans() { return m_fTrans; }
+
+	void RotateLocalQuat(const XMVECTOR& delta);
+
+	void SetWorldScale(const XMFLOAT3& fScale);
+	void SetWorldRotationQuat(const XMVECTOR& vRotate);
+	void WorldTrans(const XMFLOAT3& fTrans);
+
+	XMFLOAT3 GetWorldScale() const;
+	XMVECTOR GetWorldRotationQuat() const;
+	XMFLOAT3 GetWorldTrans() const;
 
 	XMFLOAT3 GetRight() const;
 	XMFLOAT3 GetUp() const;
 	XMFLOAT3 GetLook() const;
 
-	void BuildTransform();
+	XMFLOAT3 GetRightNorm() const;
+	XMFLOAT3 GetUpNorm() const;
+	XMFLOAT3 GetLookNorm() const;
 
-	void AddChild(ObjectID uChildID_);
-	void SetParentID(ObjectID uParentID_);
+	CTransform* GetTransform(ObjectID id);
 	const CTransform* GetParent() const;
 
-public:
-	// getter
-	inline ObjectID GetParentID() { return m_uParentID; }
-	inline bool HasParent() { return IsValidObject(m_uParentID); }
-	inline bool HasChildren() { return !m_vecChildren.empty(); }
-	inline const vector<ObjectID>& GetChildren() const { return m_vecChildren; }
-
-	inline const KTransform& GetLocal() const { return m_kLocalTransform; }
-	inline const KTransform& GetOrig() const { return m_kTransform; }
+	inline bool HasParent() const { return m_uParentID != INVALID_OBJECT_ID; }
 	inline const XMMATRIX& GetWorldMatrix() const { return m_matWorld; }
 
-	// setter
-
 private:
-	inline void _MarkDirty() { m_bDirty = true; }
-	void _QuaternionToEuler(XMFLOAT3* euler_, const XMVECTOR& vQuaternion_) const;
-
-private:
-	KTransform m_kLocalTransform = { {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f} };
-	KTransform m_kTransform = { {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f} };
-
-	XMMATRIX m_matLocal = XMMatrixIdentity();
-	XMMATRIX m_matWorld = XMMatrixIdentity();
+	void _MarkLocalDirty();
+	void _MarkWorldDirty();
 
 private:
 	ObjectID m_uParentID = INVALID_OBJECT_ID;
 	vector<ObjectID> m_vecChildren;
 
-	// transform-dirty pattern
-	bool m_bDirty = false; 
-};
+	XMFLOAT3 m_fScale = {1.f, 1.f, 1.f};
+	XMVECTOR m_qRotate = XMQuaternionIdentity(); // Quaternion
+	XMFLOAT3 m_fTrans = {0.f, 0.f, 0.f};
+	
+	XMMATRIX m_matLocal = XMMatrixIdentity();
+	XMMATRIX m_matWorld = XMMatrixIdentity();
 
-// local은 진짜 그 자체의 내용
-// orig는 전반적인 내용이 합쳐진 world에서의 쓰임새
+	bool m_bLocalDirty = true;
+	bool m_bWorldDirty = true;
+};

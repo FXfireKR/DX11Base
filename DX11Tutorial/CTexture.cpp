@@ -71,6 +71,9 @@ bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext*
 	wstring path = UTF8ToWstring(path_);
 	UINT uLoaderFlags = 0;
 
+	// 강제로 RGBA 32 로 만들어줘요...
+	uLoaderFlags |= WIC_LOADER_FORCE_RGBA32;
+
 	m_kDesc.bSRGB = info.bSRGB;
 	m_kDesc.bMipmap = info.bMipmap;
 

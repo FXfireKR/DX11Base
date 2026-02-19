@@ -21,34 +21,47 @@ void CTestScene::Start()
 
 void CTestScene::FixedUpdate(float fDelta)
 {
-	UNREFERENCED_PARAMETER(fDelta);
+	CScene::FixedUpdate(fDelta);
 }
 
 void CTestScene::Update(float fDelta)
 {
-	UNREFERENCED_PARAMETER(fDelta);
+	CScene::Update(fDelta);
 
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
+	ImGui::Text("Delta X : %d", CInputManager::Get().Mouse().GetDelta().x);
+	ImGui::Text("Delta Y : %d", CInputManager::Get().Mouse().GetDelta().y);
+
+	ImGui::Text("Rotate X : %.3f", x);
+	ImGui::Text("Rotate Y : %.3f", y);
+	ImGui::Text("Rotate Z : %.3f", z);
 #endif // IMGUI_ACTIVATE
 
-	m_pTriangle->Update(fDelta);
+	//x += 45.f * fDelta;
+	/*if (x > 89.9f) {
+		x -= 179.9;
+	}*/
+
+	y += 45.f * fDelta;
+	/*if (y > 360.0f) {
+		y -= 360.0f;
+	}*/
+
+	CTransform* pTrans = m_pTriangle->GetComponent<CTransform>();
+	pTrans->SetLocalRotateEulerDeg({ x,y,z });
 }
 
 void CTestScene::LateUpdate(float fDelta)
 {
-	UNREFERENCED_PARAMETER(fDelta);
-
-	m_pTriangle->LateUpdate(fDelta);
-
-	GetCurrentCamera()->LateUpdate(fDelta);
+	CScene::LateUpdate(fDelta);
 }
 
 void CTestScene::BuildRenderFrame()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
-	GetCurrentCamera()->UpdateCameraMatrix();
+	//GetCurrentCamera()->UpdateCameraMatrix();
 
 	// matrix setting
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
@@ -73,14 +86,14 @@ void CTestScene::_CreateTriangle()
 
 	// shader
 	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("ImageForward");
+	auto shaderID = fnv1a_64("NormalImageForward");
 	auto shader = shaderManager.CreateShader(shaderID, 0);
 
 	shaderManager.Compile();
 	
 	// input layout
 	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_UV::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
 	// pipeline
 	auto& pipelineManager = rw.GetPipelineManager();
@@ -96,15 +109,15 @@ void CTestScene::_CreateTriangle()
 
 	// mesh
 	auto& meshManager = rw.GetMeshManager();
-	auto meshID = meshManager.CreateQuad(fnv1a_64("TriangleMesh"));
+	auto meshID = meshManager.CreateCube(fnv1a_64("TriangleMesh"));
 
 	// texture
 	auto& textureManager = rw.GetTextureManager();
-	auto textureID = textureManager.LoadTexture2D(fnv1a_64("Gaki"), "../Resource/image.jpg", TEXTURE_USAGE::StaticColor);
+	auto textureID = textureManager.LoadTexture2D(fnv1a_64("Gaki"), "../Resource/stone.png", TEXTURE_USAGE::StaticColorMip);
 
 	// sampler
 	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_WARP);
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 
 	// material
 	auto& materialManager = rw.GetMaterialManager();
