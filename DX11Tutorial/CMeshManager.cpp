@@ -15,6 +15,27 @@ uint64_t CMeshManager::Create(uint64_t id)
 	return id;
 }
 
+CMesh* CMeshManager::CreateOrUpdateDynamicMesh(ID3D11DeviceContext* pContext, uint64_t meshKey
+	, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt
+	, const uint32_t* pIndices, uint32_t indexCnt)
+{
+	CMesh* pMesh = nullptr;
+	auto it = m_mapMesh.find(meshKey);
+	if (it == m_mapMesh.end()) {
+		auto meshUPtr = make_unique<CMesh>();
+		pMesh = meshUPtr.get();
+		m_mapMesh.emplace(meshKey, std::move(meshUPtr));
+	}
+	else {
+		pMesh = it->second.get();
+	}
+
+	if (!pMesh->UpdateDynamic(m_pDevice, pContext, pVertices, vertexStride, vertexCnt, pIndices, indexCnt))
+		return nullptr;
+
+	return pMesh;
+}
+
 CMesh* CMeshManager::Get(uint64_t id)
 {
 	auto iter = m_mapMesh.find(id);

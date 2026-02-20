@@ -16,6 +16,10 @@ public:
 	void CreateQuad(ID3D11Device* pDevice);
 	void CreateCube(ID3D11Device* pDevice);
 
+	bool UpdateDynamic(ID3D11Device* pDevice, ID3D11DeviceContext* pContext
+		, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt
+		, const uint32_t* pIndices, uint32_t indexCnt);
+
 	void Bind(ID3D11DeviceContext* pContext) const;
 	void Draw(ID3D11DeviceContext* pContext) const;
 
@@ -28,4 +32,11 @@ private:
 
 	ComPtr<ID3D11Buffer> m_pVertexBuffer;
 	ComPtr<ID3D11Buffer> m_pIndexBuffer;
+
+	uint32_t m_uVertexStride = 0;
+	uint32_t m_uVertexCnt = 0;
+	uint32_t m_uIndexCnt = 0;
+
+	uint32_t m_vbCapacityBytes = 0;
+	uint32_t m_ibCapacityBytes = 0;
 };

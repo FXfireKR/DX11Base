@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CTestScene.h"
 #include "CRenderWorld.h"
+#include "CChunkMesherSystem.h"
 
 CTestScene::CTestScene()
 {
@@ -12,7 +13,10 @@ CTestScene::~CTestScene()
 
 void CTestScene::Awake()
 {
-	_CreateTriangle();
+
+
+	//_CreateTriangle();
+	_CreateChunkObject();
 }
 
 void CTestScene::Start()
@@ -43,13 +47,13 @@ void CTestScene::Update(float fDelta)
 		x -= 179.9;
 	}*/
 
-	y += 45.f * fDelta;
+	//y += 45.f * fDelta;
 	/*if (y > 360.0f) {
 		y -= 360.0f;
 	}*/
 
-	CTransform* pTrans = m_pTriangle->GetComponent<CTransform>();
-	pTrans->SetLocalRotateEulerDeg({ x,y,z });
+	//CTransform* pTrans = m_pTriangle->GetComponent<CTransform>();
+	//pTrans->SetLocalRotateEulerDeg({ x,y,z });
 }
 
 void CTestScene::LateUpdate(float fDelta)
@@ -61,14 +65,14 @@ void CTestScene::BuildRenderFrame()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
-	//GetCurrentCamera()->UpdateCameraMatrix();
-
 	// matrix setting
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
-	auto render = m_pTriangle->GetComponent<CMeshRenderer>();
-	auto transform = m_pTriangle->GetComponent<CTransform>();
+	auto render = m_pChunkObject->GetComponent<CMeshRenderer>();
+	auto transform = m_pChunkObject->GetComponent<CTransform>();
+
+	CChunkMesherSystem::RebuildDirtyChunks(*this);
 	
 	RenderItem item;
 	item.pMesh = render->GetMesh();
@@ -78,6 +82,83 @@ void CTestScene::BuildRenderFrame()
 	XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 
 	rw.Submit(item);
+}
+
+void CTestScene::_CreateChunkObject()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	RuntimeAtlasDesc ad{};
+	ad.width = 256;
+	ad.height = 256;
+	ad.tilePx = 16;
+	ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	ad.bSRGB = true;
+	ad.bMipmap = false;
+
+	rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
+
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bedrock"), "../Resource/textures/block/bedrock.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bricks"), "../Resource/textures/block/bricks.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("glass"), "../Resource/textures/block/glass.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("gravel"), "../Resource/textures/block/gravel.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("sand"), "../Resource/textures/block/sand.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("stone"), "../Resource/textures/block/stone.png");
+
+	// shader
+	auto& shaderManager = rw.GetShaderManager();
+	auto shaderID = fnv1a_64("NormalImageForward");
+	auto shader = shaderManager.CreateShader(shaderID, 0);
+
+	shaderManager.Compile();
+
+	// input layout
+	auto& ilManager = rw.GetIALayoutManager();
+	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+
+	// pipeline
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	auto pipeline = pipelineManager.Get(pipeID);
+
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->CreateRaster(rw.GetDevice());
+
+	// texture
+	//auto& textureManager = rw.GetTextureManager();
+	//auto textureID = textureManager.LoadTexture2D(fnv1a_64("Stone"), "../Resource/stone.png", TEXTURE_USAGE::StaticColorMip);
+
+	// sampler
+	auto& samplerManager = rw.GetSamplerManager();
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+
+	// material
+	auto& materialManager = rw.GetMaterialManager();
+	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
+	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+
+	m_pChunkPipeline = pipelineManager.Get(pipeID);
+	m_pChunkMaterial = materialManager.Get(materialID);
+
+	m_pChunkObject = AddAndGetObject("Chunk_0_0_0");
+	auto* tr = m_pChunkObject->AddComponent<CTransform>();
+	tr->SetLocalTrans({ 0.f, 0.f, 0.f });
+
+	auto* mr = m_pChunkObject->AddComponent<CMeshRenderer>();
+	mr->SetPipeline(m_pChunkPipeline);
+	mr->SetMaterial(m_pChunkMaterial);
+
+	auto* cnk = m_pChunkObject->AddComponent<CChunkComponent>();
+	cnk->Init();
+	cnk->SetMeshRenderer(mr);
+	cnk->SetChunkCoord({ 0,0,0 });
+
+	for (int z = 0; z < 16; ++z)
+		for (int y = 0; y < 16; ++y)
+			for (int x = 0; x < 16; ++x)
+				cnk->SetBlock(x, y, z, rand() % 7);
 }
 
 void CTestScene::_CreateTriangle()
@@ -127,13 +208,13 @@ void CTestScene::_CreateTriangle()
 	
 	
 	// Object Create
-	m_pTriangle = AddAndGetObject("TestObject #1");
+	//m_pTriangle = AddAndGetObject("TestObject #1");
 
-	CTransform* const pTransform = m_pTriangle->AddComponent<CTransform>();
+	//CTransform* const pTransform = m_pTriangle->AddComponent<CTransform>();
 
-	// Set Mesh Render
-	CMeshRenderer* const pMeshRender = m_pTriangle->AddComponent<CMeshRenderer>();
-	pMeshRender->SetMesh(meshManager.Get(meshID));
-	pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
-	pMeshRender->SetMaterial(materialManager.Get(materialID));
+	//// Set Mesh Render
+	//CMeshRenderer* const pMeshRender = m_pTriangle->AddComponent<CMeshRenderer>();
+	//pMeshRender->SetMesh(meshManager.Get(meshID));
+	//pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
+	//pMeshRender->SetMaterial(materialManager.Get(materialID));
 }

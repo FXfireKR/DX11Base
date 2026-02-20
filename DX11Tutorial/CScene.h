@@ -39,12 +39,14 @@ public: // Object 중계
 	const CObject* FindObject(const string& strName_) const;
 	const CObject* FindObject(ObjectID uObjectID_) const;
 
+	CObjectManager& GetObjectManager() { return m_objectManager; }
+
 public: // Current camera 중계
 	CCamera* GetCurrentCamera() { return m_pCurrentCamera; }
 	const CCamera* GetCurrentCamera() const { return m_pCurrentCamera; }
 
-protected:
-	CRenderWorld& GetRenderWorld() { return *m_pRenderWorld; }
+
+	inline CRenderWorld& GetRenderWorld() { return *m_pRenderWorld; }
 
 protected:
 	CObjectManager m_objectManager;

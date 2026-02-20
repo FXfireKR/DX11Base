@@ -17,13 +17,13 @@ cbuffer CBFrame : register(b0)
 {
     float4x4 viewMatrix;
     float4x4 projMatrix;
-    float4x4 lightViewMatrix;
+    //float4x4 lightViewMatrix;
 };
 
 cbuffer CBObject : register(b1)
 {
     float4x4 worldMatrix;
-    float4x4 worldInvMatrix;
+    //float4x4 worldInvMatrix;
 };
 
 // IA - VS - RS - PS - OM

@@ -20,6 +20,41 @@ void CCamera::Init()
 
 void CCamera::LateUpdate(float fDelta)
 {
+	auto& input = CInputManager::Get();
+	auto& keyboard = input.Keyboard();
+
+	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
+	XMFLOAT3 trans = pTransform->GetLocalTrans();
+	if (keyboard.GetKey('W')) {
+		trans.z += fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
+	if (keyboard.GetKey('S')) {
+		trans.z -= fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
+	if (keyboard.GetKey('A')) {
+		trans.x -= fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
+	if (keyboard.GetKey('D')) {
+		trans.x += fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
+	if (keyboard.GetKey('E')) {
+		trans.y -= fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
+	if (keyboard.GetKey('Q')) {
+		trans.y += fDelta * 45.f;
+		pTransform->SetLocalTrans(trans);
+	}
+
 	UpdateCameraMatrix();
 }
 
@@ -31,7 +66,8 @@ void CCamera::UpdateCameraMatrix()
 	const auto& world = pTransform->GetWorldMatrix();
 
 	XMVECTOR eye = world.r[3];
-	XMVECTOR look = XMVector3Normalize(world.r[2]);
+	// look 이 normalize되면 한 좌표에 고정되어 보므로, eye를 더해줘야 움직이는 위치에 맞게 보인다.
+	XMVECTOR look = eye + XMVector3Normalize(world.r[2]);
 	XMVECTOR up = XMVector3Normalize(world.r[1]);
 
 	// view-matrix

@@ -10,6 +10,7 @@
 #include "CMaterialManager.h"
 #include "CTextureManager.h"
 #include "CSamplerManager.h"
+#include "CRuntimeAtlas.h"
 
 // RenderWorld는 렌더링 결과 하나를 책임지는 부분이다.
 // 즉 다수로 구성될 수 있다...
@@ -67,6 +68,7 @@ public:
 	inline CMaterialManager& GetMaterialManager() { return m_materialManager; }
 	inline CTextureManager& GetTextureManager() { return m_textureManager; }
 	inline CSamplerManager& GetSamplerManager() { return m_samplerManager; }
+	inline CRuntimeAtlas& GetRuntimeAtlas() { return m_runtimeAtlas; }
 
 private:
 	CDirectX11Adapter m_dxAdapter;
@@ -80,6 +82,8 @@ private:
 	CMaterialManager	m_materialManager;
 	CTextureManager		m_textureManager;
 	CSamplerManager		m_samplerManager;
+
+	CRuntimeAtlas		m_runtimeAtlas;
 
 private:
 	ComPtr<ID3D11Texture2D> m_pBackBuffer = nullptr;

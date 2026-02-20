@@ -24,11 +24,19 @@ public:
 	const CObject* Get(ObjectID uObjectID_) const;
 
 	template<typename Fn>
-	void ForEachAliveEnabled(Fn&& fn) {
-		for (size_t i = 0; i < m_vecObjects.size(); ++i) {
-			fn(*(m_vecObjects[i].get()));
+	void ForEachAliveEnabled(Fn&& fn) 
+	{
+		for (size_t i = 0; i < m_vecSparse.size(); ++i)
+		{
+			uint32_t denseIndex = m_vecSparse[i];
+			CObject* pObj = m_vecObjects[i].get();
+			if (pObj) {
+				fn(*pObj);
+			}
 		}
 	}
+
+	vector<uint32_t> GetAllObject() { return m_vecSparse; }
 
 private:
 	void _RemoveObjectAtIndex(uint32_t uIndex_);

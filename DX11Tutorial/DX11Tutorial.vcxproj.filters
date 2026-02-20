@@ -85,6 +85,9 @@
     <Filter Include="Code\03_Render\Material">
       <UniqueIdentifier>{cb1bfa8f-beb8-455b-9683-4db4b88a98fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\04_Game\Chunk">
+      <UniqueIdentifier>{792a405c-2d44-4ae5-95a5-7acf16c8ac46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -271,15 +274,21 @@
       <Filter>Code\03_Render</Filter>
     </ClInclude>
     <ClInclude Include="CWindow.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CChunkType.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\00_WindowFramework</Filter>
     </ClInclude>
     <ClInclude Include="CChunkComponent.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\Chunk</Filter>
     </ClInclude>
     <ClInclude Include="CChunkMesher.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkMesherSystem.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkType.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="CRuntimeAtlas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -438,12 +447,18 @@
       <Filter>Code\03_Render</Filter>
     </ClCompile>
     <ClCompile Include="CWindow.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\00_WindowFramework</Filter>
     </ClCompile>
     <ClCompile Include="CChunkComponent.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\Chunk</Filter>
     </ClCompile>
     <ClCompile Include="CChunkMesher.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkMesherSystem.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="CRuntimeAtlas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

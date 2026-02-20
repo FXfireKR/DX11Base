@@ -9,9 +9,10 @@ struct ChunkMeshData
 };
 
 class CChunkComponent;
+class CRuntimeAtlas;
 
 class CChunkMesher
 {
 public:
-	static void BuildNaive(__in const CChunkComponent& chunk, __out ChunkMeshData& out);
+	static void BuildNaive(const CRuntimeAtlas& atlas, const CChunkComponent& chunk, ChunkMeshData& out);
 };

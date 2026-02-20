@@ -17,11 +17,15 @@ public:
 	void BuildRenderFrame() override;
 
 private:
+	void _CreateChunkObject();
 	void _CreateTriangle();
 
 private:
-	CObject* m_pTriangle = nullptr;
 	float x = 0.f;
 	float y = 0.f;
 	float z = 0.f;
+
+	CObject* m_pChunkObject = nullptr;
+	CPipeline* m_pChunkPipeline = nullptr;
+	CMaterial* m_pChunkMaterial = nullptr;
 };
