@@ -13,7 +13,7 @@ CTestScene::~CTestScene()
 
 void CTestScene::Awake()
 {
-
+	CBlockStateDB::Get().Initialize("../Resource/");
 
 	//_CreateTriangle();
 	_CreateChunkObject();
@@ -98,12 +98,12 @@ void CTestScene::_CreateChunkObject()
 
 	rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
 
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bedrock"), "../Resource/textures/block/bedrock.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bricks"), "../Resource/textures/block/bricks.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("glass"), "../Resource/textures/block/glass.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("gravel"), "../Resource/textures/block/gravel.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("sand"), "../Resource/textures/block/sand.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("stone"), "../Resource/textures/block/stone.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bedrock"), "../Resource/assets/minecraft/textures/block/bedrock.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("glass"), "../Resource/assets/minecraft/textures/block/glass.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("gravel"), "../Resource/assets/minecraft/textures/block/gravel.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("sand"), "../Resource/assets/minecraft/textures/block/sand.png");
+	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 
 	// shader
 	auto& shaderManager = rw.GetShaderManager();
@@ -155,9 +155,9 @@ void CTestScene::_CreateChunkObject()
 	cnk->SetMeshRenderer(mr);
 	cnk->SetChunkCoord({ 0,0,0 });
 
-	for (int z = 0; z < 16; ++z)
-		for (int y = 0; y < 16; ++y)
-			for (int x = 0; x < 16; ++x)
+	for (int z = 0; z < CHUNK_SIZE_Z; ++z)
+		for (int y = 0; y < CHUNK_SIZE_Y; ++y)
+			for (int x = 0; x < CHUNK_SIZE_X; ++x)
 				cnk->SetBlock(x, y, z, rand() % 7);
 }
 

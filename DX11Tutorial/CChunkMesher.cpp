@@ -3,30 +3,14 @@
 #include "CChunkComponent.h"
 #include "CRuntimeAtlas.h"
 
-// Positive(+), Negative(-)
-enum FaceDir {PX, NX, PY, NY, PZ, NZ};
-
-static XMFLOAT3 FaceNormal(FaceDir eDir)
-{
-	switch (eDir)
-	{
-		case PX: return { 1.f, 0.f, 0.f };
-		case NX: return { -1.f, 0.f, 0.f };
-		case PY: return { 0.f, 1.f, 0.f };
-		case NY: return { 0.f, -1.f, 0.f };
-		case PZ: return { 0.f, 0.f, 1.f };
-		case NZ: return { 0.f, 0.f, -1.f };
-	}
-}
-
-static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHUNK_VERTEX>& v, vector<uint32_t>& i)
+static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CHUNK_VERTEX>& v, vector<uint32_t>& i)
 {
 	const XMFLOAT3 n = FaceNormal(eDir);
 	XMFLOAT3 p[4];
 
 	switch (eDir)
 	{
-		case PX: // x+ 면
+		case FACE_DIR::PX: // x+ 면
 		{
 			p[0] = { (float)(x + 1), (float)y,     (float)z };
 			p[1] = { (float)(x + 1), (float)(y + 1), (float)z };
@@ -34,7 +18,7 @@ static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHU
 			p[3] = { (float)(x + 1), (float)y,     (float)(z + 1) };
 		} break;
 
-		case NX: // x- 면
+		case FACE_DIR::NX: // x- 면
 		{
 			p[0] = { (float)x, (float)y,     (float)(z + 1) };
 			p[1] = { (float)x, (float)(y + 1), (float)(z + 1) };
@@ -42,7 +26,7 @@ static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHU
 			p[3] = { (float)x, (float)y,     (float)z };
 		} break;
 
-		case PY: // y+ 면
+		case FACE_DIR::PY: // y+ 면
 		{
 			p[0] = { (float)x,     (float)(y + 1), (float)z };
 			p[1] = { (float)x,     (float)(y + 1), (float)(z + 1) };
@@ -50,7 +34,7 @@ static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHU
 			p[3] = { (float)(x + 1), (float)(y + 1), (float)z };
 		} break;
 
-		case NY: // y- 면
+		case FACE_DIR::NY: // y- 면
 		{
 			p[0] = { (float)x,     (float)y, (float)(z + 1) };
 			p[1] = { (float)x,     (float)y, (float)z };
@@ -58,7 +42,7 @@ static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHU
 			p[3] = { (float)(x + 1), (float)y, (float)(z + 1) };
 		} break;
 
-		case PZ: // z+ 면
+		case FACE_DIR::PZ: // z+ 면
 		{
 			p[0] = { (float)(x + 1), (float)y,     (float)(z + 1) };
 			p[1] = { (float)(x + 1), (float)(y + 1), (float)(z + 1) };
@@ -66,7 +50,7 @@ static void AddFaceQuad(int x, int y, int z, FaceDir eDir, UVRect uv, vector<CHU
 			p[3] = { (float)x,     (float)y,     (float)(z + 1) };
 		} break;
 
-		case NZ: // z- 면
+		case FACE_DIR::NZ: // z- 면
 		default:
 		{
 			p[0] = { (float)x,     (float)y,     (float)z };
@@ -112,22 +96,22 @@ void CChunkMesher::BuildNaive(const CRuntimeAtlas& atlas, const CChunkComponent&
 				UVRect uv = atlas.GetUV(id - 1);
 
 				if (IsAir(chunk, x + 1, y, z)) 
-					AddFaceQuad(x, y, z, PX, uv, out.vertices, out.indices); // +x
+					AddFaceQuad(x, y, z, FACE_DIR::PX, uv, out.vertices, out.indices); // +x
 
 				if (IsAir(chunk, x - 1, y, z)) 
-					AddFaceQuad(x, y, z, NX, uv, out.vertices, out.indices); // -x
+					AddFaceQuad(x, y, z, FACE_DIR::NX, uv, out.vertices, out.indices); // -x
 
 				if (IsAir(chunk, x, y + 1, z)) 
-					AddFaceQuad(x, y, z, PY, uv, out.vertices, out.indices); // +y
+					AddFaceQuad(x, y, z, FACE_DIR::PY, uv, out.vertices, out.indices); // +y
 
 				if (IsAir(chunk, x, y - 1, z)) 
-					AddFaceQuad(x, y, z, NY, uv, out.vertices, out.indices); // -y
+					AddFaceQuad(x, y, z, FACE_DIR::NY, uv, out.vertices, out.indices); // -y
 
 				if (IsAir(chunk, x, y, z + 1)) 
-					AddFaceQuad(x, y, z, PZ, uv, out.vertices, out.indices); // +z
+					AddFaceQuad(x, y, z, FACE_DIR::PZ, uv, out.vertices, out.indices); // +z
 
 				if (IsAir(chunk, x, y, z - 1)) 
-					AddFaceQuad(x, y, z, NZ, uv, out.vertices, out.indices); // -z
+					AddFaceQuad(x, y, z, FACE_DIR::NZ, uv, out.vertices, out.indices); // -z
 			}
 		}
 	}

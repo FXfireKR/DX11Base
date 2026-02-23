@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CApplication.h" />
+    <ClInclude Include="CBlockStateDB.h" />
     <ClInclude Include="CBootScene.h" />
     <ClInclude Include="CCamera.h" />
     <ClInclude Include="CChunkComponent.h" />
@@ -171,12 +172,14 @@
     <ClInclude Include="CMesh.h" />
     <ClInclude Include="CMeshManager.h" />
     <ClInclude Include="CMeshRenderer.h" />
+    <ClInclude Include="CModelDB.h" />
     <ClInclude Include="CMouseDevice.h" />
     <ClInclude Include="CObject.h" />
     <ClInclude Include="CObjectManager.h" />
     <ClInclude Include="Components.h" />
     <ClInclude Include="CPipeline.h" />
     <ClInclude Include="CPipelineManager.h" />
+    <ClInclude Include="CRapidJsonParseWrapper.h" />
     <ClInclude Include="CRawInputDispatcher.h" />
     <ClInclude Include="CRenderFrame.h" />
     <ClInclude Include="CRenderManager.h" />
@@ -197,6 +200,7 @@
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IFileWrapper.h" />
     <ClInclude Include="IGamePadDevice.h" />
     <ClInclude Include="IInputDevice.h" />
     <ClInclude Include="ImGui\backend\imgui_impl_dx11.h">
@@ -223,10 +227,14 @@
     <ClInclude Include="ImGui\imstb_truetype.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="MCModelUtl.h" />
+    <ClInclude Include="MCStateUtil.h" />
+    <ClInclude Include="MCUtil.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
+    <ClCompile Include="CBlockStateDB.cpp" />
     <ClCompile Include="CChunkComponent.cpp" />
     <ClCompile Include="CChunkMesher.cpp" />
     <ClCompile Include="CChunkMesherSystem.cpp" />
@@ -235,6 +243,7 @@
     <ClCompile Include="CInputManager.cpp" />
     <ClCompile Include="CKeyboardDevice.cpp" />
     <ClCompile Include="CMaterialManager.cpp" />
+    <ClCompile Include="CModelDB.cpp" />
     <ClCompile Include="CMouseDevice.cpp" />
     <ClCompile Include="CRawInputDispatcher.cpp" />
     <ClCompile Include="CRuntimeAtlas.cpp" />

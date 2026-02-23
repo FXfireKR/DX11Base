@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-struct UVRect 
+struct UVRect
 {
 	float u0, v0, u1, v1;
 };
+
 
 struct RuntimeAtlasDesc
 {

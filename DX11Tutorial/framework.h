@@ -32,7 +32,6 @@
 #include <cstdint>
 using namespace std;
 
-
 // STL
 #include <vector>
 #include <map>
@@ -65,12 +64,6 @@ using namespace std;
 #pragma comment(lib, "d3dcompiler.lib")
 using namespace DirectX;
 using namespace Microsoft::WRL;
-
-
-// util header
-#include "util.h"
-#include "VertexTypes.h"
-#include "CChunkType.h"
 
 
 // DirectX Tex
@@ -118,13 +111,27 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #define IMGUI_DISABLE
 #endif // IMGUI_ACTIVATE
 
-
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
-
-#include "CInputManager.h"
 
 constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
 constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
 
 extern unsigned long g_ScreenSizeX;
 extern unsigned long g_ScreenSizeY;
+
+
+// util header
+#include "util.h"
+#include "VertexTypes.h"
+#include "IFileWrapper.h"
+#include "CRapidJsonParseWrapper.h"
+
+// Mincraft:Util
+#include "CChunkType.h"
+#include "MCUtil.h"
+
+
+// singleton
+#include "CInputManager.h"
+#include "CBlockStateDB.h"
+#include "CModelDB.h"
