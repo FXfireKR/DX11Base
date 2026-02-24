@@ -15,6 +15,20 @@ void CTestScene::Awake()
 {
 	CBlockStateDB::Get().Initialize("../Resource/");
 
+	BlockPropHashMap props;
+	props[fnv1a_64("face")] = fnv1a_64("wall");
+	props[fnv1a_64("facing")] = fnv1a_64("east");
+	props[fnv1a_64("powered")] = fnv1a_64("false");
+
+	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
+
+	STATE_INDEX sidx;
+	bool ok = CBlockStateDB::Get().EncodeStateIndex(blockID, props, sidx);
+	assert(ok);
+
+	std::vector<AppliedModel> outModels;
+	CBlockStateDB::Get().GetAppliedModels(blockID, sidx, outModels);
+
 	//_CreateTriangle();
 	_CreateChunkObject();
 }

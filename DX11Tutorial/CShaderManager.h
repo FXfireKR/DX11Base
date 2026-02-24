@@ -35,7 +35,7 @@ public:
 	void IsCompileDone() const;
 public:
 	inline size_t GetCurrentCompileWait() { return m_queCompileWait.size(); }
-	inline void SetMaxShaderCompileCount(uint32_t uCount) { m_uMaxShaderCompileCount = max(uCount, 1); }
+	inline void SetMaxShaderCompileCount(uint32_t uCount) { m_uMaxShaderCompileCount = std::max(uCount, (uint32_t)1); }
 
 private:
 	void _LoadShaderDescs();
