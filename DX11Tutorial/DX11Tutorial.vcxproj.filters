@@ -88,6 +88,12 @@
     <Filter Include="Code\04_Game\Chunk">
       <UniqueIdentifier>{792a405c-2d44-4ae5-95a5-7acf16c8ac46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\04_Game\BlockState/Model">
+      <UniqueIdentifier>{0421a032-ef89-413b-9862-b9696c5d4536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\04_Game\Atlas">
+      <UniqueIdentifier>{9bdb5191-bd39-40b3-b664-7398db9167d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -288,31 +294,34 @@
     <ClInclude Include="CChunkType.h">
       <Filter>Code\04_Game\Chunk</Filter>
     </ClInclude>
+    <ClInclude Include="CInitializeScene.h">
+      <Filter>Code\99_Scene</Filter>
+    </ClInclude>
     <ClInclude Include="CRuntimeAtlas.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MCModelUtl.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CModelDB.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IFileWrapper.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\Atlas</Filter>
     </ClInclude>
     <ClInclude Include="CRapidJsonParseWrapper.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\_etc</Filter>
+    </ClInclude>
+    <ClInclude Include="IFileWrapper.h">
+      <Filter>헤더 파일\_etc</Filter>
     </ClInclude>
     <ClInclude Include="MCUtil.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CBlockStateDB.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\BlockState/Model</Filter>
     </ClInclude>
     <ClInclude Include="MCStateUtil.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\BlockState/Model</Filter>
     </ClInclude>
-    <ClInclude Include="CInitializeScene.h">
+    <ClInclude Include="MCModelUtl.h">
+      <Filter>Code\04_Game\BlockState/Model</Filter>
+    </ClInclude>
+    <ClInclude Include="CModelDB.h">
+      <Filter>Code\04_Game\BlockState/Model</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockStateDB.h">
+      <Filter>Code\04_Game\BlockState/Model</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -482,16 +491,19 @@
     <ClCompile Include="CChunkMesherSystem.cpp">
       <Filter>Code\04_Game\Chunk</Filter>
     </ClCompile>
-    <ClCompile Include="CRuntimeAtlas.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CInitializeScene.cpp">
+      <Filter>Code\99_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CModelDB.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\BlockState/Model</Filter>
     </ClCompile>
     <ClCompile Include="CBlockStateDB.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\BlockState/Model</Filter>
     </ClCompile>
-    <ClCompile Include="CInitializeScene.cpp">
+    <ClCompile Include="CRuntimeAtlas.cpp">
+      <Filter>Code\04_Game\Atlas</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayerController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

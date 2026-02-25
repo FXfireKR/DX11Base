@@ -7,3 +7,5 @@
 #include "CMeshRenderer.h"
 
 #include "CChunkComponent.h"
+
+#include "CPlayerController.h"

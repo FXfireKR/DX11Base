@@ -3,6 +3,11 @@
 #include "CObject.h"
 #include "CScene.h"
 
+void CTransform::Init()
+{
+	if (m_pOwner->HasParent()) m_uParentID = m_pOwner->GetParentID();
+}
+
 void CTransform::Update(float fDelta)
 {
 	BuildWorldMatrix();

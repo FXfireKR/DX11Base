@@ -13,12 +13,25 @@ CTestScene::~CTestScene()
 
 void CTestScene::Awake()
 {
-	CModelDB::Get().Initialize("../Resource/");
-	CBlockStateDB::Get().Initialize("../Resource/");
+	auto* player = AddAndGetObject("Player");
+	player->AddComponent<CTransform>()->Init();
+	auto* ctrl = player->AddComponent<CPlayerController>();  
+	ctrl->Init();
+
+	// 카메라 피벗(자식 오브젝트)
+	auto* pivot = AddAndGetObject("PlayerCameraPivot");
+	pivot->SetParentID(player->GetID());
+	pivot->AddComponent<CTransform>()->Init();
+
+	auto* cam = pivot->AddComponent<CCamera>();
+	cam->Init();
+	m_pCurrentCamera = cam;
+
+	ctrl->SetCameraTransform(pivot->GetComponent<CTransform>());
+
+	
 
 	_CreateBaked();
-	//_CreateTriangle();
-	//_CreateChunkObject();
 }
 
 void CTestScene::Start()
@@ -43,39 +56,6 @@ void CTestScene::Update(float fDelta)
 	ImGui::Text("Rotate Y : %.3f", y);
 	ImGui::Text("Rotate Z : %.3f", z);
 #endif // IMGUI_ACTIVATE
-
-
-	auto& input = CInputManager::Get();
-	auto& keyboard = input.Keyboard();
-
-	static float speeeed = 45.f;
-
-	CTransform* pTransform = m_pChunkObject->GetComponent<CTransform>();
-	if (keyboard.GetKey('W')) {
-		x += fDelta * speeeed;
-	}
-
-	if (keyboard.GetKey('S')) {
-		x -= fDelta * speeeed;
-	}
-
-	if (keyboard.GetKey('A')) {
-		y -= fDelta * speeeed;
-	}
-
-	if (keyboard.GetKey('D')) {
-		y += fDelta * speeeed;
-	}
-
-	if (keyboard.GetKey('E')) {
-		z -= fDelta * speeeed;
-	}
-
-	if (keyboard.GetKey('Q')) {
-		z += fDelta * speeeed;
-	}
-
-	pTransform->SetLocalRotateEulerDeg({ x,y,z });	
 }
 
 void CTestScene::LateUpdate(float fDelta)

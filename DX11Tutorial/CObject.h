@@ -60,6 +60,7 @@ public:
 	inline const ObjectID GetID() const { return m_uID; }
 	inline const string& GetName() { return m_strName; }
 
+	inline void SetParentID(ObjectID parentID) { m_uParentID = parentID; }
 	inline const ObjectID GetParentID() const { return m_uParentID; }
 	inline bool HasParent() { return IsValidObject(m_uParentID); }
 

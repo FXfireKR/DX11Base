@@ -180,6 +180,7 @@
     <ClInclude Include="Components.h" />
     <ClInclude Include="CPipeline.h" />
     <ClInclude Include="CPipelineManager.h" />
+    <ClInclude Include="CPlayerController.h" />
     <ClInclude Include="CRapidJsonParseWrapper.h" />
     <ClInclude Include="CRawInputDispatcher.h" />
     <ClInclude Include="CRenderFrame.h" />
@@ -247,6 +248,7 @@
     <ClCompile Include="CMaterialManager.cpp" />
     <ClCompile Include="CModelDB.cpp" />
     <ClCompile Include="CMouseDevice.cpp" />
+    <ClCompile Include="CPlayerController.cpp" />
     <ClCompile Include="CRawInputDispatcher.cpp" />
     <ClCompile Include="CRuntimeAtlas.cpp" />
     <ClCompile Include="CSamplerManager.cpp" />

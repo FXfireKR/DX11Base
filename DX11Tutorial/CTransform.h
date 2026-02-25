@@ -7,6 +7,7 @@ public:
 	CTransform() = default;
 	~CTransform() override = default;
 
+	void Init() override;
 	void Update(float fDelta) override;
 	void LateUpdate(float fDelta) override;
 
