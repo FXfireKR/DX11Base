@@ -61,6 +61,14 @@ void CSceneManager::BuildRenderFrame()
 	_GetCurrent()->BuildRenderFrame();
 }
 
+void CSceneManager::CheckChangeScene()
+{
+	if (true == _GetCurrent()->IsRequestForChange())
+	{
+		ChangeScene(_GetCurrent()->GetNextScene());
+	}
+}
+
 void CSceneManager::_FixedUpdate(float fDelta)
 {
 	_GetCurrent()->FixedUpdate(fDelta);

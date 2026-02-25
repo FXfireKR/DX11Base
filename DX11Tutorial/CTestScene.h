@@ -18,7 +18,6 @@ public:
 
 private:
 	void _CreateChunkObject();
-	void _CreateTriangle();
 	void _CreateBaked();
 
 private:

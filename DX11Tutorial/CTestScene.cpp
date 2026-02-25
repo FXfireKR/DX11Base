@@ -183,65 +183,6 @@ void CTestScene::_CreateChunkObject()
 				cnk->SetBlock(x, y, z, rand() % 7);
 }
 
-void CTestScene::_CreateTriangle()
-{
-	CRenderWorld& rw = GetRenderWorld();
-
-	// shader
-	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("NormalImageForward");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
-
-	shaderManager.Compile();
-	
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
-
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto pipeID = pipelineManager.Create(fnv1a_64("TrianglePipeline"));
-
-	auto pipeline = pipelineManager.Get(pipeID);
-
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-
-	// dummy
-	pipeline->CreateRaster(rw.GetDevice());
-
-	// mesh
-	auto& meshManager = rw.GetMeshManager();
-	auto meshID = meshManager.CreateCube(fnv1a_64("TriangleMesh"));
-
-	// texture
-	auto& textureManager = rw.GetTextureManager();
-	auto textureID = textureManager.LoadTexture2D(fnv1a_64("Gaki"), "../Resource/stone.png", TEXTURE_USAGE::StaticColorMip);
-
-
-	// sampler
-	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
-
-	// material
-	auto& materialManager = rw.GetMaterialManager();
-	auto materialID = materialManager.Create(fnv1a_64("GakiDrawer"));
-	materialManager.Get(materialID)->SetTexture(0, textureManager.GetTexture(textureID)->GetShaderResourceView());
-	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
-	
-	
-	// Object Create
-	//m_pTriangle = AddAndGetObject("TestObject #1");
-
-	//CTransform* const pTransform = m_pTriangle->AddComponent<CTransform>();
-
-	//// Set Mesh Render
-	//CMeshRenderer* const pMeshRender = m_pTriangle->AddComponent<CMeshRenderer>();
-	//pMeshRender->SetMesh(meshManager.Get(meshID));
-	//pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
-	//pMeshRender->SetMaterial(materialManager.Get(materialID));
-}
-
 void CTestScene::_CreateBaked()
 {
 	CRenderWorld& rw = GetRenderWorld();

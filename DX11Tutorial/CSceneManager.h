@@ -30,6 +30,7 @@ public:
 	void LateUpdate(float fDelta);
 
 	void BuildRenderFrame();
+	void CheckChangeScene();
 
 private:
 	void _FixedUpdate(float fDelta);

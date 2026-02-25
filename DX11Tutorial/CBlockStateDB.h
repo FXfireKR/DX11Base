@@ -10,16 +10,34 @@
 
 class CBlockStateDB : public singleton<CBlockStateDB>
 {
+private:
+	enum class LOAD_PROGRESS_STEP
+	{
+		INIT,
+		COLLECT_DOMAINS,
+		FINALIZE_ALL,
+		COMPILE_RULES,
+		END,
+	};
+
 public:
 	void Initialize(const char* path);
+	void Load();
+
+
 	bool GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels);
 	bool EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap& props, OUT STATE_INDEX& stateIndex) const;
 
 private:
 	bool _ScanBlockStateFiles(vector<filesystem::path>& outFiles) const;
-	bool _Pass1_CollectDomains(const vector<filesystem::path>& files);
-	bool _FinalizeAllBockTypes();
-	bool _Pass2_CompileRules(const vector<filesystem::path>& files);
+
+	bool _Pass1_CollectDomains(const filesystem::path& file);
+	bool _FinalizeAllBlockTypes();
+	bool _Pass2_CompileRules(const filesystem::path& file);
+
+	//bool _Pass1_CollectDomains(const vector<filesystem::path>& files);
+	//bool _FinalizeAllBockTypes();
+	//bool _Pass2_CompileRules(const vector<filesystem::path>& files);
 
 	bool _ReadJson(const std::filesystem::path& path, rapidjson::Document& outDoc) const;
 	bool _ReadVariants_Pass1(BLOCK_ID blockID, const rapidjson::Value& variants);
@@ -43,10 +61,21 @@ private:
 	// stateIndex decode (valueIndex per prop slot)
 	void _DecodeStateIndex(const BlockTypeDef& typeDef, STATE_INDEX sidx, std::vector<VALUE_INDEX>& outValueIndexPerProp) const;
 
+public:
+	inline const size_t& GetCurrentLoadedCnt() { return m_uLoadedFiles; }
+	inline const size_t& GetMaxLoadedCnt() { return m_uMaxFiles; }
+	inline bool IsLoadComplete() { return m_eStep == LOAD_PROGRESS_STEP::END; }
+
 private:
 	string m_strRoot;
 	GlobalPropertyRegistry m_propRegistry;
 
 	unordered_map<BLOCK_ID, BlockStateDef> m_mapBlockState;
 	unordered_map<BLOCK_ID, BlockTypeDef> m_mapBlockType;
+
+	LOAD_PROGRESS_STEP m_eStep = LOAD_PROGRESS_STEP::INIT;
+	vector<filesystem::path> m_vecFiles;
+	size_t m_uMaxFiles = 0;
+	size_t m_uLoadedFiles = 0;
+	const size_t MAX_FILE_LOAD_CNT = 3;
 };

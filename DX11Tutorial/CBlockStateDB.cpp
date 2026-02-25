@@ -6,13 +6,60 @@ void CBlockStateDB::Initialize(const char* path)
 	// path 에서 base 경로를 잡으면 이하 경로를 찾아감.
 	m_strRoot = path;
 
-	vector<filesystem::path> files;
-	if (!_ScanBlockStateFiles(files)) 
-	{}
+	if (!_ScanBlockStateFiles(m_vecFiles)) assert(false && "_ScanBlockStateFiles");
+	m_uMaxFiles = m_vecFiles.size();
 
-	_Pass1_CollectDomains(files);
-	_FinalizeAllBockTypes();
-	_Pass2_CompileRules(files);
+	//if (_Pass1_CollectDomains(m_vecFiles))
+	//_FinalizeAllBockTypes();
+	//_Pass2_CompileRules(m_vecFiles);
+}
+
+void CBlockStateDB::Load()
+{
+	switch (m_eStep)
+	{
+		case LOAD_PROGRESS_STEP::INIT:
+		{
+			m_eStep = LOAD_PROGRESS_STEP::COLLECT_DOMAINS;
+		} break;
+
+		case LOAD_PROGRESS_STEP::COLLECT_DOMAINS:
+		{
+			for (size_t i = 0; i < MAX_FILE_LOAD_CNT; ++i) {
+				if (m_uLoadedFiles >= m_uMaxFiles) {
+					m_eStep = LOAD_PROGRESS_STEP::FINALIZE_ALL;
+					return;
+				}
+				_Pass1_CollectDomains(m_vecFiles[m_uLoadedFiles]);
+				++m_uLoadedFiles;
+			}
+		} break;
+
+		case LOAD_PROGRESS_STEP::FINALIZE_ALL:
+		{
+			_FinalizeAllBlockTypes();
+			m_eStep = LOAD_PROGRESS_STEP::COMPILE_RULES;
+			m_uLoadedFiles = 0;
+		} break;
+
+		case LOAD_PROGRESS_STEP::COMPILE_RULES:
+		{
+			for (size_t i = 0; i < MAX_FILE_LOAD_CNT; ++i) {
+				if (m_uLoadedFiles >= m_uMaxFiles) {
+					m_eStep = LOAD_PROGRESS_STEP::END;
+					return;
+				}
+				_Pass2_CompileRules(m_vecFiles[m_uLoadedFiles]);
+				++m_uLoadedFiles;
+			}
+		} break;
+
+		case LOAD_PROGRESS_STEP::END:
+		{
+			m_vecFiles.clear();
+			m_vecFiles.shrink_to_fit();
+		} break;
+	}
 }
 
 bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels)
@@ -131,27 +178,26 @@ bool CBlockStateDB::_ScanBlockStateFiles(vector<filesystem::path>& outFiles) con
 	return true;
 }
 
-bool CBlockStateDB::_Pass1_CollectDomains(const vector<filesystem::path>& files)
+//bool CBlockStateDB::_Pass1_CollectDomains(const vector<filesystem::path>& files)
+bool CBlockStateDB::_Pass1_CollectDomains(const filesystem::path& file)
 {
-	for (auto& path : files)
+	string blockKey;
+	if (!BuildBlockKeyFromPath(file, blockKey)) return false;
+
+	BLOCK_ID blockID = fnv1a_64(blockKey);
+	Document doc;
+	if (!_ReadJson(file, doc)) return false;
+
+	if (doc.HasMember("variants"))
 	{
-		string blockKey;
-		if (!BuildBlockKeyFromPath(path, blockKey)) continue;
-
-		BLOCK_ID blockID = fnv1a_64(blockKey);
-		Document doc;
-		if (!_ReadJson(path, doc)) return false;
-
-		if (doc.HasMember("variants"))
-		{
-			const auto& variants = doc["variants"];
-			if (!_ReadVariants_Pass1(blockID, variants)) return false;
-		}
+		const auto& variants = doc["variants"];
+		if (!_ReadVariants_Pass1(blockID, variants)) return false;
 	}
+
 	return true;
 }
 
-bool CBlockStateDB::_FinalizeAllBockTypes()
+bool CBlockStateDB::_FinalizeAllBlockTypes()
 {
 	for (auto& kv : m_mapBlockType)
 	{
@@ -210,25 +256,23 @@ bool CBlockStateDB::_FinalizeAllBockTypes()
 	return true;
 }
 
-bool CBlockStateDB::_Pass2_CompileRules(const vector<filesystem::path>& files)
+//bool CBlockStateDB::_Pass2_CompileRules(const vector<filesystem::path>& files)
+bool CBlockStateDB::_Pass2_CompileRules(const filesystem::path& file)
 {
-	for (auto& path : files)
+	std::string blockKey;
+	if (!BuildBlockKeyFromPath(file, blockKey)) return false;
+
+	BLOCK_ID blockID = fnv1a_64(blockKey);
+
+	rapidjson::Document doc;
+	if (!_ReadJson(file, doc)) return false;
+
+	if (doc.HasMember("variants"))
 	{
-		std::string blockKey;
-		if (!BuildBlockKeyFromPath(path, blockKey))
-			continue;
-
-		BLOCK_ID blockID = fnv1a_64(blockKey);
-
-		rapidjson::Document doc;
-		if (!_ReadJson(path, doc)) return false;
-
-		if (doc.HasMember("variants"))
-		{
-			const auto& variants = doc["variants"];
-			if (!_ReadVariants_Pass2(blockID, variants)) return false;
-		}
+		const auto& variants = doc["variants"];
+		if (!_ReadVariants_Pass2(blockID, variants)) return false;
 	}
+
 	return true;
 }
 

@@ -163,6 +163,7 @@
     <ClInclude Include="CDummyThread.h" />
     <ClInclude Include="CGamePadHub.h" />
     <ClInclude Include="CGameWorld.h" />
+    <ClInclude Include="CInitializeScene.h" />
     <ClInclude Include="CInputLayer.h" />
     <ClInclude Include="CInputLayerManager.h" />
     <ClInclude Include="CInputManager.h" />
@@ -240,6 +241,7 @@
     <ClCompile Include="CChunkMesherSystem.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
+    <ClCompile Include="CInitializeScene.cpp" />
     <ClCompile Include="CInputManager.cpp" />
     <ClCompile Include="CKeyboardDevice.cpp" />
     <ClCompile Include="CMaterialManager.cpp" />

@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "CScene.h"
 
-class CBootScene : public CScene
+class CInitializeScene : public CScene
 {
 public:
-	CBootScene();
-	virtual ~CBootScene();
+	CInitializeScene() = default;
+	virtual ~CInitializeScene() = default;
 
 	void Awake() override;
 	void FixedUpdate(float fDelta) override;
