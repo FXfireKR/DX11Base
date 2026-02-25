@@ -4,15 +4,11 @@
 struct MCModelFace
 {
 	string textureRef;
-
 	bool bHasUV = false;
 	float uv[4] = { 0.f, 0.f, 0.f, 0.f };
-
 	bool bHasCull = false;
 	uint8_t cullDir = 0;
-
 	uint8_t rotation = 0;
-
 	int tintIndex = -1;
 };
 
@@ -62,14 +58,17 @@ struct BakedVertex
 
 struct BakedQuad
 {
+	uint8_t dir;
+	bool hasCullFace;
+	uint8_t cullFaceDir;
+	int tineIndex; // 없으면 -1
+	uint64_t textureHash; // minecraft:~~ 의 hash
 	BakedVertex vert[4];
-	uint32_t textureID;
-	uint8_t cullDir;
 };
 
 struct BakedModel
 {
-	vector<BakedQuad> quads;
+	vector<BakedQuad> quads; // 각 면의 구성요소
 };
 
 struct CPUMeshData

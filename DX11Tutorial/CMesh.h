@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class CRuntimeAtlas;
+
 struct SubMesh
 {
 	UINT uVertexStart;
@@ -15,6 +17,7 @@ public:
 	void CreateTriangle(ID3D11Device* pDevice);
 	void CreateQuad(ID3D11Device* pDevice);
 	void CreateCube(ID3D11Device* pDevice);
+	void CreateMeshFromBakedModel(ID3D11Device* pDevice, const CRuntimeAtlas& atlas, const BakedModel& bakedModel);
 
 	bool UpdateDynamic(ID3D11Device* pDevice, ID3D11DeviceContext* pContext
 		, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt

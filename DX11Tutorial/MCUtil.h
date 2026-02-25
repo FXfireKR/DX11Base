@@ -67,125 +67,132 @@ static void BuildFaceQuadPositions_01(const MCModelElement& modelElem, FACE_DIR 
 
 	switch (eDir)
 	{
-		case FACE_DIR::PX:
-		{
-			outPos01[0] = { x1, y0, z0 };
-			outPos01[1] = { x1, y0, z1 };
-			outPos01[2] = { x1, y1, z1 };
-			outPos01[3] = { x1, y1, z0 };
-		} break;
-		case FACE_DIR::NX:
-		{
-			outPos01[0] = { x0, y0, z1 };
-			outPos01[1] = { x0, y0, z0 };
-			outPos01[2] = { x0, y1, z0 };
-			outPos01[3] = { x0, y1, z1 };
-		} break;
-		case FACE_DIR::PY:
-		{
-			outPos01[0] = { x0, y1, z0 };
-			outPos01[1] = { x1, y1, z0 };
-			outPos01[2] = { x1, y1, z1 };
-			outPos01[3] = { x0, y1, z1 };
-		} break;
-		case FACE_DIR::NY:
-		{
-			outPos01[0] = { x0, y0, z1 };
-			outPos01[1] = { x1, y0, z1 };
-			outPos01[2] = { x1, y0, z0 };
-			outPos01[3] = { x0, y0, z0 };
-		} break;
-		case FACE_DIR::PZ:
+		case FACE_DIR::PX: // EAST
 		{
 			outPos01[0] = { x1, y0, z1 };
-			outPos01[1] = { x0, y0, z1 };
-			outPos01[2] = { x0, y1, z1 };
+			outPos01[1] = { x1, y0, z0 };
+			outPos01[2] = { x1, y1, z0 };
 			outPos01[3] = { x1, y1, z1 };
 		} break;
-		case FACE_DIR::NZ:
+		case FACE_DIR::NX: // WEST
 		{
 			outPos01[0] = { x0, y0, z0 };
-			outPos01[1] = { x1, y0, z0 };
+			outPos01[1] = { x0, y0, z1 };
+			outPos01[2] = { x0, y1, z1 };
+			outPos01[3] = { x0, y1, z0 };
+		} break;
+		case FACE_DIR::PY: // UP
+		{
+			outPos01[0] = { x0, y1, z1 };
+			outPos01[1] = { x1, y1, z1 };
 			outPos01[2] = { x1, y1, z0 };
 			outPos01[3] = { x0, y1, z0 };
 		} break;
+		case FACE_DIR::NY: // DOWN
+		{
+			outPos01[0] = { x0, y0, z0 };
+			outPos01[1] = { x1, y0, z0 };
+			outPos01[2] = { x1, y0, z1 };
+			outPos01[3] = { x0, y0, z1 };
+		} break;
+		case FACE_DIR::PZ: // SOUTH
+		{
+			outPos01[0] = { x0, y0, z1 };
+			outPos01[1] = { x1, y0, z1 };
+			outPos01[2] = { x1, y1, z1 };
+			outPos01[3] = { x0, y1, z1 };
+		} break;
+		case FACE_DIR::NZ: // NORTH
+		{
+			outPos01[0] = { x1, y0, z0 };
+			outPos01[1] = { x0, y0, z0 };
+			outPos01[2] = { x0, y1, z0 };
+			outPos01[3] = { x1, y1, z0 };
+		} break;
 	}
 }
 
-static void ComputeFaceUV_Default(const MCModelElement& e, FACE_DIR eDir, float outUV01[4])
+
+static void ComputeFaceUV_Default(IN const MCModelElement& e, FACE_DIR eDir, OUT float uv01[4])
 {
-	float x0 = e.from[0];
-	float y0 = e.from[1];
-	float z0 = e.from[2];
-	float x1 = e.to[0];
-	float y1 = e.to[1];
-	float z1 = e.to[2];
+	const float x0 = MCCoordTrans(e.from[0]);
+	const float y0 = MCCoordTrans(e.from[1]);
+	const float z0 = MCCoordTrans(e.from[2]);
+	const float x1 = MCCoordTrans(e.to[0]);
+	const float y1 = MCCoordTrans(e.to[1]);
+	const float z1 = MCCoordTrans(e.to[2]);
+
+	float u0 = 0, v0 = 0, u1 = 1, v1 = 1;
 
 	switch (eDir)
 	{
-		case FACE_DIR::PX:
-		case FACE_DIR::NX:
-		{
-			outUV01[0] = z0 / 16.f;
-			outUV01[1] = y0 / 16.f;
-			outUV01[2] = z1 / 16.f;
-			outUV01[3] = y1 / 16.f;
-		} break;
+		// side faces: U는 수평축, V는 Y(위아래)인데 텍스처는 top-left 기준이라 Y를 뒤집어야 “위쪽(y1)”이 “v0(0)”로 감
+	case FACE_DIR::PZ: // south: u=x, v=y
+	case FACE_DIR::NZ: // north: u=x, v=y (방향성은 positions에서 해결)
+		u0 = x0; u1 = x1;
+		v0 = 1.0f - y1; v1 = 1.0f - y0;
+		break;
 
-		case FACE_DIR::PY:
-		case FACE_DIR::NY:
-		{
-			outUV01[0] = x0 / 16.f;
-			outUV01[1] = z0 / 16.f;
-			outUV01[2] = x1 / 16.f;
-			outUV01[3] = z1 / 16.f;
-		} break;
+	case FACE_DIR::PX: // east: u=z, v=y
+	case FACE_DIR::NX: // west: u=z, v=y
+		u0 = z0; u1 = z1;
+		v0 = 1.0f - y1; v1 = 1.0f - y0;
+		break;
 
-		case FACE_DIR::PZ:
-		case FACE_DIR::NZ:
-		{
-			outUV01[0] = x0 / 16.f;
-			outUV01[1] = y0 / 16.f;
-			outUV01[2] = x1 / 16.f;
-			outUV01[3] = y1 / 16.f;
-		} break;
+		// up/down: V축이 z로 간다. top-left 기준으로 “북쪽(-Z)이 위”가 되게 맞춘다.
+	case FACE_DIR::PY: // up: u=x, v=z  (z0이 위쪽(v0))
+		u0 = x0; u1 = x1;
+		v0 = z0; v1 = z1;
+		break;
+
+	case FACE_DIR::NY: // down: u=x, v=z  (down은 “위쪽”이 반대로 느껴지기 쉬운데 positions에서 V축을 -Z로 잡았으므로 여기서는 동일 처리)
+		u0 = x0; u1 = x1;
+		v0 = z0; v1 = z1;
+		break;
+
+	default:
+		break;
 	}
+
+	uv01[0] = u0; uv01[1] = v0;
+	uv01[2] = u1; uv01[3] = v1;
+
 }
 
-static void ApplyUVRotation(float uv01[4], uint8_t rot)
+static void ApplyUVRotation(XMFLOAT2 uv[4], uint8_t rotDeg)
 {
-	if (rot == 0)
-		return;
+	const uint8_t rot = (rotDeg % 360);
+	if (rot == 0) return;
 
-	float u0 = uv01[0];
-	float v0 = uv01[1];
-	float u1 = uv01[2];
-	float v1 = uv01[3];
+	XMFLOAT2 t[4];
 
+	// uv order: [0]=LB, [1]=RB, [2]=RT, [3]=LT
+	// CW 90: LB<-LT, RB<-LB, RT<-RB, LT<-RT
 	switch (rot)
 	{
 	case 90:
-		// swap axes
-		uv01[0] = u0;
-		uv01[1] = v1;
-		uv01[2] = u1;
-		uv01[3] = v0;
+		t[0] = uv[3]; // LB <- LT
+		t[1] = uv[0]; // RB <- LB
+		t[2] = uv[1]; // RT <- RB
+		t[3] = uv[2]; // LT <- RT
 		break;
-
 	case 180:
-		uv01[0] = u1;
-		uv01[1] = v1;
-		uv01[2] = u0;
-		uv01[3] = v0;
+		t[0] = uv[2];
+		t[1] = uv[3];
+		t[2] = uv[0];
+		t[3] = uv[1];
 		break;
-
 	case 270:
-		uv01[0] = u1;
-		uv01[1] = v0;
-		uv01[2] = u0;
-		uv01[3] = v1;
+		t[0] = uv[1];
+		t[1] = uv[2];
+		t[2] = uv[3];
+		t[3] = uv[0];
 		break;
+	default:
+		return;
 	}
+
+	memcpy(uv, t, sizeof(t));
 }
 
 // block key 생성

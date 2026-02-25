@@ -6,6 +6,7 @@ void CPipeline::CreateRaster(ID3D11Device* pDevice)
 	D3D11_RASTERIZER_DESC rs = {};
 	rs.FillMode = D3D11_FILL_SOLID;
 	rs.CullMode = D3D11_CULL_BACK;
+	//rs.CullMode = D3D11_CULL_NONE;
 	rs.FrontCounterClockwise = FALSE;
 	pDevice->CreateRasterizerState(&rs, m_pRasterizerState.GetAddressOf());
 

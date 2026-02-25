@@ -19,6 +19,7 @@ public:
 private:
 	void _CreateChunkObject();
 	void _CreateTriangle();
+	void _CreateBaked();
 
 private:
 	float x = 0.f;

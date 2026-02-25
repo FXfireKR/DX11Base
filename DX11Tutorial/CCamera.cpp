@@ -19,41 +19,43 @@ void CCamera::Init()
 }
 
 void CCamera::LateUpdate(float fDelta)
-{
+{/*
 	auto& input = CInputManager::Get();
 	auto& keyboard = input.Keyboard();
+
+	static float speeeed = 15.f;
 
 	CTransform* pTransform = m_pOwner->GetComponent<CTransform>();
 	XMFLOAT3 trans = pTransform->GetLocalTrans();
 	if (keyboard.GetKey('W')) {
-		trans.z += fDelta * 45.f;
+		trans.z += fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
 	}
 
 	if (keyboard.GetKey('S')) {
-		trans.z -= fDelta * 45.f;
+		trans.z -= fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
 	}
 
 	if (keyboard.GetKey('A')) {
-		trans.x -= fDelta * 45.f;
+		trans.x -= fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
 	}
 
 	if (keyboard.GetKey('D')) {
-		trans.x += fDelta * 45.f;
+		trans.x += fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
 	}
 
 	if (keyboard.GetKey('E')) {
-		trans.y -= fDelta * 45.f;
+		trans.y -= fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
 	}
 
 	if (keyboard.GetKey('Q')) {
-		trans.y += fDelta * 45.f;
+		trans.y += fDelta * speeeed;
 		pTransform->SetLocalTrans(trans);
-	}
+	}*/
 
 	UpdateCameraMatrix();
 }

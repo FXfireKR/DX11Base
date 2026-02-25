@@ -18,6 +18,7 @@ public:
 	uint64_t CreateTriangle(uint64_t id);
 	uint64_t CreateQuad(uint64_t id);
 	uint64_t CreateCube(uint64_t id);
+	uint64_t CreateMeshFromBakedModel(MODEL_ID modelID, const CRuntimeAtlas& atlas);
 
 
 private:

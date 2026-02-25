@@ -20,9 +20,9 @@ class CModelDB : public singleton<CModelDB>
 {
 public:
 	void Initialize(const string& resourceRoot);
-	void ScanAndLoad();
 	
 	MODEL_ID LoadModel(const char* modelKey);
+	MODEL_ID GetModel(uint64_t modelHash);
 	MODEL_ID GetModel(const char* modelKey);
 
 	const BakedModel* GetBaked(MODEL_ID id) const;

@@ -58,8 +58,7 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 	const BlockTypeDef* typeDef = _FindBlockType(blockID);
 	if (!typeDef) return false;
 
-	// 기본값은 전부 0 (즉, 각 property domain의 0번 값)
-	// props에 들어온 것만 덮어쓴다.
+	// 기본값은 전부 0 (즉, 각 property domain의 0번 값) props에 들어온 것만 덮어쓴다.
 	uint32_t state = 0;
 
 	for (const auto& kv : props)
@@ -70,9 +69,7 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 		PROPERTY_ID pid = 0;
 		if (!m_propRegistry.FindByHash(propHash, pid))
 		{
-			// 이 블록에서 쓰지 않는 prop이 들어온 경우거나,
-			// Pass1에서 registry 수집이 안 된 경우.
-			// 포트폴리오/실사용 기준으론 "무시"가 더 편함.
+			// 이 블럭에서 쓰지 않는 Prop이 들어온 경우 무시
 			continue;
 		}
 
@@ -244,9 +241,6 @@ bool CBlockStateDB::_ReadJson(const std::filesystem::path& path, rapidjson::Docu
 
 	if (outDoc.HasParseError() || !outDoc.IsObject()) {
 		ParseErrorCode ecode = outDoc.GetParseError();
-#ifdef _DEBUG
-		cout << "Shaders.json parsing error!";
-#endif // _DEBUG
 		return false;
 	}
 	return true;
@@ -406,6 +400,8 @@ bool CBlockStateDB::_ReadModelSpec(const rapidjson::Value& value, AppliedModel& 
 	if (!value.HasMember("model") || !value["model"].IsString()) return false;
 	outModel.modelKey = value["model"].GetString();
 	outModel.modelHash = fnv1a_64(outModel.modelKey);
+
+	CModelDB::Get().LoadModel(outModel.modelKey.c_str());
 
 	if (value.HasMember("x") && value["x"].IsInt())
 		outModel.x = (uint8_t)_NormalizeRot(value["x"].GetInt());

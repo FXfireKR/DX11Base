@@ -6,22 +6,6 @@ void CModelDB::Initialize(const string& resourceRoot)
     m_strResourceRoot = resourceRoot;
 }
 
-void CModelDB::ScanAndLoad()
-{
-    filesystem::path searchPath(m_strResourceRoot + "assets/minecraft/blockstates");
-
-    for (const auto& entry : filesystem::directory_iterator(searchPath))
-    {
-        filesystem::path somePath = entry.path();
-        if (!somePath.has_extension()) continue;
-
-        if (0 == strcmp(somePath.extension().string().c_str(), "json"))
-        {
-            // TODO : Read BlockState json
-        }
-    }
-}
-
 MODEL_ID CModelDB::LoadModel(const char* modelKey)
 {
     const uint64_t h = fnv1a_64(modelKey);
@@ -49,6 +33,13 @@ MODEL_ID CModelDB::LoadModel(const char* modelKey)
     m_vecEntries.push_back(std::move(entry));
     m_mapKeyToID[h] = newID;
     return newID;
+}
+
+MODEL_ID CModelDB::GetModel(uint64_t modelHash)
+{
+    auto it = m_mapKeyToID.find(modelHash);
+    if (it != m_mapKeyToID.end()) return it->second;
+    return UINT64_ERROR;
 }
 
 MODEL_ID CModelDB::GetModel(const char* modelKey)
@@ -305,61 +296,83 @@ void CModelDB::_BakeOneElementFace(IN const MCModelResolved& modelResolved, cons
     const FACE_DIR eDir = static_cast<FACE_DIR>(faceDir);
     const MCModelFace& face = modelElem.face[faceDir];
 
+    // texture resolve
     string texKey = _ResolveTextureRef(modelResolved, face.textureRef);
     if (texKey.empty()) return;
 
-    //uint32_t texID = 
-
+    // 1) Build positions with Minecraft face orientation
     XMFLOAT3 p[4];
     BuildFaceQuadPositions_01(modelElem, eDir, p);
 
+    // element rotation (optional)
     if (modelElem.bHasRotation)
     {
-        // NOTE: 스켈레톤
-        // - p[i]를 elem_.rotOrigin 기준으로 회전
-        // - origin도 0..1로 변환해서 사용
-        // ApplyElementRotation(p, elem_);
+        // TODO:
+        // ApplyElementRotation(p, modelElem); // origin도 0..1로 변환해서 사용
     }
 
+    // 2) Resolve uv01: (u0,v0,u1,v1) in 0..1, with top-left origin (0,0)
     float uv01[4];
-    if (face.bHasUV) 
+    if (face.bHasUV)
     {
         uv01[0] = face.uv[0] / 16.0f;
         uv01[1] = face.uv[1] / 16.0f;
         uv01[2] = face.uv[2] / 16.0f;
         uv01[3] = face.uv[3] / 16.0f;
     }
-    else {
+    else
+    {
         ComputeFaceUV_Default(modelElem, eDir, uv01);
     }
-    ApplyUVRotation(uv01, face.rotation);
 
+    float u0 = uv01[0], v0 = uv01[1], u1 = uv01[2], v1 = uv01[3];
+
+    // 3) Map uv corners to match p[0..3] corner meaning
+    // p[0]=LB, p[1]=RB, p[2]=RT, p[3]=LT
+    // top-left UV space: LT=(u0,v0), RB=(u1,v1)
+    XMFLOAT2 uv[4] =
+    {
+        { u1, v1 }, // 0: LB
+        { u0, v1 }, // 1: RB
+        { u0, v0 }, // 2: RT
+        { u1, v0 }, // 3: LT
+    };
+
+    // 4) Apply Minecraft face.rotation (0/90/180/270)
+    ApplyUVRotation(uv, face.rotation);
+
+    // 5) Emit baked quad
     BakedQuad q{};
-    //q.textureID = 
-    q.cullDir = face.bHasCull ? face.cullDir : static_cast<uint8_t>(FACE_DIR::COUNT);
+    q.textureHash = fnv1a_64(texKey);
+    q.dir = static_cast<uint8_t>(eDir);
+    q.hasCullFace = face.bHasCull;
+    q.cullFaceDir = face.bHasCull ? face.cullDir : static_cast<uint8_t>(FACE_DIR::COUNT);
 
-    XMFLOAT3 faceNorm = FaceNormal(eDir);
+    const XMFLOAT3 faceNorm = FaceNormal(eDir);
 
-    const float u0 = uv01[0];
-    const float v0 = uv01[1];
-    const float u1 = uv01[2];
-    const float v1 = uv01[3];
-
-    q.vert[0] = { p[0], faceNorm, {u0, v0}, 0xFFFFFFFF };
-    q.vert[1] = { p[1], faceNorm, {u1, v0}, 0xFFFFFFFF };
-    q.vert[2] = { p[2], faceNorm, {u1, v1}, 0xFFFFFFFF };
-    q.vert[3] = { p[3], faceNorm, {u0, v1}, 0xFFFFFFFF };
+    q.vert[0] = { p[0], faceNorm, uv[0], 0xFFFFFFFF };
+    q.vert[1] = { p[1], faceNorm, uv[1], 0xFFFFFFFF };
+    q.vert[2] = { p[2], faceNorm, uv[2], 0xFFFFFFFF };
+    q.vert[3] = { p[3], faceNorm, uv[3], 0xFFFFFFFF };
 
     bakedModel.quads.push_back(std::move(q));
 }
 
 string CModelDB::_BuildModelPath(string resourceRoot, string modelKey)
 {
-    size_t colon = modelKey.find(':');
-    if (colon == string::npos) return std::string();
+    string nameSpace = "minecraft";
+    string path = modelKey;
 
-    string nameSpace = modelKey.substr(0, colon);
-    string path = modelKey.substr(colon + 1);
+    size_t colon = modelKey.find(':');
+    if (colon != string::npos)
+    {
+        nameSpace = modelKey.substr(0, colon);
+        path = modelKey.substr(colon + 1);
+    }
+
+    // 이미 "models/" 붙어있으면 중복 방지
+    if (path.rfind("models/", 0) == 0)
+        path = path.substr(7);
 
     return resourceRoot + "assets/" + nameSpace + "/models/" + path + ".json";
 }

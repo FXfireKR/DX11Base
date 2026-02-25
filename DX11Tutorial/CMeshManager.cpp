@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CMeshManager.h"
+#include "CRuntimeAtlas.h"
 
 void CMeshManager::Initialize(ID3D11Device& refDevice_)
 {
@@ -73,4 +74,13 @@ uint64_t CMeshManager::CreateCube(uint64_t id)
 	auto meshID = this->Create(id);
 	this->Get(meshID)->CreateCube(m_pDevice);
 	return id;
+}
+
+uint64_t CMeshManager::CreateMeshFromBakedModel(MODEL_ID modelID, const CRuntimeAtlas& atlas)
+{
+	const BakedModel* baked = CModelDB::Get().GetBaked(modelID);
+	if (!baked) return UINT64_ERROR;
+	auto meshID = this->Create(modelID);
+	this->Get(meshID)->CreateMeshFromBakedModel(m_pDevice, atlas, *baked);
+	return meshID;
 }
