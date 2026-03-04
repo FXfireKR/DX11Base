@@ -173,6 +173,52 @@ void CMesh::CreateMeshFromBakedModel(ID3D11Device* pDevice, const CRuntimeAtlas&
 	m_uIndexCnt = indices.size();
 }
 
+void CMesh::CreateAABBLine(ID3D11Device* pDevice)
+{
+	VERTEX_POSITION vert[8] =
+	{
+		{{0,0,0}},
+		{{1,0,0}},
+		{{1,1,0}},
+		{{0,1,0}},
+		{{0,0,1}},
+		{{1,0,1}},
+		{{1,1,1}},
+		{{0,1,1}},
+	};
+
+	D3D11_BUFFER_DESC desc{};
+	desc.ByteWidth = sizeof(vert);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = vert;
+
+	pDevice->CreateBuffer(&desc, &data, m_pVertexBuffer.GetAddressOf());
+
+	uint32_t indices[24] =
+	{
+		0,1, 1,2, 2,3, 3,0,
+		4,5, 5,6, 6,7, 7,4,
+		0,4, 1,5, 2,6, 3,7
+	};
+
+	D3D11_BUFFER_DESC descIndex{};
+	descIndex.ByteWidth = sizeof(indices);
+	descIndex.Usage = D3D11_USAGE_DEFAULT;
+	descIndex.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA dataIndex{};
+	dataIndex.pSysMem = indices;
+
+	pDevice->CreateBuffer(&descIndex, &dataIndex, m_pIndexBuffer.GetAddressOf());
+
+	m_uVertexStride = sizeof(VERTEX_POSITION);
+	m_uVertexCnt = 8;
+	m_uIndexCnt = 24;
+}
+
 bool CMesh::UpdateDynamic(ID3D11Device* pDevice, ID3D11DeviceContext* pContext
 	, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt
 	, const uint32_t* pIndices, uint32_t indexCnt
@@ -275,8 +321,6 @@ void CMesh::Bind(ID3D11DeviceContext* pContext) const
 	if (m_pIndexBuffer) {
 		pContext->IASetIndexBuffer(m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	}
-
-	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void CMesh::Draw(ID3D11DeviceContext* pContext) const

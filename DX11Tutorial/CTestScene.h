@@ -19,6 +19,8 @@ public:
 private:
 	void _CreateChunkObject();
 	void _CreateBaked();
+	void _MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir);
+	void _CreateHighlight();
 
 private:
 	float x = 0.f;
@@ -28,4 +30,8 @@ private:
 	CObject* m_pChunkObject = nullptr;
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
+
+	CObject* m_pHighlightObject = nullptr;
+
+	CTestBlockAccessor m_blockAccessor;
 };

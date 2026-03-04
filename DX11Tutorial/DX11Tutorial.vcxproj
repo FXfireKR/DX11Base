@@ -202,6 +202,7 @@
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IBlockAccessor.hpp" />
     <ClInclude Include="IFileWrapper.h" />
     <ClInclude Include="IGamePadDevice.h" />
     <ClInclude Include="IInputDevice.h" />

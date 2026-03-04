@@ -84,3 +84,10 @@ uint64_t CMeshManager::CreateMeshFromBakedModel(MODEL_ID modelID, const CRuntime
 	this->Get(meshID)->CreateMeshFromBakedModel(m_pDevice, atlas, *baked);
 	return meshID;
 }
+
+uint64_t CMeshManager::CreateAABBLine(uint64_t id)
+{
+	auto meshID = this->Create(id);
+	this->Get(meshID)->CreateAABBLine(m_pDevice);
+	return id;
+}

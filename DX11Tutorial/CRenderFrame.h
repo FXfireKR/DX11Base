@@ -34,6 +34,7 @@ public:
 
 private:
 	void _UpdateConstantBuffer(ID3D11DeviceContext* pContext, CB_ObjectData&& objData);
+	bool _CheckValidToDraw(const RenderItem& renderItem);
 	
 private:
 	queue<RenderItem> m_queueRenderItem; // 일단 지금은 queue로 짠다.

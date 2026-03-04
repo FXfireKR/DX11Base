@@ -13,13 +13,31 @@ void CRenderFrame::Submit(const RenderItem& renderItem)
 
 void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 {
+	const CMesh* pLastMesh = nullptr;
+	const CPipeline* pLastPipeline = nullptr;
+	const CMaterial* pLastMaterial = nullptr;
+
 	while (!m_queueRenderItem.empty())
 	{
 		const RenderItem& renderItem = m_queueRenderItem.front();
+		if (true == _CheckValidToDraw(renderItem))
 		{
-			if (nullptr != renderItem.pPipeline)renderItem.pPipeline->Bind(pContext);
-			if (nullptr != renderItem.pMesh) renderItem.pMesh->Bind(pContext);
-			if (nullptr != renderItem.pMaterial)renderItem.pMaterial->Bind(pContext);
+			if (pLastPipeline != renderItem.pPipeline) {
+				renderItem.pPipeline->Bind(pContext);
+				pLastPipeline = renderItem.pPipeline;
+			}
+
+			if (pLastMesh != renderItem.pMesh) {
+				renderItem.pMesh->Bind(pContext);
+				pLastMesh = renderItem.pMesh;
+			}
+
+			if (nullptr != renderItem.pMaterial) {
+				if (pLastMaterial != renderItem.pMaterial) {
+					renderItem.pMaterial->Bind(pContext);
+					pLastMaterial = renderItem.pMaterial;
+				}
+			}
 
 			_UpdateConstantBuffer(pContext, { renderItem.world });
 
@@ -35,8 +53,19 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 
 void CRenderFrame::_UpdateConstantBuffer(ID3D11DeviceContext* pContext, CB_ObjectData&& objData)
 {
+	static_assert(sizeof(CB_ObjectData) % 16 == 0, "CB_ObjectData must be 16-byte aligned.");
+
 	D3D11_MAPPED_SUBRESOURCE mapped{};
 	pContext->Map(m_pCBObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 	memcpy(mapped.pData, &objData, sizeof(CB_ObjectData));
 	pContext->Unmap(m_pCBObject, 0);
+}
+
+bool CRenderFrame::_CheckValidToDraw(const RenderItem& renderItem)
+{
+	if (nullptr == renderItem.pPipeline) return false;
+	if (nullptr == renderItem.pMesh) return false;
+	//if (nullptr == renderItem.pMaterial) return false; // optional
+
+	return true;
 }

@@ -48,6 +48,8 @@ public:
 	inline const KPerspectiveParams& GetPerspectiveParams() const { return m_kPerspective; }
 	inline const KOrthographicParams& GetOrthographicParams() const { return m_kOrthographic; }
 
+	const CTransform* GetTransform() const;
+
 private:
 	CAMERA_PROJECTION_TYPE m_eProjectionType = CAMERA_PROJECTION_TYPE::PERSPECTIVE;
 	

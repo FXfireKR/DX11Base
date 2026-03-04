@@ -54,5 +54,20 @@
         "entry": "PS",
         "version": "ps_5_0"
       }
-    } // NormalImageForward
+  }, // NormalImageForward
+
+  "Highlight": {
+      "VS": {
+        "path": "highlight.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "highlight.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  } // Highlight
+    
 }

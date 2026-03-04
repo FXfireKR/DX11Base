@@ -19,6 +19,7 @@ public:
 	uint64_t CreateQuad(uint64_t id);
 	uint64_t CreateCube(uint64_t id);
 	uint64_t CreateMeshFromBakedModel(MODEL_ID modelID, const CRuntimeAtlas& atlas);
+	uint64_t CreateAABBLine(uint64_t id);
 
 
 private:

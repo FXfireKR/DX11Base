@@ -56,6 +56,9 @@ void CPipeline::SetInputLayout(CInputLayer* const pInputLayout_)
 void CPipeline::Bind(ID3D11DeviceContext* pDeviceContext_) const
 {
 	pDeviceContext_->IASetInputLayout(m_pInputLayout);
+
+	pDeviceContext_->IASetPrimitiveTopology(m_ePrimitiveTopology);
+
 	pDeviceContext_->VSSetShader(m_pVertexShader, nullptr, 0);
 	pDeviceContext_->PSSetShader(m_pPixelShader, nullptr, 0);
 

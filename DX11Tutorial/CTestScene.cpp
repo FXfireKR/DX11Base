@@ -29,9 +29,8 @@ void CTestScene::Awake()
 
 	ctrl->SetCameraTransform(pivot->GetComponent<CTransform>());
 
-	
-
 	_CreateBaked();
+	_CreateHighlight();
 }
 
 void CTestScene::Start()
@@ -61,6 +60,32 @@ void CTestScene::Update(float fDelta)
 void CTestScene::LateUpdate(float fDelta)
 {
 	CScene::LateUpdate(fDelta);
+
+	if (nullptr != m_pCurrentCamera) {
+		XMFLOAT3 rayO{}, rayD{};
+		_MakeCenterRay(*m_pCurrentCamera, rayO, rayD);
+
+		BlockHitResult hit{};
+		const float maxDist = 15.0f;
+
+		if (RaycastVoxelDDA(m_blockAccessor, rayO, rayD, maxDist, hit) && hit.bHit)
+		{
+			//// 하이라이트 표시
+			m_pHighlightObject->SetEnable(true);
+
+#ifdef IMGUI_ACTIVATE
+			ImGui::Text("Contact!");
+#endif // IMGUI_ACTIVATE
+
+			CTransform* tr = m_pHighlightObject->GetComponent<CTransform>();
+			tr->SetLocalTrans({ (float)hit.block.x, (float)hit.block.y, (float)hit.block.z });
+			tr->SetLocalScale({ 1.02f, 1.02f, 1.02f });
+		}
+		else
+		{
+			m_pHighlightObject->SetEnable(false);
+		}
+	}
 }
 
 void CTestScene::BuildRenderFrame()
@@ -71,19 +96,37 @@ void CTestScene::BuildRenderFrame()
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
-	auto render = m_pChunkObject->GetComponent<CMeshRenderer>();
-	auto transform = m_pChunkObject->GetComponent<CTransform>();
+	if (true == m_pChunkObject->GetEnable())
+	{
+		auto render = m_pChunkObject->GetComponent<CMeshRenderer>();
+		auto transform = m_pChunkObject->GetComponent<CTransform>();
 
-	//CChunkMesherSystem::RebuildDirtyChunks(*this);
-	
-	RenderItem item;
-	item.pMesh = render->GetMesh();
-	item.pPipeline = render->GetPipeline();
-	item.pMaterial = render->GetMaterial();
+		//CChunkMesherSystem::RebuildDirtyChunks(*this);
 
-	XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+		RenderItem item;
+		item.pMesh = render->GetMesh();
+		item.pPipeline = render->GetPipeline();
+		item.pMaterial = render->GetMaterial();
 
-	rw.Submit(item);
+		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+
+		rw.Submit(item);
+	}
+
+	if (true == m_pHighlightObject->GetEnable())
+	{
+		auto render = m_pHighlightObject->GetComponent<CMeshRenderer>();
+		auto transform = m_pHighlightObject->GetComponent<CTransform>();
+
+		RenderItem item;
+		item.pMesh = render->GetMesh();
+		item.pPipeline = render->GetPipeline();
+		item.pMaterial = render->GetMaterial();
+
+		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+
+		rw.Submit(item);
+	}
 }
 
 void CTestScene::_CreateChunkObject()
@@ -243,4 +286,60 @@ void CTestScene::_CreateBaked()
 	pMeshRender->SetMesh(meshManager.Get(meshID));
 	pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
 	pMeshRender->SetMaterial(materialManager.Get(materialID));
+}
+
+void CTestScene::_MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir)
+{
+	orig = cam.GetTransform()->GetWorldTrans();
+	dir = cam.GetTransform()->GetLook();
+
+	XMVECTOR d = XMLoadFloat3(&dir);
+	d = XMVector3Normalize(d);
+	XMStoreFloat3(&dir, d);
+}
+
+void CTestScene::_CreateHighlight()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	// shader
+	auto& shaderManager = rw.GetShaderManager();
+	auto shaderID = fnv1a_64("Highlight");
+	auto shader = shaderManager.CreateShader(shaderID, 0);
+
+	shaderManager.Compile();
+
+	// input layout
+	auto& ilManager = rw.GetIALayoutManager();
+	auto layoutID = ilManager.Create(VERTEX_POSITION::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+
+	// pipeline
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto pipeID = pipelineManager.Create(fnv1a_64("HighlightPipeline"));
+
+	auto pipeline = pipelineManager.Get(pipeID);
+
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	// dummy
+	pipeline->CreateRaster(rw.GetDevice());
+
+	// mesh
+	auto& meshManager = rw.GetMeshManager();
+	auto highlightMeshID = meshManager.CreateAABBLine(fnv1a_64("AABBHighlight"));
+
+	auto& materialManager = rw.GetMaterialManager();
+	auto materialID = materialManager.Create(fnv1a_64("HighlightMaterial"));
+
+	m_pHighlightObject = AddAndGetObject("BlockHighlight");
+	auto* tr = m_pHighlightObject->AddComponent<CTransform>();
+	auto* mr = m_pHighlightObject->AddComponent<CMeshRenderer>();
+
+	mr->SetMesh(meshManager.Get(highlightMeshID));
+	mr->SetPipeline(pipeline);
+	mr->SetMaterial(materialManager.Get(materialID));
+
+	m_pHighlightObject->SetEnable(false);
 }

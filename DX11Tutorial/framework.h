@@ -132,7 +132,7 @@ extern unsigned long g_ScreenSizeY;
 // Mincraft:Util
 #include "CChunkType.h"
 #include "MCUtil.h"
-
+#include "IBlockAccessor.hpp"
 
 // singleton
 #include "CInputManager.h"

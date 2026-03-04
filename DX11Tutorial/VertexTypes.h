@@ -1,5 +1,21 @@
 ﻿#pragma once
 
+struct VERTEX_POSITION
+{
+	XMFLOAT3 position;
+
+	static VertexLayoutDesc GetLayout()
+	{
+		VertexLayoutDesc desc;
+		desc.uStride = sizeof(VERTEX_POSITION);
+		desc.vecElements = {
+			{ VERTEX_SEMANTIC::POSITION, DXGI_FORMAT_R32G32B32_FLOAT },
+		};
+
+		return desc;
+	}
+};
+
 struct VERTEX_POSITION_COLOR
 {
 	XMFLOAT3 position;
