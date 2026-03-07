@@ -22,10 +22,14 @@ public:
 	void Initialize(const string& resourceRoot);
 	
 	MODEL_ID LoadModel(const char* modelKey);
-	MODEL_ID GetModel(uint64_t modelHash);
-	MODEL_ID GetModel(const char* modelKey);
 
-	const BakedModel* GetBaked(MODEL_ID id) const;
+	const MODEL_ID FindModelID(uint64_t modelHash) const;
+	const MODEL_ID FindModelID(const char* modelKey) const;
+
+	const BakedModel* GetBakedModel(MODEL_ID id) const;
+
+	const BakedModel* FindBakedModel(uint64_t modelHash) const;
+	const BakedModel* FindBakedModel(const char* modelKey) const;
 
 private:
 	bool _LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelRaw);

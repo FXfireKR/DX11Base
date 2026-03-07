@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CComponentBase.h"
+#include "ICameraRayProvider.h"
 
 class CTransform;
 
@@ -25,7 +26,7 @@ struct KOrthographicParams
 	float fFarZ = 1000.0f;
 };
 
-class CCamera : public CComponentBase<CCamera, COMPONENT_TYPE::CAMERA>
+class CCamera : public CComponentBase<CCamera, COMPONENT_TYPE::CAMERA>, public ICameraRayProvider
 {
 public:
 	CCamera();
@@ -47,6 +48,9 @@ public:
 
 	inline const KPerspectiveParams& GetPerspectiveParams() const { return m_kPerspective; }
 	inline const KOrthographicParams& GetOrthographicParams() const { return m_kOrthographic; }
+
+	XMFLOAT3 GetRayOrigin() const override;
+	XMFLOAT3 GetRayDirection() const override;
 
 	const CTransform* GetTransform() const;
 

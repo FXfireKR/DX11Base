@@ -20,6 +20,7 @@ public:
 	void CreateMeshFromBakedModel(ID3D11Device* pDevice, const CRuntimeAtlas& atlas, const BakedModel& bakedModel);
 	void CreateAABBLine(ID3D11Device* pDevice);
 
+	
 	bool UpdateDynamic(ID3D11Device* pDevice, ID3D11DeviceContext* pContext
 		, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt
 		, const uint32_t* pIndices, uint32_t indexCnt);

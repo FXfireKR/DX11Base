@@ -27,7 +27,7 @@ public:
 public: // Object 라이프 사이클
 	// Initialization
 	virtual void Awake() {} // next Load 단계
-	virtual void Start() {} // current 활성화 단계
+	virtual void Start(); // current 활성화 단계
 
 	// Physics
 	virtual void FixedUpdate(float fDelta);

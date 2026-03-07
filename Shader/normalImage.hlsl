@@ -52,6 +52,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float4 color = texture0.Sample(sampler0, uv);
     return color;
     //return float4(input.uv.x, input.uv.y, 0, 1);
-    //return float4(1,0,0,1);
+    
+    //return float4(1,1,1,1);
     //return float4(input.uv.xy, 0, 1); // R=U, G=V, B=0
 }

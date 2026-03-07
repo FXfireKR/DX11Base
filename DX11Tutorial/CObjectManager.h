@@ -30,7 +30,7 @@ public:
 		{
 			uint32_t denseIndex = m_vecSparse[i];
 			CObject* pObj = m_vecObjects[i].get();
-			if (pObj) {
+			if (pObj && pObj->GetAlive() && pObj->GetEnable()) {
 				fn(*pObj);
 			}
 		}

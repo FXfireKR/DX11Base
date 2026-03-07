@@ -10,6 +10,15 @@ void CObject::Init()
 	}
 }
 
+void CObject::Start()
+{
+	for (const auto& iter : m_arrComponents) {
+		if (!iter) continue;
+
+		iter->Start();
+	}
+}
+
 void CObject::FixedUpdate(float fDelta)
 {
 	for (const auto& iter : m_arrComponents) {

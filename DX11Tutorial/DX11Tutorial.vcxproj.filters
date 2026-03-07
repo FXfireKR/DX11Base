@@ -327,6 +327,24 @@
     <ClInclude Include="IBlockAccessor.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CChunkWorld.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorld.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ICameraRayProvider.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CCharacterMotor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockInteractor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CInventoryComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -507,6 +525,24 @@
       <Filter>Code\04_Game\Atlas</Filter>
     </ClCompile>
     <ClCompile Include="CPlayerController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkWorld.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorld.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ICameraRayProvider.cpp">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CCharacterMotor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockInteractor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CInventoryComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

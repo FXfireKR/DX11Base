@@ -10,6 +10,7 @@ void CSceneManager::Initialize(CGameWorld& gameWorld)
 
 	CScene* pCurrentScene = _GetCurrent();
 	pCurrentScene->Awake();
+	pCurrentScene->Start();
 }
 
 void CSceneManager::Register(SCENE_TYPE eType_, SceneFactory factory_)

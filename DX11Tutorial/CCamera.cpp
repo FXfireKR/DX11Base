@@ -56,6 +56,16 @@ void CCamera::UpdateCameraMatrix()
 	}
 }
 
+XMFLOAT3 CCamera::GetRayOrigin() const
+{
+	return XMFLOAT3();
+}
+
+XMFLOAT3 CCamera::GetRayDirection() const
+{
+	return XMFLOAT3();
+}
+
 const CTransform* CCamera::GetTransform() const
 {
 	if (m_pOwner) 

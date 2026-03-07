@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CScene.h"
+#include "CWorld.h"
 
 class CTestScene : public CScene
 {
@@ -22,6 +23,9 @@ private:
 	void _MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir);
 	void _CreateHighlight();
 
+	void _CreateWorldRender();
+	void _CreateTextureAtlas();
+
 private:
 	float x = 0.f;
 	float y = 0.f;
@@ -33,5 +37,5 @@ private:
 
 	CObject* m_pHighlightObject = nullptr;
 
-	CTestBlockAccessor m_blockAccessor;
+	CWorld m_VoxelWorld;
 };

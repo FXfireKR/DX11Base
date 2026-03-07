@@ -35,27 +35,41 @@ MODEL_ID CModelDB::LoadModel(const char* modelKey)
     return newID;
 }
 
-MODEL_ID CModelDB::GetModel(uint64_t modelHash)
+const MODEL_ID CModelDB::FindModelID(uint64_t modelHash) const
 {
     auto it = m_mapKeyToID.find(modelHash);
     if (it != m_mapKeyToID.end()) return it->second;
     return UINT64_ERROR;
 }
 
-MODEL_ID CModelDB::GetModel(const char* modelKey)
+const MODEL_ID CModelDB::FindModelID(const char* modelKey) const
 {
-    const uint64_t h = fnv1a_64(modelKey);
-    auto it = m_mapKeyToID.find(h);
+    const uint64_t modelHash = fnv1a_64(modelKey);
+    auto it = m_mapKeyToID.find(modelHash);
     if (it != m_mapKeyToID.end()) return it->second;
     return UINT64_ERROR;
 }
 
-const BakedModel* CModelDB::GetBaked(MODEL_ID id) const
+const BakedModel* CModelDB::GetBakedModel(MODEL_ID id) const
 {
     if (id >= m_vecEntries.size()) return nullptr;
     const auto& e = m_vecEntries[id];
     if (!e || !e->bBaked) return nullptr;
     return &(e->baked);
+}
+
+const BakedModel* CModelDB::FindBakedModel(uint64_t modelHash) const
+{
+    MODEL_ID modelID = FindModelID(modelHash);
+    if (modelID == UINT64_ERROR) return nullptr;
+    return GetBakedModel(modelID);
+}
+
+const BakedModel* CModelDB::FindBakedModel(const char* modelKey) const
+{
+    MODEL_ID modelID = FindModelID(modelKey);
+    if (modelID == UINT64_ERROR) return nullptr;
+    return GetBakedModel(modelID);
 }
 
 bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelRaw)

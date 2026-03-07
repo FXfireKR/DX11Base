@@ -19,6 +19,13 @@ void CScene::OnCreate(CGameWorld& gameWorld)
 	}
 }
 
+void CScene::Start()
+{
+	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
+		obj.Start();
+	});
+}
+
 void CScene::FixedUpdate(float fDelta)
 {
 	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {

@@ -149,13 +149,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CApplication.h" />
+    <ClInclude Include="CBlockInteractor.h" />
     <ClInclude Include="CBlockStateDB.h" />
     <ClInclude Include="CBootScene.h" />
     <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CCharacterMotor.h" />
     <ClInclude Include="CChunkComponent.h" />
     <ClInclude Include="CChunkMesher.h" />
     <ClInclude Include="CChunkMesherSystem.h" />
     <ClInclude Include="CChunkType.h" />
+    <ClInclude Include="CChunkWorld.h" />
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
@@ -167,6 +170,7 @@
     <ClInclude Include="CInputLayer.h" />
     <ClInclude Include="CInputLayerManager.h" />
     <ClInclude Include="CInputManager.h" />
+    <ClInclude Include="CInventoryComponent.h" />
     <ClInclude Include="CKeyboardDevice.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMaterialManager.h" />
@@ -199,10 +203,12 @@
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="CDirectX11Adapter.h" />
     <ClInclude Include="CWindow.h" />
+    <ClInclude Include="CWorld.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IBlockAccessor.hpp" />
+    <ClInclude Include="ICameraRayProvider.h" />
     <ClInclude Include="IFileWrapper.h" />
     <ClInclude Include="IGamePadDevice.h" />
     <ClInclude Include="IInputDevice.h" />
@@ -237,14 +243,18 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSystem.h" />
     <ClInclude Include="SceneHeader.h" />
+    <ClCompile Include="CBlockInteractor.cpp" />
     <ClCompile Include="CBlockStateDB.cpp" />
+    <ClCompile Include="CCharacterMotor.cpp" />
     <ClCompile Include="CChunkComponent.cpp" />
     <ClCompile Include="CChunkMesher.cpp" />
     <ClCompile Include="CChunkMesherSystem.cpp" />
+    <ClCompile Include="CChunkWorld.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
     <ClCompile Include="CInitializeScene.cpp" />
     <ClCompile Include="CInputManager.cpp" />
+    <ClCompile Include="CInventoryComponent.cpp" />
     <ClCompile Include="CKeyboardDevice.cpp" />
     <ClCompile Include="CMaterialManager.cpp" />
     <ClCompile Include="CModelDB.cpp" />
@@ -256,6 +266,8 @@
     <ClCompile Include="CSamplerState.cpp" />
     <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="CWindow.cpp" />
+    <ClCompile Include="CWorld.cpp" />
+    <ClCompile Include="ICameraRayProvider.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

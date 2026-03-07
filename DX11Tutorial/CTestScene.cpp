@@ -13,28 +13,51 @@ CTestScene::~CTestScene()
 
 void CTestScene::Awake()
 {
+	_CreateTextureAtlas();
+	_CreateWorldRender();
+
+	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial);
+
 	auto* player = AddAndGetObject("Player");
-	player->AddComponent<CTransform>()->Init();
+	auto* tr = player->AddComponent<CTransform>();
+	tr->Init();
+	tr->SetLocalTrans({ 0, 5.f, 0 });
+	
 	auto* ctrl = player->AddComponent<CPlayerController>();  
 	ctrl->Init();
+
+	auto* motor = player->AddComponent<CCharacterMotor>();
+	motor->Init();
+	motor->SetWorld(&m_VoxelWorld);
+
+	auto* inventory = player->AddComponent<CInventoryComponent>();
+	inventory->Init();
+
+	auto* interactor = player->AddComponent<CBlockInteractor>();
+	interactor->Init();
+	interactor->SetWorld(&m_VoxelWorld);
 
 	// 카메라 피벗(자식 오브젝트)
 	auto* pivot = AddAndGetObject("PlayerCameraPivot");
 	pivot->SetParentID(player->GetID());
-	pivot->AddComponent<CTransform>()->Init();
+
+	auto* pivotTransform = pivot->AddComponent<CTransform>();
+	pivotTransform->Init();
 
 	auto* cam = pivot->AddComponent<CCamera>();
 	cam->Init();
 	m_pCurrentCamera = cam;
 
-	ctrl->SetCameraTransform(pivot->GetComponent<CTransform>());
-
-	_CreateBaked();
 	_CreateHighlight();
+
+	ctrl->SetCameraTransform(pivotTransform);
+	interactor->SetCameraTransform(pivotTransform);
+	interactor->SetHighlightObject(m_pHighlightObject);
 }
 
 void CTestScene::Start()
 {
+	CScene::Start();
 }
 
 void CTestScene::FixedUpdate(float fDelta)
@@ -61,31 +84,28 @@ void CTestScene::LateUpdate(float fDelta)
 {
 	CScene::LateUpdate(fDelta);
 
-	if (nullptr != m_pCurrentCamera) {
-		XMFLOAT3 rayO{}, rayD{};
-		_MakeCenterRay(*m_pCurrentCamera, rayO, rayD);
+	CChunkMesherSystem::RebuildDirtyChunks(*this, m_VoxelWorld.GetChunkWorld());
 
-		BlockHitResult hit{};
-		const float maxDist = 15.0f;
+	//// DDA-Raycast
+	//if (nullptr != m_pCurrentCamera) 
+	//{
+	//	XMFLOAT3 rayO{}, rayD{};
+	//	_MakeCenterRay(*m_pCurrentCamera, rayO, rayD);
 
-		if (RaycastVoxelDDA(m_blockAccessor, rayO, rayD, maxDist, hit) && hit.bHit)
-		{
-			//// 하이라이트 표시
-			m_pHighlightObject->SetEnable(true);
+	//	BlockHitResult hit{};
+	//	const float maxDist = 15.0f;
 
-#ifdef IMGUI_ACTIVATE
-			ImGui::Text("Contact!");
-#endif // IMGUI_ACTIVATE
+	//	m_pHighlightObject->SetEnable(false);
 
-			CTransform* tr = m_pHighlightObject->GetComponent<CTransform>();
-			tr->SetLocalTrans({ (float)hit.block.x, (float)hit.block.y, (float)hit.block.z });
-			tr->SetLocalScale({ 1.02f, 1.02f, 1.02f });
-		}
-		else
-		{
-			m_pHighlightObject->SetEnable(false);
-		}
-	}
+	//	if (true == m_VoxelWorld.RaycastBlock(rayO, rayD, maxDist, hit))
+	//	{
+	//		m_pHighlightObject->SetEnable(true);
+
+	//		CTransform* tr = m_pHighlightObject->GetComponent<CTransform>();
+	//		tr->SetLocalTrans({ (float)hit.block.x - 0.001f, (float)hit.block.y - 0.001f, (float)hit.block.z - 0.001f });
+	//		tr->SetLocalScale({ 1.002f, 1.002f, 1.002f });
+	//	}
+	//}
 }
 
 void CTestScene::BuildRenderFrame()
@@ -96,37 +116,22 @@ void CTestScene::BuildRenderFrame()
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
-	if (true == m_pChunkObject->GetEnable())
+	GetObjectManager().ForEachAliveEnabled([&](CObject& obj)
 	{
-		auto render = m_pChunkObject->GetComponent<CMeshRenderer>();
-		auto transform = m_pChunkObject->GetComponent<CTransform>();
+		auto* render = obj.GetComponent<CMeshRenderer>();
+		auto* transform = obj.GetComponent<CTransform>();
 
-		//CChunkMesherSystem::RebuildDirtyChunks(*this);
+		if (!render || !transform) return;
+		if (!render->GetMesh()) return;
 
-		RenderItem item;
+		RenderItem item{};
 		item.pMesh = render->GetMesh();
 		item.pPipeline = render->GetPipeline();
 		item.pMaterial = render->GetMaterial();
 
 		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
-
 		rw.Submit(item);
-	}
-
-	if (true == m_pHighlightObject->GetEnable())
-	{
-		auto render = m_pHighlightObject->GetComponent<CMeshRenderer>();
-		auto transform = m_pHighlightObject->GetComponent<CTransform>();
-
-		RenderItem item;
-		item.pMesh = render->GetMesh();
-		item.pPipeline = render->GetPipeline();
-		item.pMaterial = render->GetMaterial();
-
-		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
-
-		rw.Submit(item);
-	}
+	});
 }
 
 void CTestScene::_CreateChunkObject()
@@ -169,10 +174,6 @@ void CTestScene::_CreateChunkObject()
 	pipeline->SetShader(shaderManager.Get(shaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
 	pipeline->CreateRaster(rw.GetDevice());
-
-	// texture
-	//auto& textureManager = rw.GetTextureManager();
-	//auto textureID = textureManager.LoadTexture2D(fnv1a_64("Stone"), "../Resource/stone.png", TEXTURE_USAGE::StaticColorMip);
 
 	// sampler
 	auto& samplerManager = rw.GetSamplerManager();
@@ -264,7 +265,7 @@ void CTestScene::_CreateBaked()
 	std::vector<AppliedModel> outModels;
 	CBlockStateDB::Get().GetAppliedModels(blockID, sidx, outModels);
 	auto it = outModels.front();
-	auto meshID = meshManager.CreateMeshFromBakedModel(CModelDB::Get().GetModel(it.modelHash), rw.GetRuntimeAtlas());
+	auto meshID = meshManager.CreateMeshFromBakedModel(CModelDB::Get().FindModelID(it.modelHash), rw.GetRuntimeAtlas());
 
 	// sampler
 	auto& samplerManager = rw.GetSamplerManager();
@@ -342,4 +343,69 @@ void CTestScene::_CreateHighlight()
 	mr->SetMaterial(materialManager.Get(materialID));
 
 	m_pHighlightObject->SetEnable(false);
+}
+
+void CTestScene::_CreateWorldRender()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	// shader
+	auto& shaderManager = rw.GetShaderManager();
+	auto shaderID = fnv1a_64("NormalImageForward");
+	auto shader = shaderManager.CreateShader(shaderID, 0);
+
+	shaderManager.Compile();
+
+	// input layout
+	auto& ilManager = rw.GetIALayoutManager();
+	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+
+	// pipeline
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	auto pipeline = pipelineManager.Get(pipeID);
+
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->CreateRaster(rw.GetDevice());
+	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// sampler
+	auto& samplerManager = rw.GetSamplerManager();
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+
+	// material
+	auto& materialManager = rw.GetMaterialManager();
+	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+
+	materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
+	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+
+	m_pChunkPipeline = pipelineManager.Get(pipeID);
+	m_pChunkMaterial = materialManager.Get(materialID);
+}
+
+void CTestScene::_CreateTextureAtlas()
+{
+	CRenderWorld& rw = GetRenderWorld();
+	CRuntimeAtlas& rta = rw.GetRuntimeAtlas();
+
+	RuntimeAtlasDesc ad{};
+	ad.width = 256;
+	ad.height = 256;
+	ad.tilePx = 16;
+	ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	ad.bSRGB = true;
+	ad.bMipmap = false;
+
+	rta.Create(rw.GetDevice(), ad);
+
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/grass_block_snow"), "../Resource/assets/minecraft/textures/block/grass_block_snow.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/grass_block_side"), "../Resource/assets/minecraft/textures/block/grass_block_side.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/grass_block_side_overlay"), "../Resource/assets/minecraft/textures/block/grass_block_side_overlay.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/grass_block_top"), "../Resource/assets/minecraft/textures/block/grass_block_top.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/dirt"), "../Resource/assets/minecraft/textures/block/dirt.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/stone"), "../Resource/assets/minecraft/textures/block/stone.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/sand"), "../Resource/assets/minecraft/textures/block/sand.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");
 }

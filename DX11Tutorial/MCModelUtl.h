@@ -61,7 +61,7 @@ struct BakedQuad
 	uint8_t dir;
 	bool hasCullFace;
 	uint8_t cullFaceDir;
-	int tineIndex; // 없으면 -1
+	int tintIndex; // 없으면 -1
 	uint64_t textureHash; // minecraft:~~ 의 hash
 	BakedVertex vert[4];
 };

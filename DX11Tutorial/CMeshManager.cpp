@@ -78,7 +78,7 @@ uint64_t CMeshManager::CreateCube(uint64_t id)
 
 uint64_t CMeshManager::CreateMeshFromBakedModel(MODEL_ID modelID, const CRuntimeAtlas& atlas)
 {
-	const BakedModel* baked = CModelDB::Get().GetBaked(modelID);
+	const BakedModel* baked = CModelDB::Get().GetBakedModel(modelID);
 	if (!baked) return UINT64_ERROR;
 	auto meshID = this->Create(modelID);
 	this->Get(meshID)->CreateMeshFromBakedModel(m_pDevice, atlas, *baked);

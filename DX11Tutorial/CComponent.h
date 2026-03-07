@@ -7,7 +7,13 @@ enum class COMPONENT_TYPE : BYTE
 	TRANSFORM = 0,
 	CAMERA,
 	MESHRENDER,
+
 	PLAYERCONTROLLER,
+
+	CHARACTERMOTER,
+	BLOCKINTERACTOR,
+
+	INVENTORY,
 
 	CUSTOM_0,
 	// ADD
@@ -27,6 +33,7 @@ public:
 	virtual ~CComponent();
 
 	virtual void Init() {}
+	virtual void Start() {}
 	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
@@ -42,6 +49,7 @@ public:
 	inline bool GetEnable() { return m_bEnable; }
 
 	inline void SetOwner(CObject* pOwner_) { m_pOwner = pOwner_; }
+	inline CObject* GetOwner() const { return m_pOwner; }
 
 protected:
 	bool m_bAlive = false;

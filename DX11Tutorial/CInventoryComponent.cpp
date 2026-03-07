@@ -1,0 +1,67 @@
+﻿#include "pch.h"
+#include "CInventoryComponent.h"
+
+void CInventoryComponent::Init()
+{
+	m_arrayHotBar.fill({ {0, 0}, 0 });
+	m_iSelectedSlot = 0;
+
+	BlockPropHashMap props;
+	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
+	STATE_INDEX sidx;
+	bool ok = CBlockStateDB::Get().EncodeStateIndex(blockID, props, sidx);
+	assert(ok);
+
+	m_arrayHotBar[0].block.blockID = blockID;
+	m_arrayHotBar[0].block.stateIndex = sidx;
+	m_arrayHotBar[0].count = 999;
+}
+
+void CInventoryComponent::Start()
+{
+}
+
+int CInventoryComponent::GetSelectedSlotIndex() const
+{
+	return m_iSelectedSlot;
+}
+
+void CInventoryComponent::SetSelectedSlotIndex(int index)
+{
+	if (index < 0 || index >= HOTBAR_SIZE) return;
+	m_iSelectedSlot = index;
+}
+
+const InventorySlot* CInventoryComponent::GetSelectedSlot() const
+{
+	return &m_arrayHotBar[m_iSelectedSlot];
+}
+
+InventorySlot* CInventoryComponent::GetSelectedSlotMutable()
+{
+	return &m_arrayHotBar[m_iSelectedSlot];
+}
+
+BlockCell CInventoryComponent::GetSelectedPlaceBlock() const
+{
+	const InventorySlot& slot = m_arrayHotBar[m_iSelectedSlot];
+	if (slot.IsEmpty()) return { 0, 0 };
+	return slot.block;
+}
+
+bool CInventoryComponent::TryConsumeSelectedOne()
+{
+	InventorySlot& slot = m_arrayHotBar[m_iSelectedSlot];
+	if (slot.IsEmpty()) return false;
+
+	if (slot.count > 0)
+	{
+		--slot.count;
+		if (slot.count == 0)
+		{
+			slot.block = { 0, 0 };
+		}
+		return true;
+	}
+	return false;
+}

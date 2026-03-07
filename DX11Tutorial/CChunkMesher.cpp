@@ -1,7 +1,8 @@
 ﻿#include "pch.h"
 #include "CChunkMesher.h"
-#include "CChunkComponent.h"
+#include "CChunkWorld.h"
 #include "CRuntimeAtlas.h"
+#include "CChunkComponent.h"
 
 static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CHUNK_VERTEX>& v, vector<uint32_t>& i)
 {
@@ -76,43 +77,196 @@ static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CH
 	i.push_back(base + 3);
 }
 
-static bool IsAir(const CChunkComponent& c, int x, int y, int z)
+static bool IsAirWorld(const CChunkWorld& world, int x, int y, int z)
 {
-	return c.GetBlock(x, y, z) == 0;
+	return world.GetBlock(x, y, z);
 }
 
-void CChunkMesher::BuildNaive(const CRuntimeAtlas& atlas, const CChunkComponent& chunk, ChunkMeshData& out)
+static bool IsAirNeighbor(const CChunkWorld& world, const ChunkSection& section, int cx, int sy, int cz, int x, int y, int z)
 {
-	out.vertices.clear();
-	out.indices.clear();
+	if (x >= 0 && x < CHUNK_SIZE_X &&
+		y >= 0 && y < CHUNK_SECTION_SIZE &&
+		z >= 0 && z < CHUNK_SIZE_Z)
+	{
+		return section.blocks[Index16(x, y, z)].blockID == 0;
+	}
 
-	for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
-		for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
-			for (int x = 0; x < CHUNK_SIZE_X; ++x)
+	const int wx = cx * CHUNK_SIZE_X + x;
+	const int wy = sy * CHUNK_SECTION_SIZE + y;
+	const int wz = cz * CHUNK_SIZE_Z + z;
+
+	return world.GetBlock(wx, wy, wz) == 0;
+}
+
+static bool IsFaceOccluded(const CChunkWorld& world, int wx, int wy, int wz, uint8_t cullDir)
+{
+	switch (cullDir)
+	{
+		case static_cast<uint8_t>(FACE_DIR::PX): ++wx; break;
+		case static_cast<uint8_t>(FACE_DIR::NX): --wx; break;
+		case static_cast<uint8_t>(FACE_DIR::PY): ++wy; break;
+		case static_cast<uint8_t>(FACE_DIR::NY): --wy; break;
+		case static_cast<uint8_t>(FACE_DIR::PZ): ++wz; break;
+		case static_cast<uint8_t>(FACE_DIR::NZ): --wz; break;
+		default: return false;
+	}
+
+	return world.GetBlock(wx, wy, wz) != 0;
+}
+
+void CChunkMesher::AppendBakedQuad(IN const BakedQuad& quad, const CRuntimeAtlas& atlas, const XMFLOAT3& blockOffset, OUT vector<CHUNK_VERTEX>& verts, vector<uint32_t>& indices)
+{
+	const uint16_t titleID = atlas.GetTileID(quad.textureHash);
+	const UVRect uv = (titleID == UINT16_MAX) ? atlas.GetUV(0) : atlas.GetUV(titleID);
+	const uint32_t baseIndex = static_cast<uint32_t>(verts.size());
+
+	for (int i = 0; i < 4; ++i)
+	{
+		const BakedVertex& bakedVert = quad.vert[i];
+
+		XMFLOAT3 pos
+		{
+			bakedVert.pos.x + blockOffset.x,
+			bakedVert.pos.y + blockOffset.y,
+			bakedVert.pos.z + blockOffset.z
+		};
+
+		XMFLOAT2 uvAtlas
+		{
+			uv.u0 + (uv.u1 - uv.u0) * bakedVert.uv.x,
+			uv.v0 + (uv.v1 - uv.v0) * bakedVert.uv.y,
+		};
+
+		verts.push_back({ {pos}, {uvAtlas}, {bakedVert.normal} });
+	}
+
+	indices.push_back(baseIndex + 0);
+	indices.push_back(baseIndex + 1);
+	indices.push_back(baseIndex + 2);
+
+	indices.push_back(baseIndex + 0);
+	indices.push_back(baseIndex + 2);
+	indices.push_back(baseIndex + 3);
+}
+
+void CChunkMesher::BuildFromBakedModels(IN const CChunkWorld& world, const CRuntimeAtlas& atlas, int cx, int sy, int cz, const ChunkSection& section, OUT ChunkMeshData& meshData)
+{
+	meshData.vertices.clear();
+	meshData.indices.clear();
+
+	for (int z = 0; z < CHUNK_SECTION_SIZE; ++z)
+	{
+		for (int y = 0; y < CHUNK_SECTION_SIZE; ++y)
+		{
+			for (int x = 0; x < CHUNK_SECTION_SIZE; ++x)
 			{
-				const BLOCK_ID id = chunk.GetBlock(x, y, z);
-				if (id == 0) continue;
+				const BlockCell& cell = section.blocks[Index16(x, y, z)];
+				if (cell.blockID == 0) continue;
 
-				UVRect uv = atlas.GetUV(id - 1);
+				vector<AppliedModel> vecAppliedModels;
+				CBlockStateDB::Get().GetAppliedModels(cell.blockID, cell.stateIndex, vecAppliedModels);
 
-				if (IsAir(chunk, x + 1, y, z)) 
-					AddFaceQuad(x, y, z, FACE_DIR::PX, uv, out.vertices, out.indices); // +x
+				const int wx = cx * CHUNK_SECTION_SIZE + x;
+				const int wy = sy * CHUNK_SECTION_SIZE + y;
+				const int wz = cz * CHUNK_SECTION_SIZE + z;
 
-				if (IsAir(chunk, x - 1, y, z)) 
-					AddFaceQuad(x, y, z, FACE_DIR::NX, uv, out.vertices, out.indices); // -x
+				const XMFLOAT3 blockOffset((float)x, (float)y, (float)z);
 
-				if (IsAir(chunk, x, y + 1, z)) 
-					AddFaceQuad(x, y, z, FACE_DIR::PY, uv, out.vertices, out.indices); // +y
+				for (const AppliedModel& applied : vecAppliedModels)
+				{
+					const BakedModel* bakedModel = CModelDB::Get().FindBakedModel(applied.modelHash);
+					if (!bakedModel) continue;
 
-				if (IsAir(chunk, x, y - 1, z)) 
-					AddFaceQuad(x, y, z, FACE_DIR::NY, uv, out.vertices, out.indices); // -y
+					for (const BakedQuad& quad : bakedModel->quads)
+					{
+						if (quad.hasCullFace)
+						{
+							if (IsFaceOccluded(world, wx, wy, wz, quad.cullFaceDir)) continue;
+						}
 
-				if (IsAir(chunk, x, y, z + 1)) 
-					AddFaceQuad(x, y, z, FACE_DIR::PZ, uv, out.vertices, out.indices); // +z
-
-				if (IsAir(chunk, x, y, z - 1)) 
-					AddFaceQuad(x, y, z, FACE_DIR::NZ, uv, out.vertices, out.indices); // -z
+						AppendBakedQuad(quad, atlas, blockOffset, meshData.vertices, meshData.indices);
+					}
+				}
 			}
 		}
 	}
 }
+
+//void CChunkMesher::BuildNaive(IN const CChunkWorld& world, const CRuntimeAtlas& atlas, int cx, int sy, int cz, const ChunkSection& section, OUT ChunkMeshData& meshData)
+//{
+//	const int baseX = cx * CHUNK_SIZE_X;
+//	const int baseY = sy * CHUNK_SECTION_SIZE;
+//	const int baseZ = cz * CHUNK_SIZE_Z;
+//
+//	for (int z = 0; z < CHUNK_SIZE_Z; ++z) 
+//	{
+//		for (int y = 0; y < CHUNK_SECTION_SIZE; ++y)
+//		{
+//			for (int x = 0; x < CHUNK_SIZE_X; ++x)
+//			{
+//				const BLOCK_ID id = section.blocks[Index16(x, y, z)];
+//				if (id == 0) continue;
+//
+//				UVRect uv = atlas.GetUV(id - 1);
+//
+//				const int wx = baseX + x;
+//				const int wy = baseY + y;
+//				const int wz = baseZ + z;
+//
+//				if (IsAirNeighbor(world, section, cx, sy, cz, x + 1, y, z));
+//					AddFaceQuad(x, y, z, FACE_DIR::PX, uv, meshData.vertices, meshData.indices); // +x
+//
+//				if (IsAirNeighbor(world, section, cx, sy, cz, x - 1, y, z));
+//					AddFaceQuad(x, y, z, FACE_DIR::NX, uv, meshData.vertices, meshData.indices); // -x
+//
+//					if (IsAirNeighbor(world, section, cx, sy, cz, x, y + 1, z));
+//					AddFaceQuad(x, y, z, FACE_DIR::PY, uv, meshData.vertices, meshData.indices); // +y
+//
+//					if (IsAirNeighbor(world, section, cx, sy, cz, x, y - 1, z));
+//					AddFaceQuad(x, y, z, FACE_DIR::NY, uv, meshData.vertices, meshData.indices); // -y
+//
+//					if (IsAirNeighbor(world, section, cx, sy, cz, x, y, z + 1));
+//					AddFaceQuad(x, y, z, FACE_DIR::PZ, uv, meshData.vertices, meshData.indices); // +z
+//
+//					if (IsAirNeighbor(world, section, cx, sy, cz, x, y, z - 1));
+//					AddFaceQuad(x, y, z, FACE_DIR::NZ, uv, meshData.vertices, meshData.indices); // -z
+//			}
+//		}
+//	}
+//}
+
+//void CChunkMesher::BuildNaive(const CRuntimeAtlas& atlas, const CChunkComponent& chunk, ChunkMeshData& out)
+//{
+//	out.vertices.clear();
+//	out.indices.clear();
+//
+//	for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
+//		for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
+//			for (int x = 0; x < CHUNK_SIZE_X; ++x)
+//			{
+//				const BLOCK_ID id = chunk.GetBlock(x, y, z);
+//				if (id == 0) continue;
+//
+//				UVRect uv = atlas.GetUV(id - 1);
+//
+//				if (IsAir(chunk, x + 1, y, z)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::PX, uv, out.vertices, out.indices); // +x
+//
+//				if (IsAir(chunk, x - 1, y, z)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::NX, uv, out.vertices, out.indices); // -x
+//
+//				if (IsAir(chunk, x, y + 1, z)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::PY, uv, out.vertices, out.indices); // +y
+//
+//				if (IsAir(chunk, x, y - 1, z)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::NY, uv, out.vertices, out.indices); // -y
+//
+//				if (IsAir(chunk, x, y, z + 1)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::PZ, uv, out.vertices, out.indices); // +z
+//
+//				if (IsAir(chunk, x, y, z - 1)) 
+//					AddFaceQuad(x, y, z, FACE_DIR::NZ, uv, out.vertices, out.indices); // -z
+//			}
+//		}
+//	}
+//}

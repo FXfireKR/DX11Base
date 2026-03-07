@@ -9,3 +9,9 @@
 #include "CChunkComponent.h"
 
 #include "CPlayerController.h"
+
+#include "CCharacterMotor.h"
+
+#include "CBlockInteractor.h"
+
+#include "CInventoryComponent.h"

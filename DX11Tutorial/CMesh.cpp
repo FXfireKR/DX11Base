@@ -224,7 +224,8 @@ bool CMesh::UpdateDynamic(ID3D11Device* pDevice, ID3D11DeviceContext* pContext
 	, const uint32_t* pIndices, uint32_t indexCnt
 )
 {
-	if (vertexCnt == 0 || indexCnt == 0) {
+	if (vertexCnt == 0 || indexCnt == 0) 
+	{
 		m_uVertexStride = vertexStride;
 		m_uVertexCnt = vertexCnt;
 		m_uIndexCnt = indexCnt;

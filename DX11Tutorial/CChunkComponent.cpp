@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CChunkComponent.h"
+#include "CChunkWorld.h"
 
 void CChunkComponent::Init()
 {

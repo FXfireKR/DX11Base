@@ -10,6 +10,7 @@ public:
 	~CObject() = default;
 
 	void Init();
+	void Start();
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
