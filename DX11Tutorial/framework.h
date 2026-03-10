@@ -122,19 +122,10 @@ constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
 extern unsigned long g_ScreenSizeX;
 extern unsigned long g_ScreenSizeY;
 
-
-// util header
 #include "util.h"
-#include "VertexTypes.h"
-#include "IFileWrapper.h"
-#include "CRapidJsonParseWrapper.h"
-
-// Mincraft:Util
-#include "CChunkType.h"
-#include "MCUtil.h"
-#include "IBlockAccessor.hpp"
 
 // singleton
 #include "CInputManager.h"
-#include "CBlockStateDB.h"
-#include "CModelDB.h"
+#include "CBlockDB.h"
+
+#define BlockDB CBlockDB::Get()

@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "singleton.h"
+#include "ModelTypes.h"
+#include "BlockStateTypes.h"
 
 /*
 * VALUE가 INDEX로 저장되므로, 단계를 나눈다.
@@ -8,7 +9,10 @@
 * Pass_2 : variants key 문자열들을 기반으로 컴파일된 VariantRule 생성
 */
 
-class CBlockStateDB : public singleton<CBlockStateDB>
+class CBlockDefDB;
+class CModelDB;
+
+class CBlockStateDB
 {
 private:
 	enum class LOAD_PROGRESS_STEP
@@ -21,11 +25,11 @@ private:
 	};
 
 public:
-	void Initialize(const char* path);
+	void Initialize(const char* path, const CBlockDefDB* pBlockDefDB, CModelDB* pModelDB);
+	void Clear();
 	void Load();
 
-
-	bool GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels);
+	bool GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels) const;
 	bool EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap& props, OUT STATE_INDEX& stateIndex) const;
 
 private:
@@ -67,6 +71,9 @@ public:
 	inline bool IsLoadComplete() { return m_eStep == LOAD_PROGRESS_STEP::END; }
 
 private:
+	const CBlockDefDB* m_pBlockDefDB = nullptr;
+	CModelDB* m_pModelDB = nullptr;
+
 	string m_strRoot;
 	GlobalPropertyRegistry m_propRegistry;
 

@@ -1,9 +1,12 @@
 ﻿#pragma once
+#include <rapidjson\rapidjson.h>
+#include <rapidjson\document.h>
+#include <rapidjson\stringbuffer.h>
 
 class CRapidJsonParsorWrapper
 {
 public:
-	static bool ReadFloat(IN const rapidjson::Value& value, OUT float& fOut)
+	static bool ReadFloat(const rapidjson::Value& value, float& fOut)
 	{
 		if (value.IsNumber())
 			return false;
@@ -11,7 +14,7 @@ public:
 		return true;
 	}
 
-	static bool ReadVector3(IN const rapidjson::Value& arr, float fOut[3])
+	static bool ReadVector3(const rapidjson::Value& arr, float fOut[3])
 	{
 		if (!arr.IsArray() || arr.Size() < 3) return false;
 		for (rapidjson::SizeType i = 0; i < 3; ++i)
@@ -22,7 +25,7 @@ public:
 		return true;
 	}
 
-	static bool ReadUV4(IN const rapidjson::Value& arr, float fOut[4])
+	static bool ReadUV4(const rapidjson::Value& arr, float fOut[4])
 	{
 		if (!arr.IsArray() || arr.Size() < 4) return false;
 		for (rapidjson::SizeType i = 0; i < 4; ++i)

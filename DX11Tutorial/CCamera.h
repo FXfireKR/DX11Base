@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "CComponentBase.h"
-#include "ICameraRayProvider.h"
 
 class CTransform;
 
@@ -12,7 +11,7 @@ enum class CAMERA_PROJECTION_TYPE
 
 struct KPerspectiveParams
 {
-	float fFieldOfView = XM_PI / 4.0f;
+	float fFieldOfView = XM_PI / 2.0f;//XM_PI / 4.0f;
 	float fAspectRatio = 1440.0f / 1024.0f;
 	float fNearZ = 0.1f;
 	float fFarZ = 1000.0f;
@@ -26,22 +25,23 @@ struct KOrthographicParams
 	float fFarZ = 1000.0f;
 };
 
-class CCamera : public CComponentBase<CCamera, COMPONENT_TYPE::CAMERA>, public ICameraRayProvider
+class CCamera : public CComponentBase<CCamera, COMPONENT_TYPE::CAMERA>
 {
 public:
-	CCamera();
-	virtual ~CCamera();
+	CCamera() = default;
+	virtual ~CCamera() = default;
 
 	void Init() override;
+	void Start() override;
 	void LateUpdate(float fDelta) override;
 
 	void UpdateCameraMatrix();
 
-	inline void SetFov(float newFov) { m_kPerspective.fFieldOfView = newFov; }
-	inline void SetAspectRatio(float newRatio) { m_kPerspective.fAspectRatio = newRatio; }
+	inline void SetFov(float newFov);
+	inline void SetAspectRatio(float newRatio);
 
 	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() const { return m_eProjectionType; }
-	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_) { m_eProjectionType = eProjectionType_; }
+	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_);
 
 	inline const XMMATRIX& GetViewMatrix() const { return m_matView; }
 	inline const XMMATRIX& GetProjMatrix() const { return m_matProjection; }
@@ -49,10 +49,11 @@ public:
 	inline const KPerspectiveParams& GetPerspectiveParams() const { return m_kPerspective; }
 	inline const KOrthographicParams& GetOrthographicParams() const { return m_kOrthographic; }
 
-	XMFLOAT3 GetRayOrigin() const override;
-	XMFLOAT3 GetRayDirection() const override;
-
 	const CTransform* GetTransform() const;
+
+private:
+	void _UpdateViewMatrix();
+	void _UpdateProjectionMatrix();
 
 private:
 	CAMERA_PROJECTION_TYPE m_eProjectionType = CAMERA_PROJECTION_TYPE::PERSPECTIVE;
@@ -60,6 +61,9 @@ private:
 	XMMATRIX m_matView = XMMatrixIdentity();
 	XMMATRIX m_matProjection = XMMatrixIdentity();
 
-	KPerspectiveParams m_kPerspective;
-	KOrthographicParams m_kOrthographic;
+	CTransform* m_pOwnTransform = nullptr;
+	bool m_bDirty = true;
+
+	KPerspectiveParams m_kPerspective{};
+	KOrthographicParams m_kOrthographic{};
 }; 

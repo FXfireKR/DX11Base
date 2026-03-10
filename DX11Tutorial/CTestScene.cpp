@@ -259,34 +259,34 @@ void CTestScene::_CreateBaked()
 	BLOCK_ID blockID = fnv1a_64("minecraft:grass_block");
 
 	STATE_INDEX sidx;
-	bool ok = CBlockStateDB::Get().EncodeStateIndex(blockID, props, sidx);
+	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 	assert(ok);
 
-	std::vector<AppliedModel> outModels;
-	CBlockStateDB::Get().GetAppliedModels(blockID, sidx, outModels);
-	auto it = outModels.front();
-	auto meshID = meshManager.CreateMeshFromBakedModel(CModelDB::Get().FindModelID(it.modelHash), rw.GetRuntimeAtlas());
+	//std::vector<AppliedModel> outModels;
+	//BlockDB.GetAppliedModels(blockID, sidx, outModels);
+	//auto it = outModels.front();
+	//auto meshID = meshManager.CreateMeshFromBakedModel(BlockDB.FindModelID(it.modelHash), rw.GetRuntimeAtlas());
 
-	// sampler
-	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	//// sampler
+	//auto& samplerManager = rw.GetSamplerManager();
+	//auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 
-	// material
-	auto& materialManager = rw.GetMaterialManager();
-	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
-	materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
-	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	//// material
+	//auto& materialManager = rw.GetMaterialManager();
+	//auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	//materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
+	//materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
 
-	// Object Create
-	m_pChunkObject = AddAndGetObject("TestObject #1");
+	//// Object Create
+	//m_pChunkObject = AddAndGetObject("TestObject #1");
 
-	CTransform* const pTransform = m_pChunkObject->AddComponent<CTransform>();
+	//CTransform* const pTransform = m_pChunkObject->AddComponent<CTransform>();
 
-	// Set Mesh Render
-	CMeshRenderer* const pMeshRender = m_pChunkObject->AddComponent<CMeshRenderer>();
-	pMeshRender->SetMesh(meshManager.Get(meshID));
-	pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
-	pMeshRender->SetMaterial(materialManager.Get(materialID));
+	//// Set Mesh Render
+	//CMeshRenderer* const pMeshRender = m_pChunkObject->AddComponent<CMeshRenderer>();
+	//pMeshRender->SetMesh(meshManager.Get(meshID));
+	//pMeshRender->SetPipeline(pipelineManager.Get(pipeID));
+	//pMeshRender->SetMaterial(materialManager.Get(materialID));
 }
 
 void CTestScene::_MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir)

@@ -9,7 +9,7 @@ void CInventoryComponent::Init()
 	BlockPropHashMap props;
 	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
 	STATE_INDEX sidx;
-	bool ok = CBlockStateDB::Get().EncodeStateIndex(blockID, props, sidx);
+	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 	assert(ok);
 
 	m_arrayHotBar[0].block.blockID = blockID;

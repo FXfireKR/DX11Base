@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CComponentBase.h"
+#include "ChunkTypes.h"
 
 struct InventorySlot
 {

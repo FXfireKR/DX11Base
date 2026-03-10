@@ -10,10 +10,10 @@ CObjectManager::~CObjectManager()
 {
 }
 
-ObjectID CObjectManager::Add(const string& strName_, CScene* const pOwnScene_)
+OBJECT_ID CObjectManager::Add(const string& strName_, CScene* const pOwnScene_)
 {
 	uint64_t strHash = fnv1a_64(strName_);
-	ObjectID uObjectID = INVALID_OBJECT_ID;
+	OBJECT_ID uObjectID = INVALID_OBJECT_ID;
 
 	if (true == m_hashIDMap.contains(strHash))
 	{
@@ -28,7 +28,7 @@ ObjectID CObjectManager::Add(const string& strName_, CScene* const pOwnScene_)
 		}
 		else // (true == m_vecFreeIDs.empty())
 		{
-			uObjectID = static_cast<ObjectID>(m_vecSparse.size());
+			uObjectID = static_cast<OBJECT_ID>(m_vecSparse.size());
 			m_vecSparse.push_back(0); // insert dummy-value
 		}
 		m_hashIDMap.insert(make_pair(strHash, uObjectID));
@@ -53,11 +53,11 @@ void CObjectManager::Destroy(const string& strName_)
 
 	if (iter == m_hashIDMap.end()) return;
 
-	ObjectID foundID = iter->second;
+	OBJECT_ID foundID = iter->second;
 	Destroy(foundID);
 }
 
-void CObjectManager::Destroy(ObjectID uObjectID_)
+void CObjectManager::Destroy(OBJECT_ID uObjectID_)
 {
 	if (m_vecObjects.size() <= uObjectID_) return;
 
@@ -79,13 +79,13 @@ void CObjectManager::ProcessPeddingDestroy()
 
 void CObjectManager::_RemoveObjectAtIndex(uint32_t uIndex_)
 {
-	ObjectID removedID = m_vecObjects[uIndex_]->GetID();
+	OBJECT_ID removedID = m_vecObjects[uIndex_]->GetID();
 	uint32_t uLastIndex = static_cast<uint32_t>(m_vecObjects.size() - 1);
 	if (uIndex_ != uLastIndex)
 	{
 		std::swap(m_vecObjects[uIndex_], m_vecObjects[uLastIndex]);
 
-		ObjectID movedID = m_vecObjects[uIndex_]->GetID();
+		OBJECT_ID movedID = m_vecObjects[uIndex_]->GetID();
 		m_vecSparse[movedID] = uIndex_;
 	}
 	m_vecObjects.pop_back();
@@ -99,7 +99,7 @@ CObject* CObjectManager::Get(const string& strName_)
 	return Get(iter->second);
 }
 
-CObject* CObjectManager::Get(ObjectID uObjectID_)
+CObject* CObjectManager::Get(OBJECT_ID uObjectID_)
 {
 	if (uObjectID_ >= m_vecSparse.size()) return nullptr;
 
@@ -114,7 +114,7 @@ const CObject* CObjectManager::Get(const string& strName_) const
 	return Get(iter->second);
 }
 
-const CObject* CObjectManager::Get(ObjectID uObjectID_) const
+const CObject* CObjectManager::Get(OBJECT_ID uObjectID_) const
 {
 	if (uObjectID_ >= m_vecSparse.size()) return nullptr;
 

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CInputLayer.h"
+#include "ShaderTypes.h"
 
 struct InputLayoutData
 {

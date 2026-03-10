@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include "VertexTypes.h"
+#include "VertexLayoutTypes.h"
+#include "ChunkTypes.h"
 
 using CHUNK_VERTEX = VERTEX_POSITION_UV_NORMAL;
 

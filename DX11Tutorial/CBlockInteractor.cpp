@@ -91,6 +91,7 @@ void CBlockInteractor::_UpdateHighlight()
 	});
 
 	pTransform->SetLocalScale({ 1.005f, 1.005f, 1.005f });
+	pTransform->BuildWorldMatrix();
 }
 
 void CBlockInteractor::_ConsumeRequests()

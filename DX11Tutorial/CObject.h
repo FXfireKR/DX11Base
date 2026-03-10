@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ObjectTypes.h"
 #include "Components.h"
 
 class CScene;
@@ -55,17 +56,17 @@ public:
 	}
 
 
-	void AddChild(ObjectID uChildID_);
+	void AddChild(OBJECT_ID uChildID_);
 
 public:
-	inline const ObjectID GetID() const { return m_uID; }
+	inline const OBJECT_ID GetID() const { return m_uID; }
 	inline const string& GetName() { return m_strName; }
 
-	inline void SetParentID(ObjectID parentID) { m_uParentID = parentID; }
-	inline const ObjectID GetParentID() const { return m_uParentID; }
-	inline bool HasParent() { return IsValidObject(m_uParentID); }
+	inline void SetParentID(OBJECT_ID parentID) { m_uParentID = parentID; }
+	inline const OBJECT_ID GetParentID() const { return m_uParentID; }
+	inline bool HasParent() { return IsValidObjectID(m_uParentID); }
 
-	inline const vector<ObjectID>& GetChildren() const { return m_vecChildren; }
+	inline const vector<OBJECT_ID>& GetChildren() const { return m_vecChildren; }
 	inline bool HasChildren() { return !m_vecChildren.empty(); }
 
 	inline bool GetAlive() { return m_bAlive; }
@@ -83,9 +84,9 @@ private:
 	bool m_bPeddingDestroy = false; // 이 오브젝트는 Update 이후 제거된다는 의미
 
 	string m_strName = "";
-	ObjectID m_uID = INVALID_OBJECT_ID;
-	ObjectID m_uParentID = INVALID_OBJECT_ID;
-	vector<ObjectID> m_vecChildren;
+	OBJECT_ID m_uID = INVALID_OBJECT_ID;
+	OBJECT_ID m_uParentID = INVALID_OBJECT_ID;
+	vector<OBJECT_ID> m_vecChildren;
 	CScene* m_pOwnScene = nullptr;
 
 	std::array<unique_ptr<CComponent>, COMPONENT_TYPE_MAX> m_arrComponents;

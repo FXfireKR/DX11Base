@@ -1,10 +1,18 @@
 ﻿#include "pch.h"
 #include "CBlockStateDB.h"
+#include "CBlockDefDB.h"
+#include "CModelDB.h"
+#include "ResourceUtil.h"
+#include "BlockStateParseUtil.h"
 
-void CBlockStateDB::Initialize(const char* path)
+void CBlockStateDB::Initialize(const char* path, const CBlockDefDB* pBlockDefDB, CModelDB* pModelDB)
 {
 	// path 에서 base 경로를 잡으면 이하 경로를 찾아감.
 	m_strRoot = path;
+	m_pBlockDefDB = pBlockDefDB;
+	m_pModelDB = pModelDB;
+
+	Clear();
 
 	if (!_ScanBlockStateFiles(m_vecFiles)) assert(false && "_ScanBlockStateFiles");
 	m_uMaxFiles = m_vecFiles.size();
@@ -12,6 +20,17 @@ void CBlockStateDB::Initialize(const char* path)
 	//if (_Pass1_CollectDomains(m_vecFiles))
 	//_FinalizeAllBockTypes();
 	//_Pass2_CompileRules(m_vecFiles);
+}
+
+void CBlockStateDB::Clear()
+{
+	m_vecFiles.clear();
+	m_mapBlockState.clear();
+	m_mapBlockType.clear();
+	m_propRegistry = GlobalPropertyRegistry{};
+	m_eStep = LOAD_PROGRESS_STEP::INIT;
+	m_uMaxFiles = 0;
+	m_uLoadedFiles = 0;
 }
 
 void CBlockStateDB::Load()
@@ -62,7 +81,7 @@ void CBlockStateDB::Load()
 	}
 }
 
-bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels)
+bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels) const
 {
 	vecAppliedModels.clear();
 
@@ -182,16 +201,27 @@ bool CBlockStateDB::_ScanBlockStateFiles(vector<filesystem::path>& outFiles) con
 bool CBlockStateDB::_Pass1_CollectDomains(const filesystem::path& file)
 {
 	string blockKey;
-	if (!BuildBlockKeyFromPath(file, blockKey)) return false;
+	if (!BuildBlockKeyFromPath(file, blockKey)) 
+		return false;
 
-	BLOCK_ID blockID = fnv1a_64(blockKey);
+	BLOCK_ID blockID = m_pBlockDefDB->FindBlockID(blockKey.c_str());
+	if (blockID == INVALID_BLOCK_ID)
+	{
+#ifdef _DEBUG 
+		cout << "[BlockStateDB] Unknown block key in registry : " << blockKey << "\n";
+#endif // _DEBUG 
+		return true; // skip
+	}
+
 	Document doc;
-	if (!_ReadJson(file, doc)) return false;
+	if (!_ReadJson(file, doc)) 
+		return false;
 
 	if (doc.HasMember("variants"))
 	{
 		const auto& variants = doc["variants"];
-		if (!_ReadVariants_Pass1(blockID, variants)) return false;
+		if (!_ReadVariants_Pass1(blockID, variants)) 
+			return false;
 	}
 
 	return true;
@@ -302,7 +332,7 @@ bool CBlockStateDB::_ReadVariants_Pass1(BLOCK_ID blockID, const rapidjson::Value
 		const char* keyStr = it->name.GetString();
 
 		vector<pair<string, string>> terms;
-		if (!ParsePredicate(keyStr, terms))
+		if (!BlockStateParseUtil::ParsePredicate(keyStr, terms))
 		{
 #ifdef _DEBUG
 			cerr << "Malformed variant key: " << keyStr << "\n";
@@ -353,8 +383,11 @@ bool CBlockStateDB::_ReadVariants_Pass2(BLOCK_ID blockID, const rapidjson::Value
 		if (value.IsObject())
 		{
 			AppliedModel m;
-			if (_ReadModelSpec(value, m))
+			if (_ReadModelSpec(value, m)) {
 				rule.vecChoices.push_back(std::move(m));
+				m_pModelDB->SubmitToLoad(m.modelKey.c_str());
+			}
+
 		}
 		else if (value.IsArray())
 		{
@@ -362,8 +395,10 @@ bool CBlockStateDB::_ReadVariants_Pass2(BLOCK_ID blockID, const rapidjson::Value
 			{
 				if (!elem.IsObject()) continue;
 				AppliedModel m;
-				if (_ReadModelSpec(elem, m))
+				if (_ReadModelSpec(elem, m)) {
 					rule.vecChoices.push_back(std::move(m));
+					m_pModelDB->SubmitToLoad(m.modelKey.c_str());
+				}
 			}
 		}
 		else
@@ -399,7 +434,7 @@ bool CBlockStateDB::_CompileKeyTerms_ToTerms(const BlockTypeDef& typeDef, const 
 	if (s.empty()) return true; // Always (terms empty)
 
 	std::vector<std::pair<std::string, std::string>> terms;
-	if (!ParsePredicate(keyStr, terms))
+	if (!BlockStateParseUtil::ParsePredicate(keyStr, terms))
 		return false;
 
 	for (auto& kv : terms)
@@ -444,8 +479,6 @@ bool CBlockStateDB::_ReadModelSpec(const rapidjson::Value& value, AppliedModel& 
 	if (!value.HasMember("model") || !value["model"].IsString()) return false;
 	outModel.modelKey = value["model"].GetString();
 	outModel.modelHash = fnv1a_64(outModel.modelKey);
-
-	CModelDB::Get().LoadModel(outModel.modelKey.c_str());
 
 	if (value.HasMember("x") && value["x"].IsInt())
 		outModel.x = (uint8_t)_NormalizeRot(value["x"].GetInt());

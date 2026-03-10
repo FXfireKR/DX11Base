@@ -4,6 +4,9 @@
 #include "CPipeline.h"
 #include "CMaterial.h"
 #include "CWorld.h"
+#include "ChunkMath.h"
+
+using namespace ChunkMath;
 
 void CChunkWorld::Initialize(CScene& scene, CPipeline* pPipeline, CMaterial* pMaterial)
 {
@@ -23,7 +26,12 @@ BlockCell CChunkWorld::GetBlockCell(int wx, int wy, int wz) const
 	const ChunkSection* pSection = _FindSectionData(cx, sy, cz);
 	if (!pSection) return { 0, 0 };
 
-	return pSection->blocks[Index16(lx, ly, lz)];
+	return pSection->blocks[IndexSection(lx, ly, lz)];
+}
+
+BlockCell CChunkWorld::GetBlockCell(XMINT3 w) const
+{
+	return GetBlockCell(w.x, w.y, w.z);
 }
 
 bool CChunkWorld::IsSolid(const BlockCell& cell) const
@@ -49,7 +57,7 @@ void CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& block)
 	ChunkSection* pSection = _GetOrCreateSectionData(cx, sy, cz);
 	if (!pSection) return;
 
-	BlockCell& dst = pSection->blocks[Index16(lx, ly, lz)];
+	BlockCell& dst = pSection->blocks[IndexSection(lx, ly, lz)];
 	if (dst == block) return;
 
 	dst = block;
@@ -119,8 +127,8 @@ CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
 	if (!col) return nullptr;
 	if (sy < 0 || sy >= CHUNK_SECTION_COUNT) return nullptr;
 
-	ObjectID id = col->renderObj[sy];
-	if (!IsValidObject(id)) return nullptr;
+	OBJECT_ID id = col->renderObj[sy];
+	if (!IsValidObjectID(id)) return nullptr;
 	return m_pScene->FindObject(id);
 }
 
@@ -183,7 +191,7 @@ void CChunkWorld::_UnloadColumn(ChunkColumn& col)
 {
 	for (int sy = 0; sy < 16; ++sy)
 	{
-		if (IsValidObject(col.renderObj[sy]))
+		if (IsValidObjectID(col.renderObj[sy]))
 			m_pScene->DestroyObject(col.renderObj[sy]);
 		col.renderObj[sy] = INVALID_OBJECT_ID;
 		col.sections[sy].reset();
@@ -192,7 +200,7 @@ void CChunkWorld::_UnloadColumn(ChunkColumn& col)
 
 void CChunkWorld::_EnsureRenderObject(ChunkColumn& col, int sy)
 {
-	if (IsValidObject(col.renderObj[sy])) return;
+	if (IsValidObjectID(col.renderObj[sy])) return;
 
 	const int cx = col.coord.cx;
 	const int cz = col.coord.cz;

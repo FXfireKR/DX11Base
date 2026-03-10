@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "VertexLayoutTypes.h"
 
 class CInputLayer
 {

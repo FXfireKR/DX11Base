@@ -1,20 +1,21 @@
 ﻿#pragma once
 #include "CComponentBase.h"
 
-class CTransform : public CComponentBase<CTransform, COMPONENT_TYPE::TRANSFORM>
+class CTransform final : public CComponentBase<CTransform, COMPONENT_TYPE::TRANSFORM>
 {
 public:
 	CTransform() = default;
 	~CTransform() override = default;
 
 	void Init() override;
+	void Start() override;
 	void Update(float fDelta) override;
 	void LateUpdate(float fDelta) override;
 
 	void BuildWorldMatrix();
 
-	void AddChild(ObjectID id);
-	void SetParent(ObjectID id);
+	void AddChild(OBJECT_ID id);
+	void SetParent(OBJECT_ID id);
 
 	void SetLocalScale(const XMFLOAT3& fScale);
 	void SetLocalRotateEulerDeg(const XMFLOAT3& fRotateDeg);
@@ -22,9 +23,9 @@ public:
 	void SetLocalRotateQuat(const XMVECTOR& vRotate);
 	void SetLocalTrans(const XMFLOAT3& fTrans);
 
-	inline XMFLOAT3 GetLocalScale() { return m_fScale; }
-	inline XMVECTOR GetLocalRotationQuat() { return m_qRotate; }
-	inline XMFLOAT3 GetLocalTrans() { return m_fTrans; }
+	inline const XMFLOAT3 GetLocalScale() const { return m_fScale; }
+	inline const XMVECTOR GetLocalRotationQuat() const { return XMLoadFloat4(&m_qRotate); }
+	inline const XMFLOAT3 GetLocalTrans() const { return m_fTrans; }
 
 	void RotateLocalQuat(const XMVECTOR& delta);
 
@@ -32,19 +33,19 @@ public:
 	void SetWorldRotationQuat(const XMVECTOR& vRotate);
 	void WorldTrans(const XMFLOAT3& fTrans);
 
-	XMFLOAT3 GetWorldScale() const;
-	XMVECTOR GetWorldRotationQuat() const;
-	XMFLOAT3 GetWorldTrans() const;
+	const XMFLOAT3 GetWorldScale() const;
+	const XMVECTOR GetWorldRotationQuat() const;
+	const XMFLOAT3 GetWorldTrans() const;
 
-	XMFLOAT3 GetRight() const;
-	XMFLOAT3 GetUp() const;
-	XMFLOAT3 GetLook() const;
+	const XMFLOAT3 GetRight() const;
+	const XMFLOAT3 GetUp() const;
+	const XMFLOAT3 GetLook() const;
 
-	XMFLOAT3 GetRightNorm() const;
-	XMFLOAT3 GetUpNorm() const;
-	XMFLOAT3 GetLookNorm() const;
+	const XMFLOAT3 GetRightNorm() const;
+	const XMFLOAT3 GetUpNorm() const;
+	const XMFLOAT3 GetLookNorm() const;
 
-	CTransform* GetTransform(ObjectID id);
+	CTransform* GetTransform(OBJECT_ID id);
 	const CTransform* GetParent() const;
 
 	inline bool HasParent() const { return m_uParentID != INVALID_OBJECT_ID; }
@@ -55,11 +56,12 @@ private:
 	void _MarkWorldDirty();
 
 private:
-	ObjectID m_uParentID = INVALID_OBJECT_ID;
-	vector<ObjectID> m_vecChildren;
+	OBJECT_ID m_uParentID = INVALID_OBJECT_ID;
+	vector<OBJECT_ID> m_vecChildren;
 
 	XMFLOAT3 m_fScale = {1.f, 1.f, 1.f};
-	XMVECTOR m_qRotate = XMQuaternionIdentity(); // Quaternion
+	XMFLOAT4 m_qRotate = { 0.f, 0.f, 0.f, 0.f };
+	//XMVECTOR m_qRotate = XMQuaternionIdentity(); // Quaternion
 	XMFLOAT3 m_fTrans = {0.f, 0.f, 0.f};
 	
 	XMMATRIX m_matLocal = XMMatrixIdentity();

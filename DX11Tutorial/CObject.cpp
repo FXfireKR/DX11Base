@@ -69,7 +69,7 @@ void CObject::Destroy()
 	m_bPeddingDestroy = true;
 }
 
-void CObject::AddChild(ObjectID uChildID_)
+void CObject::AddChild(OBJECT_ID uChildID_)
 {
 	if (std::find(m_vecChildren.begin(), m_vecChildren.end(), uChildID_) == m_vecChildren.end()) {
 		m_vecChildren.push_back(uChildID_);

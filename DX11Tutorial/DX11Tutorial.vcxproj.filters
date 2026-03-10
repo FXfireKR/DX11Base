@@ -94,6 +94,24 @@
     <Filter Include="Code\04_Game\Atlas">
       <UniqueIdentifier>{9bdb5191-bd39-40b3-b664-7398db9167d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Util">
+      <UniqueIdentifier>{b0a5d4ee-8caf-493c-a334-09db6ea785f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Util\Core">
+      <UniqueIdentifier>{d1b975d8-3cff-487b-ad97-9656cfb8f785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Util\Render">
+      <UniqueIdentifier>{82217644-d166-4c0a-972f-4cd76b384a51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Util\World">
+      <UniqueIdentifier>{95bc86a4-6035-4c9a-9831-56334ad53a69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Util\Block">
+      <UniqueIdentifier>{f61ad9f2-1846-4e14-94a7-13160a8eeeaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Util\Minecraft">
+      <UniqueIdentifier>{75760351-1655-4081-80c6-7780c6efa2a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -213,9 +231,6 @@
     <ClInclude Include="DirectX11Com.h">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClInclude>
-    <ClInclude Include="VertexTypes.h">
-      <Filter>헤더 파일\_etc</Filter>
-    </ClInclude>
     <ClInclude Include="CDirectX11Adapter.h">
       <Filter>Code\03_Render\DirectX11</Filter>
     </ClInclude>
@@ -291,9 +306,6 @@
     <ClInclude Include="CChunkMesherSystem.h">
       <Filter>Code\04_Game\Chunk</Filter>
     </ClInclude>
-    <ClInclude Include="CChunkType.h">
-      <Filter>Code\04_Game\Chunk</Filter>
-    </ClInclude>
     <ClInclude Include="CInitializeScene.h">
       <Filter>Code\99_Scene</Filter>
     </ClInclude>
@@ -306,15 +318,6 @@
     <ClInclude Include="IFileWrapper.h">
       <Filter>헤더 파일\_etc</Filter>
     </ClInclude>
-    <ClInclude Include="MCUtil.h">
-      <Filter>Code\04_Game\BlockState/Model</Filter>
-    </ClInclude>
-    <ClInclude Include="MCStateUtil.h">
-      <Filter>Code\04_Game\BlockState/Model</Filter>
-    </ClInclude>
-    <ClInclude Include="MCModelUtl.h">
-      <Filter>Code\04_Game\BlockState/Model</Filter>
-    </ClInclude>
     <ClInclude Include="CModelDB.h">
       <Filter>Code\04_Game\BlockState/Model</Filter>
     </ClInclude>
@@ -324,18 +327,6 @@
     <ClInclude Include="CPlayerController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="IBlockAccessor.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CChunkWorld.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CWorld.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ICameraRayProvider.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CCharacterMotor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -343,6 +334,87 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CInventoryComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelTypes.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkTypes.h">
+      <Filter>헤더 파일\Util\World</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkMath.h">
+      <Filter>헤더 파일\Util\World</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexTypes.h">
+      <Filter>헤더 파일\Util\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockStateTypes.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockStateParseUtil.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTypes.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="HashUtil.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EncodingUtil.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtil.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreTypes.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderTypes.h">
+      <Filter>헤더 파일\Util\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexLayoutTypes.h">
+      <Filter>헤더 파일\Util\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTypes.h">
+      <Filter>헤더 파일\Util\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkRenderTypes.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="MinecraftCore.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockRaycastTypes.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="IBlockAccessor.hpp">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockRaycastUtil.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkWorld.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorld.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelTypes.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelUtil.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceUtil.h">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockDefDB.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockDefTypes.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockDB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -527,15 +599,6 @@
     <ClCompile Include="CPlayerController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CChunkWorld.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CWorld.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ICameraRayProvider.cpp">
-      <Filter>헤더 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CCharacterMotor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -543,6 +606,27 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CInventoryComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockStateTypes.cpp">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkWorld.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorld.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelUtil.cpp">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceUtil.cpp">
+      <Filter>헤더 파일\Util\Minecraft</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockDefDB.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockDB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

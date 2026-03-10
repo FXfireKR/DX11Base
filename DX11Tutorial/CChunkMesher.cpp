@@ -3,6 +3,9 @@
 #include "CChunkWorld.h"
 #include "CRuntimeAtlas.h"
 #include "CChunkComponent.h"
+#include "ChunkMath.h"
+
+using namespace ChunkMath;
 
 static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CHUNK_VERTEX>& v, vector<uint32_t>& i)
 {
@@ -88,7 +91,7 @@ static bool IsAirNeighbor(const CChunkWorld& world, const ChunkSection& section,
 		y >= 0 && y < CHUNK_SECTION_SIZE &&
 		z >= 0 && z < CHUNK_SIZE_Z)
 	{
-		return section.blocks[Index16(x, y, z)].blockID == 0;
+		return section.blocks[IndexSection(x, y, z)].blockID == 0;
 	}
 
 	const int wx = cx * CHUNK_SIZE_X + x;
@@ -122,7 +125,7 @@ void CChunkMesher::AppendBakedQuad(IN const BakedQuad& quad, const CRuntimeAtlas
 
 	for (int i = 0; i < 4; ++i)
 	{
-		const BakedVertex& bakedVert = quad.vert[i];
+		const BakedVertex& bakedVert = quad.verts[i];
 
 		XMFLOAT3 pos
 		{
@@ -160,11 +163,11 @@ void CChunkMesher::BuildFromBakedModels(IN const CChunkWorld& world, const CRunt
 		{
 			for (int x = 0; x < CHUNK_SECTION_SIZE; ++x)
 			{
-				const BlockCell& cell = section.blocks[Index16(x, y, z)];
+				const BlockCell& cell = section.blocks[IndexSection(x, y, z)];
 				if (cell.blockID == 0) continue;
 
 				vector<AppliedModel> vecAppliedModels;
-				CBlockStateDB::Get().GetAppliedModels(cell.blockID, cell.stateIndex, vecAppliedModels);
+				BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecAppliedModels);
 
 				const int wx = cx * CHUNK_SECTION_SIZE + x;
 				const int wy = sy * CHUNK_SECTION_SIZE + y;
@@ -174,12 +177,12 @@ void CChunkMesher::BuildFromBakedModels(IN const CChunkWorld& world, const CRunt
 
 				for (const AppliedModel& applied : vecAppliedModels)
 				{
-					const BakedModel* bakedModel = CModelDB::Get().FindBakedModel(applied.modelHash);
+					const BakedModel* bakedModel = BlockDB.FindBakedModel(applied.modelHash);
 					if (!bakedModel) continue;
 
 					for (const BakedQuad& quad : bakedModel->quads)
 					{
-						if (quad.hasCullFace)
+						if (quad.bHasCullFace)
 						{
 							if (IsFaceOccluded(world, wx, wy, wz, quad.cullFaceDir)) continue;
 						}

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "IBlockAccessor.hpp"
 
 class CScene;
 class CObject;
@@ -14,6 +15,7 @@ public:
 	void Initialize(CScene& scene, CPipeline* pPipeline, CMaterial* pMaterial);
 
 	BlockCell GetBlockCell(int wx, int wy, int wz) const override;
+	BlockCell GetBlockCell(XMINT3 w) const override;
 	bool IsSolid(const BlockCell& cell) const override;
 	
 

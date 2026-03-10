@@ -5,7 +5,23 @@
 
 void CTransform::Init()
 {
-	if (m_pOwner->HasParent()) m_uParentID = m_pOwner->GetParentID();
+	m_uParentID = INVALID_OBJECT_ID;
+
+	m_fScale = { 1.f, 1.f, 1.f };
+	XMStoreFloat4(&m_qRotate, XMQuaternionIdentity());
+	m_fTrans = { 0.f, 0.f, 0.f };
+
+	m_matLocal = XMMatrixIdentity();
+	m_matWorld = XMMatrixIdentity();
+
+	m_bLocalDirty = true;
+	m_bWorldDirty = true;
+}
+
+void CTransform::Start()
+{
+	if (m_pOwner->HasParent())
+		m_uParentID = m_pOwner->GetParentID();
 }
 
 void CTransform::Update(float fDelta)
@@ -19,10 +35,10 @@ void CTransform::LateUpdate(float fDelta)
 
 void CTransform::BuildWorldMatrix()
 {
-	if (m_bLocalDirty) {
-
+	if (m_bLocalDirty) 
+	{
 		XMMATRIX matScale = XMMatrixScaling(m_fScale.x, m_fScale.y, m_fScale.z);
-		XMMATRIX matRotate = XMMatrixRotationQuaternion(m_qRotate);
+		XMMATRIX matRotate = XMMatrixRotationQuaternion(XMLoadFloat4(&m_qRotate));
 		XMMATRIX matTranslation = XMMatrixTranslation(m_fTrans.x, m_fTrans.y, m_fTrans.z);
 
 		m_matLocal = matScale * matRotate * matTranslation;
@@ -31,8 +47,10 @@ void CTransform::BuildWorldMatrix()
 		m_bWorldDirty = true;
 	}
 
-	if (m_bWorldDirty) {
-		if (HasParent()) {
+	if (m_bWorldDirty) 
+	{
+		if (HasParent()) 
+		{
 			CTransform* parent = const_cast<CTransform*>(GetParent());
 			parent->BuildWorldMatrix();
 
@@ -45,14 +63,14 @@ void CTransform::BuildWorldMatrix()
 	}
 }
 
-void CTransform::AddChild(ObjectID uChildID_)
+void CTransform::AddChild(OBJECT_ID uChildID_)
 {
 	if (m_vecChildren.end() == std::find(m_vecChildren.begin(), m_vecChildren.end(), uChildID_)) {
 		m_vecChildren.push_back(uChildID_);
 	}
 }
 
-void CTransform::SetParent(ObjectID id)
+void CTransform::SetParent(OBJECT_ID id)
 {
 	if (m_uParentID == id) return;
 
@@ -87,19 +105,22 @@ void CTransform::SetLocalRotateEulerDeg(const XMFLOAT3& fRotateDeg)
 		XMConvertToRadians(fRotateDeg.z)
 	};
 
-	m_qRotate = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(rad.x, rad.y, rad.z));
+	XMVECTOR rotate = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(rad.x, rad.y, rad.z));
+	XMStoreFloat4(&m_qRotate, rotate);
 	_MarkLocalDirty();
 }
 
 void CTransform::SetLocalRotateEulerRad(const XMFLOAT3& fRotateRad)
 {
-	m_qRotate = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(fRotateRad.x, fRotateRad.y, fRotateRad.z));
+	XMVECTOR rotate = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(fRotateRad.x, fRotateRad.y, fRotateRad.z));
+	XMStoreFloat4(&m_qRotate, rotate);
 	_MarkLocalDirty();
 }
 
 void CTransform::SetLocalRotateQuat(const XMVECTOR& vRotate)
 {
-	m_qRotate = XMQuaternionNormalize(vRotate);
+	XMVECTOR rotate = XMQuaternionNormalize(vRotate);
+	XMStoreFloat4(&m_qRotate, rotate);
 	_MarkLocalDirty();
 }
 
@@ -111,7 +132,9 @@ void CTransform::SetLocalTrans(const XMFLOAT3& fTrans)
 
 void CTransform::RotateLocalQuat(const XMVECTOR& delta)
 {
-	m_qRotate = XMQuaternionNormalize(XMQuaternionMultiply(m_qRotate, delta));
+	XMVECTOR rotate = XMLoadFloat4(&m_qRotate);
+	rotate = XMQuaternionNormalize(XMQuaternionMultiply(rotate, delta));
+	XMStoreFloat4(&m_qRotate, rotate);
 	_MarkLocalDirty();
 }
 
@@ -155,7 +178,7 @@ void CTransform::WorldTrans(const XMFLOAT3& fTrans)
 	SetLocalTrans(newTrans);
 }
 
-XMFLOAT3 CTransform::GetWorldScale() const
+const XMFLOAT3 CTransform::GetWorldScale() const
 {
 	XMVECTOR s, r, t;
 	XMMatrixDecompose(&s, &r, &t, m_matWorld);
@@ -165,14 +188,14 @@ XMFLOAT3 CTransform::GetWorldScale() const
 	return scale;
 }
 
-XMVECTOR CTransform::GetWorldRotationQuat() const
+const XMVECTOR CTransform::GetWorldRotationQuat() const
 {
 	XMVECTOR s, r, t;
 	XMMatrixDecompose(&s, &r, &t, m_matWorld);
 	return r;
 }
 
-XMFLOAT3 CTransform::GetWorldTrans() const
+const XMFLOAT3 CTransform::GetWorldTrans() const
 {
 	return XMFLOAT3(
 		m_matWorld.r[3].m128_f32[0],
@@ -180,7 +203,7 @@ XMFLOAT3 CTransform::GetWorldTrans() const
 		m_matWorld.r[3].m128_f32[2]);
 }
 
-XMFLOAT3 CTransform::GetRight() const
+const XMFLOAT3 CTransform::GetRight() const
 {
 	return XMFLOAT3(
 		m_matWorld.r[0].m128_f32[0],
@@ -188,7 +211,7 @@ XMFLOAT3 CTransform::GetRight() const
 		m_matWorld.r[0].m128_f32[2]);
 }
 
-XMFLOAT3 CTransform::GetUp() const
+const XMFLOAT3 CTransform::GetUp() const
 {
 	return XMFLOAT3(
 		m_matWorld.r[1].m128_f32[0],
@@ -196,7 +219,7 @@ XMFLOAT3 CTransform::GetUp() const
 		m_matWorld.r[1].m128_f32[2]);
 }
 
-XMFLOAT3 CTransform::GetLook() const
+const XMFLOAT3 CTransform::GetLook() const
 {
 	return XMFLOAT3(
 		m_matWorld.r[2].m128_f32[0],
@@ -204,7 +227,7 @@ XMFLOAT3 CTransform::GetLook() const
 		m_matWorld.r[2].m128_f32[2]);
 }
 
-XMFLOAT3 CTransform::GetRightNorm() const
+const XMFLOAT3 CTransform::GetRightNorm() const
 {
 	XMVECTOR right = m_matWorld.r[0];
 	right = XMVector3Normalize(right);
@@ -214,7 +237,7 @@ XMFLOAT3 CTransform::GetRightNorm() const
 	return fRight;
 }
 
-XMFLOAT3 CTransform::GetUpNorm() const
+const XMFLOAT3 CTransform::GetUpNorm() const
 {
 	XMVECTOR up = m_matWorld.r[1];
 	up = XMVector3Normalize(up);
@@ -224,7 +247,7 @@ XMFLOAT3 CTransform::GetUpNorm() const
 	return fUp;
 }
 
-XMFLOAT3 CTransform::GetLookNorm() const
+const XMFLOAT3 CTransform::GetLookNorm() const
 {
 	XMVECTOR look = m_matWorld.r[2];
 	look = XMVector3Normalize(look);
@@ -234,9 +257,9 @@ XMFLOAT3 CTransform::GetLookNorm() const
 	return fLook;
 }
 
-CTransform* CTransform::GetTransform(ObjectID id)
+CTransform* CTransform::GetTransform(OBJECT_ID id)
 {
-	if (false == IsValidObject(id)) return nullptr;
+	if (false == IsValidObjectID(id)) return nullptr;
 
 	CObject* pObject = m_pOwner->GetOwnScene()->FindObject(id);
 	if (nullptr == pObject) return nullptr;
@@ -247,7 +270,7 @@ CTransform* CTransform::GetTransform(ObjectID id)
 
 const CTransform* CTransform::GetParent() const
 {
-	if (false == IsValidObject(m_uParentID)) return nullptr;
+	if (false == IsValidObjectID(m_uParentID)) return nullptr;
 
 	const CObject* pParentObject = m_pOwner->GetOwnScene()->FindObject(m_uParentID);
 	if (nullptr == pParentObject) return nullptr;

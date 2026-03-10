@@ -1,0 +1,49 @@
+﻿#pragma once
+#include "ChunkTypes.h"
+
+namespace ChunkMath
+{
+	inline int FloorDiv(int x, int divisor)
+	{
+		int q = x / divisor;
+		int r = x % divisor;
+		if (r < 0) --q;
+		return q;
+	}
+
+	inline int PositiveMod(int x, int divisor)
+	{
+		int m = x % divisor;
+		if (m < 0) m += divisor;
+		return m;
+	}
+
+	inline int FloorDiv16(int x)
+	{
+		return FloorDiv(x, 16);
+	}
+
+	inline int Mod16(int x)
+	{
+		return PositiveMod(x, 16);
+	}
+
+	inline int IndexSection(int x, int y, int z)
+	{
+		return x | (z << 4) |( y << 8);
+	}
+
+	inline bool InChunk(int x, int y, int z)
+	{
+		return (0 <= x && x < CHUNK_SIZE_X)
+			&& (0 <= y && y < CHUNK_SIZE_Y)
+			&& (0 <= z && z < CHUNK_SIZE_Z);
+	}
+
+	inline bool InSection(int x, int y, int z)
+	{
+		return (0 <= x && x < CHUNK_SIZE_X)
+			&& (0 <= y && y < CHUNK_SECTION_SIZE)
+			&& (0 <= z && z < CHUNK_SIZE_Z);
+	}
+}

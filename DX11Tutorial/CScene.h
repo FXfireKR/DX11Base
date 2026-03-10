@@ -39,17 +39,17 @@ public: // Object 라이프 사이클
 
 public:
 	// Object 중계
-	ObjectID AddObject(const string& strName_);
+	OBJECT_ID AddObject(const string& strName_);
 	CObject* AddAndGetObject(const string& strName_);
 
 	void DestroyObject(const string& strName_);
-	void DestroyObject(ObjectID uObjectID_);
+	void DestroyObject(OBJECT_ID uObjectID_);
 
 	CObject* FindObject(const string& strName_);
-	CObject* FindObject(ObjectID uObjectID_);
+	CObject* FindObject(OBJECT_ID uObjectID_);
 
 	const CObject* FindObject(const string& strName_) const;
-	const CObject* FindObject(ObjectID uObjectID_) const;
+	const CObject* FindObject(OBJECT_ID uObjectID_) const;
 
 public:
 	CObjectManager& GetObjectManager() { return m_objectManager; }

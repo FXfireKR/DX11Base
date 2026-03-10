@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CWorld.h"
 #include "CChunkMesherSystem.h"
+#include "BlockRaycastUtil.h"
 
 CWorld::CWorld()
     : m_pChunkWorld(make_unique<CChunkWorld>())
@@ -19,7 +20,7 @@ void CWorld::Initialize(CScene& scene, CPipeline* pChunkPipeline, CMaterial* pCh
 		BLOCK_ID blockID = fnv1a_64("minecraft:stone");
 
 		STATE_INDEX sidx;
-		bool ok = CBlockStateDB::Get().EncodeStateIndex(blockID, props, sidx);
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 		assert(ok);
 
 		// 테스트용 평면 생성
@@ -49,7 +50,7 @@ void CWorld::LateUpdate()
 
 bool CWorld::RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const
 {
-    return RaycastVoxelDDA(*m_pChunkWorld, origin, dirNorm, maxDist, outHitResult);
+	return BlockRaycastUtil::RaycastVoxelDDA(*m_pChunkWorld, origin, dirNorm, maxDist, BlockRaycastOptions(), outHitResult);
 }
 
 bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell)

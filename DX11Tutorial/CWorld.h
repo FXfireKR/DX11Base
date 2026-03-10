@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CChunkWorld.h"
+#include "BlockRaycastTypes.h"
 
 /*
 CWorld

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CComponentBase.h"
+#include "BlockRaycastTypes.h"
 
 class CWorld;
 class CInventoryComponent;

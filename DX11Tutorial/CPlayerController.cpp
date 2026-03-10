@@ -12,7 +12,7 @@ void CPlayerController::Init()
 	
 	m_fYaw = 0.f;
 	m_fPitch = 0.f;
-	m_fMouseSensitivity = 0.005f;
+	m_fMouseSensitivity = 0.001f;
 	m_fPitchLimitRad = XM_PIDIV2 - 0.05f;
 }
 

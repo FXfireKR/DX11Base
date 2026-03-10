@@ -1,9 +1,28 @@
 ﻿#include "pch.h"
 #include "CModelDB.h"
+#include "ModelUtil.h"
 
 void CModelDB::Initialize(const string& resourceRoot)
 {
     m_strResourceRoot = resourceRoot;
+}
+
+void CModelDB::Clear()
+{
+    m_vecEntries.clear();
+    m_mapKeyToID.clear();
+    m_strResourceRoot.clear();
+}
+
+bool CModelDB::SubmitToLoad(const char* modelKey)
+{
+    const uint64_t hash = fnv1a_64(modelKey);
+    auto it = m_mapKeyToID.find(hash);
+    if (it != m_mapKeyToID.end()) 
+        return false;
+
+    m_queueModelList.push(modelKey);
+    return true;
 }
 
 MODEL_ID CModelDB::LoadModel(const char* modelKey)
@@ -16,7 +35,7 @@ MODEL_ID CModelDB::LoadModel(const char* modelKey)
     auto entry = std::make_unique<ModelEntry>();
     entry->key = modelKey;
 
-    MCModelResolved resolved;
+    ModelResolved resolved;
     if (!_ResolveModel(modelKey, resolved))
     {
         // fail
@@ -72,7 +91,7 @@ const BakedModel* CModelDB::FindBakedModel(const char* modelKey) const
     return GetBakedModel(modelID);
 }
 
-bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelRaw)
+bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT ModelRaw& modelRaw)
 {
     // model key 입력 예시 "minecraft:block/stone"
     // 변환 예시 "assets/minecraft/models/block/stone.json"
@@ -94,7 +113,7 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
         return false;
     }
 
-    modelRaw = MCModelRaw{};
+    modelRaw = ModelRaw{};
 
     // parent
     if (docs.HasMember("parent"))
@@ -137,7 +156,7 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
                 const auto& elem = elements[i];
                 if (!elem.IsObject()) continue;
 
-                MCModelElement modelElem{};
+                ModelElement modelElem{};
 
                 if (elem.HasMember("from")) CRapidJsonParsorWrapper::ReadVector3(elem["from"], modelElem.from);
                 if (elem.HasMember("to")) CRapidJsonParsorWrapper::ReadVector3(elem["to"], modelElem.to);
@@ -154,7 +173,13 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
                             CRapidJsonParsorWrapper::ReadVector3(r["origin"], modelElem.rotOrigin);
 
                         if (r.HasMember("axis") && r["axis"].IsString())
-                            modelElem.rotAxis = ParseAxis(r["axis"].GetString());
+                        {
+                            ROT_AXIS eAxis;
+                            if (true == TryParseAxis(r["axis"].GetString(), eAxis))
+                            {
+                                modelElem.rotAxis = static_cast<uint8_t>(eAxis);
+                            }
+                        }
 
                         if (r.HasMember("angle") && r["angle"].IsNumber())
                             modelElem.rotAngleDeg = r["angle"].GetFloat();
@@ -176,16 +201,19 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
                                 continue;
 
                             const char* faceName = it->name.GetString();
-                            const int dir = ParseFaceDir(faceName);
-                            if (dir < 0 || dir >= (int)FACE_DIR::COUNT)
+
+                            FACE_DIR eDir;
+                            if (!TryParseFaceDir(faceName, eDir))
                                 continue;
+
+                            uint8_t dir = static_cast<uint8_t>(eDir);
 
                             const auto& f = it->value;
                             if (!f.IsObject())
                                 continue;
 
                             modelElem.bHasFace[dir] = true;
-                            MCModelFace face{};
+                            ModelFace face{};
 
                             // texture 필수
                             if (f.HasMember("texture") && f["texture"].IsString())
@@ -202,11 +230,14 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
                             // cullface optional
                             if (f.HasMember("cullface") && f["cullface"].IsString())
                             {
-                                const int cdir = ParseFaceDir(f["cullface"].GetString());
+                                if (!TryParseFaceDir(f["cullface"].GetString(), eDir)) 
+                                    continue;
+
+                                const int cdir = static_cast<int>(eDir);
                                 if (cdir >= 0 && cdir < (int)FACE_DIR::COUNT)
                                 {
-                                    face.bHasCull = true;
-                                    face.cullDir = (uint8_t)cdir;
+                                    face.bHasCullFace = true;
+                                    face.cullFaceDir = (uint8_t)cdir;
                                 }
                             }
 
@@ -218,7 +249,7 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
                             if (f.HasMember("tintindex") && f["tintindex"].IsInt())
                                 face.tintIndex = f["tintindex"].GetInt();
 
-                            modelElem.face[dir] = std::move(face);
+                            modelElem.faces[dir] = std::move(face);
                         }
                     }
                 }
@@ -230,25 +261,25 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT MCModelRaw& modelR
     return true;
 }
 
-bool CModelDB::_ResolveModel(IN const char* modelKey, OUT MCModelResolved& modelResolved)
+bool CModelDB::_ResolveModel(IN const char* modelKey, OUT ModelResolved& modelResolved)
 {
-    modelResolved = MCModelResolved{};
+    modelResolved = ModelResolved{};
     unordered_set<string> visit;
     return _ResolveParentRecursive(modelKey, modelResolved, visit);
 }
 
-bool CModelDB::_ResolveParentRecursive(IN const char* modelKey, MCModelResolved& modelResolved, unordered_set<string>& visitedStack)
+bool CModelDB::_ResolveParentRecursive(IN const char* modelKey, ModelResolved& modelResolved, unordered_set<string>& visitedStack)
 {
     // cycle detect
     if (visitedStack.contains(modelKey)) return false;
 
     visitedStack.insert(modelKey);
 
-    MCModelRaw raw;
+    ModelRaw raw;
     if (!_LoadRawModelJSON(modelKey, raw)) return false;
 
     // parent first resolve
-    MCModelResolved parentResolved;
+    ModelResolved parentResolved;
     bool bHasParent = raw.bHasParent;
 
     if (bHasParent)
@@ -272,7 +303,7 @@ bool CModelDB::_ResolveParentRecursive(IN const char* modelKey, MCModelResolved&
     return true;
 }
 
-string CModelDB::_ResolveTextureRef(const MCModelResolved& model, const string& texRef, int depth)
+string CModelDB::_ResolveTextureRef(const ModelResolved& model, const string& texRef, int depth)
 {
     if (depth > 16) return std::string(); // fail
     if (texRef.empty()) return std::string();
@@ -289,7 +320,7 @@ string CModelDB::_ResolveTextureRef(const MCModelResolved& model, const string& 
     return texRef;
 }
 
-void CModelDB::_BakeElements(IN const MCModelResolved& modelResolved, OUT BakedModel& bakedModel)
+void CModelDB::_BakeElements(IN const ModelResolved& modelResolved, OUT BakedModel& bakedModel)
 {
     bakedModel.quads.clear();
     bakedModel.quads.reserve(modelResolved.elements.size() * 6);
@@ -305,10 +336,10 @@ void CModelDB::_BakeElements(IN const MCModelResolved& modelResolved, OUT BakedM
     }
 }
 
-void CModelDB::_BakeOneElementFace(IN const MCModelResolved& modelResolved, const MCModelElement& modelElem, int faceDir, OUT BakedModel& bakedModel)
+void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const ModelElement& modelElem, int faceDir, OUT BakedModel& bakedModel)
 {
     const FACE_DIR eDir = static_cast<FACE_DIR>(faceDir);
-    const MCModelFace& face = modelElem.face[faceDir];
+    const ModelFace& face = modelElem.faces[faceDir];
 
     // texture resolve
     string texKey = _ResolveTextureRef(modelResolved, face.textureRef);
@@ -316,7 +347,7 @@ void CModelDB::_BakeOneElementFace(IN const MCModelResolved& modelResolved, cons
 
     // 1) Build positions with Minecraft face orientation
     XMFLOAT3 p[4];
-    BuildFaceQuadPositions_01(modelElem, eDir, p);
+    BuildFaceQuadPositions01(modelElem, eDir, p);
 
     // element rotation (optional)
     if (modelElem.bHasRotation)
@@ -336,7 +367,7 @@ void CModelDB::_BakeOneElementFace(IN const MCModelResolved& modelResolved, cons
     }
     else
     {
-        ComputeFaceUV_Default(modelElem, eDir, uv01);
+        ComputeFaceUVDefault(modelElem, eDir, uv01);
     }
 
     float u0 = uv01[0], v0 = uv01[1], u1 = uv01[2], v1 = uv01[3];
@@ -359,15 +390,15 @@ void CModelDB::_BakeOneElementFace(IN const MCModelResolved& modelResolved, cons
     BakedQuad q{};
     q.textureHash = fnv1a_64(texKey);
     q.dir = static_cast<uint8_t>(eDir);
-    q.hasCullFace = face.bHasCull;
-    q.cullFaceDir = face.bHasCull ? face.cullDir : static_cast<uint8_t>(FACE_DIR::COUNT);
+    q.bHasCullFace = face.bHasCullFace;
+    q.cullFaceDir = face.bHasCullFace ? face.cullFaceDir : static_cast<uint8_t>(FACE_DIR::COUNT);
 
     const XMFLOAT3 faceNorm = FaceNormal(eDir);
 
-    q.vert[0] = { p[0], faceNorm, uv[0], 0xFFFFFFFF };
-    q.vert[1] = { p[1], faceNorm, uv[1], 0xFFFFFFFF };
-    q.vert[2] = { p[2], faceNorm, uv[2], 0xFFFFFFFF };
-    q.vert[3] = { p[3], faceNorm, uv[3], 0xFFFFFFFF };
+    q.verts[0] = { p[0], faceNorm, uv[0], 0xFFFFFFFF };
+    q.verts[1] = { p[1], faceNorm, uv[1], 0xFFFFFFFF };
+    q.verts[2] = { p[2], faceNorm, uv[2], 0xFFFFFFFF };
+    q.verts[3] = { p[3], faceNorm, uv[3], 0xFFFFFFFF };
 
     bakedModel.quads.push_back(std::move(q));
 }

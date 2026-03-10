@@ -128,7 +128,7 @@ void CMesh::CreateMeshFromBakedModel(ID3D11Device* pDevice, const CRuntimeAtlas&
 		const uint16_t tileID = atlas.GetTileID(quad.textureHash);
 		const UVRect r = (tileID == UINT16_MAX) ? atlas.GetUV(0) : atlas.GetUV(tileID);
 
-		for (auto& vertex : quad.vert)
+		for (auto& vertex : quad.verts)
 		{
 			const XMFLOAT2 uvAtlas
 			{

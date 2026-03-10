@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ShaderTypes.h"
 
 constexpr const char* SHADER_BASE_PATH = "../Shader/";
 

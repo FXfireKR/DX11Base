@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "VoxelTypes.h"
 
 static constexpr int CHUNK_SIZE_X = 16;
 static constexpr int CHUNK_SIZE_Y = 256;
@@ -8,8 +9,6 @@ static constexpr int CHUNK_VOLUME = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z;
 static constexpr int CHUNK_SECTION_SIZE = 16;
 static constexpr int CHUNK_SECTION_COUNT = CHUNK_SIZE_Y / CHUNK_SECTION_SIZE;
 static constexpr int CHUNK_SECTION_VOLUME = CHUNK_SIZE_X * CHUNK_SECTION_SIZE * CHUNK_SIZE_Z;
-
-using BLOCK_ID = uint32_t;
 
 struct ChunkCoord { int x = 0, y = 0, z = 0; };
 struct ChunkColumnCoord { int cx = 0, cz = 0; };

@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "VertexLayoutTypes.h"
+using namespace DirectX;
 
 struct VERTEX_POSITION
 {
