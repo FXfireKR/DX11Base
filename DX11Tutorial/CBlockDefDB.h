@@ -14,6 +14,8 @@ public:
 	const BlockDef* GetBlockDef(BLOCK_ID blockID) const;
 	const BlockDef* FindBlockDef(const char* blockName) const;
 
+	const BlockDef* FindNameDef(const char* defName) const;
+
 	const BLOCK_ID FindBlockID(const char* blockName) const;
 	const char* FindBlockName(BLOCK_ID blockID) const;
 
@@ -30,11 +32,15 @@ public:
 private:
 	bool _LoadRegistry();
 	bool _LoadBlockDefs();
-	bool _LoadOnBlockDef(const filesystem::path& filePath);
+	bool _LoadOneBlockDef(const filesystem::path& filePath);
 
 	bool _ReadJson(const filesystem::path& path, rapidjson::Document& outDoc) const;
 	bool _ParseBlockDef(const rapidjson::Value& root, BlockDef& outDef);
-	bool _ResolveInheritance();
+
+	bool _ResolveAllDefs();
+	bool _ResolveOneDef(const string& name, unordered_map<string, uint8_t>& visitState);
+	void _MergeParentToChild(const BlockDef& parent, BlockDef& child);
+	bool _BuildRuntimeTable();
 	
 	static bool _ParseRenderLayer(const char* strLayer, BLOCK_RENDER_LAYER& outLayer);
 	static bool _ParseCollisionType(const char* strType, BLOCK_COLLISION_TYPE& outType);
@@ -42,8 +48,13 @@ private:
 private:
 	string m_strResourceRoot;
 
-	// index == BLOCK_ID
+	// registry
 	unordered_map<string, BLOCK_ID> m_mapNameToID;
 	vector<string> m_vecIDToName;
+
+	// all defs (template + concrete)
+	unordered_map<string, BlockDef> m_mapNamedDefs;
+
+	// runtime concrete blocks only, index == BLOCK_ID
 	vector<BlockDef> m_vecBlockDefs;
 };

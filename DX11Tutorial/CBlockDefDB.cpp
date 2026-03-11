@@ -2,6 +2,9 @@
 #include "CBlockDefDB.h"
 #include "IFileWrapper.h"
 
+// parent가 로드 되지 않았다면 parent를 우선 읽는다.
+
+
 void CBlockDefDB::Initialize(const char* resourceRoot)
 {
 	m_strResourceRoot = resourceRoot;
@@ -23,9 +26,15 @@ bool CBlockDefDB::Load()
 		return false;
 	}
 
-	if (!_ResolveInheritance())
+	if (!_ResolveAllDefs())
 	{
-		assert(false && "CBlockDefDB::_ResolveInheritance failed");
+		assert(false && "CBlockDefDB::_ResolveAllDefs failed");
+		return false;
+	}
+
+	if (!_BuildRuntimeTable())
+	{
+		assert(false && "CBlockDefDB::_BuildRuntimeTable failed");
 		return false;
 	}
 
@@ -58,6 +67,18 @@ const BlockDef* CBlockDefDB::FindBlockDef(const char* blockName) const
 		return nullptr;
 
 	return GetBlockDef(blockID);
+}
+
+const BlockDef* CBlockDefDB::FindNameDef(const char* defName) const
+{
+	if (!defName)
+		return nullptr;
+
+	auto it = m_mapNamedDefs.find(defName);
+	if (it == m_mapNamedDefs.end())
+		return nullptr;
+
+	return &(it->second);
 }
 
 const BLOCK_ID CBlockDefDB::FindBlockID(const char* blockName) const
@@ -111,9 +132,10 @@ const bool CBlockDefDB::IsFullCube(BLOCK_ID blockID) const
 
 bool CBlockDefDB::_LoadRegistry()
 {
-	const filesystem::path filePath = filesystem::path(m_strResourceRoot) / "assets" / "minecraft" / "blocks" / "block_registry.json";
-	rapidjson::Document doc;
+	const filesystem::path filePath 
+		= filesystem::path(m_strResourceRoot) / "assets" / "minecraft" / "blocks" / "block_registry.json";
 
+	rapidjson::Document doc;
 	if (!_ReadJson(filePath, doc))
 		return false;
 
@@ -124,6 +146,7 @@ bool CBlockDefDB::_LoadRegistry()
 		return false;
 
 	const auto& entries = doc["entries"];
+
 	BLOCK_ID maxID = 0;
 	for (auto it = entries.MemberBegin(); it != entries.MemberEnd(); ++it)
 	{
@@ -139,7 +162,7 @@ bool CBlockDefDB::_LoadRegistry()
 			return false;
 		}
 
-		m_mapNameToID[name] = blockID;
+		m_mapNameToID.emplace(name, blockID);
 		maxID = std::max(maxID, blockID);
 	}
 
@@ -149,8 +172,6 @@ bool CBlockDefDB::_LoadRegistry()
 	for (const auto& kv : m_mapNameToID)
 	{
 		m_vecIDToName[kv.second] = kv.first;
-		m_vecBlockDefs[kv.second].blockID = kv.second;
-		m_vecBlockDefs[kv.second].name = kv.first;
 	}
 
 	return true;
@@ -158,13 +179,16 @@ bool CBlockDefDB::_LoadRegistry()
 
 bool CBlockDefDB::_LoadBlockDefs()
 {
-	const filesystem::path dirPath = filesystem::path(m_strResourceRoot) / "assets" / "minecraft" / "blocks";
+	const filesystem::path dirPath 
+		= filesystem::path(m_strResourceRoot) / "assets" / "minecraft" / "blocks";
+
 	if (!filesystem::exists(dirPath))
 		return false;
 
 	for (auto& it : filesystem::recursive_directory_iterator(dirPath))
 	{
-		if (!it.is_regular_file()) continue;
+		if (!it.is_regular_file()) 
+			continue;
 
 		const auto filePath = it.path();
 		if (filePath.extension() != ".json")
@@ -173,14 +197,14 @@ bool CBlockDefDB::_LoadBlockDefs()
 		if (filePath.filename() == "block_registry.json")
 			continue;
 
-		if (!_LoadOnBlockDef(filePath))
+		if (!_LoadOneBlockDef(filePath))
 			return false;
 	}
 
 	return true;
 }
 
-bool CBlockDefDB::_LoadOnBlockDef(const filesystem::path& filePath)
+bool CBlockDefDB::_LoadOneBlockDef(const filesystem::path& filePath)
 {
 	rapidjson::Document doc;
 	if (!_ReadJson(filePath, doc))
@@ -190,20 +214,20 @@ bool CBlockDefDB::_LoadOnBlockDef(const filesystem::path& filePath)
 	if (!_ParseBlockDef(doc, def))
 		return false;
 
-	BLOCK_ID blockID = FindBlockID(def.name.c_str());
-	if (!def.bIsTemplate)
+	if (def.name.empty())
 	{
-		if (blockID == INVALID_BLOCK_ID)
-		{
-			assert(false && "BlockDef name not found in registry");
-			return false;
-		}
+		assert(false && "BlockDef name empty");
+		return false;
 	}
 
-	def.blockID = blockID;
-	def.bLoaded = true;
+	if (m_mapNamedDefs.find(def.name) != m_mapNamedDefs.end())
+	{
+		assert(false && "Duplicate BlockDef name");
+		return false;
+	}
 
-	m_vecBlockDefs[blockID] = std::move(def);
+	def.bLoaded = true;
+	m_mapNamedDefs.emplace(def.name, std::move(def));
 	return true;
 }
 
@@ -226,7 +250,7 @@ bool CBlockDefDB::_ParseBlockDef(const rapidjson::Value& root, BlockDef& outDef)
 
 	if (root.HasMember("type") && root["type"].IsString())
 	{
-		string typeStr = root["type"].GetString();
+		const string typeStr = root["type"].GetString();
 		outDef.bIsTemplate = (typeStr == "template");
 	}
 
@@ -264,10 +288,9 @@ bool CBlockDefDB::_ParseBlockDef(const rapidjson::Value& root, BlockDef& outDef)
 	if (root.HasMember("render") && root["render"].IsObject())
 	{
 		const auto& render = root["render"];
+
 		if (render.HasMember("layer") && render["layer"].IsString())
-		{
 			_ParseRenderLayer(render["layer"].GetString(), outDef.render.layer);
-		}
 
 		if (render.HasMember("ambientOcclusion") && render["ambientOcclusion"].IsBool())
 			outDef.render.bAmbientOcclusion = render["ambientOcclusion"].GetBool();
@@ -276,10 +299,9 @@ bool CBlockDefDB::_ParseBlockDef(const rapidjson::Value& root, BlockDef& outDef)
 	if (root.HasMember("collision") && root["collision"].IsObject())
 	{
 		const auto& collision = root["collision"];
+
 		if (collision.HasMember("type") && collision["type"].IsString())
-		{
 			_ParseCollisionType(collision["type"].GetString(), outDef.collision.colType);
-		}
 	}
 
 	if (root.HasMember("tags") && root["tags"].IsArray())
@@ -289,15 +311,97 @@ bool CBlockDefDB::_ParseBlockDef(const rapidjson::Value& root, BlockDef& outDef)
 
 		for (rapidjson::SizeType i = 0; i < tags.Size(); ++i)
 		{
-			if (!tags[i].IsString())
-				continue;
-
-			outDef.tags.push_back(tags[i].GetString());
+			if (tags[i].IsString())
+				outDef.tags.push_back(tags[i].GetString());
 		}
 	}
 
 	return true;
 }
+
+bool CBlockDefDB::_ResolveAllDefs()
+{
+	unordered_map<string, uint8_t> visitState;
+	visitState.reserve(m_mapNamedDefs.size());
+
+	for (const auto& kv : m_mapNamedDefs)
+		visitState.emplace(kv.first, 0);
+
+	for (const auto& kv : m_mapNamedDefs)
+	{
+		if (!_ResolveOneDef(kv.first, visitState))
+			return false;
+	}
+
+	return true;
+}
+
+bool CBlockDefDB::_ResolveOneDef(const string& name, unordered_map<string, uint8_t>& visitState)
+{
+	// 0 : 비 방문 (White)
+	// 1 : 방문 중 (Gray)
+	// 2 : 방문 완료 (Black)
+
+	auto itVisit = visitState.find(name);
+	if (itVisit == visitState.end())
+		return false;
+
+	if (itVisit->second == 2)
+		return true;
+	
+	if (itVisit->second == 1)
+	{
+		assert(false && "BlockDef parent cycle detected");
+		return false;
+	}
+
+	itVisit->second = 1;
+
+	auto itDef = m_mapNamedDefs.find(name);
+	if (itDef == m_mapNamedDefs.end())
+		return false;
+
+	BlockDef& child = itDef->second;
+
+	if (!child.parent.empty())
+	{
+		auto itParent = m_mapNamedDefs.find(child.parent);
+		if (itParent == m_mapNamedDefs.end())
+		{
+			assert(false && "Parent BlockDef not found");
+			return false;
+		}
+
+		if (!_ResolveOneDef(child.parent, visitState))
+			return false;
+
+		_MergeParentToChild(itParent->second, child);
+	}
+
+	itVisit->second = 2;
+	return true;
+}
+
+void CBlockDefDB::_MergeParentToChild(const BlockDef& parent, BlockDef& child)
+{
+	if (child.stateSource.empty())
+		child.stateSource = parent.stateSource;
+
+	if (child.soundProfile.empty())
+		child.soundProfile = parent.soundProfile;
+
+	//if (!child.properties.bAir && parent.properties.bAir)
+		
+
+
+}
+
+bool CBlockDefDB::_BuildRuntimeTable()
+{
+	return false;
+}
+
+/*
 
 bool CBlockDefDB::_ResolveInheritance()
 {
@@ -356,6 +460,10 @@ bool CBlockDefDB::_ResolveInheritance()
 
 	return true;
 }
+
+
+*/
+
 
 bool CBlockDefDB::_ParseRenderLayer(const char* strLayer, BLOCK_RENDER_LAYER& outLayer)
 {

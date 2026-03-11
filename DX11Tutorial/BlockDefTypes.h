@@ -38,20 +38,38 @@ struct BlockCollisionDef
 	BLOCK_COLLISION_TYPE colType = BLOCK_COLLISION_TYPE::NONE;
 };
 
+//struct BlockDef
+//{
+//	BLOCK_ID blockID = INVALID_BLOCK_ID;
+//	
+//	std::string name;			// minecraft:stone
+//	std::string parent;			// optional template parent
+//	std::string stateSource;	// "stone"
+//	std::string soundProfile;	// "stone"
+//
+//	BlockPropertyFlags properties;
+//	BlockRenderDef render;
+//	BlockCollisionDef collision;
+//	std::vector<std::string> tags;
+//
+//	bool bIsTemplate = false;
+//	bool bLoaded = false;
+//};
+
+struct BlockDefRaw
+{
+	std::string name;
+	std::string parent;
+	rapidjson::Document doc;
+};
+
 struct BlockDef
 {
-	BLOCK_ID blockID = INVALID_BLOCK_ID;
+	std::string name;
+	std::string parent;
 	
-	std::string name;			// minecraft:stone
-	std::string parent;			// optional template parent
-	std::string stateSource;	// "stone"
-	std::string soundProfile;	// "stone"
-
 	BlockPropertyFlags properties;
-	BlockRenderDef render;
-	BlockCollisionDef collision;
-	std::vector<std::string> tags;
 
-	bool bIsTemplate = false;
-	bool bLoaded = false;
+	std::string model;
+	std::vector<std::string> tags;
 };
