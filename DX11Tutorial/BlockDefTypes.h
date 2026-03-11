@@ -38,6 +38,26 @@ struct BlockCollisionDef
 	BLOCK_COLLISION_TYPE colType = BLOCK_COLLISION_TYPE::NONE;
 };
 
+struct BlockGameplayDef
+{
+	float hardness = 0.f;
+	float blastResistance = 0.f;
+
+	bool bRequiresCorrectTool = false;
+	std::string requiredToolTag;
+	int requiredToolTier = 0;
+};
+
+struct BlockSoundDef
+{
+	std::string profile;
+};
+
+struct BlockTagSet
+{
+	std::vector<std::string> values;
+};
+
 //struct BlockDef
 //{
 //	BLOCK_ID blockID = INVALID_BLOCK_ID;
@@ -58,18 +78,34 @@ struct BlockCollisionDef
 
 struct BlockDefRaw
 {
-	std::string name;
-	std::string parent;
-	rapidjson::Document doc;
+	std::string name;	// "minecraft:stone"
+	std::string parent;	// template parent
+	std::string stateSource; // blockstate source
+	std::string soundProfile; // sound key/profile
+	std::vector<std::string> tags;
+
+	BlockPropertyFlags properties;
+	BlockRenderDef render;
+	BlockCollisionDef collision;
+
+	bool bIsTemplate = false;
+	bool bLoaded = false;
 };
 
 struct BlockDef
 {
-	std::string name;
-	std::string parent;
-	
-	BlockPropertyFlags properties;
+	BLOCK_ID blockID = INVALID_BLOCK_ID;
 
-	std::string model;
-	std::vector<std::string> tags;
+	std::string name;
+	std::string stateSource;
+
+	BlockPropertyFlags properties;
+	BlockRenderDef render;
+	BlockCollisionDef collision;
+
+	BlockGameplayDef gameplay;
+	BlockSoundDef sound;
+	BlockTagSet tags;
+
+	bool bValid = false;
 };

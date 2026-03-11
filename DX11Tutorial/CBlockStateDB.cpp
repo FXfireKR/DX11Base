@@ -306,6 +306,7 @@ bool CBlockStateDB::_Pass2_CompileRules(const filesystem::path& file)
 	return true;
 }
 
+
 bool CBlockStateDB::_ReadJson(const std::filesystem::path& path, rapidjson::Document& outDoc) const
 {
 	stringstream jsonBuffer;

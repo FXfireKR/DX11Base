@@ -31,6 +31,17 @@ public:
 
 private:
 	bool _LoadRegistry();
+	bool _LoadTemplates();
+	bool _LoadBlocks();
+	bool _LoadOneDefFile(const filesystem::path& filePath);
+
+	const bool _ReadJson(const filesystem::path& path, rapidjson::Document& outDoc) const;
+	const bool _ParseBlockDefRaw(const rapidjson::Value& root, BlockDefRaw& outRaw) const;
+
+	bool _BuildRuntimeDefs();
+	const bool _ResolveOne(const string& blockName, BlockDef& outDef, unordered_set<string>& outVisiting) const;
+
+	/*bool _LoadRegistry();
 	bool _LoadBlockDefs();
 	bool _LoadOneBlockDef(const filesystem::path& filePath);
 
@@ -43,7 +54,7 @@ private:
 	bool _BuildRuntimeTable();
 	
 	static bool _ParseRenderLayer(const char* strLayer, BLOCK_RENDER_LAYER& outLayer);
-	static bool _ParseCollisionType(const char* strType, BLOCK_COLLISION_TYPE& outType);
+	static bool _ParseCollisionType(const char* strType, BLOCK_COLLISION_TYPE& outType);*/
 
 private:
 	string m_strResourceRoot;
@@ -53,7 +64,8 @@ private:
 	vector<string> m_vecIDToName;
 
 	// all defs (template + concrete)
-	unordered_map<string, BlockDef> m_mapNamedDefs;
+	unordered_map<string, BlockDefRaw> m_mapTemplates; // template only
+	unordered_map<string, BlockDefRaw> m_mapNamedDefs; // actual blocks only
 
 	// runtime concrete blocks only, index == BLOCK_ID
 	vector<BlockDef> m_vecBlockDefs;
