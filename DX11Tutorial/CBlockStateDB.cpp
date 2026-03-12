@@ -292,7 +292,14 @@ bool CBlockStateDB::_Pass2_CompileRules(const filesystem::path& file)
 	std::string blockKey;
 	if (!BuildBlockKeyFromPath(file, blockKey)) return false;
 
-	BLOCK_ID blockID = fnv1a_64(blockKey);
+	BLOCK_ID blockID = m_pBlockDefDB->FindBlockID(blockKey.c_str());
+	if (blockID == INVALID_BLOCK_ID)
+	{
+#ifdef _DEBUG 
+		cout << "[BlockStateDB] Unknown block key in registry : " << blockKey << "\n";
+#endif // _DEBUG 
+		return true; // skip
+	}
 
 	rapidjson::Document doc;
 	if (!_ReadJson(file, doc)) return false;
@@ -385,8 +392,8 @@ bool CBlockStateDB::_ReadVariants_Pass2(BLOCK_ID blockID, const rapidjson::Value
 		{
 			AppliedModel m;
 			if (_ReadModelSpec(value, m)) {
-				rule.vecChoices.push_back(std::move(m));
 				m_pModelDB->SubmitToLoad(m.modelKey.c_str());
+				rule.vecChoices.push_back(std::move(m));
 			}
 
 		}
@@ -397,8 +404,8 @@ bool CBlockStateDB::_ReadVariants_Pass2(BLOCK_ID blockID, const rapidjson::Value
 				if (!elem.IsObject()) continue;
 				AppliedModel m;
 				if (_ReadModelSpec(elem, m)) {
-					rule.vecChoices.push_back(std::move(m));
 					m_pModelDB->SubmitToLoad(m.modelKey.c_str());
+					rule.vecChoices.push_back(std::move(m));
 				}
 			}
 		}

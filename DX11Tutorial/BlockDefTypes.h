@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 enum class BLOCK_RENDER_LAYER : uint8_t
 {
@@ -16,6 +17,7 @@ enum class BLOCK_COLLISION_TYPE : uint8_t
 {
 	NONE = 0,
 	FULL_CUBE,
+	SLAB,
 	CUSTOM,
 };
 
@@ -40,8 +42,8 @@ struct BlockCollisionDef
 
 struct BlockGameplayDef
 {
-	float hardness = 0.f;
-	float blastResistance = 0.f;
+	float fHardness = 0.f;
+	float fBlastResistance = 0.f;
 
 	bool bRequiresCorrectTool = false;
 	std::string requiredToolTag;
@@ -51,45 +53,6 @@ struct BlockGameplayDef
 struct BlockSoundDef
 {
 	std::string profile;
-};
-
-struct BlockTagSet
-{
-	std::vector<std::string> values;
-};
-
-//struct BlockDef
-//{
-//	BLOCK_ID blockID = INVALID_BLOCK_ID;
-//	
-//	std::string name;			// minecraft:stone
-//	std::string parent;			// optional template parent
-//	std::string stateSource;	// "stone"
-//	std::string soundProfile;	// "stone"
-//
-//	BlockPropertyFlags properties;
-//	BlockRenderDef render;
-//	BlockCollisionDef collision;
-//	std::vector<std::string> tags;
-//
-//	bool bIsTemplate = false;
-//	bool bLoaded = false;
-//};
-
-struct BlockDefRaw
-{
-	std::string name;	// "minecraft:stone"
-	std::string parent;	// template parent
-	std::string stateSource; // blockstate source
-	std::string soundProfile; // sound key/profile
-	std::vector<std::string> tags;
-
-	BlockPropertyFlags properties;
-	BlockRenderDef render;
-	BlockCollisionDef collision;
-
-	bool bIsTemplate = false;
-	bool bLoaded = false;
 };
 
 struct BlockDef
@@ -105,7 +68,57 @@ struct BlockDef
 
 	BlockGameplayDef gameplay;
 	BlockSoundDef sound;
-	BlockTagSet tags;
 
 	bool bValid = false;
 };
+
+struct BlockPropertyFlagsRaw
+{
+	std::optional<bool> air;
+	std::optional<bool> opaque;
+	std::optional<bool> solid;
+	std::optional<bool> fullCube;
+};
+
+struct BlockRenderDefRaw
+{
+	std::optional<BLOCK_RENDER_LAYER> layer;
+	std::optional<bool> ambientOcclusion;
+};
+
+struct BlockCollisionDefRaw
+{
+	std::optional<BLOCK_COLLISION_TYPE> colType;
+};
+
+struct BlockGameplayDefRaw
+{
+	std::optional<float> hardness;
+	std::optional<float> blastResistance;
+
+	std::optional<bool> bRequiresCorrectTool;
+	std::optional<std::string> requiredToolTag;
+	std::optional<int> requiredToolTier;
+};
+
+struct BlockSoundDefRaw
+{
+	std::optional<std::string> profile;
+};
+
+struct BlockDefRaw
+{
+	std::string name;
+	std::string parent;
+	std::optional<std::string> stateSource;
+
+	BlockPropertyFlagsRaw properties;
+	BlockRenderDefRaw render;
+	BlockCollisionDefRaw collision;
+	BlockGameplayDefRaw gameplay;
+	BlockSoundDefRaw sound;
+
+	bool bIsTemplate = false;
+	bool bLoaded = false;
+};
+

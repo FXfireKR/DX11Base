@@ -417,6 +417,18 @@
     <ClInclude Include="CBlockDB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="BlockTagTypes.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockTagDB.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMiningTypes.h">
+      <Filter>헤더 파일\Util\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="ILoadProgress.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -627,6 +639,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CBlockDB.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockTagDB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

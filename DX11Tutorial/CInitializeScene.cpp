@@ -17,6 +17,12 @@ void CInitializeScene::Update(float fDelta)
 
 	BlockDB.Load();
 
+	if (BlockDB.IsLoadedComplete())
+	{
+		m_bChangeSceneReq = true;
+		m_eNextSceneReq = SCENE_TYPE::TEST_SCENE;
+	}
+
 //#ifdef IMGUI_ACTIVATE
 //	ImGui::Text("This is Initialize Scne!");
 //

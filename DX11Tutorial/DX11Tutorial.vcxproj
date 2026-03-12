@@ -149,15 +149,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BlockDefTypes.h" />
+    <ClInclude Include="BlockMiningTypes.h" />
     <ClInclude Include="BlockRaycastTypes.h" />
     <ClInclude Include="BlockRaycastUtil.h" />
     <ClInclude Include="BlockStateParseUtil.h" />
     <ClInclude Include="BlockStateTypes.h" />
+    <ClInclude Include="BlockTagTypes.h" />
     <ClInclude Include="CApplication.h" />
     <ClInclude Include="CBlockDB.h" />
     <ClInclude Include="CBlockDefDB.h" />
     <ClInclude Include="CBlockInteractor.h" />
     <ClInclude Include="CBlockStateDB.h" />
+    <ClInclude Include="CBlockTagDB.h" />
     <ClInclude Include="CBootScene.h" />
     <ClInclude Include="CCamera.h" />
     <ClInclude Include="CCharacterMotor.h" />
@@ -223,6 +226,7 @@
     <ClInclude Include="IFileWrapper.h" />
     <ClInclude Include="IGamePadDevice.h" />
     <ClInclude Include="IInputDevice.h" />
+    <ClInclude Include="ILoadProgress.h" />
     <ClInclude Include="ImGui\backend\imgui_impl_dx11.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -262,6 +266,7 @@
     <ClCompile Include="CBlockDefDB.cpp" />
     <ClCompile Include="CBlockInteractor.cpp" />
     <ClCompile Include="CBlockStateDB.cpp" />
+    <ClCompile Include="CBlockTagDB.cpp" />
     <ClCompile Include="CCharacterMotor.cpp" />
     <ClCompile Include="CChunkComponent.cpp" />
     <ClCompile Include="CChunkMesher.cpp" />

@@ -7,6 +7,15 @@ void CModelDB::Initialize(const string& resourceRoot)
     m_strResourceRoot = resourceRoot;
 }
 
+void CModelDB::Load()
+{
+    while (!m_queueModelList.empty())
+    {
+        LoadModel(m_queueModelList.front().c_str());
+        m_queueModelList.pop();
+    }
+}
+
 void CModelDB::Clear()
 {
     m_vecEntries.clear();
@@ -29,7 +38,8 @@ MODEL_ID CModelDB::LoadModel(const char* modelKey)
 {
     const uint64_t h = fnv1a_64(modelKey);
     auto it = m_mapKeyToID.find(h);
-    if (it != m_mapKeyToID.end()) return it->second;
+    if (it != m_mapKeyToID.end()) 
+        return it->second;
 
     MODEL_ID newID = static_cast<MODEL_ID>(m_vecEntries.size());
     auto entry = std::make_unique<ModelEntry>();
@@ -57,7 +67,9 @@ MODEL_ID CModelDB::LoadModel(const char* modelKey)
 const MODEL_ID CModelDB::FindModelID(uint64_t modelHash) const
 {
     auto it = m_mapKeyToID.find(modelHash);
-    if (it != m_mapKeyToID.end()) return it->second;
+    if (it != m_mapKeyToID.end()) 
+        return it->second;
+
     return UINT64_ERROR;
 }
 
@@ -65,7 +77,9 @@ const MODEL_ID CModelDB::FindModelID(const char* modelKey) const
 {
     const uint64_t modelHash = fnv1a_64(modelKey);
     auto it = m_mapKeyToID.find(modelHash);
-    if (it != m_mapKeyToID.end()) return it->second;
+    if (it != m_mapKeyToID.end()) 
+        return it->second;
+
     return UINT64_ERROR;
 }
 
@@ -73,21 +87,27 @@ const BakedModel* CModelDB::GetBakedModel(MODEL_ID id) const
 {
     if (id >= m_vecEntries.size()) return nullptr;
     const auto& e = m_vecEntries[id];
-    if (!e || !e->bBaked) return nullptr;
+    if (!e || !e->bBaked) 
+        return nullptr;
+
     return &(e->baked);
 }
 
 const BakedModel* CModelDB::FindBakedModel(uint64_t modelHash) const
 {
     MODEL_ID modelID = FindModelID(modelHash);
-    if (modelID == UINT64_ERROR) return nullptr;
+    if (modelID == UINT64_ERROR) 
+        return nullptr;
+
     return GetBakedModel(modelID);
 }
 
 const BakedModel* CModelDB::FindBakedModel(const char* modelKey) const
 {
     MODEL_ID modelID = FindModelID(modelKey);
-    if (modelID == UINT64_ERROR) return nullptr;
+    if (modelID == UINT64_ERROR) 
+        return nullptr;
+
     return GetBakedModel(modelID);
 }
 

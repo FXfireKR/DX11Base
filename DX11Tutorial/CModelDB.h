@@ -20,6 +20,7 @@ class CModelDB
 {
 public:
 	void Initialize(const string& resourceRoot);
+	void Load();
 	void Clear();
 
 	bool SubmitToLoad(const char* modelKey);
