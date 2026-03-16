@@ -124,8 +124,15 @@ extern unsigned long g_ScreenSizeY;
 
 #include "util.h"
 
+struct UVRect
+{
+	float u0, v0, u1, v1;
+};
+
 // singleton
 #include "CInputManager.h"
 #include "CBlockDB.h"
+#include "CBlockResourceDB.h"
 
 #define BlockDB CBlockDB::Get()
+#define BlockResDB CBlockResourceDB::Get()

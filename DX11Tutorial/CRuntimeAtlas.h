@@ -1,21 +1,5 @@
 ﻿#pragma once
-
-struct UVRect
-{
-	float u0, v0, u1, v1;
-};
-
-
-struct RuntimeAtlasDesc
-{
-	uint32_t width = 0;
-	uint32_t height = 0;
-	uint32_t tilePx = 0;
-
-	DXGI_FORMAT eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	bool bMipmap = false;
-	bool bSRGB = false;
-};
+#include "AtlasTypes.h"
 
 class CRuntimeAtlas
 {
@@ -23,6 +7,33 @@ public:
 	CRuntimeAtlas() = default;
 	~CRuntimeAtlas() = default;
 
+	void Clear();
+	bool Initialize(ID3D11ShaderResourceView* pShaderResourceView
+		, uint32_t atlasWidth, uint32_t atlasHeight, unordered_map<string, AtlasRegion>&& mapRegions);
+
+	const AtlasRegion* FindRegion(const char* textureKey) const;
+	const AtlasRegion* FindRegion(const string& textureKey) const;
+
+public:
+	inline const bool IsValid() const { return m_pShaderResourceView != nullptr; }
+
+	inline const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
+
+	inline const uint32_t GetWidth() const { return m_uAtlasWidth; }
+	inline const uint32_t GetHeight() const { return m_uAtlasHeight; }
+
+
+private:
+	ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView;
+
+	uint32_t m_uAtlasWidth = 0;
+	uint32_t m_uAtlasHeight = 0;
+
+	unordered_map<string, AtlasRegion> m_mapRegions;
+};
+
+
+/*
 	bool Create(ID3D11Device* pDevice, const RuntimeAtlasDesc& desc);
 	bool AddTileFromFile(ID3D11DeviceContext* pContext, uint64_t tileKey, const char* pathUTF8);
 
@@ -50,5 +61,4 @@ private:
 
 	uint16_t m_nextSlot = 0;
 	unordered_map<uint64_t, uint16_t> m_mapTile;
-	
-};
+*/

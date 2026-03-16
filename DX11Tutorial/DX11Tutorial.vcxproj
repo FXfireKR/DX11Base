@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AtlasTypes.h" />
     <ClInclude Include="BlockDefTypes.h" />
     <ClInclude Include="BlockMiningTypes.h" />
     <ClInclude Include="BlockRaycastTypes.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="CBlockDB.h" />
     <ClInclude Include="CBlockDefDB.h" />
     <ClInclude Include="CBlockInteractor.h" />
+    <ClInclude Include="CBlockResourceDB.h" />
     <ClInclude Include="CBlockStateDB.h" />
     <ClInclude Include="CBlockTagDB.h" />
     <ClInclude Include="CBootScene.h" />
@@ -204,6 +206,7 @@
     <ClInclude Include="CRenderManager.h" />
     <ClInclude Include="CRenderWorld.h" />
     <ClInclude Include="CRuntimeAtlas.h" />
+    <ClInclude Include="CRuntimeAtlasBuilder.h" />
     <ClInclude Include="CSamplerManager.h" />
     <ClInclude Include="CSamplerState.h" />
     <ClInclude Include="CScene.h" />
@@ -265,6 +268,7 @@
     <ClCompile Include="CBlockDB.cpp" />
     <ClCompile Include="CBlockDefDB.cpp" />
     <ClCompile Include="CBlockInteractor.cpp" />
+    <ClCompile Include="CBlockResourceDB.cpp" />
     <ClCompile Include="CBlockStateDB.cpp" />
     <ClCompile Include="CBlockTagDB.cpp" />
     <ClCompile Include="CCharacterMotor.cpp" />
@@ -284,6 +288,7 @@
     <ClCompile Include="CPlayerController.cpp" />
     <ClCompile Include="CRawInputDispatcher.cpp" />
     <ClCompile Include="CRuntimeAtlas.cpp" />
+    <ClCompile Include="CRuntimeAtlasBuilder.cpp" />
     <ClCompile Include="CSamplerManager.cpp" />
     <ClCompile Include="CSamplerState.cpp" />
     <ClCompile Include="CTextureManager.cpp" />

@@ -119,58 +119,58 @@ void CMesh::CreateCube(ID3D11Device* pDevice)
 
 void CMesh::CreateMeshFromBakedModel(ID3D11Device* pDevice, const CRuntimeAtlas& atlas,  const BakedModel& bakedModel)
 {
-	vector<VERTEX_POSITION_UV_NORMAL> vert;
-	vector<uint32_t> indices;
+	//vector<VERTEX_POSITION_UV_NORMAL> vert;
+	//vector<uint32_t> indices;
 
-	size_t offset = 0;
-	for (auto& quad : bakedModel.quads)
-	{
-		const uint16_t tileID = atlas.GetTileID(quad.textureHash);
-		const UVRect r = (tileID == UINT16_MAX) ? atlas.GetUV(0) : atlas.GetUV(tileID);
+	//size_t offset = 0;
+	//for (auto& quad : bakedModel.quads)
+	//{
+	//	const uint16_t tileID = atlas.GetTileID(quad.textureHash);
+	//	const UVRect r = (tileID == UINT16_MAX) ? atlas.GetUV(0) : atlas.GetUV(tileID);
 
-		for (auto& vertex : quad.verts)
-		{
-			const XMFLOAT2 uvAtlas
-			{
-				r.u0 + (r.u1 - r.u0) * vertex.uv.x,
-				r.v0 + (r.v1 - r.v0) * vertex.uv.y
-			};
+	//	for (auto& vertex : quad.verts)
+	//	{
+	//		const XMFLOAT2 uvAtlas
+	//		{
+	//			r.u0 + (r.u1 - r.u0) * vertex.uv.x,
+	//			r.v0 + (r.v1 - r.v0) * vertex.uv.y
+	//		};
 
-			vert.push_back({ {vertex.pos}, {uvAtlas}, {vertex.normal} });
-		}
+	//		vert.push_back({ {vertex.pos}, {uvAtlas}, {vertex.normal} });
+	//	}
 
-		indices.push_back(offset + 0);
-		indices.push_back(offset + 1);
-		indices.push_back(offset + 2);
+	//	indices.push_back(offset + 0);
+	//	indices.push_back(offset + 1);
+	//	indices.push_back(offset + 2);
 
-		indices.push_back(offset + 0);
-		indices.push_back(offset + 2);
-		indices.push_back(offset + 3);
+	//	indices.push_back(offset + 0);
+	//	indices.push_back(offset + 2);
+	//	indices.push_back(offset + 3);
 
-		offset = vert.size();
-	}
+	//	offset = vert.size();
+	//}
 
-	// Create VertexBuffer
-	D3D11_BUFFER_DESC desc{};
-	desc.ByteWidth = sizeof(VERTEX_POSITION_UV_NORMAL) * vert.size();
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA data{};
-	data.pSysMem = vert.data();
-	pDevice->CreateBuffer(&desc, &data, m_pVertexBuffer.GetAddressOf());
+	//// Create VertexBuffer
+	//D3D11_BUFFER_DESC desc{};
+	//desc.ByteWidth = sizeof(VERTEX_POSITION_UV_NORMAL) * vert.size();
+	//desc.Usage = D3D11_USAGE_DEFAULT;
+	//desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//D3D11_SUBRESOURCE_DATA data{};
+	//data.pSysMem = vert.data();
+	//pDevice->CreateBuffer(&desc, &data, m_pVertexBuffer.GetAddressOf());
 
-	// Create IndexBuffer
-	D3D11_BUFFER_DESC descIndex{};
-	descIndex.ByteWidth = sizeof(uint32_t) * indices.size();
-	descIndex.Usage = D3D11_USAGE_DEFAULT;
-	descIndex.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA dataIndex{};
-	dataIndex.pSysMem = indices.data();
-	pDevice->CreateBuffer(&descIndex, &dataIndex, m_pIndexBuffer.GetAddressOf());
+	//// Create IndexBuffer
+	//D3D11_BUFFER_DESC descIndex{};
+	//descIndex.ByteWidth = sizeof(uint32_t) * indices.size();
+	//descIndex.Usage = D3D11_USAGE_DEFAULT;
+	//descIndex.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	//D3D11_SUBRESOURCE_DATA dataIndex{};
+	//dataIndex.pSysMem = indices.data();
+	//pDevice->CreateBuffer(&descIndex, &dataIndex, m_pIndexBuffer.GetAddressOf());
 
-	m_uVertexStride = sizeof(VERTEX_POSITION_UV_NORMAL);
-	m_uVertexCnt = vert.size();
-	m_uIndexCnt = indices.size();
+	//m_uVertexStride = sizeof(VERTEX_POSITION_UV_NORMAL);
+	//m_uVertexCnt = vert.size();
+	//m_uIndexCnt = indices.size();
 }
 
 void CMesh::CreateAABBLine(ID3D11Device* pDevice)

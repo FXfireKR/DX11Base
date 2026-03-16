@@ -119,7 +119,7 @@ static bool IsFaceOccluded(const CChunkWorld& world, int wx, int wy, int wz, uin
 
 void CChunkMesher::AppendBakedQuad(IN const BakedQuad& quad, const CRuntimeAtlas& atlas, const XMFLOAT3& blockOffset, OUT vector<CHUNK_VERTEX>& verts, vector<uint32_t>& indices)
 {
-	const uint16_t titleID = atlas.GetTileID(quad.textureHash);
+	/*const uint16_t titleID = atlas.GetTileID(quad.textureHash);
 	const UVRect uv = (titleID == UINT16_MAX) ? atlas.GetUV(0) : atlas.GetUV(titleID);
 	const uint32_t baseIndex = static_cast<uint32_t>(verts.size());
 
@@ -149,7 +149,7 @@ void CChunkMesher::AppendBakedQuad(IN const BakedQuad& quad, const CRuntimeAtlas
 
 	indices.push_back(baseIndex + 0);
 	indices.push_back(baseIndex + 2);
-	indices.push_back(baseIndex + 3);
+	indices.push_back(baseIndex + 3);*/
 }
 
 void CChunkMesher::BuildFromBakedModels(IN const CChunkWorld& world, const CRuntimeAtlas& atlas, int cx, int sy, int cz, const ChunkSection& section, OUT ChunkMeshData& meshData)

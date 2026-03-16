@@ -5,7 +5,7 @@
 
 namespace StringUtil
 {
-    inline void SplitAndTrim(const std::string& str, char tokenizer, std::vector<std::string>& result)
+    static void SplitAndTrim(const std::string& str, char tokenizer, std::vector<std::string>& result)
     {
         result.clear();
 

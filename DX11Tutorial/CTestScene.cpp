@@ -136,131 +136,131 @@ void CTestScene::BuildRenderFrame()
 
 void CTestScene::_CreateChunkObject()
 {
-	CRenderWorld& rw = GetRenderWorld();
+	//CRenderWorld& rw = GetRenderWorld();
 
-	RuntimeAtlasDesc ad{};
-	ad.width = 256;
-	ad.height = 256;
-	ad.tilePx = 16;
-	ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	ad.bSRGB = true;
-	ad.bMipmap = false;
+	//RuntimeAtlasDesc ad{};
+	//ad.width = 256;
+	//ad.height = 256;
+	//ad.tilePx = 16;
+	//ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//ad.bSRGB = true;
+	//ad.bMipmap = false;
 
-	rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
+	//rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
 
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bedrock"), "../Resource/assets/minecraft/textures/block/bedrock.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("glass"), "../Resource/assets/minecraft/textures/block/glass.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("gravel"), "../Resource/assets/minecraft/textures/block/gravel.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("sand"), "../Resource/assets/minecraft/textures/block/sand.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("stone"), "../Resource/assets/minecraft/textures/block/stone.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bedrock"), "../Resource/assets/minecraft/textures/block/bedrock.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("glass"), "../Resource/assets/minecraft/textures/block/glass.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("gravel"), "../Resource/assets/minecraft/textures/block/gravel.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("sand"), "../Resource/assets/minecraft/textures/block/sand.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 
-	// shader
-	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("NormalImageForward");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
+	//// shader
+	//auto& shaderManager = rw.GetShaderManager();
+	//auto shaderID = fnv1a_64("NormalImageForward");
+	//auto shader = shaderManager.CreateShader(shaderID, 0);
 
-	shaderManager.Compile();
+	//shaderManager.Compile();
 
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	//// input layout
+	//auto& ilManager = rw.GetIALayoutManager();
+	//auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
-	auto pipeline = pipelineManager.Get(pipeID);
+	//// pipeline
+	//auto& pipelineManager = rw.GetPipelineManager();
+	//auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	//auto pipeline = pipelineManager.Get(pipeID);
 
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->CreateRaster(rw.GetDevice());
+	//pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	//pipeline->SetInputLayout(ilManager.Get(layoutID));
+	//pipeline->CreateRaster(rw.GetDevice());
 
-	// sampler
-	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	//// sampler
+	//auto& samplerManager = rw.GetSamplerManager();
+	//auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 
-	// material
-	auto& materialManager = rw.GetMaterialManager();
-	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
-	materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
-	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	//// material
+	//auto& materialManager = rw.GetMaterialManager();
+	//auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	//materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
+	//materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
 
-	m_pChunkPipeline = pipelineManager.Get(pipeID);
-	m_pChunkMaterial = materialManager.Get(materialID);
+	//m_pChunkPipeline = pipelineManager.Get(pipeID);
+	//m_pChunkMaterial = materialManager.Get(materialID);
 
-	m_pChunkObject = AddAndGetObject("Chunk_0_0_0");
-	auto* tr = m_pChunkObject->AddComponent<CTransform>();
-	tr->SetLocalTrans({ 0.f, 0.f, 0.f });
+	//m_pChunkObject = AddAndGetObject("Chunk_0_0_0");
+	//auto* tr = m_pChunkObject->AddComponent<CTransform>();
+	//tr->SetLocalTrans({ 0.f, 0.f, 0.f });
 
-	auto* mr = m_pChunkObject->AddComponent<CMeshRenderer>();
-	mr->SetPipeline(m_pChunkPipeline);
-	mr->SetMaterial(m_pChunkMaterial);
+	//auto* mr = m_pChunkObject->AddComponent<CMeshRenderer>();
+	//mr->SetPipeline(m_pChunkPipeline);
+	//mr->SetMaterial(m_pChunkMaterial);
 
-	auto* cnk = m_pChunkObject->AddComponent<CChunkComponent>();
-	cnk->Init();
-	cnk->SetMeshRenderer(mr);
-	cnk->SetChunkCoord({ 0,0,0 });
+	//auto* cnk = m_pChunkObject->AddComponent<CChunkComponent>();
+	//cnk->Init();
+	//cnk->SetMeshRenderer(mr);
+	//cnk->SetChunkCoord({ 0,0,0 });
 
-	for (int z = 0; z < CHUNK_SIZE_Z; ++z)
-		for (int y = 0; y < CHUNK_SIZE_Y; ++y)
-			for (int x = 0; x < CHUNK_SIZE_X; ++x)
-				cnk->SetBlock(x, y, z, rand() % 7);
+	//for (int z = 0; z < CHUNK_SIZE_Z; ++z)
+	//	for (int y = 0; y < CHUNK_SIZE_Y; ++y)
+	//		for (int x = 0; x < CHUNK_SIZE_X; ++x)
+	//			cnk->SetBlock(x, y, z, rand() % 7);
 }
 
 void CTestScene::_CreateBaked()
 {
-	CRenderWorld& rw = GetRenderWorld();
+	//CRenderWorld& rw = GetRenderWorld();
 
-	RuntimeAtlasDesc ad{};
-	ad.width = 256;
-	ad.height = 256;
-	ad.tilePx = 16;
-	ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	ad.bSRGB = true;
-	ad.bMipmap = false;
+	//RuntimeAtlasDesc ad{};
+	//ad.width = 256;
+	//ad.height = 256;
+	//ad.tilePx = 16;
+	//ad.eFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//ad.bSRGB = true;
+	//ad.bMipmap = false;
 
-	rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
+	//rw.GetRuntimeAtlas().Create(rw.GetDevice(), ad);
 
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_snow"), "../Resource/assets/minecraft/textures/block/grass_block_snow.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_side"), "../Resource/assets/minecraft/textures/block/grass_block_side.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_side_overlay"), "../Resource/assets/minecraft/textures/block/grass_block_side_overlay.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_top"), "../Resource/assets/minecraft/textures/block/grass_block_top.png");
-	rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/dirt"), "../Resource/assets/minecraft/textures/block/dirt.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_snow"), "../Resource/assets/minecraft/textures/block/grass_block_snow.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_side"), "../Resource/assets/minecraft/textures/block/grass_block_side.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_side_overlay"), "../Resource/assets/minecraft/textures/block/grass_block_side_overlay.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/grass_block_top"), "../Resource/assets/minecraft/textures/block/grass_block_top.png");
+	//rw.GetRuntimeAtlas().AddTileFromFile(rw.GetContext(), fnv1a_64("block/dirt"), "../Resource/assets/minecraft/textures/block/dirt.png");
 
-	// shader
-	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("NormalImageForward");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
+	//// shader
+	//auto& shaderManager = rw.GetShaderManager();
+	//auto shaderID = fnv1a_64("NormalImageForward");
+	//auto shader = shaderManager.CreateShader(shaderID, 0);
 
-	shaderManager.Compile();
+	//shaderManager.Compile();
 
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	//// input layout
+	//auto& ilManager = rw.GetIALayoutManager();
+	//auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto pipeID = pipelineManager.Create(fnv1a_64("TrianglePipeline"));
+	//// pipeline
+	//auto& pipelineManager = rw.GetPipelineManager();
+	//auto pipeID = pipelineManager.Create(fnv1a_64("TrianglePipeline"));
 
-	auto pipeline = pipelineManager.Get(pipeID);
+	//auto pipeline = pipelineManager.Get(pipeID);
 
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	//pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	//pipeline->SetInputLayout(ilManager.Get(layoutID));
 
-	// dummy
-	pipeline->CreateRaster(rw.GetDevice());
+	//// dummy
+	//pipeline->CreateRaster(rw.GetDevice());
 
-	// mesh
-	auto& meshManager = rw.GetMeshManager();
+	//// mesh
+	//auto& meshManager = rw.GetMeshManager();
 
-	BlockPropHashMap props;
-	props[fnv1a_64("snowy")] = fnv1a_64("false");
+	//BlockPropHashMap props;
+	//props[fnv1a_64("snowy")] = fnv1a_64("false");
 
-	BLOCK_ID blockID = fnv1a_64("minecraft:grass_block");
+	//BLOCK_ID blockID = fnv1a_64("minecraft:grass_block");
 
-	STATE_INDEX sidx;
-	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-	assert(ok);
+	//STATE_INDEX sidx;
+	//bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+	//assert(ok);
 
 	//std::vector<AppliedModel> outModels;
 	//BlockDB.GetAppliedModels(blockID, sidx, outModels);
@@ -347,47 +347,47 @@ void CTestScene::_CreateHighlight()
 
 void CTestScene::_CreateWorldRender()
 {
-	CRenderWorld& rw = GetRenderWorld();
+	//CRenderWorld& rw = GetRenderWorld();
 
-	// shader
-	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("NormalImageForward");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
+	//// shader
+	//auto& shaderManager = rw.GetShaderManager();
+	//auto shaderID = fnv1a_64("NormalImageForward");
+	//auto shader = shaderManager.CreateShader(shaderID, 0);
 
-	shaderManager.Compile();
+	//shaderManager.Compile();
 
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	//// input layout
+	//auto& ilManager = rw.GetIALayoutManager();
+	//auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
-	auto pipeline = pipelineManager.Get(pipeID);
+	//// pipeline
+	//auto& pipelineManager = rw.GetPipelineManager();
+	//auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	//auto pipeline = pipelineManager.Get(pipeID);
 
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->CreateRaster(rw.GetDevice());
-	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	//pipeline->SetInputLayout(ilManager.Get(layoutID));
+	//pipeline->CreateRaster(rw.GetDevice());
+	//pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// sampler
-	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	//// sampler
+	//auto& samplerManager = rw.GetSamplerManager();
+	//auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 
-	// material
-	auto& materialManager = rw.GetMaterialManager();
-	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	//// material
+	//auto& materialManager = rw.GetMaterialManager();
+	//auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
 
-	materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
-	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	//materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
+	//materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
 
-	m_pChunkPipeline = pipelineManager.Get(pipeID);
-	m_pChunkMaterial = materialManager.Get(materialID);
+	//m_pChunkPipeline = pipelineManager.Get(pipeID);
+	//m_pChunkMaterial = materialManager.Get(materialID);
 }
 
 void CTestScene::_CreateTextureAtlas()
 {
-	CRenderWorld& rw = GetRenderWorld();
+	/*CRenderWorld& rw = GetRenderWorld();
 	CRuntimeAtlas& rta = rw.GetRuntimeAtlas();
 
 	RuntimeAtlasDesc ad{};
@@ -407,5 +407,5 @@ void CTestScene::_CreateTextureAtlas()
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/dirt"), "../Resource/assets/minecraft/textures/block/dirt.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/sand"), "../Resource/assets/minecraft/textures/block/sand.png");
-	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");
+	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");*/
 }

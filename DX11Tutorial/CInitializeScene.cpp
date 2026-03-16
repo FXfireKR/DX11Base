@@ -1,9 +1,13 @@
 ﻿#include "pch.h"
 #include "CInitializeScene.h"
+#include "CRenderWorld.h"
 
 void CInitializeScene::Awake()
 {
+	CRenderWorld& rw = GetRenderWorld();
+
 	BlockDB.Initialize("../Resource/");
+	BlockResDB.Initialize("../Resource/", rw.GetDevice());
 }
 
 void CInitializeScene::FixedUpdate(float fDelta)
@@ -14,6 +18,8 @@ void CInitializeScene::FixedUpdate(float fDelta)
 void CInitializeScene::Update(float fDelta)
 {
 	CScene::Update(fDelta);
+
+	BlockResDB.Load();
 
 	BlockDB.Load();
 
