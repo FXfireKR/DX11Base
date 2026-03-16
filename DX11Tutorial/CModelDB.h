@@ -34,6 +34,8 @@ public:
 	const BakedModel* FindBakedModel(uint64_t modelHash) const;
 	const BakedModel* FindBakedModel(const char* modelKey) const;
 
+	inline const unordered_set<string>& GetUsedTextureKeys() const { return m_usedTextureKeys; }
+
 private:
 	bool _LoadRawModelJSON(IN const char* modelKey, OUT ModelRaw& modelRaw);
 	bool _ResolveModel(IN const char* modelKey, OUT ModelResolved& modelResolved);
@@ -51,4 +53,6 @@ private:
 	unordered_map<uint64_t, MODEL_ID> m_mapKeyToID;
 
 	queue<string> m_queueModelList;
+
+	unordered_set<string> m_usedTextureKeys;
 };

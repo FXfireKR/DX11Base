@@ -64,6 +64,9 @@ struct BakedQuad
 	uint8_t cullFaceDir = 0;
 	int tintIndex = -1;
 	uint64_t textureHash = 0;
+#ifdef _DEBUG
+	std::string debugTextureKey;
+#endif // _DEBUG
 	BakedVertex verts[4];
 };
 

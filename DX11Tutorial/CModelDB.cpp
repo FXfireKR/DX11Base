@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CModelDB.h"
 #include "ModelUtil.h"
+#include "ResourceUtil.h"
 
 void CModelDB::Initialize(const string& resourceRoot)
 {
@@ -21,6 +22,7 @@ void CModelDB::Clear()
     m_vecEntries.clear();
     m_mapKeyToID.clear();
     m_strResourceRoot.clear();
+    m_usedTextureKeys.clear();
 }
 
 bool CModelDB::SubmitToLoad(const char* modelKey)
@@ -365,6 +367,10 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
     string texKey = _ResolveTextureRef(modelResolved, face.textureRef);
     if (texKey.empty()) return;
 
+    string normalizedTextureKey = texKey;
+    if (!NormalizeTextureKey(texKey.c_str(), normalizedTextureKey))
+        return;
+
     // 1) Build positions with Minecraft face orientation
     XMFLOAT3 p[4];
     BuildFaceQuadPositions01(modelElem, eDir, p);
@@ -408,10 +414,18 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
 
     // 5) Emit baked quad
     BakedQuad q{};
-    q.textureHash = fnv1a_64(texKey);
+    q.textureHash = fnv1a_64(normalizedTextureKey);
+#ifdef _DEBUG
+    q.debugTextureKey = normalizedTextureKey;
+#endif // _DEBUG
     q.dir = static_cast<uint8_t>(eDir);
     q.bHasCullFace = face.bHasCullFace;
     q.cullFaceDir = face.bHasCullFace ? face.cullFaceDir : static_cast<uint8_t>(FACE_DIR::COUNT);
+
+    if (!normalizedTextureKey.empty())
+    {
+        m_usedTextureKeys.insert(normalizedTextureKey);
+    }
 
     const XMFLOAT3 faceNorm = FaceNormal(eDir);
 

@@ -28,7 +28,7 @@ bool CRuntimeAtlas::Initialize(ID3D11ShaderResourceView* pShaderResourceView, ui
 
 const AtlasRegion* CRuntimeAtlas::FindRegion(const char* textureKey) const
 {
-	if (nullptr == textureKey)
+	if (nullptr == textureKey || textureKey[0] == '\0')
 		return nullptr;
 
 	auto it = m_mapRegions.find(textureKey);
@@ -38,15 +38,15 @@ const AtlasRegion* CRuntimeAtlas::FindRegion(const char* textureKey) const
 	return &it->second;
 }
 
-const AtlasRegion* CRuntimeAtlas::FindRegion(const string& textureKey) const
+const bool CRuntimeAtlas::TryGetRegion(const char* textureKey, AtlasRegion& outRegion) const
 {
-	auto it = m_mapRegions.find(textureKey);
-	if (it == m_mapRegions.end())
-		return nullptr;
+	const AtlasRegion* pRegion = FindRegion(textureKey);
+	if (nullptr == pRegion)
+		return false;
 
-	return &it->second;
+	outRegion = *pRegion;
+	return true;
 }
-
 
 //static DXGI_FORMAT MakeSRGBFormatIfNeeded(DXGI_FORMAT eFormat, bool bSRGB)
 //{

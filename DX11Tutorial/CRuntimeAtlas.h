@@ -12,7 +12,7 @@ public:
 		, uint32_t atlasWidth, uint32_t atlasHeight, unordered_map<string, AtlasRegion>&& mapRegions);
 
 	const AtlasRegion* FindRegion(const char* textureKey) const;
-	const AtlasRegion* FindRegion(const string& textureKey) const;
+	const bool TryGetRegion(const char* textureKey, AtlasRegion& outRegion) const;
 
 public:
 	inline const bool IsValid() const { return m_pShaderResourceView != nullptr; }
@@ -25,11 +25,10 @@ public:
 
 private:
 	ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView;
+	unordered_map<string, AtlasRegion> m_mapRegions;
 
 	uint32_t m_uAtlasWidth = 0;
 	uint32_t m_uAtlasHeight = 0;
-
-	unordered_map<string, AtlasRegion> m_mapRegions;
 };
 
 

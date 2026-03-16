@@ -55,6 +55,8 @@ public: // Block Model
 	const BakedModel* FindBakedModel(uint64_t modelHash) const;
 	const BakedModel* GetBakedModel(BLOCK_ID blockID, STATE_INDEX stateIndex) const;
 
+	inline const unordered_set<string>& GetUsedTextureKeys() const { return m_modelDB.GetUsedTextureKeys(); }
+
 private:
 	const char* _GetMineableTagName(BLOCK_TOOL_KIND toolKind) const;
 	const char* _GetIncorrectTierTagName(BLOCK_TOOL_TIER toolTier) const;

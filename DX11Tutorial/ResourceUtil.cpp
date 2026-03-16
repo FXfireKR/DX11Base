@@ -30,3 +30,29 @@ bool BuildBlockKeyFromPath(const std::filesystem::path& filePath, std::string& o
 	outBlockKey = nameSpace + ":" + rel;
 	return true;
 }
+
+bool NormalizeTextureKey(const char* inKey, std::string& outKey)
+{
+	outKey.clear();
+
+	if (inKey == nullptr || inKey[0] == '\0')
+		return false;
+
+	std::string key = inKey;
+
+	// "#side" 같은 reference는 ModelDB에서 resolve 끝난 뒤에 와야 한다.
+	if (!key.empty() && key[0] == '#')
+		return false;
+
+	// namespace 없으면 minecraft 기본 적용
+	if (key.find(':') == std::string::npos)
+	{
+		outKey = "minecraft:" + key;
+	}
+	else
+	{
+		outKey = key;
+	}
+
+	return true;
+}

@@ -19,12 +19,13 @@ void CInitializeScene::Update(float fDelta)
 {
 	CScene::Update(fDelta);
 
-	BlockResDB.Load();
-
 	BlockDB.Load();
 
 	if (BlockDB.IsLoadedComplete())
 	{
+		BlockResDB.RegisterTextureKeys(BlockDB.GetUsedTextureKeys());
+		BlockResDB.Load();
+
 		m_bChangeSceneReq = true;
 		m_eNextSceneReq = SCENE_TYPE::TEST_SCENE;
 	}
