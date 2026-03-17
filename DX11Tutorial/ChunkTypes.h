@@ -3,9 +3,9 @@
 #include <memory>
 #include <DirectXMath.h>
 
+#include "ObjectTypes.h"
 #include "VoxelTypes.h"
 #include "VertexTypes.h"
-
 
 static constexpr int CHUNK_SIZE_X = 16;
 static constexpr int CHUNK_SIZE_Y = 256;
@@ -52,6 +52,9 @@ struct SectionCoordHasher
 		return static_cast<size_t>(h);
 	}
 };
+
+// WorldBlockPos = XMINT3
+// LocalBlockPos = XMINT3
 
 struct ChunkRenderEntry
 {

@@ -432,6 +432,21 @@
     <ClInclude Include="CRuntimeAtlasBuilder.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="AtlasTypes.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlockResourceDB.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkSection.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkColumn.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CChunkMeshBuilder.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -648,6 +663,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CRuntimeAtlasBuilder.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlockResourceDB.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkSection.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkColumn.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CChunkMeshBuilder.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

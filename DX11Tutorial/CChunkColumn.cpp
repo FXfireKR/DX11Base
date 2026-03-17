@@ -1,39 +1,24 @@
 ﻿#include "pch.h"
 #include "CChunkColumn.h"
 
-CChunkColumn::CChunkColumn()
+CChunkSection* CChunkColumn::GetSection(int sy)
 {
+	if (sy < 0 || sy >= CHUNK_SECTION_SIZE)
+		return nullptr;
+
+	return m_sections[sy].get();
 }
 
-CChunkColumn::~CChunkColumn()
+const CChunkSection* CChunkColumn::GetSection(int sy) const
 {
+	if (sy < 0 || sy >= CHUNK_SECTION_SIZE)
+		return nullptr;
+
+	return m_sections[sy].get();
 }
 
-void CChunkColumn::Initialize(int chunkX, int chunkZ)
+CChunkSection* CChunkColumn::EnsureSection(int sy)
 {
-}
-
-CChunkSection* CChunkColumn::GetSection(int sectionY)
-{
+	// TODO: What the fuck ENSURE?
 	return nullptr;
-}
-
-const CChunkSection* CChunkColumn::GetSection(int sectionY) const
-{
-	return nullptr;
-}
-
-BlockCell CChunkColumn::GetBlockCell(int wx, int wy, int wz) const
-{
-
-}
-
-void CChunkColumn::SetBlockCell(int wx, int wy, int wz, const BlockCell& cell)
-{
-
-}
-
-bool CChunkColumn::_WorldToLocal(int wx, int wy, int wz, XMINT3& outL, int& outSectionY) const
-{
-	return false;
 }

@@ -1,32 +1,30 @@
 ﻿#pragma once
 #include "CChunkColumn.h"
-#include "CChunkMesher.h"
+
 
 class CChunkWorld
 {
 public:
 	void Initialize();
-	void Clear();
-
-	void UpdateStreaming();
+	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
+	void TickChunkMeshBuild();
+	void FlushRenderUpdates();
 
 	BlockCell GetBlockCell(int wx, int wy, int wz) const;
-	bool IsSolidBlock(int wx, int wy, int wz) const;
+	bool SetBlockCell(int wx, int wy, int wz, const BlockCell& newCell);
 
 private:
-	void _ComputeWantedColumns(int centerCx, int centerCy, unordered_set<ChunkCoord, ChunkCoordHasher>& outWanted) const;
-	void _LoadMissingColumns(const unordered_set<ChunkCoord, ChunkCoordHasher>& wanted);
-	void _UnloadFarColumns(const unordered_set<ChunkCoord, ChunkCoordHasher>& wanted);
-	void _RebuildDirtySections();
+	unordered_map<ChunkCoord, unique_ptr<CChunkColumn>, ChunkCoordHasher> m_chunks;
 
-	void _BuildFlatColumn(CChunkColumn& column);
-	void _UpdateSectionRenderEntry(const SectionCoord& coord, const ChunkMeshData& meshData);
+	vector<ChunkCoord> m_pendingCreate;
+	vector<ChunkCoord> m_pendingRemove;
+	unordered_set<ChunkCoord> m_desiredSet;
 
-private:
-	unordered_map<ChunkCoord, unique_ptr<CChunkColumn>, ChunkCoordHasher> m_columns;
-	unordered_map<SectionCoord, ChunkRenderEntry, SectionCoordHasher> m_renderEntries;
+	// Generator
 
-	
+	//vector<>
+	//
+
 	int m_iStreamRaius = 8;
 };
 
