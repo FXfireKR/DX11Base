@@ -2,7 +2,6 @@
 #include "CChunkMesherSystem.h"
 #include "CScene.h"
 #include "CObject.h"
-#include "CChunkComponent.h"
 #include "CChunkMeshBuilder.h"
 #include "CRenderWorld.h"
 #include "CMeshRenderer.h"

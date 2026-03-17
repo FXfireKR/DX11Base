@@ -28,7 +28,7 @@ public:
 	CChunkWorld() = default;
 	~CChunkWorld() = default;
 
-	void Initialize(CScene& scene, CPipeline& pipeline, CMaterial& material);
+	void Initialize(CScene& scene, CPipeline* pipeline, CMaterial* material);
 	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
 
 	bool PopDirty(SectionCoord& outSectionCoord);

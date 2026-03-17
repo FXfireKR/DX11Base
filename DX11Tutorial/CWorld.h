@@ -21,8 +21,8 @@ public:
 	CWorld();
 	~CWorld() = default;
 
-	void Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chunkMaterial);
-	void Update(float fDelta);
+	void Initialize(CScene& scene, CPipeline* chunkPipeline, CMaterial* chunkMaterial);
+	void Update(float fDelta, XMFLOAT3 pos);
 	void LateUpdate(CScene& scene);
 
 	bool RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const;

@@ -31,6 +31,7 @@ void CTransform::Update(float fDelta)
 
 void CTransform::LateUpdate(float fDelta)
 {
+	
 }
 
 void CTransform::BuildWorldMatrix()

@@ -8,11 +8,11 @@
 
 using namespace ChunkMath;
 
-void CChunkWorld::Initialize(CScene& scene, CPipeline& pipeline, CMaterial& material)
+void CChunkWorld::Initialize(CScene& scene, CPipeline* pipeline, CMaterial* material)
 {
 	m_pScene = &scene;
-	m_pPipeline = &pipeline;
-	m_pMaterial = &material;
+	m_pPipeline = pipeline;
+	m_pMaterial = material;
 }
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
@@ -21,8 +21,9 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
 
 	// 비용이 커지면 vector 대신 다른거
-	vector<uint64_t> wanted;
-	wanted.reserve((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
+	size_t newCap = static_cast<size_t>((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
+	if (m_tmpWanted.capacity() < newCap)
+		m_tmpWanted.reserve(newCap);
 
 	for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
 	{
@@ -32,7 +33,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 			const int cz = centerCz + dz;
 			const uint64_t key = MakeColumnKey(cx, cz);
 
-			wanted.push_back(key);
+			m_tmpWanted.push_back(key);
 
 			if (m_columns.find(key) == m_columns.end())
 				_LoadColumn(cx, cz);
@@ -41,7 +42,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 	for (auto it = m_columns.begin(); it != m_columns.end();)
 	{
-		const bool keep = std::find(wanted.begin(), wanted.end(), it->first) != wanted.end();
+		const bool keep = std::find(m_tmpWanted.begin(), m_tmpWanted.end(), it->first) != m_tmpWanted.end();
 		if (false == keep) 
 		{
 			const ChunkCoord coord = it->second.GetCoord();
@@ -53,6 +54,8 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 			++it;
 		}
 	}
+
+	m_tmpWanted.clear();
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
@@ -125,7 +128,7 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 
 	if (ly == 0 && sy > 0)
 		_MarkDirty(cx, sy - 1, cz);
-	else if (ly == CHUNK_SECTION_COUNT - 1 && sy < CHUNK_SECTION_COUNT - 1)
+	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
 		_MarkDirty(cx, sy + 1, cz);
 
 	if (lz == 0)

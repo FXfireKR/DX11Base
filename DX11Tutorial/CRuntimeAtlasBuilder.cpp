@@ -12,6 +12,11 @@ namespace
     }
 }
 
+CRuntimeAtlasBuilder::CRuntimeAtlasBuilder()
+{
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+}
+
 void CRuntimeAtlasBuilder::Clear()
 {
     m_vecBuildItems.clear();
@@ -442,11 +447,12 @@ bool CRuntimeAtlasBuilder::_CreateAtlasResource(ID3D11Device* pDevice, const vec
     D3D11_TEXTURE2D_DESC desc = {};
     desc.Width = atlasWidth;
     desc.Height = atlasHeight;
-    desc.MipLevels = 1;
     desc.ArraySize = 1;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     desc.SampleDesc.Count = 1;
     desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.MipLevels = 1;
+    desc.MiscFlags = 0;
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
     D3D11_SUBRESOURCE_DATA initData = {};
@@ -458,8 +464,14 @@ bool CRuntimeAtlasBuilder::_CreateAtlasResource(ID3D11Device* pDevice, const vec
     if (FAILED(hr))
         return false;
 
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
     ComPtr<ID3D11ShaderResourceView> pShaderResourceView;
-    hr = pDevice->CreateShaderResourceView(pTexture.Get(), nullptr, pShaderResourceView.GetAddressOf());
+    hr = pDevice->CreateShaderResourceView(pTexture.Get(), &srvDesc, pShaderResourceView.GetAddressOf());
     if (FAILED(hr))
         return false;
 
@@ -477,31 +489,52 @@ bool CRuntimeAtlasBuilder::_LoadImageRGBA8(const char* filePath, vector<uint8_t>
 
     const wstring wPath = UTF8ToWstring(filePath);
 
-    ScratchImage scratchImage;
-    HRESULT hr = LoadFromWICFile(wPath.c_str(), WIC_FLAGS_FORCE_SRGB, nullptr, scratchImage);
-
-    if (FAILED(hr))
+    ComPtr<IWICImagingFactory> factory;
+	HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(factory.GetAddressOf()));
+	if (FAILED(hr)) 
         return false;
 
-    const Image* pImage = scratchImage.GetImage(0, 0, 0);
-    if (pImage == nullptr || pImage->pixels == nullptr)
+	ComPtr<IWICBitmapDecoder> decoder;
+	hr = factory->CreateDecoderFromFilename(wPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.GetAddressOf());
+	if (FAILED(hr)) 
         return false;
 
-    outWidth = static_cast<uint32_t>(pImage->width);
-    outHeight = static_cast<uint32_t>(pImage->height);
-    if (outWidth == 0 || outHeight == 0)
+	ComPtr<IWICBitmapFrameDecode> frame;
+	hr = decoder->GetFrame(0, frame.GetAddressOf());
+	if (FAILED(hr)) 
         return false;
 
-    outPixels.resize(static_cast<size_t>(outWidth) * outHeight * 4);
+	UINT w = 0, h = 0;
+	hr = frame->GetSize(&w, &h);
+	if (FAILED(hr) || w == 0 || h == 0) 
+        return false;
 
-    for (uint32_t y = 0; y < outHeight; ++y)
-    {
-        const uint8_t* pSrcRow = pImage->pixels + (static_cast<size_t>(y) * pImage->rowPitch);
-        uint8_t* pDstRow = outPixels.data() + (static_cast<size_t>(y) * outWidth * 4);
-        memcpy(pDstRow, pSrcRow, static_cast<size_t>(outWidth) * 4);
-    }
+	ComPtr<IWICFormatConverter> conv;
+	hr = factory->CreateFormatConverter(conv.GetAddressOf());
+	if (FAILED(hr)) 
+        return false;
 
-    return true;
+	hr = conv->Initialize(
+		frame.Get(),
+		GUID_WICPixelFormat32bppRGBA,   // RGBA32 강제
+		WICBitmapDitherTypeNone,
+		nullptr,
+		0.0,
+		WICBitmapPaletteTypeCustom);
+	if (FAILED(hr)) 
+        return false;
+
+	const uint32_t stride = (uint32_t)w * 4u;
+	const uint32_t size = stride * (uint32_t)h;
+
+    outPixels.resize(size);
+	hr = conv->CopyPixels(nullptr, stride, size, outPixels.data());
+	if (FAILED(hr)) 
+        return false;
+
+    outWidth = (uint32_t)w;
+    outHeight = (uint32_t)h;
+	return true;
 }
 
 void CRuntimeAtlasBuilder::_CopyPixelRGBA(const vector<uint8_t>& src, uint32_t srcWidth, uint32_t sx, uint32_t sy, vector<uint8_t>& dst, uint32_t dstWidth, uint32_t dx, uint32_t dy)

@@ -14,6 +14,6 @@ private:
 	static constexpr uint32_t MAX_TEXTURE_SLOT = 8;
 	static constexpr uint32_t MAX_SAMPLER_SLOT = 4;
 
-	array<ID3D11ShaderResourceView*, MAX_TEXTURE_SLOT> m_arrayTexture;
-	array<ID3D11SamplerState*, MAX_SAMPLER_SLOT> m_arraySamplerState;
+	array<ComPtr<ID3D11ShaderResourceView>, MAX_TEXTURE_SLOT> m_arrayTexture;
+	array<ComPtr<ID3D11SamplerState>, MAX_SAMPLER_SLOT> m_arraySamplerState;
 };

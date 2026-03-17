@@ -35,6 +35,8 @@ private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
 
+	CObject* m_pPlayer = nullptr;
+
 	CObject* m_pHighlightObject = nullptr;
 
 	CWorld m_VoxelWorld;

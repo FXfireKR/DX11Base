@@ -12,7 +12,7 @@ struct VS_OUTPUT
     float4 position : SV_POSITION;
     float3 normal : NORAML;
     float2 uv : TEXCOORD;
-    float color : COLOR;
+    float4 color : COLOR;
 };
 
 cbuffer CBFrame : register(b0)
@@ -53,7 +53,6 @@ float4 PS(VS_OUTPUT input) : SV_Target
 {
     float2 uv = input.uv;
     float4 color = texture0.Sample(sampler0, uv);
-    color *= input.color;
     return color;
     //return float4(input.uv.x, input.uv.y, 0, 1);
     

@@ -15,7 +15,7 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
     {
         for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
         {
-            for (int lx = 0; lx < CHUNK_SIZE_Z; ++lx)
+            for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
             {
                 const BlockCell cell = section.GetBlock(lx, ly, lz);
                 if (cell.IsAir())
@@ -25,14 +25,15 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
                 const int wy = baseWy + ly;
                 const int wz = baseWz + lz;
     
-                _AppendBlockQuads(world, wx, wy, wz, cell, outMesh);
+                _AppendBlockQuads(world, wx, wy, wz, lx, ly, lz, cell, outMesh);
             }
         }
     }    
     return true;
 }
 
-bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, ChunkMeshData& outMesh) const
+bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, int lx, int ly, int lz
+    , const BlockCell& cell, ChunkMeshData& outMesh) const
 {
     const BakedModel* pBakedModel = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
     if (nullptr == pBakedModel)
@@ -46,7 +47,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
                 continue;
         }
 
-        _AppendQuad(quad, wx, wy, wz, outMesh);
+        _AppendQuad(quad, lx, ly, lz, outMesh);
     }
 
     return true;
@@ -57,19 +58,19 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     XMINT3 n{};
     switch (dir)
     {
-        case FACE_DIR::PX: n = { 1, 0, 0 }; break;
-        case FACE_DIR::NX: n = { -1, 0, 0 }; break;
-        case FACE_DIR::PY: n = { 0, 1, 0 }; break;
-        case FACE_DIR::NY: n = { 0, -1, 0 }; break;
-        case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
-        case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
-        default: break;
+    case FACE_DIR::PX: n = { 1, 0, 0 }; break;
+    case FACE_DIR::NX: n = { -1, 0, 0 }; break;
+    case FACE_DIR::PY: n = { 0, 1, 0 }; break;
+    case FACE_DIR::NY: n = { 0, -1, 0 }; break;
+    case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
+    case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
+    default: break;
     }
 
     return world.IsSolid(world.GetBlock(wx + n.x, wy + n.y, wz + n.z));
 }
 
-bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int wx, int wy, int wz, ChunkMeshData& outMesh) const
+bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int lz, ChunkMeshData& outMesh) const
 {
     AtlasRegion region{};
 
@@ -82,12 +83,12 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int wx, int wy, int w
     for (int i = 0; i < 4; ++i)
     {
         ChunkMeshVertex v{};
-        v.position.x = quad.verts[i].pos.x + static_cast<float>(wx);
-        v.position.y = quad.verts[i].pos.y + static_cast<float>(wy);
-        v.position.z = quad.verts[i].pos.z + static_cast<float>(wz);
+        v.position.x = quad.verts[i].pos.x + static_cast<float>(lx);
+        v.position.y = quad.verts[i].pos.y + static_cast<float>(ly);
+        v.position.z = quad.verts[i].pos.z + static_cast<float>(lz);
 
         v.normal = quad.verts[i].normal;
-        //v.color = quad.verts[i].color;
+        v.color = {1.f, 1.f, 1.f, 1.f};
         v.uv = _RemapAtlasUV(region, quad.verts[i].uv);
 
         outMesh.vertices.push_back(v);

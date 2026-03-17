@@ -5,7 +5,7 @@
 class CRuntimeAtlasBuilder
 {
 public:
-	CRuntimeAtlasBuilder() = default;
+	CRuntimeAtlasBuilder();
 	~CRuntimeAtlasBuilder() = default;
 
 	void Clear();

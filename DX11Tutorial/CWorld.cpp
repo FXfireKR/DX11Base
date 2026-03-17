@@ -8,41 +8,14 @@ CWorld::CWorld()
 {
 }
 
-void CWorld::Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chunkMaterial)
+void CWorld::Initialize(CScene& scene, CPipeline* chunkPipeline, CMaterial* chunkMaterial)
 {
     m_pChunkWorld->Initialize(scene, chunkPipeline, chunkMaterial);
-
-	//// Testing Code
-	//{
-	//	BlockPropHashMap props;
-	//	//props[fnv1a_64("snowy")] = fnv1a_64("false");
-
-	//	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
-
-	//	STATE_INDEX sidx;
-	//	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-	//	assert(ok);
-
-	//	// 테스트용 평면 생성
-	//	for (int z = -64; z < 64; ++z)
-	//	{
-	//		for (int x = -64; x < 64; ++x)
-	//		{
-	//			m_pChunkWorld->SetBlock(x, 0, z, { blockID, sidx }); // y=0 바닥
-	//		}
-	//	}
-
-	//	// 테스트용 기둥
-	//	for (int y = 1; y < 5; ++y)
-	//	{
-	//		m_pChunkWorld->SetBlock(0, y, 0, { blockID, sidx });
-	//	}
-	//}
 }
 
-void CWorld::Update(float fDelta)
+void CWorld::Update(float fDelta, XMFLOAT3 pos)
 {
-	m_pChunkWorld->UpdateStreaming({ 0.f, 0.f, 0.f });
+	m_pChunkWorld->UpdateStreaming(pos);
 }
 
 void CWorld::LateUpdate(CScene& scene)

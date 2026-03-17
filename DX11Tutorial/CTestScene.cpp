@@ -15,30 +15,30 @@ void CTestScene::Awake()
 {
 	_CreateWorldRender();
 
-	m_VoxelWorld.Initialize(*this, *m_pChunkPipeline, *m_pChunkMaterial);
+	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial);
 
-	auto* player = AddAndGetObject("Player");
-	auto* tr = player->AddComponent<CTransform>();
+	m_pPlayer = AddAndGetObject("Player");
+	auto* tr = m_pPlayer->AddComponent<CTransform>();
 	tr->Init();
-	tr->SetLocalTrans({ 0, 5.f, 0 });
+	tr->SetLocalTrans({ 0, 105.f, 0 });
 	
-	auto* ctrl = player->AddComponent<CPlayerController>();  
+	auto* ctrl = m_pPlayer->AddComponent<CPlayerController>();
 	ctrl->Init();
 
-	auto* motor = player->AddComponent<CCharacterMotor>();
+	auto* motor = m_pPlayer->AddComponent<CCharacterMotor>();
 	motor->Init();
 	motor->SetWorld(&m_VoxelWorld);
 
-	auto* inventory = player->AddComponent<CInventoryComponent>();
+	auto* inventory = m_pPlayer->AddComponent<CInventoryComponent>();
 	inventory->Init();
 
-	auto* interactor = player->AddComponent<CBlockInteractor>();
+	auto* interactor = m_pPlayer->AddComponent<CBlockInteractor>();
 	interactor->Init();
 	interactor->SetWorld(&m_VoxelWorld);
 
 	// 카메라 피벗(자식 오브젝트)
 	auto* pivot = AddAndGetObject("PlayerCameraPivot");
-	pivot->SetParentID(player->GetID());
+	pivot->SetParentID(m_pPlayer->GetID());
 
 	auto* pivotTransform = pivot->AddComponent<CTransform>();
 	pivotTransform->Init();
@@ -78,7 +78,9 @@ void CTestScene::Update(float fDelta)
 	ImGui::Text("Rotate Z : %.3f", z);
 #endif // IMGUI_ACTIVATE
 
-	m_VoxelWorld.Update(fDelta);
+	CTransform* tr = m_pPlayer->GetComponent<CTransform>();
+	tr->BuildWorldMatrix();
+	m_VoxelWorld.Update(fDelta, tr->GetWorldTrans());
 }
 
 void CTestScene::LateUpdate(float fDelta)
@@ -124,6 +126,8 @@ void CTestScene::BuildRenderFrame()
 
 		if (!render || !transform) return;
 		if (!render->GetMesh()) return;
+
+		transform->BuildWorldMatrix();
 
 		RenderItem item{};
 		item.pMesh = render->GetMesh();
