@@ -12,36 +12,37 @@ void CWorld::Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chun
 {
     m_pChunkWorld->Initialize(scene, chunkPipeline, chunkMaterial);
 
-	// Testing Code
-	{
-		BlockPropHashMap props;
-		//props[fnv1a_64("snowy")] = fnv1a_64("false");
+	//// Testing Code
+	//{
+	//	BlockPropHashMap props;
+	//	//props[fnv1a_64("snowy")] = fnv1a_64("false");
 
-		BLOCK_ID blockID = fnv1a_64("minecraft:stone");
+	//	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
 
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
+	//	STATE_INDEX sidx;
+	//	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+	//	assert(ok);
 
-		// 테스트용 평면 생성
-		for (int z = -64; z < 64; ++z)
-		{
-			for (int x = -64; x < 64; ++x)
-			{
-				m_pChunkWorld->SetBlock(x, 0, z, { blockID, sidx }); // y=0 바닥
-			}
-		}
+	//	// 테스트용 평면 생성
+	//	for (int z = -64; z < 64; ++z)
+	//	{
+	//		for (int x = -64; x < 64; ++x)
+	//		{
+	//			m_pChunkWorld->SetBlock(x, 0, z, { blockID, sidx }); // y=0 바닥
+	//		}
+	//	}
 
-		// 테스트용 기둥
-		for (int y = 1; y < 5; ++y)
-		{
-			m_pChunkWorld->SetBlock(0, y, 0, { blockID, sidx });
-		}
-	}
+	//	// 테스트용 기둥
+	//	for (int y = 1; y < 5; ++y)
+	//	{
+	//		m_pChunkWorld->SetBlock(0, y, 0, { blockID, sidx });
+	//	}
+	//}
 }
 
 void CWorld::Update(float fDelta)
 {
+	m_pChunkWorld->UpdateStreaming();
 }
 
 void CWorld::LateUpdate()
@@ -55,7 +56,7 @@ bool CWorld::RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, fl
 
 bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell)
 {
-	const BlockCell cur = m_pChunkWorld->GetBlockCell(wx, wy, wz);
+	const BlockCell cur = m_pChunkWorld->GetBlock(wx, wy, wz);
 	if (!cur.IsAir()) return false;
 
 	m_pChunkWorld->SetBlock(wx, wy, wz, cell);
@@ -64,7 +65,7 @@ bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell)
 
 bool CWorld::TryBreakBlock(int wx, int wy, int wz)
 {
-	const BlockCell cur = m_pChunkWorld->GetBlockCell(wx, wy, wz);
+	const BlockCell cur = m_pChunkWorld->GetBlock(wx, wy, wz);
 	if (cur.IsAir()) return false;
 
 	m_pChunkWorld->SetBlock(wx, wy, wz, BlockCell{ 0, 0 });
@@ -73,7 +74,7 @@ bool CWorld::TryBreakBlock(int wx, int wy, int wz)
 
 BlockCell CWorld::GetBlockCell(int wx, int wy, int wz) const
 {
-	return m_pChunkWorld->GetBlockCell(wx, wy, wz);
+	return m_pChunkWorld->GetBlock(wx, wy, wz);
 }
 
 bool CWorld::IsSolidBlockAt(int wx, int wy, int wz) const

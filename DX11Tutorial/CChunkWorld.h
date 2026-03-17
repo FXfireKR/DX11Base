@@ -33,6 +33,7 @@ public:
 
 	bool PopDirty(SectionCoord& outSectionCoord);
 
+	// IBlockAccessor
 	BlockCell GetBlock(int wx, int wy, int wz) const override;
 	bool IsSolid(const BlockCell& cell) const override;
 

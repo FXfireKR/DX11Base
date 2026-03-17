@@ -21,7 +21,7 @@ public:
 	CWorld();
 	~CWorld() = default;
 
-	void Initialize(CScene& scene, CPipeline* pChunkPipeline, CMaterial* pChunkMaterial);
+	void Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chunkMaterial);
 	void Update(float fDelta);
 	void LateUpdate();
 

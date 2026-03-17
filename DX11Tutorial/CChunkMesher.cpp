@@ -7,7 +7,7 @@
 
 using namespace ChunkMath;
 
-static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CHUNK_VERTEX>& v, vector<uint32_t>& i)
+static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<ChunkMeshVertex>& v, vector<uint32_t>& i)
 {
 	const XMFLOAT3 n = FaceNormal(eDir);
 	XMFLOAT3 p[4];
@@ -67,10 +67,10 @@ static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CH
 	const uint32_t base = (uint32_t)v.size();
 
 	// TODO: UV좌표는 나중에 atlas 방식으로 하면 변경해야함.
-	v.push_back({ p[0], {uv.u0,uv.v1}, n });
-	v.push_back({ p[1], {uv.u0,uv.v0}, n });
-	v.push_back({ p[2], {uv.u1,uv.v0}, n });
-	v.push_back({ p[3], {uv.u1,uv.v1}, n });
+	v.push_back({ p[0], n, {uv.u0, uv.v1}, {1,1,1,1} });
+	v.push_back({ p[1], n, {uv.u0, uv.v0}, {1,1,1,1} });
+	v.push_back({ p[2], n, {uv.u1, uv.v0}, {1,1,1,1} });
+	v.push_back({ p[3], n, {uv.u1, uv.v1}, {1,1,1,1} });
 
 	i.push_back(base + 0);
 	i.push_back(base + 1);
@@ -82,23 +82,23 @@ static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<CH
 
 static bool IsAirWorld(const CChunkWorld& world, int x, int y, int z)
 {
-	return world.GetBlock(x, y, z);
+	return world.GetBlock(x, y, z).IsAir();
 }
 
-static bool IsAirNeighbor(const CChunkWorld& world, const ChunkSection& section, int cx, int sy, int cz, int x, int y, int z)
+static bool IsAirNeighbor(const CChunkWorld& world, const CChunkSection& section, int cx, int sy, int cz, int x, int y, int z)
 {
 	if (x >= 0 && x < CHUNK_SIZE_X &&
 		y >= 0 && y < CHUNK_SECTION_SIZE &&
 		z >= 0 && z < CHUNK_SIZE_Z)
 	{
-		return section.blocks[IndexSection(x, y, z)].blockID == 0;
+		return section.GetBlock(x, y, z).blockID == 0;
 	}
 
 	const int wx = cx * CHUNK_SIZE_X + x;
 	const int wy = sy * CHUNK_SECTION_SIZE + y;
 	const int wz = cz * CHUNK_SIZE_Z + z;
 
-	return world.GetBlock(wx, wy, wz) == 0;
+	return world.GetBlock(wx, wy, wz).blockID == 0;
 }
 
 static bool IsFaceOccluded(const CChunkWorld& world, int wx, int wy, int wz, uint8_t cullDir)
@@ -114,7 +114,7 @@ static bool IsFaceOccluded(const CChunkWorld& world, int wx, int wy, int wz, uin
 		default: return false;
 	}
 
-	return world.GetBlock(wx, wy, wz) != 0;
+	return world.GetBlock(wx, wy, wz).blockID != 0;
 }
 
 void CChunkMesher::AppendBakedQuad(IN const BakedQuad& quad, const CRuntimeAtlas& atlas, const XMFLOAT3& blockOffset, OUT vector<CHUNK_VERTEX>& verts, vector<uint32_t>& indices)

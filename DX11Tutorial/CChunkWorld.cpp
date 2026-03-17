@@ -247,17 +247,29 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 
 void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
 {
-	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
-	{
-		CChunkSection* pSection = column.EnsureSection(sy);
+	const ChunkCoord coord = column.GetCoord();
+	CChunkSection* pSection = column.EnsureSection(0);
 
-		// TODO Make Plane
-	}
+	if (nullptr == pSection)
+		return;
+
+	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:stone");
+	BlockPropHashMap props;
+	STATE_INDEX sidx{};
+	bool ok = BlockDB.EncodeStateIndex(stone, props, sidx);
+	assert(ok);
+
+	const int baseWx = coord.x * CHUNK_SIZE_X;
+	const int baseWz = coord.z * CHUNK_SIZE_Z;
+
+	for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
+		for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
+			pSection->SetBlock(lx, 0, lz, { stone, sidx });
 }
 
 void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz)
 {
-	if (!section.HasRenderObjectID())
+	if (section.HasRenderObjectID())
 		return;
 
 	string name = _MakeSectionName(cx, sy, cz);
@@ -295,6 +307,12 @@ void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
 		return;
 
 	section->MarkDirty();
+
+	if (section->IsBuildQueued())
+		return;
+
+	section->SetBuildQueued(true);
+	m_vecDirtyQueue.push_back({ cx, sy, cz });
 }
 
 bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& outSy, int& outCz, int& outLx, int& outLy, int& outLz) const
