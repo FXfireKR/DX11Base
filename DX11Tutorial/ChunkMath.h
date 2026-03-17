@@ -46,4 +46,10 @@ namespace ChunkMath
 			&& (0 <= y && y < CHUNK_SECTION_SIZE)
 			&& (0 <= z && z < CHUNK_SIZE_Z);
 	}
+
+	inline uint64_t MakeColumnKey(int x, int z)
+	{
+		return (uint64_t)(uint32_t)x | ((uint64_t)(uint32_t)z << 32);
+	}
+
 }

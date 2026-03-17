@@ -16,9 +16,3 @@ const CChunkSection* CChunkColumn::GetSection(int sy) const
 
 	return m_sections[sy].get();
 }
-
-CChunkSection* CChunkColumn::EnsureSection(int sy)
-{
-	// TODO: What the fuck ENSURE?
-	return nullptr;
-}

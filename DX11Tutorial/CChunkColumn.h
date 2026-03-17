@@ -10,12 +10,8 @@ public:
 	CChunkSection* GetSection(int sy);
 	const CChunkSection* GetSection(int sy) const;
 
-	CChunkSection* EnsureSection(int sy);
-
 public:
 	inline const ChunkCoord& GetCoord() const { return m_coord; }
-	
-
 
 private:
 	array<unique_ptr<CChunkSection>, CHUNK_SECTION_COUNT> m_sections;
