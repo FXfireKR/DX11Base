@@ -1,20 +1,29 @@
 ﻿CChunkWorld
   └─ dirty queue / section lookup / render object lookup 제공
+  - 스트리밍 로드/언로드
+  - dirty queue
+  - section lookup
+  - render object create/destroy
 
 CChunkMesherSystem
   └─ dirty queue 소비
   └─ CChunkMeshBuilder 호출
   └─ CMeshManager 업로드
   └─ MeshRenderer.SetMesh
+  - dirty queue 소비
+  - builder 호출
+  - dynamic mesh 생성/갱신
+  - MeshRenderer.SetMesh()
 
 CChunkMeshBuilder
   └─ section + world 조회로 ChunkMeshData 생성
   └─ face culling
   └─ baked model quad 전개
   └─ atlas uv remap
-
-(삭제 또는 cpp 내부 유틸)
-CChunkMesher
+  - section 데이터 -> ChunkMeshData 생성
+  - face culling
+  - baked quad append
+  - atlas uv remap
 
 static void AddFaceQuad(int x, int y, int z, FACE_DIR eDir, UVRect uv, vector<ChunkMeshVertex>& v, vector<uint32_t>& i)
 {

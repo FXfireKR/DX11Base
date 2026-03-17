@@ -7,9 +7,30 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
 {
     outMesh.Clear();
 
-    
+    const int baseWx = cx * CHUNK_SIZE_X;
+    const int baseWy = sy * CHUNK_SECTION_SIZE;
+    const int baseWz = cz * CHUNK_SIZE_Z;
 
-    return false;
+    for (int ly = 0; ly < CHUNK_SECTION_SIZE; ++ly)
+    {
+        for (int lz = 0; lz < CHUNK_SECTION_SIZE; ++lz)
+        {
+            for (int lx = 0; lx < CHUNK_SECTION_SIZE; ++lx)
+            {
+                const BlockCell cell = section.GetBlock(lx, ly, lz);
+                if (cell.IsAir())
+                    continue;
+    
+                const int wx = baseWx + lx;
+                const int wy = baseWy + ly;
+                const int wz = baseWz + lz;
+    
+                _AppendBlockQuads(world, wx, wy, wz, cell, outMesh);
+            }
+        }
+    }
+    
+    return true;
 }
 
 bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, ChunkMeshData& outMesh) const
@@ -26,16 +47,16 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
             FACE_DIR eDir = static_cast<FACE_DIR>(quad.cullFaceDir);
             switch (eDir)
             {
-                case FACE_DIR::PX: n = { 0, -1, 0 }; break;
-                case FACE_DIR::NX: n = { 0, 1, 0 }; break;
-                case FACE_DIR::PY: n = { 0, 0, -1 }; break;
-                case FACE_DIR::NY: n = { 0, 0, 1 }; break;
-                case FACE_DIR::PZ: n = { -1, 0, 0 }; break;
-                case FACE_DIR::NZ: n = { 1, 0, 0 }; break;
+                case FACE_DIR::PX: n = { 1, 0, 0 }; break;
+                case FACE_DIR::NX: n = { -1, 0, 0 }; break;
+                case FACE_DIR::PY: n = { 0, 1, 0 }; break;
+                case FACE_DIR::NY: n = { 0, -1, 0 }; break;
+                case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
+                case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
                 default: break;
             }
 
-            if (world.IsSolidBlock(wx + n.x, wy + n.y, wz + n.z))
+            if (world.IsSolid(world.GetBlock(wx + n.x, wy + n.y, wz + n.z)))
                 continue;
         }
 

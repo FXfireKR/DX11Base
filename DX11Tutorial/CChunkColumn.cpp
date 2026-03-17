@@ -8,7 +8,7 @@ void CChunkColumn::Initialize(int cx, int cz)
 
 CChunkSection* CChunkColumn::GetSection(int sy)
 {
-	if (sy < 0 || sy >= CHUNK_SECTION_SIZE)
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
 		return nullptr;
 
 	return m_sections[sy].get();
@@ -16,7 +16,7 @@ CChunkSection* CChunkColumn::GetSection(int sy)
 
 const CChunkSection* CChunkColumn::GetSection(int sy) const
 {
-	if (sy < 0 || sy >= CHUNK_SECTION_SIZE)
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
 		return nullptr;
 
 	return m_sections[sy].get();
@@ -24,7 +24,7 @@ const CChunkSection* CChunkColumn::GetSection(int sy) const
 
 CChunkSection* CChunkColumn::EnsureSection(int sy)
 {
-	if (sy < 0 || sy >= CHUNK_SECTION_SIZE)
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
 		return nullptr;
 
 	if (!m_sections[sy])
