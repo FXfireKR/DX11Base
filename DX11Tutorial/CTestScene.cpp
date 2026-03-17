@@ -16,7 +16,7 @@ void CTestScene::Awake()
 	_CreateTextureAtlas();
 	_CreateWorldRender();
 
-	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial);
+	m_VoxelWorld.Initialize(*this, *m_pChunkPipeline, *m_pChunkMaterial);
 
 	auto* player = AddAndGetObject("Player");
 	auto* tr = player->AddComponent<CTransform>();

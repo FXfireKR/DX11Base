@@ -169,7 +169,6 @@
     <ClInclude Include="CChunkColumn.h" />
     <ClInclude Include="CChunkComponent.h" />
     <ClInclude Include="CChunkMeshBuilder.h" />
-    <ClInclude Include="CChunkMesher.h" />
     <ClInclude Include="CChunkMesherSystem.h" />
     <ClInclude Include="CChunkSection.h" />
     <ClInclude Include="CChunkWorld.h" />
@@ -278,7 +277,6 @@
     <ClCompile Include="CChunkColumn.cpp" />
     <ClCompile Include="CChunkComponent.cpp" />
     <ClCompile Include="CChunkMeshBuilder.cpp" />
-    <ClCompile Include="CChunkMesher.cpp" />
     <ClCompile Include="CChunkMesherSystem.cpp" />
     <ClCompile Include="CChunkSection.cpp" />
     <ClCompile Include="CChunkWorld.cpp" />
@@ -396,6 +394,9 @@
   <ItemGroup>
     <Image Include="DX11Tutorial.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ChunkTemplate.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

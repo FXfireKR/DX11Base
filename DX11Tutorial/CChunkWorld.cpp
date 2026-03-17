@@ -112,7 +112,8 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 		return false;
 
 	const BlockCell oldCell = pSection->GetBlock(lx, ly, lz);
-	if (oldCell == newCell) return;
+	if (oldCell == newCell) 
+		return false;
 
 	pSection->SetBlock(lx, ly, lz, newCell);
 	_MarkDirty(cx, sy, cz);

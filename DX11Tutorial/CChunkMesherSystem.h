@@ -6,6 +6,5 @@ class CChunkWorld;
 class CChunkMesherSystem
 {
 public:
-	//static void RebuildDirtyChunks(CScene& scene);
 	static void RebuildDirtyChunks(CScene& scene, CChunkWorld& world);
 };
