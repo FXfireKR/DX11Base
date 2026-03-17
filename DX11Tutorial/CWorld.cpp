@@ -45,8 +45,9 @@ void CWorld::Update(float fDelta)
 	m_pChunkWorld->UpdateStreaming({ 0.f, 0.f, 0.f });
 }
 
-void CWorld::LateUpdate()
+void CWorld::LateUpdate(CScene& scene)
 {
+	CChunkMesherSystem::RebuildDirtyChunks(scene, *m_pChunkWorld);
 }
 
 bool CWorld::RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const
@@ -119,7 +120,8 @@ bool CWorld::CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtent
 		{
 			for (int x = iMin.x; x <= iMax.x; ++x)
 			{
-				if (IsSolidBlockAt(x, y, z)) return true;
+				if (IsSolidBlockAt(x, y, z)) 
+					return true;
 			}
 		}
 	}

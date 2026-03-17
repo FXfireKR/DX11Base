@@ -85,7 +85,7 @@ void CTestScene::LateUpdate(float fDelta)
 {
 	CScene::LateUpdate(fDelta);
 
-	CChunkMesherSystem::RebuildDirtyChunks(*this, m_VoxelWorld.GetChunkWorld());
+	m_VoxelWorld.LateUpdate(*this);
 
 	//// DDA-Raycast
 	//if (nullptr != m_pCurrentCamera) 

@@ -23,7 +23,7 @@ public:
 
 	void Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chunkMaterial);
 	void Update(float fDelta);
-	void LateUpdate();
+	void LateUpdate(CScene& scene);
 
 	bool RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const;
 	bool TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell);

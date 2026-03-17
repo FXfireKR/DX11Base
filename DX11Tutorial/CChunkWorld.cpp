@@ -201,6 +201,7 @@ const CChunkColumn* CChunkWorld::_FindColumn(int cx, int cz) const
 CChunkColumn& CChunkWorld::_GetOrCreateColumn(int cx, int cz)
 {
 	uint64_t key = MakeColumnKey(cx, cz);
+
 	auto it = m_columns.find(key);
 	if (it != m_columns.end())
 		return it->second;
@@ -297,20 +298,16 @@ void CChunkWorld::_DestoryRenderObject(CChunkSection& section)
 
 void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
 {
-	auto* column = _FindColumn(cx, cz);
-	if (nullptr == column)
+	CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz);
+	if (nullptr == pSection)
 		return;
 
-	auto* section = column->GetSection(sy);
-	if (nullptr == section)
+	pSection->MarkDirty();
+
+	if (pSection->IsBuildQueued())
 		return;
 
-	section->MarkDirty();
-
-	if (section->IsBuildQueued())
-		return;
-
-	section->SetBuildQueued(true);
+	pSection->SetBuildQueued(true);
 	m_vecDirtyQueue.push_back({ cx, sy, cz });
 }
 

@@ -28,8 +28,7 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
                 _AppendBlockQuads(world, wx, wy, wz, cell, outMesh);
             }
         }
-    }
-    
+    }    
     return true;
 }
 
