@@ -8,7 +8,6 @@ public:
 	virtual ~IBlockAccessor() = default;
 
 	virtual BlockCell GetBlock(int wx, int wy, int wz) const PURE;
-	virtual BlockCell GetBlock(DirectX::XMINT3 w) const PURE;
 	virtual bool IsSolid(const BlockCell& cell) const PURE;
 };
 

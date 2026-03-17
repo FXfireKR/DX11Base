@@ -8,14 +8,51 @@
 
 using namespace ChunkMath;
 
-void CChunkWorld::Initialize(CScene& scene, CPipeline* pPipeline, CMaterial* pMaterial)
+void CChunkWorld::Initialize(CScene& scene, CPipeline& pipeline, CMaterial& material)
 {
-
+	m_pScene = &scene;
+	m_pPipeline = &pipeline;
+	m_pMaterial = &material;
 }
 
-void CChunkWorld::UpdateStreaming(int centerWx, int centerWz)
+void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 {
+	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
+	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
 
+	// 비용이 커지면 vector 대신 다른거
+	vector<uint64_t> wanted;
+	wanted.reserve((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
+
+	for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
+	{
+		for (int dx = -m_iStreamRadius; dx <= m_iStreamRadius; ++dx)
+		{
+			const int cx = centerCx + dx;
+			const int cz = centerCz + dz;
+			const uint64_t key = MakeColumnKey(cx, cz);
+
+			wanted.push_back(key);
+
+			if (m_columns.find(key) == m_columns.end())
+				_LoadColumn(cx, cz);
+		}
+	}
+
+	for (auto it = m_columns.begin(); it != m_columns.end();)
+	{
+		const bool keep = std::find(wanted.begin(), wanted.end(), it->first) != wanted.end();
+		if (false == keep) 
+		{
+			const ChunkCoord coord = it->second.GetCoord();
+			++it;
+			_UnloadColumn(coord.x, coord.z);
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
@@ -25,6 +62,76 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 
 	outSectionCoord = m_vecDirtyQueue.back();
 	m_vecDirtyQueue.pop_back();
+	return true;
+}
+
+BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
+{
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return { 0, 0 };
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return { 0, 0 };
+
+	const CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return { 0, 0 };
+
+	const CChunkSection* pSection = pColumn->GetSection(sy);
+	if (nullptr == pSection)
+		return { 0, 0 };
+
+	return pSection->GetBlock(lx, ly, lz);
+}
+
+bool CChunkWorld::IsSolid(const BlockCell& cell) const
+{
+	return !cell.IsAir();
+}
+
+bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
+{
+	if (wy < 0 || wy >= CHUNK_SIZE_Y) 
+		return false;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return false;
+
+	CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return false;
+
+	CChunkSection* pSection = pColumn->GetSection(sy);
+	if (nullptr == pSection)
+		return false;
+
+	const BlockCell oldCell = pSection->GetBlock(lx, ly, lz);
+	if (oldCell == newCell) return;
+
+	pSection->SetBlock(lx, ly, lz, newCell);
+	_MarkDirty(cx, sy, cz);
+
+	if (lx == 0)
+		_MarkDirty(cx - 1, sy, cz);
+	else if (lx == CHUNK_SIZE_X - 1)
+		_MarkDirty(cx + 1, sy, cz);
+
+	if (ly == 0 && sy > 0)
+		_MarkDirty(cx, sy - 1, cz);
+	else if (ly == CHUNK_SECTION_COUNT - 1 && sy < CHUNK_SECTION_COUNT - 1)
+		_MarkDirty(cx, sy + 1, cz);
+
+	if (lz == 0)
+		_MarkDirty(cx, sy, cz - 1);
+	else if (lz == CHUNK_SIZE_Z - 1)
+		_MarkDirty(cx, sy, cz + 1);
+
 	return true;
 }
 
@@ -72,68 +179,6 @@ CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
 	return m_pScene->FindObject(id);
 }
 
-
-BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
-{
-	int cx, sy, cz;
-	int lx, ly, lz;
-
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
-		return { 0, 0 };
-
-	const CChunkSection* pSection = _FindSectionData(cx, sy, cz);
-	if (nullptr == pSection) 
-		return { 0, 0 };
-
-	return pSection->GetBlock(lx, ly, lz);
-}
-
-BlockCell CChunkWorld::GetBlock(XMINT3 w) const
-{
-	return GetBlock(w.x, w.y, w.z);
-}
-
-bool CChunkWorld::IsSolid(const BlockCell& cell) const
-{
-	return !cell.IsAir();
-}
-
-bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
-{
-	if (wy < 0 || wy >= CHUNK_SIZE_Y) return;
-
-	int cx, sy, cz;
-	int lx, ly, lz;
-
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz)) 
-		return;
-
-	CChunkSection* pSection = _GetOrCreateSectionData(cx, sy, cz);
-	if (!pSection) return;
-
-	BlockCell dst = pSection->GetBlock(lx, ly, lz);
-	if (dst == newCell) return;
-
-	pSection->SetBlock(lx, ly, lz, newCell);
-
-	_MarkDirty(cx, sy, cz);
-
-	if (lx == 0) 
-		_MarkDirty(cx - 1, sy, cz);
-	else if (lx == CHUNK_SIZE_X - 1) 
-		_MarkDirty(cx + 1, sy, cz);
-
-	if (ly == 0 && sy > 0) 
-		_MarkDirty(cx, sy - 1, cz);
-	else if (ly == CHUNK_SECTION_COUNT - 1 && sy < CHUNK_SECTION_COUNT - 1) 
-		_MarkDirty(cx, sy + 1, cz);
-
-	if (lz == 0) 
-		_MarkDirty(cx, sy, cz - 1);
-	else if (lz == CHUNK_SIZE_Z - 1) 
-		_MarkDirty(cx, sy, cz + 1);
-}
-
 CChunkColumn* CChunkWorld::_FindColumn(int cx, int cz)
 {
 	auto it = m_columns.find(MakeColumnKey(cx, cz));
@@ -152,47 +197,104 @@ const CChunkColumn* CChunkWorld::_FindColumn(int cx, int cz) const
 	return &it->second;
 }
 
-CChunkSection* CChunkWorld::_GetOrCreateSectionData(int cx, int sy, int cz)
-{
-	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
-	if (!column.GetSection(sy))
-	{
-		column.GetSection(sy) = make_unique<CChunkSection>();
-	}
-
-	_EnsureRenderObject(column, sy);
-	return column.GetSection(sy);
-}
-
-CChunkSection* CChunkWorld::_FindSectionData(int cx, int sy, int cz)
-{
-	return nullptr;
-}
-
-const CChunkSection* CChunkWorld::_FindSectionData(int cx, int sy, int cz) const
-{
-	return nullptr;
-}
-
 CChunkColumn& CChunkWorld::_GetOrCreateColumn(int cx, int cz)
 {
-	// TODO: 여기에 return 문을 삽입합니다.
+	const uint64_t key = MakeColumnKey(cx, cz);
+	auto it = m_columns.find(key);
+	if (it != m_columns.end())
+		return it->second;
+
+	CChunkColumn column{};
+	column.Initialize(cx, cz);
+
+	auto [newIt, ok] = m_columns.emplace(key, move(column));
+	return newIt->second;
 }
 
 void CChunkWorld::_LoadColumn(int cx, int cz)
 {
+	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
+	_GenerateFlatTestColumn(column);
+
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		CChunkSection* pSection = column.GetSection(sy);
+		if (nullptr == pSection)
+			continue;
+
+		_EnsureRenderObject(*pSection, cx, sy, cz);
+		_MarkDirty(cx, sy, cz);
+	}
 }
 
 void CChunkWorld::_UnloadColumn(int cx, int cz)
 {
+	auto* column = _FindColumn(cx, cz);
+	if (nullptr == column)
+		return;
+
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		CChunkSection* pSection = column->GetSection(sy);
+		if (nullptr == pSection)
+			continue;
+
+		_DestoryRenderObject(*pSection);
+	}
+
+	m_columns.erase(MakeColumnKey(cx, cz));
 }
 
-void CChunkWorld::_EnsureRenderObject(CChunkColumn& column, int sy)
+void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
 {
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		CChunkSection* pSection = column.EnsureSection(sy);
+
+		// TODO Make Plane
+	}
+}
+
+void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz)
+{
+	if (!section.HasRenderObjectID())
+		return;
+
+	string name = _MakeSectionName(cx, sy, cz);
+	CObject* obj = m_pScene->AddAndGetObject(name);
+
+	auto* tr = obj->AddComponent<CTransform>();
+	auto* mr = obj->AddComponent<CMeshRenderer>();
+
+	tr->SetLocalTrans(XMFLOAT3((float)(cx * CHUNK_SIZE_X), (float)(sy * CHUNK_SECTION_SIZE), (float)(cz * CHUNK_SIZE_Z)));
+
+	// 기본 파이프라인/메터리얼 세팅
+	mr->SetPipeline(m_pPipeline);
+	mr->SetMaterial(m_pMaterial);
+
+	section.SetRenderObjectID(obj->GetID());
+}
+
+void CChunkWorld::_DestoryRenderObject(CChunkSection& section)
+{
+	if (!section.HasRenderObjectID())
+		return;
+
+	m_pScene->DestroyObject(section.GetRenderObjectID());
+	section.ClearRenderObjectID();
 }
 
 void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
 {
+	auto* column = _FindColumn(cx, cz);
+	if (nullptr == column)
+		return;
+
+	auto* section = column->GetSection(sy);
+	if (nullptr == section)
+		return;
+
+	section->MarkDirty();
 }
 
 bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& outSy, int& outCz, int& outLx, int& outLy, int& outLz) const
@@ -209,4 +311,11 @@ bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& 
 	outLz = Mod16(wz);
 
 	return true;
+}
+
+string CChunkWorld::_MakeSectionName(int cx, int sy, int cz)
+{
+	char buf[64];
+	sprintf(buf, "%d_%d_%d", cx, sy, cz);
+	return string(buf);
 }

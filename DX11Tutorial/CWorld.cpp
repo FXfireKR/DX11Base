@@ -8,9 +8,9 @@ CWorld::CWorld()
 {
 }
 
-void CWorld::Initialize(CScene& scene, CPipeline* pChunkPipeline, CMaterial* pChunkMaterial)
+void CWorld::Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chunkMaterial)
 {
-    m_pChunkWorld->Initialize(scene, pChunkPipeline, pChunkMaterial);
+    m_pChunkWorld->Initialize(scene, chunkPipeline, chunkMaterial);
 
 	// Testing Code
 	{
