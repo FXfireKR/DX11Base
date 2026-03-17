@@ -2,15 +2,17 @@
 struct VS_INPUT
 {
     float3 position : POSITION;
-    float2 uv : TEXCOORD;
     float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+    float4 color : COLOR;
 };
 
 struct VS_OUTPUT
 {
     float4 position : SV_POSITION;
-    float2 uv : TEXCOORD;
     float3 normal : NORAML;
+    float2 uv : TEXCOORD;
+    float color : COLOR;
 };
 
 cbuffer CBFrame : register(b0)
@@ -37,8 +39,9 @@ VS_OUTPUT VS(VS_INPUT input)
     float4 projPos = mul(viewPos, projMatrix);
 
     output.position = projPos;
-    output.normal = input.normal;
     output.uv = input.uv;
+    output.normal = input.normal;
+    output.color = input.color;
 
     return output;
 }
@@ -50,6 +53,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
 {
     float2 uv = input.uv;
     float4 color = texture0.Sample(sampler0, uv);
+    color *= input.color;
     return color;
     //return float4(input.uv.x, input.uv.y, 0, 1);
     

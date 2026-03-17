@@ -6,7 +6,8 @@ void CRuntimeAtlas::Clear()
 	m_pShaderResourceView.Reset();
 }
 
-bool CRuntimeAtlas::Initialize(ID3D11ShaderResourceView* pShaderResourceView, uint32_t atlasWidth, uint32_t atlasHeight, unordered_map<string, AtlasRegion>&& mapRegions)
+bool CRuntimeAtlas::Initialize(const ComPtr<ID3D11ShaderResourceView>& pShaderResourceView, uint32_t atlasWidth, uint32_t atlasHeight
+	, unordered_map<string, AtlasRegion>&& mapRegions)
 {
 	Clear();
 

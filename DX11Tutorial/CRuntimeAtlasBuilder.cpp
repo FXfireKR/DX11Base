@@ -463,7 +463,7 @@ bool CRuntimeAtlasBuilder::_CreateAtlasResource(ID3D11Device* pDevice, const vec
     if (FAILED(hr))
         return false;
 
-    return outAtlas.Initialize(pShaderResourceView.Get(), atlasWidth, atlasHeight, std::move(regions));
+    return outAtlas.Initialize(pShaderResourceView, atlasWidth, atlasHeight, std::move(regions));
 }
 
 bool CRuntimeAtlasBuilder::_LoadImageRGBA8(const char* filePath, vector<uint8_t>& outPixels, uint32_t& outWidth, uint32_t& outHeight) const

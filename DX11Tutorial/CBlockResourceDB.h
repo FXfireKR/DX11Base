@@ -20,7 +20,7 @@ public:
 	bool TryGetRegion(const char* textureKey, AtlasRegion& outRegion) const;
 
 
-	inline const ID3D11ShaderResourceView* GetAtlasTextureView() const { return m_runtimeAtlas.GetShaderResourceView(); }
+	inline ID3D11ShaderResourceView* GetAtlasTextureView() const { return m_runtimeAtlas.GetShaderResourceView(); }
 
 private:
 	bool _ResolveTextureFilePath(const char* textureKey, string& outPath) const;

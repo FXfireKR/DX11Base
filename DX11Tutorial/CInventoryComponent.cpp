@@ -7,7 +7,7 @@ void CInventoryComponent::Init()
 	m_iSelectedSlot = 0;
 
 	BlockPropHashMap props;
-	BLOCK_ID blockID = fnv1a_64("minecraft:stone");
+	BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:stone");
 	STATE_INDEX sidx;
 	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 	assert(ok);

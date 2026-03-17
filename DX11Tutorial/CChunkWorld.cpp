@@ -200,15 +200,13 @@ const CChunkColumn* CChunkWorld::_FindColumn(int cx, int cz) const
 
 CChunkColumn& CChunkWorld::_GetOrCreateColumn(int cx, int cz)
 {
-	const uint64_t key = MakeColumnKey(cx, cz);
+	uint64_t key = MakeColumnKey(cx, cz);
 	auto it = m_columns.find(key);
 	if (it != m_columns.end())
 		return it->second;
 
-	CChunkColumn column{};
-	column.Initialize(cx, cz);
-
-	auto [newIt, ok] = m_columns.emplace(key, move(column));
+	auto [newIt, ok] = m_columns.try_emplace(key);
+	newIt->second.Initialize(cx, cz);
 	return newIt->second;
 }
 

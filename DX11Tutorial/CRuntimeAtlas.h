@@ -8,7 +8,7 @@ public:
 	~CRuntimeAtlas() = default;
 
 	void Clear();
-	bool Initialize(ID3D11ShaderResourceView* pShaderResourceView
+	bool Initialize(const ComPtr<ID3D11ShaderResourceView>& pShaderResourceView
 		, uint32_t atlasWidth, uint32_t atlasHeight, unordered_map<string, AtlasRegion>&& mapRegions);
 
 	const AtlasRegion* FindRegion(const char* textureKey) const;
@@ -17,7 +17,7 @@ public:
 public:
 	inline const bool IsValid() const { return m_pShaderResourceView != nullptr; }
 
-	inline const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
+	inline ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
 
 	inline const uint32_t GetWidth() const { return m_uAtlasWidth; }
 	inline const uint32_t GetHeight() const { return m_uAtlasHeight; }

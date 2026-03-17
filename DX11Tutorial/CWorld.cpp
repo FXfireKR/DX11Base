@@ -42,7 +42,7 @@ void CWorld::Initialize(CScene& scene, CPipeline& chunkPipeline, CMaterial& chun
 
 void CWorld::Update(float fDelta)
 {
-	m_pChunkWorld->UpdateStreaming();
+	m_pChunkWorld->UpdateStreaming({ 0.f, 0.f, 0.f });
 }
 
 void CWorld::LateUpdate()

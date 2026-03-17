@@ -13,7 +13,6 @@ CTestScene::~CTestScene()
 
 void CTestScene::Awake()
 {
-	_CreateTextureAtlas();
 	_CreateWorldRender();
 
 	m_VoxelWorld.Initialize(*this, *m_pChunkPipeline, *m_pChunkMaterial);
@@ -78,6 +77,8 @@ void CTestScene::Update(float fDelta)
 	ImGui::Text("Rotate Y : %.3f", y);
 	ImGui::Text("Rotate Z : %.3f", z);
 #endif // IMGUI_ACTIVATE
+
+	m_VoxelWorld.Update(fDelta);
 }
 
 void CTestScene::LateUpdate(float fDelta)
@@ -347,42 +348,42 @@ void CTestScene::_CreateHighlight()
 
 void CTestScene::_CreateWorldRender()
 {
-	//CRenderWorld& rw = GetRenderWorld();
+	CRenderWorld& rw = GetRenderWorld();
 
-	//// shader
-	//auto& shaderManager = rw.GetShaderManager();
-	//auto shaderID = fnv1a_64("NormalImageForward");
-	//auto shader = shaderManager.CreateShader(shaderID, 0);
+	// shader
+	auto& shaderManager = rw.GetShaderManager();
+	auto shaderID = fnv1a_64("NormalImageForward");
+	auto shader = shaderManager.CreateShader(shaderID, 0);
 
-	//shaderManager.Compile();
+	shaderManager.Compile();
 
-	//// input layout
-	//auto& ilManager = rw.GetIALayoutManager();
-	//auto layoutID = ilManager.Create(VERTEX_POSITION_UV_NORMAL::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	// input layout
+	auto& ilManager = rw.GetIALayoutManager();
+	auto layoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
-	//// pipeline
-	//auto& pipelineManager = rw.GetPipelineManager();
-	//auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
-	//auto pipeline = pipelineManager.Get(pipeID);
+	// pipeline
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	auto pipeline = pipelineManager.Get(pipeID);
 
-	//pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	//pipeline->SetInputLayout(ilManager.Get(layoutID));
-	//pipeline->CreateRaster(rw.GetDevice());
-	//pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->CreateRaster(rw.GetDevice());
+	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//// sampler
-	//auto& samplerManager = rw.GetSamplerManager();
-	//auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	// sampler
+	auto& samplerManager = rw.GetSamplerManager();
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 
-	//// material
-	//auto& materialManager = rw.GetMaterialManager();
-	//auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	// material
+	auto& materialManager = rw.GetMaterialManager();
+	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
 
-	//materialManager.Get(materialID)->SetTexture(0, rw.GetRuntimeAtlas().GetShaderResourceView());
-	//materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	materialManager.Get(materialID)->SetTexture(0, BlockResDB.GetAtlasTextureView());
+	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
 
-	//m_pChunkPipeline = pipelineManager.Get(pipeID);
-	//m_pChunkMaterial = materialManager.Get(materialID);
+	m_pChunkPipeline = pipelineManager.Get(pipeID);
+	m_pChunkMaterial = materialManager.Get(materialID);
 }
 
 void CTestScene::_CreateTextureAtlas()

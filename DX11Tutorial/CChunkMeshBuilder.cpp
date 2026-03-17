@@ -13,9 +13,9 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
 
     for (int ly = 0; ly < CHUNK_SECTION_SIZE; ++ly)
     {
-        for (int lz = 0; lz < CHUNK_SECTION_SIZE; ++lz)
+        for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
         {
-            for (int lx = 0; lx < CHUNK_SECTION_SIZE; ++lx)
+            for (int lx = 0; lx < CHUNK_SIZE_Z; ++lx)
             {
                 const BlockCell cell = section.GetBlock(lx, ly, lz);
                 if (cell.IsAir())
@@ -43,20 +43,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     {
         if (quad.bHasCullFace)
         {
-            XMINT3 n{};
-            FACE_DIR eDir = static_cast<FACE_DIR>(quad.cullFaceDir);
-            switch (eDir)
-            {
-                case FACE_DIR::PX: n = { 1, 0, 0 }; break;
-                case FACE_DIR::NX: n = { -1, 0, 0 }; break;
-                case FACE_DIR::PY: n = { 0, 1, 0 }; break;
-                case FACE_DIR::NY: n = { 0, -1, 0 }; break;
-                case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
-                case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
-                default: break;
-            }
-
-            if (world.IsSolid(world.GetBlock(wx + n.x, wy + n.y, wz + n.z)))
+            if (_ShouldCullFace(world, wx, wy, wz, static_cast<FACE_DIR>(quad.cullFaceDir)))
                 continue;
         }
 
@@ -68,7 +55,19 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
 
 bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, FACE_DIR dir) const
 {
-    return false;
+    XMINT3 n{};
+    switch (dir)
+    {
+        case FACE_DIR::PX: n = { 1, 0, 0 }; break;
+        case FACE_DIR::NX: n = { -1, 0, 0 }; break;
+        case FACE_DIR::PY: n = { 0, 1, 0 }; break;
+        case FACE_DIR::NY: n = { 0, -1, 0 }; break;
+        case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
+        case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
+        default: break;
+    }
+
+    return world.IsSolid(world.GetBlock(wx + n.x, wy + n.y, wz + n.z));
 }
 
 bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int wx, int wy, int wz, ChunkMeshData& outMesh) const
