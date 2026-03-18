@@ -26,18 +26,18 @@ private:
 	void _CreateWorldRender();
 	void _CreateTextureAtlas();
 
-private:
-	float x = 0.f;
-	float y = 0.f;
-	float z = 0.f;
+	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 
-	CObject* m_pChunkObject = nullptr;
+private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
+	CWorld m_VoxelWorld;
 
 	CObject* m_pPlayer = nullptr;
-
 	CObject* m_pHighlightObject = nullptr;
 
-	CWorld m_VoxelWorld;
+	bool m_bShowChunkBounds = false;
+	CMesh* m_pChunkBoundsDebugMesh = nullptr;
+	CPipeline* m_pChunkBoundsDebugPipeline = nullptr;
+	CMaterial* m_pChunkBoundsDebugMaterial = nullptr;
 };

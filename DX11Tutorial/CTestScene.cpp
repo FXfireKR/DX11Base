@@ -70,17 +70,23 @@ void CTestScene::Update(float fDelta)
 
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
-	ImGui::Text("Delta X : %d", CInputManager::Get().Mouse().GetDelta().x);
-	ImGui::Text("Delta Y : %d", CInputManager::Get().Mouse().GetDelta().y);
-
-	ImGui::Text("Rotate X : %.3f", x);
-	ImGui::Text("Rotate Y : %.3f", y);
-	ImGui::Text("Rotate Z : %.3f", z);
+	ImGui::Text("Chunk Bounds (F2) : %s", m_bShowChunkBounds ? "ON" : "OFF");
 #endif // IMGUI_ACTIVATE
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
+	{
+		m_bShowChunkBounds = !m_bShowChunkBounds;
+	}
 
 	CTransform* tr = m_pPlayer->GetComponent<CTransform>();
 	tr->BuildWorldMatrix();
-	m_VoxelWorld.Update(fDelta, tr->GetWorldTrans());
+	XMFLOAT3 Trans = tr->GetWorldTrans();
+	
+#ifdef IMGUI_ACTIVATE
+	ImGui::Text("Position %.3f %.3f %.3f", Trans.x, Trans.y, Trans.z);
+#endif // IMGUI_ACTIVATE
+
+	m_VoxelWorld.Update(fDelta, Trans);
 }
 
 void CTestScene::LateUpdate(float fDelta)
@@ -88,27 +94,6 @@ void CTestScene::LateUpdate(float fDelta)
 	CScene::LateUpdate(fDelta);
 
 	m_VoxelWorld.LateUpdate(*this);
-
-	//// DDA-Raycast
-	//if (nullptr != m_pCurrentCamera) 
-	//{
-	//	XMFLOAT3 rayO{}, rayD{};
-	//	_MakeCenterRay(*m_pCurrentCamera, rayO, rayD);
-
-	//	BlockHitResult hit{};
-	//	const float maxDist = 15.0f;
-
-	//	m_pHighlightObject->SetEnable(false);
-
-	//	if (true == m_VoxelWorld.RaycastBlock(rayO, rayD, maxDist, hit))
-	//	{
-	//		m_pHighlightObject->SetEnable(true);
-
-	//		CTransform* tr = m_pHighlightObject->GetComponent<CTransform>();
-	//		tr->SetLocalTrans({ (float)hit.block.x - 0.001f, (float)hit.block.y - 0.001f, (float)hit.block.z - 0.001f });
-	//		tr->SetLocalScale({ 1.002f, 1.002f, 1.002f });
-	//	}
-	//}
 }
 
 void CTestScene::BuildRenderFrame()
@@ -138,7 +123,10 @@ void CTestScene::BuildRenderFrame()
 		rw.Submit(item);
 	});
 
+	_SubmitChunkBoundsDebug(rw);
+
 	GetObjectManager().ProcessPeddingDestroy();
+
 }
 
 void CTestScene::_CreateChunkObject()
@@ -341,6 +329,11 @@ void CTestScene::_CreateHighlight()
 	auto& materialManager = rw.GetMaterialManager();
 	auto materialID = materialManager.Create(fnv1a_64("HighlightMaterial"));
 
+	// debug chunk bounds 용으로도 같이 보관
+	m_pChunkBoundsDebugMesh = meshManager.Get(highlightMeshID);
+	m_pChunkBoundsDebugPipeline = pipeline;
+	m_pChunkBoundsDebugMaterial = materialManager.Get(materialID);
+
 	m_pHighlightObject = AddAndGetObject("BlockHighlight");
 	auto* tr = m_pHighlightObject->AddComponent<CTransform>();
 	auto* mr = m_pHighlightObject->AddComponent<CMeshRenderer>();
@@ -415,4 +408,39 @@ void CTestScene::_CreateTextureAtlas()
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/sand"), "../Resource/assets/minecraft/textures/block/sand.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");*/
+}
+
+void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const
+{
+	if (!m_bShowChunkBounds)
+		return;
+
+	if (nullptr == m_pChunkBoundsDebugMesh || nullptr == m_pChunkBoundsDebugPipeline || nullptr == m_pChunkBoundsDebugMaterial)
+		return;
+
+	const CChunkWorld& chunkWorld = m_VoxelWorld.GetChunkWorld();
+
+	chunkWorld.ForEachLoadedColumn([&](const CChunkColumn& column)
+	{
+		const ChunkCoord& coord = column.GetCoord();
+
+		const float worldX = static_cast<float>(coord.x * CHUNK_SIZE_X);
+		const float worldZ = static_cast<float>(coord.z * CHUNK_SIZE_Z);
+
+		XMMATRIX matScale = XMMatrixScaling(
+			static_cast<float>(CHUNK_SIZE_X),
+			static_cast<float>(CHUNK_SIZE_Y),
+			static_cast<float>(CHUNK_SIZE_Z));
+
+		XMMATRIX matTrans = XMMatrixTranslation(worldX, 0.0f, worldZ);
+		XMMATRIX matWorld = matScale * matTrans;
+
+		RenderItem item{};
+		item.pMesh = m_pChunkBoundsDebugMesh;
+		item.pPipeline = m_pChunkBoundsDebugPipeline;
+		item.pMaterial = m_pChunkBoundsDebugMaterial;
+
+		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+		rw.Submit(item);
+	});
 }

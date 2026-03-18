@@ -30,7 +30,6 @@ public:
 
 	void Initialize(CScene& scene, CPipeline* pipeline, CMaterial* material);
 	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
-
 	bool PopDirty(SectionCoord& outSectionCoord);
 
 	// IBlockAccessor
@@ -42,6 +41,16 @@ public:
 	CChunkSection* FindSectionDataMutable(int cx, int sy, int cz);
 	const CChunkSection* FindSectionData(int cx, int sy, int cz) const;
 	CObject* FindRenderObject(int cx, int sy, int cz);
+
+public:
+	template<typename Fn>
+	void ForEachLoadedColumn(Fn&& fn) const
+	{
+		for (const auto& kv : m_columns)
+		{
+			fn(kv.second);
+		}
+	}
 
 private:
 	CChunkColumn* _FindColumn(int cx, int cz);
@@ -75,7 +84,7 @@ private:
 	vector<SectionCoord> m_vecDirtyQueue;
 
 	vector<uint64_t> m_tmpWanted;
-	int m_iStreamRadius = 8;
+	int m_iStreamRadius = 2;
 };
 
 //using namespace ChunkMath;
