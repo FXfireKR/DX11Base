@@ -26,13 +26,16 @@ public:
 	template<typename Fn>
 	void ForEachAliveEnabled(Fn&& fn) 
 	{
-		for (size_t i = 0; i < m_vecSparse.size(); ++i)
+		for (auto& obj : m_vecObjects)
 		{
-			uint32_t denseIndex = m_vecSparse[i];
-			CObject* pObj = m_vecObjects[denseIndex].get();
-			if (pObj && pObj->GetAlive() && pObj->GetEnable()) {
-				fn(*pObj);
-			}
+			CObject* pObject = obj.get();
+			if (nullptr == pObject)
+				continue;
+
+			if (!pObject->GetAlive() || !pObject->GetEnable())
+				continue;
+
+			fn(*pObject);
 		}
 	}
 

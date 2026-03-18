@@ -137,6 +137,8 @@ void CTestScene::BuildRenderFrame()
 		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 		rw.Submit(item);
 	});
+
+	GetObjectManager().ProcessPeddingDestroy();
 }
 
 void CTestScene::_CreateChunkObject()

@@ -29,7 +29,7 @@ OBJECT_ID CObjectManager::Add(const string& strName_, CScene* const pOwnScene_)
 		else // (true == m_vecFreeIDs.empty())
 		{
 			uObjectID = static_cast<OBJECT_ID>(m_vecSparse.size());
-			m_vecSparse.push_back(0); // insert dummy-value
+			m_vecSparse.push_back(INVALID_OBJECT_ID); // insert dummy-value
 		}
 		m_hashIDMap.insert(make_pair(strHash, uObjectID));
 
@@ -51,19 +51,26 @@ void CObjectManager::Destroy(const string& strName_)
 	uint64_t strHash = fnv1a_64(strName_);
 	auto iter = m_hashIDMap.find(strHash);
 
-	if (iter == m_hashIDMap.end()) return;
+	if (iter == m_hashIDMap.end()) 
+		return;
 
-	OBJECT_ID foundID = iter->second;
-	Destroy(foundID);
+	Destroy(iter->second);
 }
 
 void CObjectManager::Destroy(OBJECT_ID uObjectID_)
 {
-	if (m_vecObjects.size() <= uObjectID_) return;
+	if (uObjectID_ >= m_vecSparse.size())
+		return;
 
-	if (nullptr != m_vecObjects[uObjectID_]) {
-		m_vecObjects[uObjectID_]->Destroy();
-	}
+	uint32_t denseIndex = m_vecSparse[uObjectID_];
+	if (denseIndex >= m_vecObjects.size())
+		return;
+
+	CObject* pObject = m_vecObjects[denseIndex].get();
+	if (nullptr == pObject || pObject->GetID() != uObjectID_)
+		return;
+
+	pObject->Destroy();
 }
 
 void CObjectManager::ProcessPeddingDestroy()
@@ -79,45 +86,78 @@ void CObjectManager::ProcessPeddingDestroy()
 
 void CObjectManager::_RemoveObjectAtIndex(uint32_t uIndex_)
 {
+	if (uIndex_ >= m_vecObjects.size())
+		return;
+
 	OBJECT_ID removedID = m_vecObjects[uIndex_]->GetID();
-	uint32_t uLastIndex = static_cast<uint32_t>(m_vecObjects.size() - 1);
-	if (uIndex_ != uLastIndex)
+	uint64_t removedHash = fnv1a_64(m_vecObjects[uIndex_]->m_strName);
+
+	const uint32_t lastIndex = static_cast<uint32_t>(m_vecObjects.size() - 1);
+
+	if (uIndex_ != lastIndex)
 	{
-		std::swap(m_vecObjects[uIndex_], m_vecObjects[uLastIndex]);
+		std::swap(m_vecObjects[uIndex_], m_vecObjects[lastIndex]);
 
 		OBJECT_ID movedID = m_vecObjects[uIndex_]->GetID();
 		m_vecSparse[movedID] = uIndex_;
 	}
+
 	m_vecObjects.pop_back();
+
+	m_hashIDMap.erase(removedHash);
+	m_vecSparse[removedID] = UINT32_MAX;   // invalid mark
 	m_vecFreeIDs.push_back(removedID);
 }
 
 CObject* CObjectManager::Get(const string& strName_)
 {
 	uint64_t strHash = fnv1a_64(strName_);
+
 	auto iter = m_hashIDMap.find(strHash);
+	if (iter == m_hashIDMap.end())
+		return nullptr;
+
 	return Get(iter->second);
 }
 
 CObject* CObjectManager::Get(OBJECT_ID uObjectID_)
 {
-	if (uObjectID_ >= m_vecSparse.size()) return nullptr;
+	if (uObjectID_ >= m_vecSparse.size())
+		return nullptr;
 
-	uint32_t uIndex = m_vecSparse[uObjectID_];
-	return m_vecObjects[uIndex].get();
+	uint32_t denseIndex = m_vecSparse[uObjectID_];
+	if (denseIndex == UINT32_MAX || denseIndex >= m_vecObjects.size())
+		return nullptr;
+
+	CObject* pObj = m_vecObjects[denseIndex].get();
+	if (nullptr == pObj || pObj->GetID() != uObjectID_)
+		return nullptr;
+
+	return pObj;
 }
 
 const CObject* CObjectManager::Get(const string& strName_) const
 {
 	uint64_t strHash = fnv1a_64(strName_);
 	auto iter = m_hashIDMap.find(strHash);
+	if (iter == m_hashIDMap.end())
+		return nullptr;
+
 	return Get(iter->second);
 }
 
 const CObject* CObjectManager::Get(OBJECT_ID uObjectID_) const
 {
-	if (uObjectID_ >= m_vecSparse.size()) return nullptr;
+	if (uObjectID_ >= m_vecSparse.size())
+		return nullptr;
 
-	uint32_t uIndex = m_vecSparse[uObjectID_];
-	return m_vecObjects[uIndex].get();
+	uint32_t denseIndex = m_vecSparse[uObjectID_];
+	if (denseIndex == UINT32_MAX || denseIndex >= m_vecObjects.size())
+		return nullptr;
+
+	const CObject* pObj = m_vecObjects[denseIndex].get();
+	if (nullptr == pObj || pObj->GetID() != uObjectID_)
+		return nullptr;
+
+	return pObj;
 }
