@@ -78,6 +78,11 @@ void CTestScene::Update(float fDelta)
 		m_bShowChunkBounds = !m_bShowChunkBounds;
 	}
 
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F3))
+	{
+		m_eSectionDebugMode = static_cast<ESectionDebugMode>((static_cast<int>(m_eSectionDebugMode) + 1) % static_cast<int>(ESectionDebugMode::COUNT));
+	}
+
 	CTransform* tr = m_pPlayer->GetComponent<CTransform>();
 	tr->BuildWorldMatrix();
 	XMFLOAT3 Trans = tr->GetWorldTrans();
@@ -124,6 +129,7 @@ void CTestScene::BuildRenderFrame()
 	});
 
 	_SubmitChunkBoundsDebug(rw);
+	_SubmitSectionBoundsDebug(rw);
 
 	GetObjectManager().ProcessPeddingDestroy();
 
@@ -442,5 +448,66 @@ void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const
 
 		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
+	});
+}
+
+void CTestScene::_SubmitSectionBoundsDebug(CRenderWorld& rw) const
+{
+	if (m_eSectionDebugMode == ESectionDebugMode::OFF)
+		return;
+
+	if (nullptr == m_pChunkBoundsDebugMesh ||
+		nullptr == m_pChunkBoundsDebugPipeline ||
+		nullptr == m_pChunkBoundsDebugMaterial)
+		return;
+
+	const CChunkWorld& chunkWorld = m_VoxelWorld.GetChunkWorld();
+
+	chunkWorld.ForEachLoadedColumn([&](const CChunkColumn& column)
+	{
+		const ChunkCoord& coord = column.GetCoord();
+
+		const float worldX = static_cast<float>(coord.x * CHUNK_SIZE_X);
+		const float worldZ = static_cast<float>(coord.z * CHUNK_SIZE_Z);
+
+		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		{
+			bool bDraw = false;
+
+			switch (m_eSectionDebugMode)
+			{
+				case ESectionDebugMode::EXIST_ONLY:
+				{
+					bDraw = (column.GetSection(sy) != nullptr);
+				} break;
+
+				case ESectionDebugMode::ALL:
+				{
+					bDraw = true;
+				} break;
+				default: break;
+			}
+
+			if (!bDraw)
+				continue;
+
+			const float worldY = static_cast<float>(sy * CHUNK_SECTION_SIZE);
+
+			XMMATRIX matScale = XMMatrixScaling(
+				static_cast<float>(CHUNK_SIZE_X),
+				static_cast<float>(CHUNK_SECTION_SIZE),
+				static_cast<float>(CHUNK_SIZE_Z));
+
+			XMMATRIX matTrans = XMMatrixTranslation(worldX, worldY, worldZ);
+			XMMATRIX matWorld = matScale * matTrans;
+
+			RenderItem item{};
+			item.pMesh = m_pChunkBoundsDebugMesh;
+			item.pPipeline = m_pChunkBoundsDebugPipeline;
+			item.pMaterial = m_pChunkBoundsDebugMaterial;
+
+			XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+			rw.Submit(item);
+		}
 	});
 }

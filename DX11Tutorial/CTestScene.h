@@ -2,6 +2,15 @@
 #include "CScene.h"
 #include "CWorld.h"
 
+enum class ESectionDebugMode : uint8_t
+{
+	OFF = 0,
+	EXIST_ONLY,
+	ALL,
+
+	COUNT,
+};
+
 class CTestScene : public CScene
 {
 public:
@@ -27,6 +36,7 @@ private:
 	void _CreateTextureAtlas();
 
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
+	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
 
 private:
 	CPipeline* m_pChunkPipeline = nullptr;
@@ -40,4 +50,6 @@ private:
 	CMesh* m_pChunkBoundsDebugMesh = nullptr;
 	CPipeline* m_pChunkBoundsDebugPipeline = nullptr;
 	CMaterial* m_pChunkBoundsDebugMaterial = nullptr;
+
+	ESectionDebugMode m_eSectionDebugMode = ESectionDebugMode::OFF;
 };
