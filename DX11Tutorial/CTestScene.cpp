@@ -522,7 +522,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 	};
 
 	{
-		const XMMATRIX matWorld = _BuildScreenAlignedBillboardWorld(sunCenter, camRight, camUp, m_fSunBillboardSize, m_fSunBillboardSize);
+		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(sunCenter, sunDir, m_fSunBillboardSize, m_fSunBillboardSize);
 
 		RenderItem item{};
 		item.pMesh = m_pSkyBillboardMesh;
@@ -533,7 +533,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 	}
 
 	{
-		const XMMATRIX matWorld = _BuildScreenAlignedBillboardWorld(moonCenter, camRight, camUp, m_fMoonBillboardSize, m_fMoonBillboardSize);
+		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(moonCenter, moonDir, m_fMoonBillboardSize, m_fMoonBillboardSize);
 
 		RenderItem item{};
 		item.pMesh = m_pSkyBillboardMesh;
@@ -542,6 +542,45 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
 	}
+}
+
+XMMATRIX CTestScene::_BuildSkyLockedQuadWorld(
+	const XMFLOAT3& center,
+	const XMFLOAT3& dirFromCam,   // sunDir or moonDir
+	float width,
+	float height)
+{ // 카메라 회전에는 반응안하도록
+	XMVECTOR vDir = XMVector3Normalize(XMLoadFloat3(&dirFromCam));
+
+	// quad가 sky sphere 중심(=카메라) 쪽을 보게
+	XMVECTOR vNormal = vDir;
+
+	XMVECTOR vWorldUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+
+	// 극점 근처에서 cross가 불안정해지는 것 방지
+	float d = XMVectorGetX(XMVector3Dot(vNormal, vWorldUp));
+	if (fabsf(d) > 0.98f)
+	{
+		vWorldUp = XMVectorSet(1.f, 0.f, 0.f, 0.f);
+	}
+
+	XMVECTOR vRight = XMVector3Normalize(XMVector3Cross(vWorldUp, vNormal));
+	XMVECTOR vUp = XMVector3Normalize(XMVector3Cross(vNormal, vRight));
+
+	vRight *= (width * 0.5f);
+	vUp *= (height * 0.5f);
+
+	XMFLOAT3 right{}, up{}, normal{};
+	XMStoreFloat3(&right, vRight);
+	XMStoreFloat3(&up, vUp);
+	XMStoreFloat3(&normal, vNormal);
+
+	return XMMATRIX(
+		right.x, right.y, right.z, 0.f,
+		up.x, up.y, up.z, 0.f,
+		normal.x, normal.y, normal.z, 0.f,
+		center.x, center.y, center.z, 1.f
+	);
 }
 
 XMMATRIX CTestScene::_BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight, const XMFLOAT3& camUp, float width, float height)

@@ -37,6 +37,8 @@ private:
 	void _CreateSkyBillboardResources();
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);
 
+	XMMATRIX _BuildSkyLockedQuadWorld(const XMFLOAT3& center, const XMFLOAT3& dirFromCam
+		, float width, float height);
 	XMMATRIX _BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight
 		, const XMFLOAT3& camUp, float width, float height);
 	void _CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const;
@@ -66,7 +68,7 @@ private:
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
 
 	float m_fSkyBillboardRadius = 400.f;
-	float m_fSunBillboardSize = 24.f;
-	float m_fMoonBillboardSize = 18.f;
+	float m_fSunBillboardSize = 150.f;
+	float m_fMoonBillboardSize = 100.f;
 	bool m_bShowSunMoon = true;
 };
