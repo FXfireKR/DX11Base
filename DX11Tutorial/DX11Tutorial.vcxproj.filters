@@ -447,6 +447,9 @@
     <ClInclude Include="AtlasTypes.h">
       <Filter>헤더 파일\Util\Minecraft</Filter>
     </ClInclude>
+    <ClInclude Include="CWorldTime.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -673,6 +676,9 @@
     </ClCompile>
     <ClCompile Include="CInventoryComponent.cpp">
       <Filter>Code\02_Object\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorldTime.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CChunkWorld.h"
+#include "CWorldTime.h"
 #include "BlockRaycastTypes.h"
 
 /*
@@ -37,6 +38,10 @@ public:
 	inline CChunkWorld& GetChunkWorld() { return *(m_pChunkWorld.get()); }
 	inline const CChunkWorld& GetChunkWorld() const { return *(m_pChunkWorld.get()); }
 
+	inline CWorldTime& GetWorldTime() { return m_worldTime; }
+	inline const CWorldTime& GetWorldTime() const { return m_worldTime; }
+
 private:
 	unique_ptr<CChunkWorld> m_pChunkWorld;
+	CWorldTime m_worldTime;
 };

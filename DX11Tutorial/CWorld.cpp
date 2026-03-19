@@ -15,6 +15,8 @@ void CWorld::Initialize(CScene& scene, CPipeline* chunkPipeline, CMaterial* chun
 
 void CWorld::Update(float fDelta, XMFLOAT3 pos)
 {
+	m_worldTime.Update(fDelta);
+
 	m_pChunkWorld->UpdateStreaming(pos);
 }
 

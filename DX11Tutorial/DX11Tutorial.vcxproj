@@ -222,6 +222,7 @@
     <ClInclude Include="CDirectX11Adapter.h" />
     <ClInclude Include="CWindow.h" />
     <ClInclude Include="CWorld.h" />
+    <ClInclude Include="CWorldTime.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="EncodingUtil.h" />
@@ -298,6 +299,7 @@
     <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="CWindow.cpp" />
     <ClCompile Include="CWorld.cpp" />
+    <ClCompile Include="CWorldTime.cpp" />
     <ClCompile Include="ModelUtil.cpp" />
     <ClCompile Include="ResourceUtil.cpp" />
     <ClCompile Include="sparse_set.hpp">
