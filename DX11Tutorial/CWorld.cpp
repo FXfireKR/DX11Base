@@ -11,6 +11,7 @@ CWorld::CWorld()
 void CWorld::Initialize(CScene& scene, CPipeline* chunkPipeline, CMaterial* chunkMaterial)
 {
     m_pChunkWorld->Initialize(scene, chunkPipeline, chunkMaterial);
+	m_worldTime.Initialize(0.25f);
 }
 
 void CWorld::Update(float fDelta, XMFLOAT3 pos)

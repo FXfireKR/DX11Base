@@ -21,7 +21,7 @@ public:
 
 	float GetDay01() const;
 	float GetTickOfDay() const;
-	const WorldTimeParams& Evaluate() const;
+	WorldTimeParams Evaluate() const;
 
 	inline void SetPaused(bool bPaused) { m_bPaused = bPaused; }
 	inline bool IsPaused() const { return m_bPaused; }
@@ -34,7 +34,7 @@ public:
 
 
 private:
-	double m_fAccumWorldSec = 0.0;
+	double m_dAccumWorldSec = 0.0;
 	float m_fDayLengthSec = 1200.0f; // ex ) 현실 20분 = 게임의 하루
 	float m_fTimeScale = 1.0f;
 	bool m_bPaused = false;

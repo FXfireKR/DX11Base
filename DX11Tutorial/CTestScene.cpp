@@ -71,6 +71,15 @@ void CTestScene::Update(float fDelta)
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
 	ImGui::Text("Chunk Bounds (F2) : %s", m_bShowChunkBounds ? "ON" : "OFF");
+
+	const WorldTimeParams timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
+	ImGui::Text("Day01			: %.4f", timeParams.day01);
+	ImGui::Text("TickOfDay		: %.1f", timeParams.tickOfDay);
+	ImGui::Text("Daylight		: %.3f", timeParams.daylight);
+	ImGui::Text("Night			: %.3f", timeParams.night);
+	ImGui::Text("SunAngle		: %.3f", timeParams.sunAngleRad);
+	ImGui::Text("MoonAngle		: %.3f", timeParams.moonAngleRad);
+
 #endif // IMGUI_ACTIVATE
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
