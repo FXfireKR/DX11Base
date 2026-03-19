@@ -124,7 +124,7 @@ void CTestScene::BuildRenderFrame()
 		item.pPipeline = render->GetPipeline();
 		item.pMaterial = render->GetMaterial();
 
-		XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 		rw.Submit(item);
 	});
 
@@ -426,7 +426,7 @@ void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const
 
 	const CChunkWorld& chunkWorld = m_VoxelWorld.GetChunkWorld();
 
-	chunkWorld.ForEachLoadedColumn([&](const CChunkColumn& column)
+	chunkWorld.ForEachActiveColumn([&](const CChunkColumn& column)
 	{
 		const ChunkCoord& coord = column.GetCoord();
 
@@ -446,7 +446,7 @@ void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const
 		item.pPipeline = m_pChunkBoundsDebugPipeline;
 		item.pMaterial = m_pChunkBoundsDebugMaterial;
 
-		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
 	});
 }
@@ -463,7 +463,7 @@ void CTestScene::_SubmitSectionBoundsDebug(CRenderWorld& rw) const
 
 	const CChunkWorld& chunkWorld = m_VoxelWorld.GetChunkWorld();
 
-	chunkWorld.ForEachLoadedColumn([&](const CChunkColumn& column)
+	chunkWorld.ForEachActiveColumn([&](const CChunkColumn& column)
 	{
 		const ChunkCoord& coord = column.GetCoord();
 
@@ -506,7 +506,7 @@ void CTestScene::_SubmitSectionBoundsDebug(CRenderWorld& rw) const
 			item.pPipeline = m_pChunkBoundsDebugPipeline;
 			item.pMaterial = m_pChunkBoundsDebugMaterial;
 
-			XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+			DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 			rw.Submit(item);
 		}
 	});

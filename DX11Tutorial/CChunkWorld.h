@@ -44,12 +44,18 @@ public:
 
 public:
 	template<typename Fn>
-	void ForEachLoadedColumn(Fn&& fn) const
+	void ForEachResidentColumn(Fn&& fn) const
 	{
 		for (const auto& kv : m_columns)
-		{
 			fn(kv.second);
-		}
+	}
+
+	template<typename Fn>
+	void ForEachActiveColumn(Fn&& fn) const
+	{
+		for (const auto& kv : m_columns)
+			if (kv.second.IsActive())
+				fn(kv.second);
 	}
 
 private:

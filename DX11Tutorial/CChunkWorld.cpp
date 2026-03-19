@@ -20,8 +20,11 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
 
+	m_tmpWanted.clear();
+
 	// 비용이 커지면 vector 대신 다른거
 	size_t newCap = static_cast<size_t>((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
+
 	if (m_tmpWanted.capacity() < newCap)
 		m_tmpWanted.reserve(newCap);
 
@@ -35,27 +38,23 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 			m_tmpWanted.push_back(key);
 
-			if (m_columns.find(key) == m_columns.end())
+			CChunkColumn* column = _FindColumn(cx, cz);
+			if (nullptr == column || !column->IsActive())
+			{
 				_LoadColumn(cx, cz);
+			}
 		}
 	}
 
-	for (auto it = m_columns.begin(); it != m_columns.end();)
+	for (auto& kv : m_columns)
 	{
-		const bool keep = std::find(m_tmpWanted.begin(), m_tmpWanted.end(), it->first) != m_tmpWanted.end();
-		if (false == keep) 
+		const bool keep = std::find(m_tmpWanted.begin(), m_tmpWanted.end(), kv.first) != m_tmpWanted.end();
+		if (false == keep)
 		{
-			const ChunkCoord coord = it->second.GetCoord();
-			++it;
+			const ChunkCoord coord = kv.second.GetCoord();
 			_UnloadColumn(coord.x, coord.z);
 		}
-		else
-		{
-			++it;
-		}
 	}
-
-	m_tmpWanted.clear();
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
@@ -217,7 +216,14 @@ CChunkColumn& CChunkWorld::_GetOrCreateColumn(int cx, int cz)
 void CChunkWorld::_LoadColumn(int cx, int cz)
 {
 	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
-	_GenerateFlatTestColumn(column);
+
+	if (!column.IsGenerated())
+	{
+		_GenerateFlatTestColumn(column);
+		column.SetGenerated(true);
+	}
+
+	column.SetResidency(EChunkResidency::ACTIVE);
 
 	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
 	{
@@ -236,6 +242,9 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 	if (nullptr == column)
 		return;
 
+	if (!column->IsActive())
+		return;
+
 	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
 	{
 		CChunkSection* pSection = column->GetSection(sy);
@@ -243,9 +252,12 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 			continue;
 
 		_DestoryRenderObject(*pSection);
+
+		pSection->SetBuildQueued(false);
 	}
 
-	m_columns.erase(MakeColumnKey(cx, cz));
+	column->SetResidency(EChunkResidency::RESIDENT);
+	//m_columns.erase(MakeColumnKey(cx, cz));
 }
 
 void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
