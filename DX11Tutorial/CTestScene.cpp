@@ -52,6 +52,8 @@ void CTestScene::Awake()
 	ctrl->SetCameraTransform(pivotTransform);
 	interactor->SetCameraTransform(pivotTransform);
 	interactor->SetHighlightObject(m_pHighlightObject);
+
+	_CreateSkyBillboardResources();
 }
 
 void CTestScene::Start()
@@ -79,6 +81,9 @@ void CTestScene::Update(float fDelta)
 	ImGui::Text("Night			: %.3f", timeParams.night);
 	ImGui::Text("SunAngle		: %.3f", timeParams.sunAngleRad);
 	ImGui::Text("MoonAngle		: %.3f", timeParams.moonAngleRad);
+
+	ImGui::DragFloat("Sun size : %.3f", &m_fSunBillboardSize);
+	ImGui::DragFloat("Moon size : %.3f", &m_fMoonBillboardSize);
 
 #endif // IMGUI_ACTIVATE
 
@@ -136,6 +141,8 @@ void CTestScene::BuildRenderFrame()
 		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 		rw.Submit(item);
 	});
+
+	_SubmitSunMoonBillboards(rw);
 
 	_SubmitChunkBoundsDebug(rw);
 	_SubmitSectionBoundsDebug(rw);
@@ -423,6 +430,164 @@ void CTestScene::_CreateTextureAtlas()
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/sand"), "../Resource/assets/minecraft/textures/block/sand.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");*/
+}
+
+void CTestScene::_CreateSkyBillboardResources()
+{
+	CRenderWorld& rw = GetRenderWorld();
+	auto& shaderManager = rw.GetShaderManager();
+	auto& ilManager = rw.GetIALayoutManager();
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto& meshManager = rw.GetMeshManager();
+	auto& materialManager = rw.GetMaterialManager();
+	auto& textureManager = rw.GetTextureManager();
+	auto& samplerManager = rw.GetSamplerManager();
+
+	const uint64_t shaderID = fnv1a_64("Billboard");
+	auto* shader = shaderManager.CreateShader(shaderID, 0);
+	shaderManager.Compile();
+
+	const uint64_t layoutID = ilManager.Create(VERTEX_POSITION_UV::GetLayout(), {shaderID, 0}, shader->GetVertexBlob());
+
+	const uint64_t pipeID = pipelineManager.Create(fnv1a_64("BillbaordPipeline"));
+	auto* pipeline = pipelineManager.Get(pipeID);
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pipeline->CreateRaster(rw.GetDevice());
+
+	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("SkyBillboardQuad"));
+	const uint64_t sunMatID = materialManager.Create(fnv1a_64("SunBillboardMaterial"));
+	const uint64_t moonMatID = materialManager.Create(fnv1a_64("MoonBillboardMaterial"));
+
+	m_pSkyBillboardMesh = meshManager.Get(meshID);
+	m_pSkyBillboardPipeline = pipeline;
+	m_pSunBillboardMaterial = materialManager.Get(sunMatID);
+	m_pMoonBillboardMaterial = materialManager.Get(moonMatID);
+
+	uint64_t sunTextureID = textureManager.LoadTexture2D(fnv1a_64("sun"), "../Resource/assets/minecraft/textures/environment/celestial/sun.png"
+		, TEXTURE_USAGE::StaticColor);
+
+	uint64_t moonTextureID = textureManager.LoadTexture2D(fnv1a_64("moon"), "../Resource/assets/minecraft/textures/environment/celestial/moon/full_moon.png"
+		, TEXTURE_USAGE::StaticColor);
+
+	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+
+	m_pSunBillboardMaterial->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	m_pSunBillboardMaterial->SetTexture(0, rw.GetTextureManager().GetTexture(sunTextureID)->GetShaderResourceView());
+
+	m_pMoonBillboardMaterial->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	m_pMoonBillboardMaterial->SetTexture(0, rw.GetTextureManager().GetTexture(moonTextureID)->GetShaderResourceView());
+}
+
+void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
+{
+	if (!m_bShowSunMoon)
+		return;
+
+	if (nullptr == m_pSkyBillboardMesh ||
+		nullptr == m_pSkyBillboardPipeline ||
+		nullptr == m_pSunBillboardMaterial ||
+		nullptr == m_pMoonBillboardMaterial)
+		return;
+
+	const CCamera* pCam = GetCurrentCamera();
+	if (nullptr == pCam || nullptr == pCam->GetTransform())
+		return;
+
+	const CTransform* pCamTr = pCam->GetTransform();
+
+	const XMFLOAT3 camPos = pCamTr->GetWorldTrans();
+
+	// 네 current transform 구현에 GetRight/GetUp이 있으면 이걸 쓰고,
+	// 없으면 camera world matrix/inverse view에서 뽑아도 됨.
+	const XMFLOAT3 camRight = pCamTr->GetRight();
+	const XMFLOAT3 camUp = pCamTr->GetUp();
+
+	XMFLOAT3 sunDir{}, moonDir{};
+	_CalcSunMoonDirection(sunDir, moonDir);
+
+	const XMFLOAT3 sunCenter =
+	{
+		camPos.x + sunDir.x * m_fSkyBillboardRadius,
+		camPos.y + sunDir.y * m_fSkyBillboardRadius,
+		camPos.z + sunDir.z * m_fSkyBillboardRadius,
+	};
+
+	const XMFLOAT3 moonCenter =
+	{
+		camPos.x + moonDir.x * m_fSkyBillboardRadius,
+		camPos.y + moonDir.y * m_fSkyBillboardRadius,
+		camPos.z + moonDir.z * m_fSkyBillboardRadius,
+	};
+
+	{
+		const XMMATRIX matWorld = _BuildScreenAlignedBillboardWorld(sunCenter, camRight, camUp, m_fSunBillboardSize, m_fSunBillboardSize);
+
+		RenderItem item{};
+		item.pMesh = m_pSkyBillboardMesh;
+		item.pPipeline = m_pSkyBillboardPipeline;
+		item.pMaterial = m_pSunBillboardMaterial;
+		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+		rw.Submit(item);
+	}
+
+	{
+		const XMMATRIX matWorld = _BuildScreenAlignedBillboardWorld(moonCenter, camRight, camUp, m_fMoonBillboardSize, m_fMoonBillboardSize);
+
+		RenderItem item{};
+		item.pMesh = m_pSkyBillboardMesh;
+		item.pPipeline = m_pSkyBillboardPipeline;
+		item.pMaterial = m_pMoonBillboardMaterial;
+		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+		rw.Submit(item);
+	}
+}
+
+XMMATRIX CTestScene::_BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight, const XMFLOAT3& camUp, float width, float height)
+{
+	XMVECTOR vRight = XMVector3Normalize(XMLoadFloat3(&camRight)) * (width * 0.5f);
+	XMVECTOR vUp = XMVector3Normalize(XMLoadFloat3(&camUp)) * (height * 0.5f);
+
+	XMFLOAT3 right{}, up{};
+	XMStoreFloat3(&right, vRight);
+	XMStoreFloat3(&up, vUp);
+
+	XMVECTOR vForward = XMVector3Normalize(XMVector3Cross(vRight, vUp));
+	XMFLOAT3 forward{};
+	XMStoreFloat3(&forward, vForward);
+
+	return XMMATRIX(
+		right.x, right.y, right.z, 0.0f,
+		up.x, up.y, up.z, 0.0f,
+		forward.x, forward.y, forward.z, 0.0f,
+		center.x, center.y, center.z, 1.0f
+	);
+}
+
+void CTestScene::_CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const
+{
+	const WorldTimeParams time = m_VoxelWorld.GetWorldTime().Evaluate();
+	const float a = time.sunAngleRad;
+
+	outSunDir =
+	{
+		0.0f,
+		sinf(a),
+		cosf(a)
+	};
+
+	outMoonDir =
+	{
+		-outSunDir.x,
+		-outSunDir.y,
+		-outSunDir.z
+	};
+
+	XMVECTOR s = XMVector3Normalize(XMLoadFloat3(&outSunDir));
+	XMVECTOR m = XMVector3Normalize(XMLoadFloat3(&outMoonDir));
+	XMStoreFloat3(&outSunDir, s);
+	XMStoreFloat3(&outMoonDir, m);
 }
 
 void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const

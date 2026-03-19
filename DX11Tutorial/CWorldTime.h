@@ -35,7 +35,7 @@ public:
 
 private:
 	double m_dAccumWorldSec = 0.0;
-	float m_fDayLengthSec = 1200.0f; // ex ) 현실 20분 = 게임의 하루
+	float m_fDayLengthSec = 120.0f; // ex ) 현실 20분 = 게임의 하루
 	float m_fTimeScale = 1.0f;
 	bool m_bPaused = false;
 

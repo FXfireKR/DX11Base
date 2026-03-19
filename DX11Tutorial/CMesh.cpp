@@ -57,6 +57,10 @@ void CMesh::CreateQuad(ID3D11Device* pDevice)
 	dataIndex.pSysMem = indices;
 
 	pDevice->CreateBuffer(&descIndex, &dataIndex, m_pIndexBuffer.GetAddressOf());
+
+	m_uVertexStride = sizeof(VERTEX_POSITION_UV);
+	m_uVertexCnt = 4;
+	m_uIndexCnt = 6;
 }
 
 void CMesh::CreateCube(ID3D11Device* pDevice)

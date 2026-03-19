@@ -31,9 +31,15 @@ private:
 	void _CreateBaked();
 	void _MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir);
 	void _CreateHighlight();
-
 	void _CreateWorldRender();
 	void _CreateTextureAtlas();
+
+	void _CreateSkyBillboardResources();
+	void _SubmitSunMoonBillboards(CRenderWorld& rw);
+
+	XMMATRIX _BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight
+		, const XMFLOAT3& camUp, float width, float height);
+	void _CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const;
 
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
@@ -52,4 +58,15 @@ private:
 	CMaterial* m_pChunkBoundsDebugMaterial = nullptr;
 
 	ESectionDebugMode m_eSectionDebugMode = ESectionDebugMode::OFF;
+
+private:
+	CMesh* m_pSkyBillboardMesh = nullptr;
+	CPipeline* m_pSkyBillboardPipeline = nullptr;
+	CMaterial* m_pSunBillboardMaterial = nullptr;
+	CMaterial* m_pMoonBillboardMaterial = nullptr;
+
+	float m_fSkyBillboardRadius = 400.f;
+	float m_fSunBillboardSize = 24.f;
+	float m_fMoonBillboardSize = 18.f;
+	bool m_bShowSunMoon = true;
 };
