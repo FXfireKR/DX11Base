@@ -65,13 +65,14 @@ WorldTimeParams CWorldTime::Evaluate() const
 	out.day01 = GetDay01();
 	out.tickOfDay = GetTickOfDay();
 
-	const float phase = out.day01 * XM_2PI;
+	const float phase = out.day01 * XM_2PI - XM_PIDIV2;
 
 	out.sunAngleRad = phase;
-	out.moonAngleRad = Wrap01(out.day01 + 0.5f) * XM_2PI;
+	out.moonAngleRad = phase + XM_PI;
 
-	const float sunHeight01 = 0.5f + 0.5f * std::sin(phase - XM_PIDIV2);
-	out.daylight = Saturate(sunHeight01);
+	const float sunHeight = sinf(out.sunAngleRad);
+
+	out.daylight = Saturate(0.5f + 0.5f * sunHeight);
 	out.night = 1.0f - out.daylight;
 
 	return out;

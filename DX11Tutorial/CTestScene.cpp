@@ -70,11 +70,12 @@ void CTestScene::Update(float fDelta)
 {
 	CScene::Update(fDelta);
 
+	timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
+
 #ifdef IMGUI_ACTIVATE
 	ImGui::Text("This is TestScene!");
 	ImGui::Text("Chunk Bounds (F2) : %s", m_bShowChunkBounds ? "ON" : "OFF");
 
-	const WorldTimeParams timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
 	ImGui::Text("Day01			: %.4f", timeParams.day01);
 	ImGui::Text("TickOfDay		: %.1f", timeParams.tickOfDay);
 	ImGui::Text("Daylight		: %.3f", timeParams.daylight);
@@ -143,6 +144,7 @@ void CTestScene::BuildRenderFrame()
 	});
 
 	_SubmitSunMoonBillboards(rw);
+	_ApplySkyClearColor();
 
 	_SubmitChunkBoundsDebug(rw);
 	_SubmitSectionBoundsDebug(rw);
@@ -542,6 +544,51 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
 	}
+
+}
+
+XMFLOAT3 CTestScene::_LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t)
+{
+	t = saturate(t);
+
+	return XMFLOAT3(
+		a.x + (b.x - a.x) * t,
+		a.y + (b.y - a.y) * t,
+		a.z + (b.z - a.z) * t
+	);
+}
+
+void CTestScene::_ApplySkyClearColor()
+{
+	const WorldTimeParams time = m_VoxelWorld.GetWorldTime().Evaluate();
+
+	const float day01 = time.day01;
+	const float daylight = time.daylight;
+	const float night = time.night;
+
+	// 1차 실험용 색
+	const XMFLOAT3 kNightColor = { 0.02f, 0.04f, 0.10f };
+	const XMFLOAT3 kDayColor = { 0.45f, 0.70f, 0.98f };
+	const XMFLOAT3 kDawnColor = { 0.95f, 0.46f, 0.18f };
+
+	// 기본은 밤 <-> 낮 보간
+	XMFLOAT3 sky = _LerpColor(kNightColor, kDayColor, daylight);
+
+	// sunrise / sunset 강조
+	const float sunrise = pulse(day01, 0.25f, 0.10f);
+	const float sunset = pulse(day01, 0.75f, 0.10f);
+	const float dusk = std::max(sunrise, sunset);
+
+	// 해 뜨고 질 때만 주황색을 얹음
+	sky = _LerpColor(sky, kDawnColor, dusk * 0.65f);
+
+	// 아주 깊은 밤은 조금 더 눌러줌
+	const float deepNight = smooth(night);
+	sky.x *= (1.f - 0.15f * deepNight);
+	sky.y *= (1.f - 0.10f * deepNight);
+	sky.z *= (1.f - 0.05f * deepNight);
+
+	GetRenderWorld().SetBackColor(sky.x, sky.y, sky.z, 1.0f);
 }
 
 XMMATRIX CTestScene::_BuildSkyLockedQuadWorld(
@@ -606,8 +653,7 @@ XMMATRIX CTestScene::_BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, c
 
 void CTestScene::_CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const
 {
-	const WorldTimeParams time = m_VoxelWorld.GetWorldTime().Evaluate();
-	const float a = time.sunAngleRad;
+	const float a = timeParams.sunAngleRad;
 
 	outSunDir =
 	{

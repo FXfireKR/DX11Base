@@ -257,6 +257,7 @@
     <ClInclude Include="ImGui\imstb_truetype.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="MathUtil.h" />
     <ClInclude Include="MinecraftCore.h" />
     <ClInclude Include="ModelTypes.h" />
     <ClInclude Include="ModelUtil.h" />

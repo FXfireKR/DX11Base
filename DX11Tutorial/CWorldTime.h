@@ -4,10 +4,16 @@ struct WorldTimeParams
 {
 	float day01 = 0.f; // [0, 1)
 	float tickOfDay = 0.f; // [0, 24000)
+
 	float sunAngleRad = 0.f;
 	float moonAngleRad = 0.f;
-	float daylight = 0.f;	// 0 밤 ~ 1 낮
-	float night = 0.f;
+
+	float sunHeight; // -1 ~ 1
+	float daylight = 0.f;	// 0 ~ 1
+	float night = 0.f;	// 0 ~ 1
+
+	float sunriseFactor;
+	float sunsetFactor;
 };
 
 class CWorldTime

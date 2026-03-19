@@ -37,6 +37,9 @@ private:
 	void _CreateSkyBillboardResources();
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);
 
+	XMFLOAT3 _LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t);
+	void _ApplySkyClearColor();
+
 	XMMATRIX _BuildSkyLockedQuadWorld(const XMFLOAT3& center, const XMFLOAT3& dirFromCam
 		, float width, float height);
 	XMMATRIX _BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight
@@ -50,6 +53,7 @@ private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
 	CWorld m_VoxelWorld;
+	WorldTimeParams timeParams{};
 
 	CObject* m_pPlayer = nullptr;
 	CObject* m_pHighlightObject = nullptr;
@@ -68,7 +72,7 @@ private:
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
 
 	float m_fSkyBillboardRadius = 400.f;
-	float m_fSunBillboardSize = 150.f;
-	float m_fMoonBillboardSize = 100.f;
+	float m_fSunBillboardSize = 250.f;
+	float m_fMoonBillboardSize = 225.f;
 	bool m_bShowSunMoon = true;
 };

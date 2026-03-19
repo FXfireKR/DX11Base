@@ -41,6 +41,7 @@
 
 // 전역에 걸쳐서 쓸 가치가 있는 util들
 #include "HashUtil.h"
+#include "MathUtil.h"	
 #include "EncodingUtil.h"
 #include "StringUtil.h"
 #include "IFileWrapper.h"
