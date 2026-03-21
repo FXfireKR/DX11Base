@@ -264,23 +264,21 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
 {
 	const ChunkCoord coord = column.GetCoord();
-	CChunkSection* pSection = column.EnsureSection(0);
 
+	CChunkSection* pSection = column.EnsureSection(0);
 	if (nullptr == pSection)
 		return;
 
-	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:stone");
-	BlockPropHashMap props;
-	STATE_INDEX sidx{};
-	bool ok = BlockDB.EncodeStateIndex(stone, props, sidx);
-	assert(ok);
-
-	const int baseWx = coord.x * CHUNK_SIZE_X;
-	const int baseWz = coord.z * CHUNK_SIZE_Z;
-
 	for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
+	{
 		for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
-			pSection->SetBlock(lx, 0, lz, { stone, sidx });
+		{
+			const int wx = coord.x * CHUNK_SIZE_X + lx;
+			const int wz = coord.z * CHUNK_SIZE_Z + lz;
+
+			pSection->SetBlock(lx, 0, lz, _SampleBaseBlock(wx, 0, wz));
+		}
+	}
 }
 
 void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz)
@@ -350,26 +348,44 @@ string CChunkWorld::_MakeSectionName(int cx, int sy, int cz)
 	return string(buf);
 }
 
-BlockCell CChunkWorld::_GetBaseBlock(int wx, int wy, int wz) const
+BlockCell CChunkWorld::_SampleBaseBlock(int wx, int wy, int wz) const
 {
 	if (wy < 0 || wy >= CHUNK_SIZE_Y)
 		return { 0, 0 };
 
-	int cx, sy, cz;
-	int lx, ly, lz;
-
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+	if (wy != 0)
 		return { 0, 0 };
 
-	const CChunkColumn* pColumn = _FindColumn(cx, cz);
-	if (nullptr == pColumn)
-		return { 0, 0 };
+	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:stone");
+	BlockPropHashMap props;
+	STATE_INDEX sidx{};
+	bool ok = BlockDB.EncodeStateIndex(stone, props, sidx);
+	assert(ok);
 
-	const CChunkSection* pSection = pColumn->GetSection(sy);
-	if (nullptr == pSection)
-		return { 0, 0 };
+	return { stone, sidx };
+}
 
-	return pSection->GetBlock(lx, ly, lz);
+BlockCell CChunkWorld::_GetBaseBlock(int wx, int wy, int wz) const
+{
+	return _SampleBaseBlock(wx, wy, wz);
+	//if (wy < 0 || wy >= CHUNK_SIZE_Y)
+	//	return { 0, 0 };
+
+	//int cx, sy, cz;
+	//int lx, ly, lz;
+
+	//if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+	//	return { 0, 0 };
+
+	//const CChunkColumn* pColumn = _FindColumn(cx, cz);
+	//if (nullptr == pColumn)
+	//	return { 0, 0 };
+
+	//const CChunkSection* pSection = pColumn->GetSection(sy);
+	//if (nullptr == pSection)
+	//	return { 0, 0 };
+
+	//return pSection->GetBlock(lx, ly, lz);
 }
 
 bool CChunkWorld::_TryGetModifiedBlock(int wx, int wy, int wz, BlockCell& outCell) const

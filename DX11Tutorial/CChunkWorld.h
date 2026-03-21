@@ -80,6 +80,7 @@ private:
 
 	string _MakeSectionName(int cx, int sy, int cz);
 
+	BlockCell _SampleBaseBlock(int wx, int wy, int wz) const;
 	BlockCell _GetBaseBlock(int wx, int wy, int wz) const;
 	bool _TryGetModifiedBlock(int wx, int wy, int wz, BlockCell& outCell) const;
 
