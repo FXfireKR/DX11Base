@@ -52,4 +52,9 @@ namespace ChunkMath
 		return (uint64_t)(uint32_t)x | ((uint64_t)(uint32_t)z << 32);
 	}
 
+	inline uint16_t MakeColumnLocalIndex(int lx, int wy, int lz)
+	{
+		return static_cast<uint16_t>(wy * CHUNK_SIZE_Z * CHUNK_SIZE_X + lz * CHUNK_SIZE_X + lx);
+	}
+
 }

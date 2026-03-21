@@ -20,7 +20,7 @@ void CTestScene::Awake()
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
 	tr->Init();
-	tr->SetLocalTrans({ 0, 105.f, 0 });
+	tr->SetLocalTrans({ 0, 10.f, 0 });
 	
 	auto* ctrl = m_pPlayer->AddComponent<CPlayerController>();
 	ctrl->Init();

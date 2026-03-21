@@ -4,6 +4,18 @@
 void CChunkColumn::Initialize(int cx, int cz)
 {
 	m_coord = { cx, cz };
+	m_eResidency = EChunkResidency::RESIDENT;
+	m_bGenerated = false;
+	m_bModified = false;
+	m_uLastAccessTick = 0;
+}
+
+void CChunkColumn::ResetSection(int sy)
+{
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return;
+
+	m_sections[sy].reset();
 }
 
 CChunkSection* CChunkColumn::GetSection(int sy)

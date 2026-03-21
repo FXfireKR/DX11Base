@@ -17,6 +17,7 @@ public:
 	~CChunkColumn() = default;
 
 	void Initialize(int cx, int cz);
+	void ResetSection(int sy);
 
 	CChunkSection* GetSection(int sy);
 	const CChunkSection* GetSection(int sy) const;

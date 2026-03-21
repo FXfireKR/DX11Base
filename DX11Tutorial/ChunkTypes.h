@@ -130,6 +130,7 @@ struct BlockCell
 		return blockID == 0;
 	}
 };
+static_assert(sizeof(BlockCell) == 4, "BlockCell must be 4 bytes");
 
 //
 //struct ChunkSection

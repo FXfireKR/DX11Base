@@ -72,21 +72,11 @@ BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
 	if (wy < 0 || wy >= CHUNK_SIZE_Y)
 		return { 0, 0 };
 
-	int cx, sy, cz;
-	int lx, ly, lz;
+	BlockCell modified{};
+	if (_TryGetModifiedBlock(wx, wy, wz, modified))
+		return modified;
 
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
-		return { 0, 0 };
-
-	const CChunkColumn* pColumn = _FindColumn(cx, cz);
-	if (nullptr == pColumn)
-		return { 0, 0 };
-
-	const CChunkSection* pSection = pColumn->GetSection(sy);
-	if (nullptr == pSection)
-		return { 0, 0 };
-
-	return pSection->GetBlock(lx, ly, lz);
+	return _GetBaseBlock(wx, wy, wz);
 }
 
 bool CChunkWorld::IsSolid(const BlockCell& cell) const
@@ -99,26 +89,29 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 	if (wy < 0 || wy >= CHUNK_SIZE_Y) 
 		return false;
 
+	const BlockCell oldFinal = GetBlock(wx, wy, wz);
+	if (oldFinal == newCell)
+		return false;
+
+	const BlockCell baseCell = _GetBaseBlock(wx, wy, wz);
+	if (newCell == baseCell)
+		_EraseModifiedBlock(wx, wy, wz);
+	else
+		_WriteModifiedBlock(wx, wy, wz, newCell);
+
+
+	// resident cache
 	int cx, sy, cz;
 	int lx, ly, lz;
 
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
-		return false;
+	if (_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+	{
+		if (CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz))
+		{
+			pSection->SetBlock(lx, ly, lz, newCell);
+		}
+	}
 
-	CChunkColumn* pColumn = _FindColumn(cx, cz);
-	if (nullptr == pColumn)
-		return false;
-
-	CChunkSection* pSection = pColumn->GetSection(sy);
-	if (nullptr == pSection)
-		return false;
-
-	const BlockCell oldCell = pSection->GetBlock(lx, ly, lz);
-	if (oldCell == newCell) 
-		return false;
-
-	pSection->SetBlock(lx, ly, lz, newCell);
-	pColumn->SetModified(true);
 	_MarkDirty(cx, sy, cz);
 
 	if (lx == 0)
@@ -224,6 +217,8 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 		column.SetGenerated(true);
 	}
 
+	_ApplyModifiedOverlayToColumn(column);
+
 	column.SetResidency(EChunkResidency::ACTIVE);
 
 	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
@@ -257,8 +252,13 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 		pSection->SetBuildQueued(false);
 	}
 
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		column->ResetSection(sy);
+	}
+
 	column->SetResidency(EChunkResidency::RESIDENT);
-	//m_columns.erase(MakeColumnKey(cx, cz));
+	column->SetGenerated(false);
 }
 
 void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
@@ -348,4 +348,117 @@ string CChunkWorld::_MakeSectionName(int cx, int sy, int cz)
 	char buf[64];
 	sprintf(buf, "%d_%d_%d", cx, sy, cz);
 	return string(buf);
+}
+
+BlockCell CChunkWorld::_GetBaseBlock(int wx, int wy, int wz) const
+{
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return { 0, 0 };
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return { 0, 0 };
+
+	const CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return { 0, 0 };
+
+	const CChunkSection* pSection = pColumn->GetSection(sy);
+	if (nullptr == pSection)
+		return { 0, 0 };
+
+	return pSection->GetBlock(lx, ly, lz);
+}
+
+bool CChunkWorld::_TryGetModifiedBlock(int wx, int wy, int wz, BlockCell& outCell) const
+{
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return false;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return false;
+
+	const uint64_t columnKey = MakeColumnKey(cx, cz);
+	auto itCol = m_modifiedColumns.find(columnKey);
+	if (itCol == m_modifiedColumns.end())
+		return false;
+
+	const uint16_t localIndex = MakeColumnLocalIndex(lx, wy, lz);
+	auto itCell = itCol->second.cells.find(localIndex);
+	if (itCell == itCol->second.cells.end())
+		return false;
+
+	outCell = itCell->second;
+	return true;
+}
+
+void CChunkWorld::_WriteModifiedBlock(int wx, int wy, int wz, const BlockCell& cell)
+{
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return;
+
+	const uint64_t columnKey = MakeColumnKey(cx, cz);
+	const uint64_t localIndex = MakeColumnLocalIndex(lx, wy, lz);
+
+	m_modifiedColumns[columnKey].cells[localIndex] = cell;
+}
+
+void CChunkWorld::_EraseModifiedBlock(int wx, int wy, int wz)
+{
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return;
+
+	const uint64_t columnKey = MakeColumnKey(cx, cz);
+	auto itColumn = m_modifiedColumns.find(columnKey);
+	if (itColumn == m_modifiedColumns.end())
+		return;
+
+	const uint16_t localIndex = MakeColumnLocalIndex(lx, wy, lz);
+	itColumn->second.cells.erase(localIndex);
+
+	if (itColumn->second.cells.empty())
+		m_modifiedColumns.erase(itColumn);
+}
+
+void CChunkWorld::_ApplyModifiedOverlayToColumn(CChunkColumn& column)
+{
+	const ChunkCoord coord = column.GetCoord();
+	const uint64_t columnKey = MakeColumnKey(coord.x, coord.z);
+
+	auto itCol = m_modifiedColumns.find(columnKey);
+	if (itCol == m_modifiedColumns.end())
+		return;
+
+	for (const auto& kv : itCol->second.cells)
+	{
+		const uint16_t idx = kv.first;
+		const BlockCell& cell = kv.second;
+
+		const int wy = idx / (CHUNK_SIZE_X * CHUNK_SIZE_Z);
+		const int rem = idx % (CHUNK_SIZE_X * CHUNK_SIZE_Z);
+		const int lz = rem / CHUNK_SIZE_X;
+		const int lx = rem % CHUNK_SIZE_X;
+
+		const int sy = wy / CHUNK_SECTION_SIZE;
+		const int ly = wy % CHUNK_SECTION_SIZE;
+
+		CChunkSection* pSection = column.EnsureSection(sy);
+		if (nullptr == pSection)
+			continue;
+
+		pSection->SetBlock(lx, ly, lz, cell);
+	}
+
+	column.SetModified(true);
 }
