@@ -44,5 +44,6 @@
 #include "MathUtil.h"	
 #include "EncodingUtil.h"
 #include "StringUtil.h"
+#include "DebugUtil.h"
 #include "IFileWrapper.h"
 #include "CRapidJsonParseWrapper.h"

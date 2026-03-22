@@ -85,6 +85,7 @@ void CRenderWorld::BeginBuildFrame()
 
 void CRenderWorld::Submit(const RenderItem& renderItem)
 {
+	dbg.AddSubmittedRenderItem();
 	m_renderManager.Submit(renderItem);
 }
 

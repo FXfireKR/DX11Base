@@ -25,17 +25,20 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 			if (pLastPipeline != renderItem.pPipeline) {
 				renderItem.pPipeline->Bind(pContext);
 				pLastPipeline = renderItem.pPipeline;
+				dbg.AddPipelineBind();
 			}
 
 			if (pLastMesh != renderItem.pMesh) {
 				renderItem.pMesh->Bind(pContext);
 				pLastMesh = renderItem.pMesh;
+				dbg.AddMeshBind();
 			}
 
 			if (nullptr != renderItem.pMaterial) {
 				if (pLastMaterial != renderItem.pMaterial) {
 					renderItem.pMaterial->Bind(pContext);
 					pLastMaterial = renderItem.pMaterial;
+					dbg.AddMaterialBind();
 				}
 			}
 
@@ -45,7 +48,10 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 			pContext->VSSetConstantBuffers(1, 1, &m_pCBObject);
 
 			// index, vertex 분리
-			renderItem.pMesh->Draw(pContext);
+			if (nullptr != renderItem.pMesh)
+			{
+				renderItem.pMesh->Draw(pContext);
+			}
 		}
 		m_queueRenderItem.pop();
 	}

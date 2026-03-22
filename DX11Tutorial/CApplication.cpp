@@ -70,16 +70,26 @@ void Application::Tick()
 
 		// Render
 		{
-			m_renderWorld.BeginFrame();
+			float renderExecuteMs = 0.f;
+			{
+				CScopedCpuTimer timer(renderExecuteMs);
 
-			m_renderWorld.DrawFrame();
+				m_renderWorld.BeginFrame();
+				m_renderWorld.DrawFrame();
 
 #ifdef IMGUI_ACTIVATE
-			ImGui::Render();
-			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+				ImGui::Render();
+				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif // IMGUI_ACTIVATE
+			}
+			dbg.SetRenderExecuteMs(renderExecuteMs);
 
-			m_renderWorld.EndFrame();
+			float presentMs = 0.f;
+			{
+				CScopedCpuTimer timer(presentMs);
+				m_renderWorld.EndFrame();
+			}
+			dbg.SetPresentMs(presentMs);
 		}
 	}
 	CInputManager::Get().EndFrame();

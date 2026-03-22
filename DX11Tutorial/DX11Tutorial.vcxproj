@@ -226,6 +226,7 @@
     <ClInclude Include="CWorld.h" />
     <ClInclude Include="CWorldTime.h" />
     <ClInclude Include="DebugTypes.h" />
+    <ClInclude Include="DebugUtil.h" />
     <ClInclude Include="DirectX11Com.h" />
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="EncodingUtil.h" />

@@ -38,23 +38,38 @@ void CGameWorld::Tick()
 		++m_iFixedUpdateProcCnt;
 	}
 
-	m_sceneManager.Update(fDelta);
+	float updateMs = 0.f;
+	{
+		CScopedCpuTimer timer(updateMs);
+		m_sceneManager.Update(fDelta);
+	}
+	dbg.SetUpdateMs(updateMs);
 
-	m_sceneManager.LateUpdate(fDelta);
+	float lasUpdateMs = 0.f;
+	{
+		CScopedCpuTimer timer(lasUpdateMs);
+		m_sceneManager.LateUpdate(fDelta);
+	}
+	dbg.SetLateUpdateMs(updateMs);
 
 	m_sceneManager.CheckChangeScene();
-	// pedding destroy
 
 	m_debugOverlay.Render();
 }
 
 void CGameWorld::BuildRenderFrame()
 {
-	m_pRenderWorld->BeginBuildFrame();
+	float renderBuildMs = 0.f;
 	{
-		m_sceneManager.BuildRenderFrame();
+		CScopedCpuTimer timer(renderBuildMs);
+
+		m_pRenderWorld->BeginBuildFrame();
+		{
+			m_sceneManager.BuildRenderFrame();
+		}
+		m_pRenderWorld->EndBuildFrame();
 	}
-	m_pRenderWorld->EndBuildFrame();
+	dbg.SetRenderBuildMs(renderBuildMs);
 }
 
 void CGameWorld::_RegisterScenes()
