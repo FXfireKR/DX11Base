@@ -453,6 +453,12 @@
     <ClInclude Include="MathUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CDebugCollector.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugTypes.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -681,6 +687,9 @@
       <Filter>Code\02_Object\Component</Filter>
     </ClCompile>
     <ClCompile Include="CWorldTime.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CDebugCollector.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

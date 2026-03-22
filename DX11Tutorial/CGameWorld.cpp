@@ -24,13 +24,15 @@ void CGameWorld::Tick()
 	m_gameTimeManager.Tick();
 	float fDelta = m_gameTimeManager.GetDeltaTime();
 
-	ImGui::Text("FPS : %u", m_gameTimeManager.GetFps());
+	dbg.SetFPS(static_cast<float>(m_gameTimeManager.GetFps()));
+	dbg.SetFrameMs(fDelta * 1000.0f);
 
 	m_fAccumulatedTime += fDelta;
 	m_iFixedUpdateProcCnt = 0;
 
 	// fixed-update logic
-	while (m_fAccumulatedTime >= FIXED_DELTA && m_iFixedUpdateProcCnt < MAX_FIXED_STEP) {
+	while (m_fAccumulatedTime >= FIXED_DELTA && m_iFixedUpdateProcCnt < MAX_FIXED_STEP) 
+	{
 		m_sceneManager.FixedUpdate(FIXED_DELTA);
 		m_fAccumulatedTime -= FIXED_DELTA;
 		++m_iFixedUpdateProcCnt;

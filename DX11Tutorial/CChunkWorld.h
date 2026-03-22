@@ -88,6 +88,7 @@ private:
 	void _EraseModifiedBlock(int wx, int wy, int wz);
 
 	void _ApplyModifiedOverlayToColumn(CChunkColumn& column);
+	void _UpdateDebugStats();
 
 public:
 	inline const int GetStreamRadius() const { return m_iStreamRadius; }

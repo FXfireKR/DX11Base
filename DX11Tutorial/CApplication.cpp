@@ -51,6 +51,7 @@ void Application::Tick()
 		// Input Dispatch
 		m_rawInputDispatcher.DispatchRawQueue();
 
+		// ImGui
 #ifdef IMGUI_ACTIVATE
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();

@@ -55,6 +55,9 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 			_UnloadColumn(coord.x, coord.z);
 		}
 	}
+
+	
+	_UpdateDebugStats();
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
@@ -129,6 +132,7 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 	else if (lz == CHUNK_SIZE_Z - 1)
 		_MarkDirty(cx, sy, cz + 1);
 
+	dbg.AddBlockEdit();
 	return true;
 }
 
@@ -230,6 +234,8 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 		_EnsureRenderObject(*pSection, cx, sy, cz);
 		_MarkDirty(cx, sy, cz);
 	}
+
+	dbg.AddChunkLoad();
 }
 
 void CChunkWorld::_UnloadColumn(int cx, int cz)
@@ -259,6 +265,8 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 
 	column->SetResidency(EChunkResidency::RESIDENT);
 	column->SetGenerated(false);
+
+	dbg.AddChunkUnload();
 }
 
 void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
@@ -477,4 +485,35 @@ void CChunkWorld::_ApplyModifiedOverlayToColumn(CChunkColumn& column)
 	}
 
 	column.SetModified(true);
+}
+
+void CChunkWorld::_UpdateDebugStats()
+{
+	int loadedColumns = 0;
+	int loadedSections = 0;
+	int dirtySections = 0;
+
+	for (auto& kv : m_columns)
+	{
+		CChunkColumn& col = kv.second;
+		if (!col.IsActive())
+			continue;
+
+		++loadedColumns;
+
+		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		{
+			CChunkSection* sec = col.GetSection(sy);
+			if (!sec) continue;
+
+			++loadedSections;
+			if (sec->IsDirty())
+				++dirtySections;
+		}
+	}
+
+	dbg.SetLoadedColumnCount(loadedColumns);
+	dbg.SetLoadedSectionCount(loadedSections);
+	dbg.SetDirtySectionCount(dirtySections);
+	dbg.SetRebuildQueuedCount((int)m_vecDirtyQueue.size());
 }
