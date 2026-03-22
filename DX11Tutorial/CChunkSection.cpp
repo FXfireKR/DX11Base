@@ -4,6 +4,7 @@
 CChunkSection::CChunkSection()
 {
     m_cells.fill(BlockCell{});
+    m_nonAirCount = 0;
     m_bDirty = true;
     m_renderObjectID = INVALID_OBJECT_ID;
 }
@@ -16,7 +17,19 @@ BlockCell CChunkSection::GetBlock(int lx, int ly, int lz) const
 
 void CChunkSection::SetBlock(int lx, int ly, int lz, const BlockCell& cell)
 {
-    m_cells[_ToIndex(lx, ly, lz)] = cell;
+    BlockCell& oldCell = m_cells[_ToIndex(lx, ly, lz)];
+    if (oldCell == cell)
+        return;
+
+    const bool wasAir = oldCell.IsAir();
+    const bool isAir = cell.IsAir();
+
+    oldCell = cell;
+    if (wasAir != isAir)
+    {
+        m_nonAirCount += isAir ? -1 : 1;
+    }
+
     m_bDirty = true;
 }
 

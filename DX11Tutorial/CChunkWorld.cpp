@@ -107,6 +107,8 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 	int cx, sy, cz;
 	int lx, ly, lz;
 
+	bool bCurrentSectionRemoved = false;
+
 	if (_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
 	{
 		if (CChunkColumn* pColumn = _FindColumn(cx, cz))
@@ -127,12 +129,20 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 				if (pSection)
 				{
 					pSection->SetBlock(lx, ly, lz, newCell);
+
+					if (pSection->IsEmpty())
+					{
+						_DestoryRenderObject(*pSection);
+						pColumn->ResetSection(sy);
+						bCurrentSectionRemoved = true;
+					}
 				}
 			}
 		}
 	}
 
-	_MarkDirty(cx, sy, cz);
+	if (!bCurrentSectionRemoved)
+		_MarkDirty(cx, sy, cz);
 
 	if (lx == 0)
 		_MarkDirty(cx - 1, sy, cz);

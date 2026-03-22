@@ -23,11 +23,16 @@ public:
 	inline void SetRenderObjectID(OBJECT_ID id) { m_renderObjectID = id; }
 	inline void ClearRenderObjectID() { m_renderObjectID = INVALID_OBJECT_ID; }
 
+	inline bool IsEmpty() const { return m_nonAirCount == 0; }
+
 private:
 	int _ToIndex(int lx, int ly, int lz) const;
 	
 private:
 	array<BlockCell, CHUNK_SECTION_VOLUME> m_cells{};
+	uint16_t m_nonAirCount = 0;
+
+
 	bool m_bDirty = true;
 	bool m_bBuildQueued = false;
 
