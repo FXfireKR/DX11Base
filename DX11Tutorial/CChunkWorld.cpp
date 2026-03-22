@@ -208,6 +208,41 @@ CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
 	return m_pScene->FindObject(id);
 }
 
+bool CChunkWorld::IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const
+{
+	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
+	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
+
+	// flat world 스폰 안정화용: 주변 3x3 컬럼의 section 0만 확인
+	for (int dz = -1; dz <= 1; ++dz)
+	{
+		for (int dx = -1; dx <= 1; ++dx)
+		{
+			const int cx = centerCx + dx;
+			const int cz = centerCz + dz;
+
+			const CChunkColumn* pColumn = _FindColumn(cx, cz);
+			if (nullptr == pColumn || !pColumn->IsActive())
+				return false;
+
+			const CChunkSection* pSection = pColumn->GetSection(0);
+			if (nullptr == pSection)
+				return false;
+
+			if (pSection->IsDirty())
+				return false;
+
+			if (pSection->IsBuildQueued())
+				return false;
+
+			if (!pSection->HasRenderObjectID())
+				return false;
+		}
+	}
+
+	return true;
+}
+
 void CChunkWorld::DebugRequestReloadActiveColumns()
 {
 	if (m_debugReloadPhase != EDebugReloadPhase::NONE)

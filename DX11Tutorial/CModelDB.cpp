@@ -415,9 +415,9 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
     // 5) Emit baked quad
     BakedQuad q{};
     q.textureHash = fnv1a_64(normalizedTextureKey);
-#ifdef _DEBUG
+//#ifdef _DEBUG
     q.debugTextureKey = normalizedTextureKey;
-#endif // _DEBUG
+//#endif // _DEBUG
     q.dir = static_cast<uint8_t>(eDir);
     q.bHasCullFace = face.bHasCullFace;
     q.cullFaceDir = face.bHasCullFace ? face.cullFaceDir : static_cast<uint8_t>(FACE_DIR::COUNT);

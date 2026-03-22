@@ -20,6 +20,9 @@ public:
 	bool IsGrounded();
 	const XMFLOAT3& GetVelocity() const;
 
+	inline void SetFrozen(bool bFrozen) { m_bFrozen = bFrozen; }
+	inline bool IsFrozen() const { return m_bFrozen; }
+
 private:
 	void _AppluHorizontalMove(float fDelta);
 	void _ApplyJump();
@@ -39,6 +42,7 @@ private:
 
 	XMFLOAT3 m_velocity{ 0.f, 0.f, 0.f };
 	bool m_bGrounded = false;
+	bool m_bFrozen = false;
 
 	float m_fYaw = 0.f;
 

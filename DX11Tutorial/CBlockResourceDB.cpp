@@ -16,15 +16,18 @@ void CBlockResourceDB::Initialize(const char* resourceRoot, ID3D11Device* pDevic
 
 bool CBlockResourceDB::Load()
 {
-	vector<AtlasBuildInput> inputs;
-	if (!_BuildAtlasInputs(inputs))
-		return false;
+	if (!m_bLoadComplete)
+	{
+		vector<AtlasBuildInput> inputs;
+		if (!_BuildAtlasInputs(inputs))
+			return false;
 
-	m_runtimeAtlasBuilder.AddInputs(inputs);
-	if (!m_runtimeAtlasBuilder.Build(m_pDevice, m_runtimeAtlas))
-		return false;
+		m_runtimeAtlasBuilder.AddInputs(inputs);
+		if (!m_runtimeAtlasBuilder.Build(m_pDevice, m_runtimeAtlas))
+			return false;
 
-	m_bLoadComplete = true;
+		m_bLoadComplete = true;
+	}
 	return true;
 }
 

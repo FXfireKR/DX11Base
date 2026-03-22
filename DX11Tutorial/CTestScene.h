@@ -75,4 +75,5 @@ private:
 	float m_fSunBillboardSize = 250.f;
 	float m_fMoonBillboardSize = 225.f;
 	bool m_bShowSunMoon = true;
+	bool m_bSpawnStreamingReady = false;
 };

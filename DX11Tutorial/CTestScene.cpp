@@ -20,7 +20,7 @@ void CTestScene::Awake()
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
 	tr->Init();
-	tr->SetLocalTrans({ 0, 10.f, 0 });
+	tr->SetLocalTrans({ 0, 5.f, 0 });
 	
 	auto* ctrl = m_pPlayer->AddComponent<CPlayerController>();
 	ctrl->Init();
@@ -28,6 +28,7 @@ void CTestScene::Awake()
 	auto* motor = m_pPlayer->AddComponent<CCharacterMotor>();
 	motor->Init();
 	motor->SetWorld(&m_VoxelWorld);
+	motor->SetFrozen(true);
 
 	auto* inventory = m_pPlayer->AddComponent<CInventoryComponent>();
 	inventory->Init();
@@ -54,6 +55,8 @@ void CTestScene::Awake()
 	interactor->SetHighlightObject(m_pHighlightObject);
 
 	_CreateSkyBillboardResources();
+
+	m_bSpawnStreamingReady = false;
 }
 
 void CTestScene::Start()
@@ -107,6 +110,16 @@ void CTestScene::Update(float fDelta)
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
 	{
 		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
+	}
+
+	if (!m_bSpawnStreamingReady)
+	{
+		m_bSpawnStreamingReady = m_VoxelWorld.GetChunkWorld().IsSpawnAreaReady(Trans);
+
+		if (auto* motor = m_pPlayer->GetComponent<CCharacterMotor>())
+		{
+			motor->SetFrozen(!m_bSpawnStreamingReady);
+		}
 	}
 }
 

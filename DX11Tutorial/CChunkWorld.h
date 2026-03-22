@@ -53,6 +53,8 @@ public:
 	const CChunkSection* FindSectionData(int cx, int sy, int cz) const;
 	CObject* FindRenderObject(int cx, int sy, int cz);
 
+	bool IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const;
+
 	void DebugRequestReloadActiveColumns();
 	void DebugProcessReloadRequest();
 
@@ -116,5 +118,6 @@ private:
 
 	vector<SectionCoord> m_vecDirtyQueue;
 	vector<uint64_t> m_tmpWanted;
-	int m_iStreamRadius = 2;
+	//int m_iStreamRadius = 2; // debug
+	int m_iStreamRadius = 8; // real
 };

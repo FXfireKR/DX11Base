@@ -33,6 +33,14 @@ void CCharacterMotor::Update(float fDelta)
 	if (nullptr == m_pOwnTransform || nullptr == m_pWorld) 
 		return;
 
+	if (m_bFrozen)
+	{
+		m_velocity = { 0.f, 0.f, 0.f };
+		m_moveAxis = { 0.f, 0.f };
+		m_bJumpRequested = false;
+		return;
+	}
+
 	_AppluHorizontalMove(fDelta);
 	_ApplyJump();
 	_ApplyGravity(fDelta);

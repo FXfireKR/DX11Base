@@ -11,4 +11,7 @@ public:
 	void FixedUpdate(float fDelta) override;
 	void Update(float fDelta) override;
 	void LateUpdate(float fDelta) override;
+
+private:
+	bool m_bBlockResLoadStarted = false;
 };
