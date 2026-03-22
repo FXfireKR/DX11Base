@@ -117,13 +117,10 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 			{
 				CChunkSection* pSection = pColumn->GetSection(sy);
 
+				// Section이 존재하지 않으면 생성
 				if (nullptr == pSection)
 				{
 					pSection = pColumn->EnsureSection(sy);
-					if (pSection)
-					{
-						_EnsureRenderObject(*pSection, cx, sy, cz);
-					}
 				}
 
 				if (pSection)
@@ -135,6 +132,10 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 						_DestoryRenderObject(*pSection);
 						pColumn->ResetSection(sy);
 						bCurrentSectionRemoved = true;
+					}
+					else if (!pSection->HasRenderObjectID() && !pSection->IsEmpty())
+					{
+						_EnsureRenderObject(*pSection, cx, sy, cz);
 					}
 				}
 			}
@@ -205,6 +206,50 @@ CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
 		return nullptr;
 
 	return m_pScene->FindObject(id);
+}
+
+void CChunkWorld::DebugRequestReloadActiveColumns()
+{
+	if (m_debugReloadPhase != EDebugReloadPhase::NONE)
+		return;
+
+	m_debugReloadCoords.clear();
+	m_debugReloadCoords.reserve(m_columns.size());
+
+	for (const auto& kv : m_columns)
+	{
+		const CChunkColumn& column = kv.second;
+		if (!column.IsActive())
+			continue;
+
+		m_debugReloadCoords.push_back(column.GetCoord());
+	}
+
+	if (m_debugReloadCoords.empty())
+		return;
+
+	for (const ChunkCoord& coord : m_debugReloadCoords)
+	{
+		_UnloadColumn(coord.x, coord.z);
+	}
+
+	m_debugReloadPhase = EDebugReloadPhase::WAIT_LOAD;
+	_UpdateDebugStats();
+}
+
+void CChunkWorld::DebugProcessReloadRequest()
+{
+	if (m_debugReloadCoords.empty())
+		return;
+
+	for (const ChunkCoord& coord : m_debugReloadCoords)
+	{
+		_LoadColumn(coord.x, coord.z);
+	}
+
+	m_debugReloadCoords.clear();
+	m_debugReloadPhase = EDebugReloadPhase::NONE;
+	_UpdateDebugStats();
 }
 
 CChunkColumn* CChunkWorld::_FindColumn(int cx, int cz)
@@ -540,8 +585,19 @@ void CChunkWorld::_UpdateDebugStats()
 		}
 	}
 
+	int modifiedColumns = static_cast<int>(m_modifiedColumns.size());
+	int modifiedCells = 0;
+
+	for (const auto& kv : m_modifiedColumns)
+	{
+		modifiedCells += static_cast<int>(kv.second.cells.size());
+	}
+
 	dbg.SetLoadedColumnCount(loadedColumns);
 	dbg.SetLoadedSectionCount(loadedSections);
 	dbg.SetDirtySectionCount(dirtySections);
 	dbg.SetRebuildQueuedCount((int)m_vecDirtyQueue.size());
+
+	dbg.SetModifiedColumnCount(modifiedColumns);
+	dbg.SetModifiedCellCount(modifiedCells);
 }

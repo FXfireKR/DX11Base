@@ -31,6 +31,8 @@ public:
     inline void SetVisibleSectionCount(int count) { m_snapshot.world.visibleSectionCount = count; }
     inline void SetDirtySectionCount(int count) { m_snapshot.world.dirtySectionCount = count; }
     inline void SetRebuildQueuedCount(int count) { m_snapshot.world.rebuildQueuedCount = count; }
+    inline void SetModifiedColumnCount(int count) { m_snapshot.world.modifiedColumnCount = count; }
+    inline void SetModifiedCellCount(int count) { m_snapshot.world.modifiedCellCount = count; }
 
     void AddChunkLoad(int count = 1);
     void AddChunkUnload(int count = 1);

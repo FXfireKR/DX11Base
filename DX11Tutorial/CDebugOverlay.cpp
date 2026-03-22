@@ -31,6 +31,8 @@ void CDebugOverlay::Render()
         ImGui::Text("Dirty Sections        : %d", s.world.dirtySectionCount);
         ImGui::Text("Rebuild Queued        : %d", s.world.rebuildQueuedCount);
         ImGui::Text("Rebuilt This Frame    : %d", s.world.rebuiltThisFrameCount);
+        ImGui::Text("Modified Columns      : %d", s.world.modifiedColumnCount);
+        ImGui::Text("Modified Cells        : %d", s.world.modifiedCellCount);
         ImGui::Text("Chunk Load This Frame : %d", s.world.chunkLoadCountThisFrame);
         ImGui::Text("Chunk Unload This Frm : %d", s.world.chunkUnloadCountThisFrame);
         ImGui::Text("Block Edit This Frame : %d", s.world.blockEditCountThisFrame);

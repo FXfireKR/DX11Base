@@ -73,8 +73,8 @@ void CTestScene::Update(float fDelta)
 	timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
 
 #ifdef IMGUI_ACTIVATE
-	ImGui::Text("This is TestScene!");
 	ImGui::Text("Chunk Bounds (F2) : %s", m_bShowChunkBounds ? "ON" : "OFF");
+	ImGui::Text("Force Active Chunks Reload! (F5)");
 
 	ImGui::Text("Day01			: %.4f", timeParams.day01);
 	ImGui::Text("TickOfDay		: %.1f", timeParams.tickOfDay);
@@ -103,6 +103,11 @@ void CTestScene::Update(float fDelta)
 	XMFLOAT3 Trans = tr->GetWorldTrans();
 
 	m_VoxelWorld.Update(fDelta, Trans);
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
+	{
+		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
+	}
 }
 
 void CTestScene::LateUpdate(float fDelta)

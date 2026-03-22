@@ -22,6 +22,12 @@ CChunkSection
 
 */
 
+enum class EDebugReloadPhase : uint8_t
+{
+	NONE = 0,
+	WAIT_LOAD,
+};
+
 struct ModifiedColumnOverlay
 {
 	unordered_map<uint16_t, BlockCell> cells;
@@ -46,6 +52,9 @@ public:
 	CChunkSection* FindSectionDataMutable(int cx, int sy, int cz);
 	const CChunkSection* FindSectionData(int cx, int sy, int cz) const;
 	CObject* FindRenderObject(int cx, int sy, int cz);
+
+	void DebugRequestReloadActiveColumns();
+	void DebugProcessReloadRequest();
 
 	// range-based accessor
 	template<typename Fn>
@@ -101,6 +110,9 @@ private:
 
 	unordered_map<uint64_t, CChunkColumn> m_columns;
 	unordered_map<uint64_t, ModifiedColumnOverlay> m_modifiedColumns;
+
+	EDebugReloadPhase m_debugReloadPhase = EDebugReloadPhase::NONE;
+	vector<ChunkCoord> m_debugReloadCoords;
 
 	vector<SectionCoord> m_vecDirtyQueue;
 	vector<uint64_t> m_tmpWanted;

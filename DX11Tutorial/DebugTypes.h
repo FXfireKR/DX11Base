@@ -25,6 +25,9 @@ struct WorldDebugStats
     int rebuildQueuedCount = 0;
     int rebuiltThisFrameCount = 0;
 
+    int modifiedColumnCount = 0;
+    int modifiedCellCount = 0;
+
     int chunkLoadCountThisFrame = 0;
     int chunkUnloadCountThisFrame = 0;
     int blockEditCountThisFrame = 0;
