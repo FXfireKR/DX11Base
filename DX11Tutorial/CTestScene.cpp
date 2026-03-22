@@ -101,10 +101,6 @@ void CTestScene::Update(float fDelta)
 	CTransform* tr = m_pPlayer->GetComponent<CTransform>();
 	tr->BuildWorldMatrix();
 	XMFLOAT3 Trans = tr->GetWorldTrans();
-	
-#ifdef IMGUI_ACTIVATE
-	ImGui::Text("Position %.3f %.3f %.3f", Trans.x, Trans.y, Trans.z);
-#endif // IMGUI_ACTIVATE
 
 	m_VoxelWorld.Update(fDelta, Trans);
 }

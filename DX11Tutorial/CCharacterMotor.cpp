@@ -14,7 +14,7 @@ void CCharacterMotor::Init()
 
 	m_fYaw = 0.f;
 
-	m_fMoveSpeed = 5.f;
+	m_fMoveSpeed = 4.5f;
 	m_fJumpSpeed = 7.f;
 	m_fGravity = 20.f;
 	m_fMaxFallSpeed = 40.f;
@@ -30,7 +30,8 @@ void CCharacterMotor::Start()
 
 void CCharacterMotor::Update(float fDelta)
 {
-	if (nullptr == m_pOwnTransform || nullptr == m_pWorld) return;
+	if (nullptr == m_pOwnTransform || nullptr == m_pWorld) 
+		return;
 
 	_AppluHorizontalMove(fDelta);
 	_ApplyJump();
@@ -39,16 +40,6 @@ void CCharacterMotor::Update(float fDelta)
 	_RefreshGrounded();
 
 	m_bJumpRequested = false;
-
-#ifdef IMGUI_ACTIVATE
-	m_pOwnTransform->BuildWorldMatrix();
-	ImGui::DragFloat("Move Speed", &m_fMoveSpeed, 0.01f, 0.f, 30.f);
-	ImGui::DragFloat("Jump Speed", &m_fJumpSpeed, 0.01f, 0.f, 30.f);
-	ImGui::DragFloat("Gravity", &m_fGravity, 0.01f, 0.f, 100.f);
-	ImGui::Text("Velocity.y : %.5f", m_velocity.y);
-	ImGui::Text(m_bGrounded ? "Gounded" : "Not Gounded");
-	ImGui::Text("CCharacterMotor : %.5f", m_pOwnTransform->GetWorldTrans().y);
-#endif // IMGUI_ACTIVATE
 }
 
 void CCharacterMotor::SetWorld(CWorld* pWorld)
@@ -207,14 +198,15 @@ void CCharacterMotor::_RefreshGrounded()
 	const bool wasGrounded = m_bGrounded;
 	m_bGrounded = m_pWorld->CheckAABBBlocked(probeCenter, probeHalf);
 
-	if (m_bGrounded && m_velocity.y < 0.f)
+	if (!wasGrounded && m_bGrounded && m_velocity.y <= 0.f)
 	{
 		const XMFLOAT3 halfExtents = { m_fHalfWidth, m_fHalfHeight, m_fHalfWidth };
 
 		footPos.y = _ResolveGroundSnapY(footPos, halfExtents);
 		m_pOwnTransform->SetLocalTrans(footPos);
 
-		m_velocity.y = 0.f;
+		if (m_velocity.y < 0.f)
+			m_velocity.y = 0.f;
 	}
 }
 

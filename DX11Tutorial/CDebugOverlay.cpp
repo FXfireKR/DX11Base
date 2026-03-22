@@ -50,7 +50,7 @@ void CDebugOverlay::Render()
 
     if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Text("Player Pos      : %.2f, %.2f, %.2f",
+        ImGui::Text("Player Pos      : %.2f, %.5f, %.2f",
             s.player.playerPos.x, s.player.playerPos.y, s.player.playerPos.z);
 
         ImGui::Text("Chunk Coord     : %d, %d, %d",
