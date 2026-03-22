@@ -14,6 +14,7 @@ public:
 	void Initialize(CRenderWorld& renderWorld_);
 	void Tick();
 	void BuildRenderFrame();
+	void RenderDebugOverlay();
 
 private:
 	void _RegisterScenes();

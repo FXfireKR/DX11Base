@@ -50,6 +50,7 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 			// index, vertex 분리
 			if (nullptr != renderItem.pMesh)
 			{
+				dbg.AddDrawCallOpaque();
 				renderItem.pMesh->Draw(pContext);
 			}
 		}

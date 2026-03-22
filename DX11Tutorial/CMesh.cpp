@@ -331,13 +331,11 @@ void CMesh::Bind(ID3D11DeviceContext* pContext) const
 void CMesh::Draw(ID3D11DeviceContext* pContext) const
 {
 	if (!m_pIndexBuffer) 
-	{
-		dbg.AddDrawCallOpaque();
+	{		
 		pContext->Draw(m_uVertexCnt, 0);
 	}
 	else 
 	{
-		dbg.AddDrawCallOpaque();
 		pContext->DrawIndexed(m_uIndexCnt, 0, 0);
 	}
 }

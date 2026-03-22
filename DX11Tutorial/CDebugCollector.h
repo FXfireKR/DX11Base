@@ -8,7 +8,7 @@ public:
     void BeginFrame();
     void EndFrame();
     
-    inline const DebugStatsSnapshot& GetSnapshot() const { return m_snapshot; }
+    inline const DebugStatsSnapshot& GetSnapshot() const { return m_displayShot; }
 
 public:
     // -------------------------------------------------
@@ -68,6 +68,6 @@ private:
     void _ResetPerFrameCounters();
 
 private:
-    DebugStatsSnapshot m_snapshot;
-
+    DebugStatsSnapshot m_snapshot; // collect snapshot
+    DebugStatsSnapshot m_displayShot; // N-1 Frame SnapShot
 };

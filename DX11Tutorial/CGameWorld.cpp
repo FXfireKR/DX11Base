@@ -50,11 +50,9 @@ void CGameWorld::Tick()
 		CScopedCpuTimer timer(lasUpdateMs);
 		m_sceneManager.LateUpdate(fDelta);
 	}
-	dbg.SetLateUpdateMs(updateMs);
+	dbg.SetLateUpdateMs(lasUpdateMs);
 
 	m_sceneManager.CheckChangeScene();
-
-	m_debugOverlay.Render();
 }
 
 void CGameWorld::BuildRenderFrame()
@@ -70,6 +68,11 @@ void CGameWorld::BuildRenderFrame()
 		m_pRenderWorld->EndBuildFrame();
 	}
 	dbg.SetRenderBuildMs(renderBuildMs);
+}
+
+void CGameWorld::RenderDebugOverlay()
+{
+	m_debugOverlay.Render();
 }
 
 void CGameWorld::_RegisterScenes()

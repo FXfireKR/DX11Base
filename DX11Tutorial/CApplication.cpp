@@ -66,6 +66,7 @@ void Application::Tick()
 		// Frame Fence
 		{
 			m_gameWorld.BuildRenderFrame();
+			m_gameWorld.RenderDebugOverlay();
 		}
 
 		// Render

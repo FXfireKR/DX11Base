@@ -9,6 +9,7 @@ void CDebugCollector::BeginFrame()
 void CDebugCollector::EndFrame()
 {
     // 필요하면 나중에 history push, 평균 계산 등을 여기서 수행
+    m_displayShot = m_snapshot;
 }
 
 void CDebugCollector::_ResetPerFrameCounters()

@@ -19,10 +19,17 @@ HRESULT CDirectX11Adapter::Initialize(HWND hWnd_)
 	m_hWnd = hWnd_;
 	assert(m_hWnd);
 
-	assert(SUCCEEDED(_CreateDeviceAndContext()));
-	assert(SUCCEEDED(_BindDXGI()));
-	assert(SUCCEEDED(_CreateSwapChain()));
-	assert(SUCCEEDED(_FetchDistplayModeList()));
+	HRESULT hr = _CreateDeviceAndContext();
+	assert(SUCCEEDED(hr));
+
+	hr = _BindDXGI();
+	assert(SUCCEEDED((hr)));
+
+	hr = _CreateSwapChain();
+	assert(SUCCEEDED((hr)));
+
+	hr = _FetchDistplayModeList();
+	assert(SUCCEEDED((hr)));
 
 	return S_OK;
 }
