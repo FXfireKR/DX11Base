@@ -104,7 +104,6 @@ void CPlayerController::_UpdateMouseLockToggle()
 		if (mouse.GetMoveLock())
 		{
 			mouse.EnalbleMove();
-			ShowCursor(TRUE);
 		}
 		else
 		{

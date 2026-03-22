@@ -32,12 +32,16 @@ public:
 
 	inline const bool& GetMoveLock() const { return m_bMouseMoveLock; }
 	inline const void EnalbleMove() { 
-		m_bMouseMoveLock = false; 
-		ShowCursor(true);
+		if (m_bMouseMoveLock != false) {
+			m_bMouseCursorDirty = true;
+		}
+		m_bMouseMoveLock = false;
 	}
 	inline const void DisalbleMove() { 
+		if (m_bMouseMoveLock != true) {
+			m_bMouseCursorDirty = true;
+		}
 		m_bMouseMoveLock = true; 
-		ShowCursor(false);
 	}
 
 	inline void SetWindowTarget(CWindow& window) { m_pWindow = &window; }
@@ -52,6 +56,7 @@ private:
 	POINT m_pos;
 	short m_sWheel = 0;
 	bool m_bMouseMoveLock = false;
+	bool m_bMouseCursorDirty = false;
 
 	CWindow* m_pWindow = nullptr;
 };

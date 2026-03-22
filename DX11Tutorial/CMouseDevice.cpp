@@ -13,6 +13,11 @@ void CMouseDevice::BeginFrame()
 	m_sWheel = 0;
 
 	GetCursorPos(&m_pos);
+	if (m_bMouseCursorDirty)
+	{
+		m_bMouseCursorDirty = false;
+		ShowCursor(m_bMouseMoveLock ? FALSE : TRUE);
+	}
 }
 
 void CMouseDevice::OnRawInput(const RAWINPUT& raw)
