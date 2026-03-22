@@ -67,6 +67,13 @@ inline void CBlockInteractor::_UpdateRaycast()
 	_MakeCenterRay(rayOrigin, rayDir);
 
 	m_pWorld->RaycastBlock(rayOrigin, rayDir, m_fReach, m_hitResult);
+
+
+	dbg.ClearBlockHit();
+	if (m_hitResult.bHit)
+	{
+		dbg.SetBlockHit(m_hitResult.block, m_hitResult.normal, m_hitResult.cell.blockID, m_hitResult.cell.stateIndex);
+	}
 }
 
 void CBlockInteractor::_UpdateHighlight()

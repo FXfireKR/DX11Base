@@ -5,6 +5,7 @@
 #include "CInventoryComponent.h"
 #include "CObject.h"
 #include "CTransform.h"
+#include "ChunkMath.h"
 
 void CPlayerController::Init()
 {
@@ -33,6 +34,15 @@ void CPlayerController::Update(float fDelta)
 	_UpdateMoveIntent();
 	_UpdateActionIntent();
 	_UpdateHotbarIntent();
+
+	XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
+	dbg.SetPlayerPosition(pos);
+
+	XMINT3 chunkCoord{};
+	chunkCoord.x = ChunkMath::FloorDiv16((int)std::floor(pos.x));
+	chunkCoord.y = ChunkMath::FloorDiv16((int)std::floor(pos.y));
+	chunkCoord.z = ChunkMath::FloorDiv16((int)std::floor(pos.z));
+	dbg.SetCurrentBlockCoord(chunkCoord);
 
 	/*if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) return;
 
