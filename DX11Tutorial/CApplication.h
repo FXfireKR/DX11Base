@@ -21,6 +21,7 @@ public:
 	LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_);
 
 private:
+	bool _ImGuiInitialize(HWND hWnd_);
 	void _RegisterRawInput(HWND hWnd_);
 
 private:

@@ -130,9 +130,11 @@ struct UVRect
 };
 
 // singleton
+#include "CDebugCollector.h"
 #include "CInputManager.h"
 #include "CBlockDB.h"
 #include "CBlockResourceDB.h"
 
+#define dbg CDebugCollector::Get()
 #define BlockDB CBlockDB::Get()
 #define BlockResDB CBlockResourceDB::Get()

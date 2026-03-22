@@ -18,22 +18,7 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	m_window.Initialize(hWnd_);
 
-#ifdef IMGUI_ACTIVATE
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-	ImGui::StyleColorsDark();
-
-	if (false == ImGui_ImplWin32_Init(hWnd_))
-		return false;
-
-	if (false == ImGui_ImplDX11_Init(m_renderWorld.GetDevice(), m_renderWorld.GetContext()))
-		return false;
-#endif // IMGUI_ACTIVATE
-
+	_ImGuiInitialize(hWnd_);
 	_RegisterRawInput(hWnd_);
 
 	//m_rawInputDispatcher.init();
@@ -60,21 +45,25 @@ void Application::Tick()
 {
 	m_window.CalcWindowSize();
 
+	dbg.BeginFrame();
 	CInputManager::Get().BeginFrame();
 	{
 		// Input Dispatch
 		m_rawInputDispatcher.DispatchRawQueue();
 
-		// Logic
-		{
 #ifdef IMGUI_ACTIVATE
-			ImGui_ImplDX11_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 #endif // IMGUI_ACTIVATE
 
+		// Logic
+		{
 			m_gameWorld.Tick();
+		}
 
+		// Frame Fence
+		{
 			m_gameWorld.BuildRenderFrame();
 		}
 
@@ -93,6 +82,7 @@ void Application::Tick()
 		}
 	}
 	CInputManager::Get().EndFrame();
+	dbg.EndFrame();
 }
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
@@ -129,6 +119,26 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 	}
 
 	return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
+}
+
+bool Application::_ImGuiInitialize(HWND hWnd_)
+{
+#ifdef IMGUI_ACTIVATE
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+	ImGui::StyleColorsDark();
+
+	if (false == ImGui_ImplWin32_Init(hWnd_))
+		return false;
+
+	if (false == ImGui_ImplDX11_Init(m_renderWorld.GetDevice(), m_renderWorld.GetContext()))
+		return false;
+#endif // IMGUI_ACTIVATE
+	return true;
 }
 
 void Application::_RegisterRawInput(HWND hWnd_)
