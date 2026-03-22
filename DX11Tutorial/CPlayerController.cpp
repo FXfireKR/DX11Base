@@ -42,7 +42,7 @@ void CPlayerController::Update(float fDelta)
 	chunkCoord.x = ChunkMath::FloorDiv16((int)std::floor(pos.x));
 	chunkCoord.y = ChunkMath::FloorDiv16((int)std::floor(pos.y));
 	chunkCoord.z = ChunkMath::FloorDiv16((int)std::floor(pos.z));
-	dbg.SetCurrentBlockCoord(chunkCoord);
+	dbg.SetCurrentChunkCoord(chunkCoord);
 
 	/*if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) return;
 

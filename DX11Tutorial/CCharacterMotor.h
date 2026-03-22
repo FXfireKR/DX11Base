@@ -26,6 +26,7 @@ private:
 	void _ApplyGravity(float fDelta);
 	void _MoveWithCollision(float fDelta);
 	void _RefreshGrounded();
+	float _ResolveGroundSnapY(const XMFLOAT3& footPos, const XMFLOAT3& halfExtents) const;
 
 	XMFLOAT3 _GetAABBCenterFromFootPos(const XMFLOAT3& footPos) const;
 

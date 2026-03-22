@@ -32,12 +32,6 @@ void CCharacterMotor::Update(float fDelta)
 {
 	if (nullptr == m_pOwnTransform || nullptr == m_pWorld) return;
 
-#ifdef IMGUI_ACTIVATE
-	ImGui::DragFloat("Move Speed", &m_fMoveSpeed, 0.01f, 0.f, 30.f);
-	ImGui::DragFloat("Jump Speed", &m_fJumpSpeed, 0.01f, 0.f, 30.f);
-	ImGui::DragFloat("Gravity", &m_fGravity, 0.01f, 0.f, 100.f);
-#endif // IMGUI_ACTIVATE
-
 	_AppluHorizontalMove(fDelta);
 	_ApplyJump();
 	_ApplyGravity(fDelta);
@@ -45,6 +39,16 @@ void CCharacterMotor::Update(float fDelta)
 	_RefreshGrounded();
 
 	m_bJumpRequested = false;
+
+#ifdef IMGUI_ACTIVATE
+	m_pOwnTransform->BuildWorldMatrix();
+	ImGui::DragFloat("Move Speed", &m_fMoveSpeed, 0.01f, 0.f, 30.f);
+	ImGui::DragFloat("Jump Speed", &m_fJumpSpeed, 0.01f, 0.f, 30.f);
+	ImGui::DragFloat("Gravity", &m_fGravity, 0.01f, 0.f, 100.f);
+	ImGui::Text("Velocity.y : %.5f", m_velocity.y);
+	ImGui::Text(m_bGrounded ? "Gounded" : "Not Gounded");
+	ImGui::Text("CCharacterMotor : %.5f", m_pOwnTransform->GetWorldTrans().y);
+#endif // IMGUI_ACTIVATE
 }
 
 void CCharacterMotor::SetWorld(CWorld* pWorld)
@@ -155,7 +159,7 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 
 	// Y
 	{
-		XMFLOAT3 testFoot = footPos;
+		XMFLOAT3 testFoot = footPos;	
 		testFoot.y += delta.y;
 
 		const XMFLOAT3 center = _GetAABBCenterFromFootPos(testFoot);
@@ -167,6 +171,7 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 		{
 			if (m_velocity.y < 0.f)
 			{
+				footPos.y = _ResolveGroundSnapY(footPos, halfExtents);
 				m_bGrounded = true;
 			}
 			m_velocity.y = 0.f;
@@ -194,12 +199,49 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 
 void CCharacterMotor::_RefreshGrounded()
 {
-	const XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
+	XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
 
 	const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.02f, 0.05f, m_fHalfWidth - 0.02f };
 	const XMFLOAT3 probeCenter = { footPos.x, footPos.y - 0.05f, footPos.z };
 
+	const bool wasGrounded = m_bGrounded;
 	m_bGrounded = m_pWorld->CheckAABBBlocked(probeCenter, probeHalf);
+
+	if (m_bGrounded && m_velocity.y < 0.f)
+	{
+		const XMFLOAT3 halfExtents = { m_fHalfWidth, m_fHalfHeight, m_fHalfWidth };
+
+		footPos.y = _ResolveGroundSnapY(footPos, halfExtents);
+		m_pOwnTransform->SetLocalTrans(footPos);
+
+		m_velocity.y = 0.f;
+	}
+}
+
+float CCharacterMotor::_ResolveGroundSnapY(const XMFLOAT3& footPos, const XMFLOAT3& halfExtents) const
+{
+	constexpr float fMaxSnapDown = 0.1f;
+	constexpr int iMaxSteps = 16;
+	constexpr float fSkin = 0.001f;
+
+	float bestY = footPos.y;
+
+	for (int i = 1; i <= iMaxSteps; ++i)
+	{
+		const float t = static_cast<float>(i) / static_cast<float>(iMaxSteps);
+		const float y = footPos.y - fMaxSnapDown * t;
+
+		XMFLOAT3 testFoot = footPos;
+		testFoot.y = y;
+
+		const XMFLOAT3 center = _GetAABBCenterFromFootPos(testFoot);
+		if (m_pWorld->CheckAABBBlocked(center, halfExtents))
+			break;
+
+		bestY = y;
+	}
+
+	return bestY + fSkin;
 }
 
 XMFLOAT3 CCharacterMotor::_GetAABBCenterFromFootPos(const XMFLOAT3& footPos) const
