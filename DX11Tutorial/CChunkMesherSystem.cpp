@@ -47,7 +47,12 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 		CMesh* mesh = scene.GetRenderWorld().GetMeshManager().CreateOrUpdateDynamicMesh(scene.GetRenderWorld().GetContext()
 			, meshKey, meshData.vertices.data(), sizeof(ChunkMeshVertex), meshData.vertices.size(), meshData.indices.data(), meshData.indices.size());
 
+		if (nullptr == mesh)
+			continue;
+
 		meshRender->SetMesh(mesh);
 		pSection->ClearDirty();
+
+		dbg.AddRebuiltSection();
 	}
 }

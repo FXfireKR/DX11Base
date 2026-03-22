@@ -13,6 +13,8 @@ void CMouseDevice::BeginFrame()
 	m_sWheel = 0;
 
 	GetCursorPos(&m_pos);
+
+	// cursor dirty
 	if (m_bMouseCursorDirty)
 	{
 		m_bMouseCursorDirty = false;
