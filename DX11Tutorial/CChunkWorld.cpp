@@ -109,9 +109,26 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 
 	if (_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
 	{
-		if (CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz))
+		if (CChunkColumn* pColumn = _FindColumn(cx, cz))
 		{
-			pSection->SetBlock(lx, ly, lz, newCell);
+			if (pColumn->IsActive())
+			{
+				CChunkSection* pSection = pColumn->GetSection(sy);
+
+				if (nullptr == pSection)
+				{
+					pSection = pColumn->EnsureSection(sy);
+					if (pSection)
+					{
+						_EnsureRenderObject(*pSection, cx, sy, cz);
+					}
+				}
+
+				if (pSection)
+				{
+					pSection->SetBlock(lx, ly, lz, newCell);
+				}
+			}
 		}
 	}
 
@@ -504,7 +521,8 @@ void CChunkWorld::_UpdateDebugStats()
 		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
 		{
 			CChunkSection* sec = col.GetSection(sy);
-			if (!sec) continue;
+			if (!sec) 
+				continue;
 
 			++loadedSections;
 			if (sec->IsDirty())
