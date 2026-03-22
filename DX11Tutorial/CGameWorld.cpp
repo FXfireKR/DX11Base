@@ -44,6 +44,8 @@ void CGameWorld::Tick()
 
 	m_sceneManager.CheckChangeScene();
 	// pedding destroy
+
+	m_debugOverlay.Render();
 }
 
 void CGameWorld::BuildRenderFrame()

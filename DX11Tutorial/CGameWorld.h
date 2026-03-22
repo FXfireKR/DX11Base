@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CDeltaTimeManager.h"
 #include "CSceneManager.h"
+#include "CDebugOverlay.h"
 
 class CRenderWorld;
 
@@ -21,6 +22,7 @@ public:
 	inline CRenderWorld* GetRenderWorld() const { return m_pRenderWorld; }
 
 private:
+	CDebugOverlay m_debugOverlay;
 	CDeltaTimeManager m_gameTimeManager;
 	CSceneManager m_sceneManager;
 

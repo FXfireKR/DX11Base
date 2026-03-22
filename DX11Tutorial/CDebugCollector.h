@@ -65,13 +65,6 @@ public:
         , uint16_t blockId, uint16_t stateIndex);
 
 private:
-    CDebugCollector() = default;
-    ~CDebugCollector() = default;
-
-    CDebugCollector(const CDebugCollector&) = delete;
-    CDebugCollector& operator=(const CDebugCollector&) = delete;
-
-private:
     void _ResetPerFrameCounters();
 
 private:

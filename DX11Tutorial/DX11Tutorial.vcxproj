@@ -175,6 +175,7 @@
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDebugCollector.h" />
+    <ClInclude Include="CDebugOverlay.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
     <ClInclude Include="CDualSenseDevice.h" />
     <ClInclude Include="CDummyThread.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="CChunkSection.cpp" />
     <ClCompile Include="CChunkWorld.cpp" />
     <ClCompile Include="CDebugCollector.cpp" />
+    <ClCompile Include="CDebugOverlay.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
     <ClCompile Include="CInitializeScene.cpp" />

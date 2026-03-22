@@ -102,9 +102,14 @@ void CPlayerController::_UpdateMouseLockToggle()
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_TAB))
 	{
 		if (mouse.GetMoveLock())
+		{
 			mouse.EnalbleMove();
+			ShowCursor(TRUE);
+		}
 		else
+		{
 			mouse.DisalbleMove();
+		}
 	}
 }
 
