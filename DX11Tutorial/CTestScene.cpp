@@ -89,6 +89,8 @@ void CTestScene::Update(float fDelta)
 	ImGui::DragFloat("Sun size : %.3f", &m_fSunBillboardSize);
 	ImGui::DragFloat("Moon size : %.3f", &m_fMoonBillboardSize);
 
+	ImGui::DragFloat("Shadow Bias : %.6f", &m_debugBias, 0.00001f, 0.0f, 0.002f, "%.6f");
+
 #endif // IMGUI_ACTIVATE
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
@@ -175,9 +177,8 @@ void CTestScene::BuildRenderFrame()
 		XMMATRIX matLightProj = XMMatrixOrthographicLH(96.0f, 96.0f, 1.0f, 160.0f);
 
 		rw.SetLightViewProj(matLightView * matLightProj);
-		//rw.SetShadowParams(0.0008f, 0.35f);
-		rw.SetShadowParams(0.0020f, 0.35f);
-	}
+		rw.SetShadowParams(0.00018f, 0.35f);
+	}	
 
 	/*{
 		XMFLOAT3 sunDir{}, moonDir{};

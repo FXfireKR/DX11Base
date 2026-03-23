@@ -24,6 +24,7 @@ cbuffer CBFrame : register(b0)
     float4 lightDirWs; // xyz = direction to light
     float4 lightColorIntensity; // rgb = light color, a = intensity
     float4 ambientColor; // rgb = ambient
+    float4 skyColor;
 
     float4x4 lightViewProj;
     float4 shadowParams;
@@ -84,7 +85,8 @@ float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
     float currentDepth = ndc.z;
 
     float baseBias = shadowParams.x;
-    float slopeBias = max(baseBias * (1.0f - saturate(dot(N, L))), baseBias);
+    float slopeFactor = 1.0f - saturate(dot(N, L));
+    float slopeBias = baseBias * (1.0f + 4.0f * slopeFactor);
 
     return (currentDepth - slopeBias <= shadowDepth) ? 1.0f : shadowParams.y;
 }
