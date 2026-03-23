@@ -66,7 +66,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float3 ambient = ambientColor.rgb;
     float3 direct = lightColorIntensity.rgb * (NdotL * lightColorIntensity.a);
 
-    float lighting = ambient + direct;
+    float3 lighting = ambient + direct;
     return float4(albedo.rgb * lighting, albedo.a);
 }
 
