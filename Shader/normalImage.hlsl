@@ -61,7 +61,7 @@ Texture2D texture0 : register(t0);
 SamplerState sampler0 : register(s0);
 
 Texture2D shadowMap : register(t1);
-SamplerState shadowSampler : register(s1);
+SamplerComparisonState shadowSampler : register(s1);
 
 float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
 {
@@ -81,14 +81,33 @@ float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
         return 1.0f;
     }
 
-    float shadowDepth = shadowMap.Sample(shadowSampler, shadowUV).r;
-    float currentDepth = ndc.z;
-
     float baseBias = shadowParams.x;
     float slopeFactor = 1.0f - saturate(dot(N, L));
-    float slopeBias = baseBias * (1.0f + 4.0f * slopeFactor);
+    float bias = baseBias * (1.0f + 4.0f * slopeFactor);
 
-    return (currentDepth - slopeBias <= shadowDepth) ? 1.0f : shadowParams.y;
+    uint w, h;
+    shadowMap.GetDimensions(w, h);
+    float2 texelSize = 1.0f / float2(w, h);
+
+    float compareDepth = ndc.z - bias;
+
+    float lit = 0.0f;
+
+    [unroll]
+    for (int y = -1; y <= 1; ++y)
+    {
+        [unroll]
+        for (int x = -1; x <= 1; ++x)
+        {
+            float2 offset = float2(x, y) * texelSize;
+            lit += shadowMap.SampleCmpLevelZero(shadowSampler, shadowUV + offset, compareDepth);
+        }
+    }
+
+    lit /= 9.0f;
+
+    // 0이면 완전 그림자, 1이면 완전 lit
+    return lerp(shadowParams.y, 1.0f, lit);
 }
 
 float4 PS(VS_OUTPUT input) : SV_Target

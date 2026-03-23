@@ -173,11 +173,45 @@ void CTestScene::BuildRenderFrame()
 		if (upDot > 0.98f)
 			vUp = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 
+		const float orthoWidth = 48.0f;
+		const float orthoHeight = 48.0f;
+		const float shadowMapSize = 2048.0f;
+
 		XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
-		XMMATRIX matLightProj = XMMatrixOrthographicLH(96.0f, 96.0f, 1.0f, 160.0f);
+
+		// focus를 light space로 보내서 texel grid에 스냅
+		XMVECTOR vFocusLS = XMVector3TransformCoord(vFocus, matLightView);
+
+		XMFLOAT3 focusLS{};
+		XMStoreFloat3(&focusLS, vFocusLS);
+
+		const float texelSizeX = orthoWidth / shadowMapSize;
+		const float texelSizeY = orthoHeight / shadowMapSize;
+
+		const float snappedX = roundf(focusLS.x / texelSizeX) * texelSizeX;
+		const float snappedY = roundf(focusLS.y / texelSizeY) * texelSizeY;
+
+		XMVECTOR vDeltaLS = XMVectorSet(
+			snappedX - focusLS.x,
+			snappedY - focusLS.y,
+			0.0f,
+			0.0f
+		);
+
+		// light-view 기준 보정량을 world space로 되돌림
+		XMMATRIX invLightView = XMMatrixInverse(nullptr, matLightView);
+		XMVECTOR vDeltaWS = XMVector3TransformNormal(vDeltaLS, invLightView);
+
+		vEye += vDeltaWS;
+		vTarget += vDeltaWS;
+
+		// 스냅된 eye/target으로 view 재생성
+		matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
+
+		XMMATRIX matLightProj = XMMatrixOrthographicLH(orthoWidth, orthoHeight, 1.0f, 120.0f);
 
 		rw.SetLightViewProj(matLightView * matLightProj);
-		rw.SetShadowParams(0.00018f, 0.35f);
+		rw.SetShadowParams(0.0005f, 0.35f);
 	}	
 
 	/*{
@@ -521,7 +555,7 @@ void CTestScene::_CreateWorldRender()
 
 	// sampler	
 	auto albedoSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
-	auto shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_CLAMP);
+	auto shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::SHADOWCOMPARISON);
 
 	// material	
 	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
