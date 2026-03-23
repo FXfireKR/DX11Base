@@ -66,6 +66,40 @@ void CPipeline::CreateTransparentAlphaState(ID3D11Device* pDevice, bool bCullNon
 	pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
 }
 
+void CPipeline::CreateAdditiveState(ID3D11Device* pDevice, bool bCullNone)
+{
+	D3D11_RASTERIZER_DESC rs = {};
+	rs.FillMode = D3D11_FILL_SOLID;
+	rs.CullMode = bCullNone ? D3D11_CULL_NONE : D3D11_CULL_BACK;
+	rs.FrontCounterClockwise = FALSE;
+	pDevice->CreateRasterizerState(&rs, m_pRasterizerState.GetAddressOf());
+
+	D3D11_DEPTH_STENCIL_DESC dsd{};
+	dsd.DepthEnable = true;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS; // 일반적인 Z Test
+	dsd.StencilEnable = false; // 스텐실은 필요 없으면 끔
+	pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf());
+
+	D3D11_BLEND_DESC bd{};
+	bd.AlphaToCoverageEnable = false;
+	bd.IndependentBlendEnable = false;
+
+	auto& rt = bd.RenderTarget[0];
+	rt.BlendEnable = true;
+	rt.SrcBlend = D3D11_BLEND_ONE;
+	rt.DestBlend = D3D11_BLEND_ONE;
+	rt.BlendOp = D3D11_BLEND_OP_ADD;
+
+	rt.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rt.DestBlendAlpha = D3D11_BLEND_ONE;
+	rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+	rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
+}
+
 void CPipeline::SetShader(CShader* const pShader_)
 {
 	if (nullptr == pShader_) 
@@ -106,12 +140,4 @@ void CPipeline::Bind(ID3D11DeviceContext* pDeviceContext_) const
 
 	float blendFactor[4] = { 1.f, 1.f, 1.f ,1.f };
 	pDeviceContext_->OMSetBlendState(m_pBlendState.Get(), blendFactor, 0xffffffff);
-}
-
-void CPipeline::Begin(ID3D11DeviceContext* pDeviceContext_)
-{
-}
-
-void CPipeline::End(ID3D11DeviceContext* pDeviceContext_)
-{
 }

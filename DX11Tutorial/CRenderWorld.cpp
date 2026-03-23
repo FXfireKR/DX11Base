@@ -54,6 +54,7 @@ void CRenderWorld::BeginFrame()
 	cb.lightDirWs = m_vLightDirWs;
 	cb.lightColorIntensity = m_vLightColorIntensity;
 	cb.ambientColor = m_vAmbientColor;
+	cb.skyColor = m_vSkyColor;
 
 	D3D11_MAPPED_SUBRESOURCE mapped{};
 	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);

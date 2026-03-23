@@ -23,6 +23,8 @@ struct CB_FrameData
 	XMFLOAT4 lightDirWs; // wyz = world-space direction to light
 	XMFLOAT4 lightColorIntensity; // rgb = light color, a = intensity
 	XMFLOAT4 ambientColor; // rgb = abient, a = unused
+
+	XMFLOAT4 skyColor;
 };
 
 class CRenderWorld
@@ -65,9 +67,13 @@ public:
 		m_vLightColorIntensity = { color.x, color.y, color.z, intensity };
 	}
 
-	inline void SetAmbientLight(const XMFLOAT3& ambient)
+	inline void SetAmbientLight(const XMFLOAT3& ambient) 
+	{ 
+		m_vAmbientColor = { ambient.x, ambient.y, ambient.z, 0.0f }; 
+	}
+	inline void SetSkyColor(const XMFLOAT3& skyColor)
 	{
-		m_vAmbientColor = { ambient.x, ambient.y, ambient.z, 0.0f };
+		m_vSkyColor = { skyColor.x, skyColor.y, skyColor.z, 1.0f };
 	}
 
 
@@ -114,6 +120,7 @@ private:
 	XMFLOAT4 m_vLightDirWs = { 0.0f, 1.0f, 0.0f, 0.0f };
 	XMFLOAT4 m_vLightColorIntensity = { 1.0f, 0.98f, 0.92f, 1.0f };
 	XMFLOAT4 m_vAmbientColor = { 0.25f, 0.27f, 0.30f, 0.0f };
+	XMFLOAT4 m_vSkyColor = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	ID3D11Device* m_pDevice = nullptr; // not-own
 	ID3D11DeviceContext* m_pContext = nullptr; // not-own

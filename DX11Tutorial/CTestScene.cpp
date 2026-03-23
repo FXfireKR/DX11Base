@@ -645,6 +645,7 @@ void CTestScene::_ApplySkyClearColor()
 	sky.y *= (1.f - 0.10f * deepNight);
 	sky.z *= (1.f - 0.05f * deepNight);
 
+	GetRenderWorld().SetSkyColor(sky);
 	GetRenderWorld().SetBackColor(sky.x, sky.y, sky.z, 1.0f);
 }
 

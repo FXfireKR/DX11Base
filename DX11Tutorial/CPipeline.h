@@ -12,13 +12,12 @@ public:
 
 	void CreateOpaqueState(ID3D11Device* pDevice);
 	void CreateTransparentAlphaState(ID3D11Device* pDevice, bool bCullNone = true);
+	void CreateAdditiveState(ID3D11Device* pDevice, bool bCullNone = true);
 
 	void SetShader(CShader* const pShader_);
 	void SetInputLayout(CInputLayer* const pInputLayout_);
 
 	void Bind(ID3D11DeviceContext* pDeviceContext_) const;
-	void Begin(ID3D11DeviceContext* pDeviceContext_);
-	void End(ID3D11DeviceContext* pDeviceContext_);
 
 public:
 	inline const ID3D11RasterizerState* GetRasterizer() const { return m_pRasterizerState.Get(); }
