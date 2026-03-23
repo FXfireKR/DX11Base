@@ -152,7 +152,7 @@ void CPlayerController::_UpdateMoveIntent()
 
 	m_pMotor->SetMoveInput(moveAxis);
 
-	if (keyboard.GetKeyDown(VK_SPACE))
+	if (keyboard.GetKey(VK_SPACE))
 	{
 		m_pMotor->RequestJump();
 	}
