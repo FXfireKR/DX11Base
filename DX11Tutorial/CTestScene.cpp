@@ -140,7 +140,7 @@ void CTestScene::BuildRenderFrame()
 
 	{
 		// 처음엔 고정 방향광으로 검증
-		XMFLOAT3 lightDir = { 0.45f, 0.85f, 0.25f };
+		XMFLOAT3 lightDir = { 0.6f, 0.6f, 0.3f };
 		{
 			XMVECTOR v = XMVector3Normalize(XMLoadFloat3(&lightDir));
 			XMStoreFloat3(&lightDir, v);
@@ -157,6 +157,7 @@ void CTestScene::BuildRenderFrame()
 			playerTr->BuildWorldMatrix();
 			focus = playerTr->GetWorldTrans();
 		}
+		focus.y = 0.0f;
 
 		XMVECTOR vFocus = XMLoadFloat3(&focus);
 		XMVECTOR vLightDir = XMLoadFloat3(&lightDir);
@@ -178,7 +179,7 @@ void CTestScene::BuildRenderFrame()
 		rw.SetShadowParams(0.0012f, 0.35f);
 	}
 
-	{
+	/*{
 		XMFLOAT3 sunDir{}, moonDir{};
 		_CalcSunMoonDirection(sunDir, moonDir);
 
@@ -192,7 +193,7 @@ void CTestScene::BuildRenderFrame()
 		const XMFLOAT3 ambient = _LerpColor(ambientNight, ambientDay, timeParams.daylight);
 
 		rw.SetAmbientLight(ambient);
-	}
+	}*/
 
 	const CTransform* pCamTr = GetCurrentCamera()->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
