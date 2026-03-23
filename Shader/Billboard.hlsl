@@ -51,7 +51,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
 {
     float4 tex = texture0.Sample(sampler0, input.uv);
     float luma = dot(tex.rgb, float3(0.299f, 0.587f, 0.114f));
-    float mask = smoothstep(0.02f, 0.35f, luma);
+    float mask = smoothstep(0.0f, 0.05f, luma);
 
     float3 outRGB = lerp(skyColor.rgb, tex.rgb, mask);
     return float4(outRGB.rgb, 1.0f);

@@ -72,8 +72,8 @@ private:
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
 
 	float m_fSkyBillboardRadius = 400.f;
-	float m_fSunBillboardSize = 250.f;
-	float m_fMoonBillboardSize = 225.f;
+	float m_fSunBillboardSize = 450.f;//250.f;
+	float m_fMoonBillboardSize = 430.f;//225.f;
 	bool m_bShowSunMoon = true;
 	bool m_bSpawnStreamingReady = false;
 };
