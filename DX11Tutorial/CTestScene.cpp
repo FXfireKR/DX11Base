@@ -140,56 +140,73 @@ void CTestScene::BuildRenderFrame()
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
-	{
-		// 처음엔 고정 방향광으로 검증
-		XMFLOAT3 lightDir = { 0.6f, 0.6f, 0.3f };
+	auto SnapToStep = [](float v, float step)
 		{
-			XMVECTOR v = XMVector3Normalize(XMLoadFloat3(&lightDir));
-			XMStoreFloat3(&lightDir, v);
-		}
+			return floorf(v / step + 0.5f) * step;
+		};
 
-		rw.SetDirectionalLight(lightDir, { 1.0f, 0.98f, 0.92f }, 1.0f);
+	{
+		// sun / moon direction
+		XMFLOAT3 sunDir{}, moonDir{};
+		_CalcSunMoonDirection(sunDir, moonDir);
 
-		const XMFLOAT3 ambient = { 0.18f, 0.20f, 0.24f };
-		rw.SetAmbientLight(ambient);
+		// daylight 기반 조명 세기
+		const float sunIntensity = saturate(timeParams.daylight * 1.15f);
 
+		// 실제 lighting 방향도 sunDir와 통일
+		rw.SetDirectionalLight(sunDir, { 1.0f, 0.97f, 0.92f }, sunIntensity);
+
+		const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
+		const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
+		rw.SetAmbientLight(_LerpColor(ambientNight, ambientDay, timeParams.daylight));
+
+		// shadow는 낮에만 유효하게
+		const bool bShadowEnabled = (timeParams.daylight > 0.08f);
+
+		// focus: player 기준 + world snap
 		XMFLOAT3 focus = { 0.f, 0.f, 0.f };
 		if (auto* playerTr = m_pPlayer->GetComponent<CTransform>())
 		{
 			playerTr->BuildWorldMatrix();
 			focus = playerTr->GetWorldTrans();
 		}
+
+		// 지면 기준으로 고정
 		focus.y = 0.0f;
 
-		XMVECTOR vFocus = XMLoadFloat3(&focus);
-		XMVECTOR vLightDir = XMLoadFloat3(&lightDir);
+		// world-space snap
+		focus.x = SnapToStep(focus.x, 0.5f);
+		focus.z = SnapToStep(focus.z, 0.5f);
 
-		// lightDir는 "표면 -> light" 방향이므로, light camera는 그 방향 쪽에서 scene을 내려다봄
+		XMVECTOR vFocus = XMLoadFloat3(&focus);
+		XMVECTOR vLightDir = XMVector3Normalize(XMLoadFloat3(&sunDir));
+
+		// directional light camera
 		XMVECTOR vEye = vFocus + XMVectorScale(vLightDir, 48.0f);
 		XMVECTOR vTarget = vFocus;
 
 		XMVECTOR vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-		float upDot = fabsf(XMVectorGetX(XMVector3Dot(XMVector3Normalize(vLightDir), vUp)));
+		float upDot = fabsf(XMVectorGetX(XMVector3Dot(vLightDir, vUp)));
 		if (upDot > 0.98f)
 			vUp = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 
-		const float orthoWidth = 48.0f;
-		const float orthoHeight = 48.0f;
-		const float shadowMapSize = 2048.0f;
+		const float kShadowOrthoSize = 48.0f;
+		const float kShadowNear = 1.0f;
+		const float kShadowFar = 120.0f;
+		const float kShadowMapSize = 2048.0f; // CRenderWorld와 맞춰둘 것
 
 		XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
 
-		// focus를 light space로 보내서 texel grid에 스냅
+		// light-space texel snap
 		XMVECTOR vFocusLS = XMVector3TransformCoord(vFocus, matLightView);
 
 		XMFLOAT3 focusLS{};
 		XMStoreFloat3(&focusLS, vFocusLS);
 
-		const float texelSizeX = orthoWidth / shadowMapSize;
-		const float texelSizeY = orthoHeight / shadowMapSize;
+		const float texelSize = kShadowOrthoSize / kShadowMapSize;
 
-		const float snappedX = roundf(focusLS.x / texelSizeX) * texelSizeX;
-		const float snappedY = roundf(focusLS.y / texelSizeY) * texelSizeY;
+		const float snappedX = roundf(focusLS.x / texelSize) * texelSize;
+		const float snappedY = roundf(focusLS.y / texelSize) * texelSize;
 
 		XMVECTOR vDeltaLS = XMVectorSet(
 			snappedX - focusLS.x,
@@ -198,37 +215,25 @@ void CTestScene::BuildRenderFrame()
 			0.0f
 		);
 
-		// light-view 기준 보정량을 world space로 되돌림
 		XMMATRIX invLightView = XMMatrixInverse(nullptr, matLightView);
 		XMVECTOR vDeltaWS = XMVector3TransformNormal(vDeltaLS, invLightView);
 
 		vEye += vDeltaWS;
 		vTarget += vDeltaWS;
 
-		// 스냅된 eye/target으로 view 재생성
 		matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
-
-		XMMATRIX matLightProj = XMMatrixOrthographicLH(orthoWidth, orthoHeight, 1.0f, 120.0f);
+		XMMATRIX matLightProj = XMMatrixOrthographicLH(
+			kShadowOrthoSize,
+			kShadowOrthoSize,
+			kShadowNear,
+			kShadowFar
+		);
 
 		rw.SetLightViewProj(matLightView * matLightProj);
-		rw.SetShadowParams(0.0005f, 0.35f);
-	}	
 
-	/*{
-		XMFLOAT3 sunDir{}, moonDir{};
-		_CalcSunMoonDirection(sunDir, moonDir);
-
-		const float sunIntensity = saturate(timeParams.daylight * 1.15f);
-
-		const XMFLOAT3 sunColor = { 1.00f, 0.97f, 0.92f };
-		rw.SetDirectionalLight(sunDir, sunColor, sunIntensity);
-
-		const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
-		const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
-		const XMFLOAT3 ambient = _LerpColor(ambientNight, ambientDay, timeParams.daylight);
-
-		rw.SetAmbientLight(ambient);
-	}*/
+		// 낮이 아니면 사실상 shadow 끄기
+		rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
+	}
 
 	const CTransform* pCamTr = GetCurrentCamera()->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
@@ -241,51 +246,51 @@ void CTestScene::BuildRenderFrame()
 	}
 
 	GetObjectManager().ForEachAliveEnabled([&](CObject& obj)
-	{
-		auto* render = obj.GetComponent<CMeshRenderer>();
-		auto* transform = obj.GetComponent<CTransform>();
-
-		if (!render || !transform) return;
-		if (!render->GetMesh()) return;
-
-		transform->BuildWorldMatrix();
-		const XMMATRIX matWorld = transform->GetWorldMatrix();
-
-		// shader pass
-		if (render->GetRenderPass() == ERenderPass::OPAQUE_PASS && m_pChunkShadowPipeline)
 		{
-			RenderItem shadowItem{};
-			shadowItem.eRenderPass = ERenderPass::SHADOW_PASS;
-			shadowItem.pMesh = render->GetMesh();
-			shadowItem.pPipeline = m_pChunkShadowPipeline;
-			shadowItem.pMaterial = nullptr;
-			DirectX::XMStoreFloat4x4(&shadowItem.world, XMMatrixTranspose(matWorld));
-			rw.Submit(shadowItem);
-		}
+			auto* render = obj.GetComponent<CMeshRenderer>();
+			auto* transform = obj.GetComponent<CTransform>();
 
-		// main pass
-		RenderItem item{};
-		item.eRenderPass = render->GetRenderPass();
-		item.pMesh = render->GetMesh();
-		item.pPipeline = render->GetPipeline();
-		item.pMaterial = render->GetMaterial();
+			if (!render || !transform) return;
+			if (!render->GetMesh()) return;
 
-		const XMFLOAT3 worldPos = transform->GetWorldTrans();
-		const XMFLOAT3 toObj =
-		{
-			worldPos.x - camPos.x,
-			worldPos.y - camPos.y,
-			worldPos.z - camPos.z
-		};
+			transform->BuildWorldMatrix();
+			const XMMATRIX matWorld = transform->GetWorldMatrix();
 
-		item.fSortDepth =
-			toObj.x * camLook.x +
-			toObj.y * camLook.y +
-			toObj.z * camLook.z;
+			// shadow pass
+			if (render->GetRenderPass() == ERenderPass::OPAQUE_PASS && m_pChunkShadowPipeline)
+			{
+				RenderItem shadowItem{};
+				shadowItem.eRenderPass = ERenderPass::SHADOW_PASS;
+				shadowItem.pMesh = render->GetMesh();
+				shadowItem.pPipeline = m_pChunkShadowPipeline;
+				shadowItem.pMaterial = nullptr;
+				DirectX::XMStoreFloat4x4(&shadowItem.world, XMMatrixTranspose(matWorld));
+				rw.Submit(shadowItem);
+			}
 
-		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
-		rw.Submit(item);
-	});
+			// main pass
+			RenderItem item{};
+			item.eRenderPass = render->GetRenderPass();
+			item.pMesh = render->GetMesh();
+			item.pPipeline = render->GetPipeline();
+			item.pMaterial = render->GetMaterial();
+
+			const XMFLOAT3 worldPos = transform->GetWorldTrans();
+			const XMFLOAT3 toObj =
+			{
+				worldPos.x - camPos.x,
+				worldPos.y - camPos.y,
+				worldPos.z - camPos.z
+			};
+
+			item.fSortDepth =
+				toObj.x * camLook.x +
+				toObj.y * camLook.y +
+				toObj.z * camLook.z;
+
+			DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+			rw.Submit(item);
+		});
 
 	_SubmitSunMoonBillboards(rw);
 	_ApplySkyClearColor();
@@ -294,7 +299,6 @@ void CTestScene::BuildRenderFrame()
 	_SubmitSectionBoundsDebug(rw);
 
 	GetObjectManager().ProcessPeddingDestroy();
-
 }
 
 void CTestScene::_CreateChunkObject()
