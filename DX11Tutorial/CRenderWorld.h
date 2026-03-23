@@ -19,6 +19,10 @@ struct CB_FrameData
 {
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 proj;
+
+	XMFLOAT4 lightDirWs; // wyz = world-space direction to light
+	XMFLOAT4 lightColorIntensity; // rgb = light color, a = intensity
+	XMFLOAT4 ambientColor; // rgb = abient, a = unused
 };
 
 class CRenderWorld
@@ -55,6 +59,16 @@ public:
 
 	inline void SetViewMatrix(XMMATRIX view) { m_matView = view; }
 	inline void SetProjectionMatrix(XMMATRIX proj) { m_matProjection = proj; }
+	inline void SetDirectionalLight(const XMFLOAT3& dirWs, const XMFLOAT3& color, float intensity)
+	{
+		m_vLightDirWs = { dirWs.x, dirWs.y, dirWs.z, 0.0f };
+		m_vLightColorIntensity = { color.x, color.y, color.z, intensity };
+	}
+
+	inline void SetAmbientLight(const XMFLOAT3& ambient)
+	{
+		m_vAmbientColor = { ambient.x, ambient.y, ambient.z, 0.0f };
+	}
 
 
 public:
@@ -91,10 +105,15 @@ private:
 	ComPtr<ID3D11Texture2D> m_pDepthBuffer = nullptr;
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;
 
-	XMMATRIX m_matView;
-	XMMATRIX m_matProjection;
+	XMMATRIX m_matView = XMMatrixIdentity();
+	XMMATRIX m_matProjection = XMMatrixIdentity();
+
 	ComPtr<ID3D11Buffer> m_pCBFrame; // b0
 	ComPtr<ID3D11Buffer> m_pCBObject; // b1
+
+	XMFLOAT4 m_vLightDirWs = { 0.0f, 1.0f, 0.0f, 0.0f };
+	XMFLOAT4 m_vLightColorIntensity = { 1.0f, 0.98f, 0.92f, 1.0f };
+	XMFLOAT4 m_vAmbientColor = { 0.25f, 0.27f, 0.30f, 0.0f };
 
 	ID3D11Device* m_pDevice = nullptr; // not-own
 	ID3D11DeviceContext* m_pContext = nullptr; // not-own

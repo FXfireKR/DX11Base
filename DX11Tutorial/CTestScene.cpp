@@ -138,6 +138,22 @@ void CTestScene::BuildRenderFrame()
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
+	{
+		XMFLOAT3 sunDir{}, moonDir{};
+		_CalcSunMoonDirection(sunDir, moonDir);
+
+		const float sunIntensity = saturate(timeParams.daylight * 1.15f);
+
+		const XMFLOAT3 sunColor = { 1.00f, 0.97f, 0.92f };
+		rw.SetDirectionalLight(sunDir, sunColor, sunIntensity);
+
+		const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
+		const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
+		const XMFLOAT3 ambient = _LerpColor(ambientNight, ambientDay, timeParams.daylight);
+
+		rw.SetAmbientLight(ambient);
+	}
+
 	const CTransform* pCamTr = GetCurrentCamera()->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
 	XMFLOAT3 camLook = { 0.f, 0.f, 0.f };

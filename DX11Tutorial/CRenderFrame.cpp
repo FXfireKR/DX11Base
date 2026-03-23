@@ -80,7 +80,14 @@ void CRenderFrame::_DrawItems(ID3D11DeviceContext* pContext, vector<RenderItem>&
 		_UpdateConstantBuffer(pContext, { renderItem.world });
 		pContext->VSSetConstantBuffers(1, 1, &m_pCBObject);
 
-		dbg.AddDrawCallOpaque();
+		switch (renderItem.eRenderPass)
+		{
+			case ERenderPass::SHADOW_PASS: dbg.AddDrawCallShadow(); break;
+			case ERenderPass::OPAQUE_PASS: dbg.AddDrawCallOpaque(); break;
+			default: dbg.AddDrawCall(); break;
+		}
+		
+		// [note] _CheckValidToDraw true면 pMesh는 nullptr이 아님. ensure.
 		renderItem.pMesh->Draw(pContext);
 	}
 }

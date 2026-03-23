@@ -51,19 +51,24 @@ void CRenderWorld::BeginFrame()
 	CB_FrameData cb;
 	XMStoreFloat4x4(&cb.view, XMMatrixTranspose(m_matView));
 	XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(m_matProjection));
+	cb.lightDirWs = m_vLightDirWs;
+	cb.lightColorIntensity = m_vLightColorIntensity;
+	cb.ambientColor = m_vAmbientColor;
 
 	D3D11_MAPPED_SUBRESOURCE mapped{};
 	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 	memcpy(mapped.pData, &cb, sizeof(CB_FrameData));
 	m_pContext->Unmap(m_pCBFrame.Get(), 0);
-	//m_pContext->UpdateSubresource(m_pCBFrame.Get(), 0, nullptr, &cb, 0, 0);
+	
 
 	m_pContext->VSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
+	m_pContext->PSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
 
 	m_pContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
 	m_pContext->ClearRenderTargetView(m_pRenderTargetView.Get(), m_fBackColor);
-	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get()
+		, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_pContext->RSSetViewports(1, &m_kViewPort);
 }
