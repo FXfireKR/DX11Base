@@ -138,6 +138,16 @@ void CTestScene::BuildRenderFrame()
 	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
+	const CTransform* pCamTr = GetCurrentCamera()->GetTransform();
+	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
+	XMFLOAT3 camLook = { 0.f, 0.f, 0.f };
+
+	if (pCamTr)
+	{
+		camPos = pCamTr->GetWorldTrans();
+		camPos = pCamTr->GetLookNorm();
+	}
+
 	GetObjectManager().ForEachAliveEnabled([&](CObject& obj)
 	{
 		auto* render = obj.GetComponent<CMeshRenderer>();
@@ -149,9 +159,23 @@ void CTestScene::BuildRenderFrame()
 		transform->BuildWorldMatrix();
 
 		RenderItem item{};
+		item.eRenderPass = render->GetRenderPass();
 		item.pMesh = render->GetMesh();
 		item.pPipeline = render->GetPipeline();
 		item.pMaterial = render->GetMaterial();
+
+		const XMFLOAT3 worldPos = transform->GetWorldTrans();
+		const XMFLOAT3 toObj =
+		{
+			worldPos.x - camPos.x,
+			worldPos.y - camPos.y,
+			worldPos.z - camPos.z
+		};
+
+		item.fSortDepth =
+			toObj.x * camLook.x +
+			toObj.y * camLook.y +
+			toObj.z * camLook.z;
 
 		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
 		rw.Submit(item);
@@ -379,6 +403,7 @@ void CTestScene::_CreateHighlight()
 	mr->SetMesh(meshManager.Get(highlightMeshID));
 	mr->SetPipeline(pipeline);
 	mr->SetMaterial(materialManager.Get(materialID));
+	mr->SetRenderPass(ERenderPass::DEBUG_PASS);
 
 	m_pHighlightObject->SetEnable(false);
 }
@@ -541,6 +566,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(sunCenter, sunDir, m_fSunBillboardSize, m_fSunBillboardSize);
 
 		RenderItem item{};
+		item.eRenderPass = ERenderPass::SKY_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pSunBillboardMaterial;
@@ -552,6 +578,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(moonCenter, moonDir, m_fMoonBillboardSize, m_fMoonBillboardSize);
 
 		RenderItem item{};
+		item.eRenderPass = ERenderPass::SKY_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pMoonBillboardMaterial;
@@ -715,6 +742,7 @@ void CTestScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const
 		XMMATRIX matWorld = matScale * matTrans;
 
 		RenderItem item{};
+		item.eRenderPass = ERenderPass::DEBUG_PASS;
 		item.pMesh = m_pChunkBoundsDebugMesh;
 		item.pPipeline = m_pChunkBoundsDebugPipeline;
 		item.pMaterial = m_pChunkBoundsDebugMaterial;
@@ -775,6 +803,7 @@ void CTestScene::_SubmitSectionBoundsDebug(CRenderWorld& rw) const
 			XMMATRIX matWorld = matScale * matTrans;
 
 			RenderItem item{};
+			item.eRenderPass = ERenderPass::DEBUG_PASS;
 			item.pMesh = m_pChunkBoundsDebugMesh;
 			item.pPipeline = m_pChunkBoundsDebugPipeline;
 			item.pMaterial = m_pChunkBoundsDebugMaterial;

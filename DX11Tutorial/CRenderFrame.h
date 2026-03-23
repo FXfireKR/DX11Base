@@ -2,6 +2,7 @@
 #include "CMesh.h"
 #include "CPipeline.h"
 #include "CMaterial.h"
+#include "RenderPassTypes.h"
 
 //	class RenderFrame
 // 
@@ -16,10 +17,16 @@ struct CB_ObjectData
 
 struct RenderItem
 {
+	ERenderPass eRenderPass = ERenderPass::OPAQUE_PASS;
+
 	const CMesh* pMesh = nullptr;
 	const CPipeline* pPipeline = nullptr;
 	const CMaterial* pMaterial = nullptr;
-	XMFLOAT4X4 world;
+
+	XMFLOAT4X4 world{};
+	
+	uint64_t sortKey = 0;
+	float fSortDepth = 0.f;
 };
 
 class CRenderFrame
@@ -33,10 +40,13 @@ public:
 	void Draw(ID3D11DeviceContext* pContext);
 
 private:
+	void _DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass);
+	void _DrawItems(ID3D11DeviceContext* pContext, vector<RenderItem>& vecItems);
+
 	void _UpdateConstantBuffer(ID3D11DeviceContext* pContext, CB_ObjectData&& objData);
 	bool _CheckValidToDraw(const RenderItem& renderItem);
 	
 private:
-	queue<RenderItem> m_queueRenderItem; // 일단 지금은 queue로 짠다.
+	array<vector<RenderItem>, RENDER_PASS_COUNT> m_arrPassBucket;
 	ID3D11Buffer* m_pCBObject = nullptr; // b1
 }; 

@@ -312,6 +312,7 @@
     <ClCompile Include="CWorld.cpp" />
     <ClCompile Include="CWorldTime.cpp" />
     <ClCompile Include="ModelUtil.cpp" />
+    <ClInclude Include="RenderPassTypes.h" />
     <ClCompile Include="ResourceUtil.cpp" />
     <ClCompile Include="sparse_set.hpp">
       <FileType>Document</FileType>

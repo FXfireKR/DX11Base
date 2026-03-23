@@ -8,53 +8,80 @@ void CRenderFrame::Initialize(ID3D11Buffer& cbObject)
 
 void CRenderFrame::Submit(const RenderItem& renderItem)
 {
-	m_queueRenderItem.push(renderItem);
+	const size_t idx = static_cast<size_t>(renderItem.eRenderPass);
+	if (idx >= m_arrPassBucket.size())
+		return;
+
+	m_arrPassBucket[idx].push_back(renderItem);
 }
 
 void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
+{
+	_DrawPass(pContext, ERenderPass::SHADOW_PASS);
+	_DrawPass(pContext, ERenderPass::SKY_PASS);
+	_DrawPass(pContext, ERenderPass::OPAQUE_PASS);
+	_DrawPass(pContext, ERenderPass::TRANSPARENT_PASS);
+	_DrawPass(pContext, ERenderPass::DEBUG_PASS);
+	_DrawPass(pContext, ERenderPass::ORTH_PASS);
+}
+
+void CRenderFrame::_DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass)
+{
+	auto& vecItems = m_arrPassBucket[static_cast<size_t>(ePass)];
+	if (vecItems.empty())
+		return;
+
+	if (ERenderPass::TRANSPARENT_PASS == ePass)
+	{
+		std::stable_sort(vecItems.begin(), vecItems.end(), [](const RenderItem& a, const RenderItem& b){
+			return a.fSortDepth > b.fSortDepth;
+		});
+	}
+
+	_DrawItems(pContext, vecItems);
+	vecItems.clear();
+}
+
+void CRenderFrame::_DrawItems(ID3D11DeviceContext* pContext, vector<RenderItem>& vecItems)
 {
 	const CMesh* pLastMesh = nullptr;
 	const CPipeline* pLastPipeline = nullptr;
 	const CMaterial* pLastMaterial = nullptr;
 
-	while (!m_queueRenderItem.empty())
+	for (const RenderItem& renderItem : vecItems)
 	{
-		const RenderItem& renderItem = m_queueRenderItem.front();
-		if (true == _CheckValidToDraw(renderItem))
+		if (!_CheckValidToDraw(renderItem))
+			continue;
+
+		if (pLastPipeline != renderItem.pPipeline) 
 		{
-			if (pLastPipeline != renderItem.pPipeline) {
-				renderItem.pPipeline->Bind(pContext);
-				pLastPipeline = renderItem.pPipeline;
-				dbg.AddPipelineBind();
-			}
+			renderItem.pPipeline->Bind(pContext);
+			pLastPipeline = renderItem.pPipeline;
+			dbg.AddPipelineBind();
+		}
 
-			if (pLastMesh != renderItem.pMesh) {
-				renderItem.pMesh->Bind(pContext);
-				pLastMesh = renderItem.pMesh;
-				dbg.AddMeshBind();
-			}
+		if (pLastMesh != renderItem.pMesh) 
+		{
+			renderItem.pMesh->Bind(pContext);
+			pLastMesh = renderItem.pMesh;
+			dbg.AddMeshBind();
+		}
 
-			if (nullptr != renderItem.pMaterial) {
-				if (pLastMaterial != renderItem.pMaterial) {
-					renderItem.pMaterial->Bind(pContext);
-					pLastMaterial = renderItem.pMaterial;
-					dbg.AddMaterialBind();
-				}
-			}
-
-			_UpdateConstantBuffer(pContext, { renderItem.world });
-
-			//pContext->UpdateSubresource(m_pCBObject, 0, nullptr, &cb, 0, 0);
-			pContext->VSSetConstantBuffers(1, 1, &m_pCBObject);
-
-			// index, vertex 분리
-			if (nullptr != renderItem.pMesh)
+		if (nullptr != renderItem.pMaterial) 
+		{
+			if (pLastMaterial != renderItem.pMaterial) 
 			{
-				dbg.AddDrawCallOpaque();
-				renderItem.pMesh->Draw(pContext);
+				renderItem.pMaterial->Bind(pContext);
+				pLastMaterial = renderItem.pMaterial;
+				dbg.AddMaterialBind();
 			}
 		}
-		m_queueRenderItem.pop();
+
+		_UpdateConstantBuffer(pContext, { renderItem.world });
+		pContext->VSSetConstantBuffers(1, 1, &m_pCBObject);
+
+		dbg.AddDrawCallOpaque();
+		renderItem.pMesh->Draw(pContext);
 	}
 }
 
@@ -70,9 +97,12 @@ void CRenderFrame::_UpdateConstantBuffer(ID3D11DeviceContext* pContext, CB_Objec
 
 bool CRenderFrame::_CheckValidToDraw(const RenderItem& renderItem)
 {
-	if (nullptr == renderItem.pPipeline) return false;
-	if (nullptr == renderItem.pMesh) return false;
-	//if (nullptr == renderItem.pMaterial) return false; // optional
+	if (nullptr == renderItem.pPipeline) 
+		return false;
+	if (nullptr == renderItem.pMesh) 
+		return false;
+	//if (nullptr == renderItem.pMaterial) 
+	//	return false; // optional
 
 	return true;
 }
