@@ -398,7 +398,7 @@ void CTestScene::_CreateHighlight()
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	// dummy
-	pipeline->CreateRaster(rw.GetDevice());
+	pipeline->CreateOpaqueState(rw.GetDevice());
 
 	// mesh
 	auto& meshManager = rw.GetMeshManager();
@@ -446,7 +446,7 @@ void CTestScene::_CreateWorldRender()
 
 	pipeline->SetShader(shaderManager.Get(shaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->CreateRaster(rw.GetDevice());
+	pipeline->CreateOpaqueState(rw.GetDevice());
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// sampler
@@ -511,7 +511,7 @@ void CTestScene::_CreateSkyBillboardResources()
 	pipeline->SetShader(shaderManager.Get(shaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pipeline->CreateRaster(rw.GetDevice());
+	pipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
 
 	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("SkyBillboardQuad"));
 	const uint64_t sunMatID = materialManager.Create(fnv1a_64("SunBillboardMaterial"));
@@ -582,7 +582,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(sunCenter, sunDir, m_fSunBillboardSize, m_fSunBillboardSize);
 
 		RenderItem item{};
-		item.eRenderPass = ERenderPass::SKY_PASS;
+		item.eRenderPass = ERenderPass::TRANSPARENT_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pSunBillboardMaterial;
@@ -594,7 +594,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(moonCenter, moonDir, m_fMoonBillboardSize, m_fMoonBillboardSize);
 
 		RenderItem item{};
-		item.eRenderPass = ERenderPass::SKY_PASS;
+		item.eRenderPass = ERenderPass::TRANSPARENT_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pMoonBillboardMaterial;

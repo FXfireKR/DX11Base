@@ -10,7 +10,9 @@ public:
 
 	void Initialize();
 
-	void CreateRaster(ID3D11Device* pDevice);
+	void CreateOpaqueState(ID3D11Device* pDevice);
+	void CreateTransparentAlphaState(ID3D11Device* pDevice, bool bCullNone = true);
+
 	void SetShader(CShader* const pShader_);
 	void SetInputLayout(CInputLayer* const pInputLayout_);
 

@@ -45,7 +45,7 @@ SamplerState sampler0 : register(s0);
 
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    float2 uv = input.uv;
-    float4 color = texture0.Sample(sampler0, uv);
+    float4 color = texture0.Sample(sampler0, input.uv);
+    clip(color.a - 0.01f);
     return color;
 }
