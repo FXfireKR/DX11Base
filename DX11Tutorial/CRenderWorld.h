@@ -25,6 +25,9 @@ struct CB_FrameData
 	XMFLOAT4 ambientColor; // rgb = abient, a = unused
 
 	XMFLOAT4 skyColor;
+
+	XMFLOAT4X4 lightViewProj;
+	XMFLOAT4 shadowParams; // x = bias, y = shadowMinLight, z/w unused
 };
 
 class CRenderWorld
@@ -50,6 +53,7 @@ private:
 	void _CreateConstObjectBuffer();
 	void _CreateRenderTargetView();
 	void _CreateDepthStencilView();
+	void _CreateShadowResources();
 
 public:
 	inline void SetBackColor(float r, float g, float b, float a) {
@@ -75,6 +79,15 @@ public:
 	{
 		m_vSkyColor = { skyColor.x, skyColor.y, skyColor.z, 1.0f };
 	}
+	inline void SetLightViewProj(XMMATRIX lightViewProj)
+	{
+		m_matLightViewProj = lightViewProj;
+	}
+	inline void SetShadowParams(float bias, float shadowMinLight)
+	{
+		m_vShadowParams = { bias, shadowMinLight, 0.0f, 0.0f };
+	}
+	inline ID3D11ShaderResourceView* GetShadowMapSRV() const { return m_pShadowSRV.Get(); }
 
 
 public:
@@ -108,8 +121,13 @@ private:
 private:
 	ComPtr<ID3D11Texture2D> m_pBackBuffer = nullptr;
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
+
 	ComPtr<ID3D11Texture2D> m_pDepthBuffer = nullptr;
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;
+
+	ComPtr<ID3D11Texture2D> m_pShadowTexture = nullptr;
+	ComPtr<ID3D11DepthStencilView> m_pShadowDSV = nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pShadowSRV = nullptr;
 
 	XMMATRIX m_matView = XMMatrixIdentity();
 	XMMATRIX m_matProjection = XMMatrixIdentity();
@@ -121,6 +139,12 @@ private:
 	XMFLOAT4 m_vLightColorIntensity = { 1.0f, 0.98f, 0.92f, 1.0f };
 	XMFLOAT4 m_vAmbientColor = { 0.25f, 0.27f, 0.30f, 0.0f };
 	XMFLOAT4 m_vSkyColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	D3D11_VIEWPORT m_kShadowViewport{};
+	XMMATRIX m_matLightViewProj = XMMatrixIdentity();
+	XMFLOAT4 m_vShadowParams = { 0.0008f, 0.35f, 0.0f, 0.0f };
+
+	UINT m_uShadowMapSize = 2048;
 
 	ID3D11Device* m_pDevice = nullptr; // not-own
 	ID3D11DeviceContext* m_pContext = nullptr; // not-own

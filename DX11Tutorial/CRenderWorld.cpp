@@ -36,6 +36,7 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 	_CreateRenderTargetView();
 	_CreateDepthStencilView();
+	_CreateShadowResources();
 
 	ZeroMemory(&m_kViewPort, sizeof(D3D11_VIEWPORT));
 	m_kViewPort.TopLeftX = 0.f;
@@ -55,6 +56,8 @@ void CRenderWorld::BeginFrame()
 	cb.lightColorIntensity = m_vLightColorIntensity;
 	cb.ambientColor = m_vAmbientColor;
 	cb.skyColor = m_vSkyColor;
+	XMStoreFloat4x4(&cb.lightViewProj, XMMatrixTranspose(m_matLightViewProj));
+	cb.shadowParams = m_vShadowParams;
 
 	D3D11_MAPPED_SUBRESOURCE mapped{};
 	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
@@ -76,7 +79,28 @@ void CRenderWorld::BeginFrame()
 
 void CRenderWorld::DrawFrame()
 {
-	m_renderManager.Draw(m_pContext);
+	//m_renderManager.Draw(m_pContext);
+
+    // 1) shadow map을 DSV로 쓰기 전에, 이전 프레임에 PS에 물려 있던 shadow SRV 해제
+    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+    m_pContext->PSSetShaderResources(1, 1, nullSRV);
+
+    // 2) shadow pass
+    m_pContext->OMSetRenderTargets(0, nullptr, m_pShadowDSV.Get());
+    m_pContext->ClearDepthStencilView(m_pShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pContext->RSSetViewports(1, &m_kShadowViewport);
+
+    m_renderManager.DrawPass(m_pContext, ERenderPass::SHADOW_PASS);
+
+    // 3) main pass들
+    m_pContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pContext->RSSetViewports(1, &m_kViewPort);
+
+    m_renderManager.DrawPass(m_pContext, ERenderPass::SKY_PASS);
+    m_renderManager.DrawPass(m_pContext, ERenderPass::OPAQUE_PASS);
+    m_renderManager.DrawPass(m_pContext, ERenderPass::TRANSPARENT_PASS);
+    m_renderManager.DrawPass(m_pContext, ERenderPass::DEBUG_PASS);
+    m_renderManager.DrawPass(m_pContext, ERenderPass::ORTH_PASS);
 }
 
 void CRenderWorld::EndFrame()
@@ -149,4 +173,42 @@ void CRenderWorld::_CreateDepthStencilView()
 
 	m_pDevice->CreateTexture2D(&depthDesc, nullptr, m_pDepthBuffer.GetAddressOf());
 	m_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), nullptr, m_pDepthStencilView.GetAddressOf());
+}
+
+void CRenderWorld::_CreateShadowResources()
+{
+	D3D11_TEXTURE2D_DESC texDesc{};
+	texDesc.Width = m_uShadowMapSize;
+	texDesc.Height = m_uShadowMapSize;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+	m_pDevice->CreateTexture2D(&texDesc, nullptr, m_pShadowTexture.GetAddressOf());
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+	m_pDevice->CreateDepthStencilView(m_pShadowTexture.Get(), &dsvDesc, m_pShadowDSV.GetAddressOf());
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	m_pDevice->CreateShaderResourceView(m_pShadowTexture.Get(), &srvDesc, m_pShadowSRV.GetAddressOf());
+
+	ZeroMemory(&m_kShadowViewport, sizeof(D3D11_VIEWPORT));
+	m_kShadowViewport.TopLeftX = 0.0f;
+	m_kShadowViewport.TopLeftY = 0.0f;
+	m_kShadowViewport.Width = static_cast<float>(m_uShadowMapSize);
+	m_kShadowViewport.Height = static_cast<float>(m_uShadowMapSize);
+	m_kShadowViewport.MinDepth = 0.0f;
+	m_kShadowViewport.MaxDepth = 1.0f;
 }

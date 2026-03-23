@@ -25,6 +25,11 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 	_DrawPass(pContext, ERenderPass::ORTH_PASS);
 }
 
+void CRenderFrame::DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass)
+{
+	_DrawPass(pContext, ePass);
+}
+
 void CRenderFrame::_DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass)
 {
 	auto& vecItems = m_arrPassBucket[static_cast<size_t>(ePass)];

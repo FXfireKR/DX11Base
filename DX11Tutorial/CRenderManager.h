@@ -20,6 +20,7 @@ public:
 	void EndFrame();
 
 	void Draw(ID3D11DeviceContext* pContext);
+	void DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass);
 
 public:
 	inline const bool CheckGPUOverload() { return m_queueReadyFrames.size() > m_uMaxRenderFrame; }

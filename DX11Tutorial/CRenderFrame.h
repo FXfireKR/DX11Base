@@ -38,6 +38,7 @@ public:
 	void Initialize(ID3D11Buffer& cbObject);
 	void Submit(const RenderItem& renderItem);
 	void Draw(ID3D11DeviceContext* pContext);
+	void DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass);
 
 private:
 	void _DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass);

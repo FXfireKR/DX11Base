@@ -37,3 +37,10 @@ void CRenderManager::Draw(ID3D11DeviceContext* pContext)
 
 	m_pBuildingFrame.reset();
 }
+
+void CRenderManager::DrawPass(ID3D11DeviceContext* pContext, ERenderPass ePass)
+{
+	if (!m_pBuildingFrame)
+		return;
+	m_pBuildingFrame->DrawPass(pContext, ePass);
+}

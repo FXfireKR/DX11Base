@@ -71,6 +71,8 @@ private:
 	CMaterial* m_pSunBillboardMaterial = nullptr;
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
 
+	CPipeline* m_pChunkShadowPipeline = nullptr;
+
 	float m_fSkyBillboardRadius = 400.f;
 	float m_fSunBillboardSize = 450.f;//250.f;
 	float m_fMoonBillboardSize = 430.f;//225.f;

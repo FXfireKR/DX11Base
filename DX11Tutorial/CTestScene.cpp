@@ -139,6 +139,46 @@ void CTestScene::BuildRenderFrame()
 	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
 
 	{
+		// 처음엔 고정 방향광으로 검증
+		XMFLOAT3 lightDir = { 0.45f, 0.85f, 0.25f };
+		{
+			XMVECTOR v = XMVector3Normalize(XMLoadFloat3(&lightDir));
+			XMStoreFloat3(&lightDir, v);
+		}
+
+		rw.SetDirectionalLight(lightDir, { 1.0f, 0.98f, 0.92f }, 1.0f);
+
+		const XMFLOAT3 ambient = { 0.18f, 0.20f, 0.24f };
+		rw.SetAmbientLight(ambient);
+
+		XMFLOAT3 focus = { 0.f, 0.f, 0.f };
+		if (auto* playerTr = m_pPlayer->GetComponent<CTransform>())
+		{
+			playerTr->BuildWorldMatrix();
+			focus = playerTr->GetWorldTrans();
+		}
+
+		XMVECTOR vFocus = XMLoadFloat3(&focus);
+		XMVECTOR vLightDir = XMLoadFloat3(&lightDir);
+
+		// lightDir는 "표면 -> light" 방향이므로, light camera는 그 방향 쪽에서 scene을 내려다봄
+		XMVECTOR vEye = vFocus + XMVectorScale(vLightDir, 48.0f);
+		XMVECTOR vTarget = vFocus;
+
+		XMVECTOR vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+		float upDot = fabsf(XMVectorGetX(XMVector3Dot(XMVector3Normalize(vLightDir), vUp)));
+		if (upDot > 0.98f)
+			vUp = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+
+		XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
+		XMMATRIX matLightProj = XMMatrixOrthographicLH(96.0f, 96.0f, 1.0f, 160.0f);
+
+		rw.SetLightViewProj(matLightView * matLightProj);
+		//rw.SetShadowParams(0.0008f, 0.35f);
+		rw.SetShadowParams(0.0012f, 0.35f);
+	}
+
+	{
 		XMFLOAT3 sunDir{}, moonDir{};
 		_CalcSunMoonDirection(sunDir, moonDir);
 
@@ -161,7 +201,7 @@ void CTestScene::BuildRenderFrame()
 	if (pCamTr)
 	{
 		camPos = pCamTr->GetWorldTrans();
-		camPos = pCamTr->GetLookNorm();
+		camLook = pCamTr->GetLookNorm();
 	}
 
 	GetObjectManager().ForEachAliveEnabled([&](CObject& obj)
@@ -173,7 +213,21 @@ void CTestScene::BuildRenderFrame()
 		if (!render->GetMesh()) return;
 
 		transform->BuildWorldMatrix();
+		const XMMATRIX matWorld = transform->GetWorldMatrix();
 
+		// shader pass
+		if (render->GetRenderPass() == ERenderPass::OPAQUE_PASS && m_pChunkShadowPipeline)
+		{
+			RenderItem shadowItem{};
+			shadowItem.eRenderPass = ERenderPass::SHADOW_PASS;
+			shadowItem.pMesh = render->GetMesh();
+			shadowItem.pPipeline = m_pChunkShadowPipeline;
+			shadowItem.pMaterial = nullptr;
+			DirectX::XMStoreFloat4x4(&shadowItem.world, XMMatrixTranspose(matWorld));
+			rw.Submit(shadowItem);
+		}
+
+		// main pass
 		RenderItem item{};
 		item.eRenderPass = render->GetRenderPass();
 		item.pMesh = render->GetMesh();
@@ -193,7 +247,7 @@ void CTestScene::BuildRenderFrame()
 			toObj.y * camLook.y +
 			toObj.z * camLook.z;
 
-		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(transform->GetWorldMatrix()));
+		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
 	});
 
@@ -428,40 +482,58 @@ void CTestScene::_CreateWorldRender()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
-	// shader
 	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("NormalImageForward");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
+	auto& ilManager = rw.GetIALayoutManager();
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto& samplerManager = rw.GetSamplerManager();
+	auto& materialManager = rw.GetMaterialManager();
+
+	// shader
+	auto normalShaderID = fnv1a_64("NormalImageForward");
+	auto normalShader = shaderManager.CreateShader(normalShaderID, 0);
+
+	auto shadowShaderID = fnv1a_64("ShadowDepth");
+	auto shadowShader = shaderManager.CreateShader(shadowShaderID, 0);
 
 	shaderManager.Compile();
 
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	// input layout	
+	auto layoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { normalShaderID, 0 }, normalShader->GetVertexBlob());
+	auto shadowLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shadowShaderID, 0 }, shadowShader->GetVertexBlob());
 
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
+	// opaque chunk pipeline
 	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
 	auto pipeline = pipelineManager.Get(pipeID);
-
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetShader(shaderManager.Get(normalShaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
 	pipeline->CreateOpaqueState(rw.GetDevice());
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// sampler
-	auto& samplerManager = rw.GetSamplerManager();
-	auto samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	// shadow chunk pipeline
+	auto shadowPipeID = pipelineManager.Create(fnv1a_64("ChunkShadowPipeline"));
+	auto shadowPipeline = pipelineManager.Get(shadowPipeID);
+	shadowPipeline->SetShader(shaderManager.Get(shadowShaderID, 0));
+	shadowPipeline->SetInputLayout(ilManager.Get(shadowLayoutID));
+	shadowPipeline->CreateOpaqueState(rw.GetDevice());
+	shadowPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// material
-	auto& materialManager = rw.GetMaterialManager();
+	// sampler	
+	auto albedoSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
+	auto shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_CLAMP);
+
+	// material	
 	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	auto* material = materialManager.Get(materialID);
 
-	materialManager.Get(materialID)->SetTexture(0, BlockResDB.GetAtlasTextureView());
-	materialManager.Get(materialID)->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	material->SetTexture(0, BlockResDB.GetAtlasTextureView());
+	material->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
 
-	m_pChunkPipeline = pipelineManager.Get(pipeID);
-	m_pChunkMaterial = materialManager.Get(materialID);
+	material->SetTexture(1, rw.GetShadowMapSRV());
+	material->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
+
+	m_pChunkPipeline = pipeline;
+	m_pChunkShadowPipeline = shadowPipeline;
+	m_pChunkMaterial = material;
 }
 
 void CTestScene::_CreateTextureAtlas()
