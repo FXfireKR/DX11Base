@@ -176,7 +176,7 @@ void CTestScene::BuildRenderFrame()
 
 		rw.SetLightViewProj(matLightView * matLightProj);
 		//rw.SetShadowParams(0.0008f, 0.35f);
-		rw.SetShadowParams(0.0012f, 0.35f);
+		rw.SetShadowParams(0.0020f, 0.35f);
 	}
 
 	/*{

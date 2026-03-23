@@ -62,7 +62,7 @@ SamplerState sampler0 : register(s0);
 Texture2D shadowMap : register(t1);
 SamplerState shadowSampler : register(s1);
 
-float ComputeShadowFactor(float4 shadowPos)
+float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
 {
     if (shadowPos.w <= 0.00001f)
         return 1.0f;
@@ -82,9 +82,11 @@ float ComputeShadowFactor(float4 shadowPos)
 
     float shadowDepth = shadowMap.Sample(shadowSampler, shadowUV).r;
     float currentDepth = ndc.z;
-    float bias = shadowParams.x;
 
-    return (currentDepth - bias <= shadowDepth) ? 1.0f : shadowParams.y;
+    float baseBias = shadowParams.x;
+    float slopeBias = max(baseBias * (1.0f - saturate(dot(N, L))), baseBias);
+
+    return (currentDepth - slopeBias <= shadowDepth) ? 1.0f : shadowParams.y;
 }
 
 float4 PS(VS_OUTPUT input) : SV_Target
@@ -100,7 +102,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float3 ambient = ambientColor.rgb;
     float3 direct = lightColorIntensity.rgb * (NdotL * lightColorIntensity.a);
 
-    float shadowFactor = ComputeShadowFactor(input.shadowPos);
+    float shadowFactor = ComputeShadowFactor(input.shadowPos, N, L);
 
     float3 lighting = ambient + direct * shadowFactor;
     return float4(albedo.rgb * lighting, albedo.a);
