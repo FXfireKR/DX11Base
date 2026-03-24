@@ -5,6 +5,7 @@
 
 class CWorld;
 class CInventoryComponent;
+class CCharacterMotor;
 class CTransform;
 class CObject;
 
@@ -41,12 +42,15 @@ private:
 
 	bool _TryPlaceBlock();
 	bool _TryBreakBlock();
+	bool _OverlapAABB(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf
+		, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf);
 
 	void _MakeCenterRay(OUT XMFLOAT3& outOrigin, XMFLOAT3& outDir) const;
 
 private:
 	CWorld* m_pWorld = nullptr;
 	CInventoryComponent* m_pInventory = nullptr;
+	CCharacterMotor* m_pMotor = nullptr;
 	CTransform* m_pCamTransform = nullptr;
 	CObject* m_pHighlightObject = nullptr;
 	CBlockBreakParticleSystem* m_pParticle = nullptr;
@@ -67,5 +71,7 @@ private:
 	
 
 	bool m_bPlaceRequested = false;
+	float m_fPlaceCoolDown = 0.f;
+
 	bool m_bBreakRequested = false;
 };

@@ -164,10 +164,8 @@ void CPlayerController::_UpdateActionIntent()
 
 	m_pBlockInteractor->SetBreakHeld(mouse.GetKey(VK_LBUTTON));
 
-	if (mouse.GetKeyDown(VK_RBUTTON))
-	{
+	if (mouse.GetKey(VK_RBUTTON))
 		m_pBlockInteractor->RequestPlace();
-	}
 }
 
 void CPlayerController::_UpdateHotbarIntent()

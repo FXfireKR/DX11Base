@@ -25,6 +25,7 @@ void CBlockInteractor::Init()
 void CBlockInteractor::Start()
 {
 	m_pInventory = m_pOwner->GetComponent<CInventoryComponent>();
+	m_pMotor = m_pOwner->GetComponent<CCharacterMotor>();
 }
 
 void CBlockInteractor::LateUpdate(float fDelta)
@@ -35,6 +36,8 @@ void CBlockInteractor::LateUpdate(float fDelta)
 	_UpdateRaycast();
 	_UpdateHighlight();
 	_UpdateMining(fDelta);
+
+	m_fPlaceCoolDown = max(0.f, m_fPlaceCoolDown - fDelta);
 	_ConsumeRequests();
 }
 
@@ -53,7 +56,11 @@ void CBlockInteractor::SetBreakHeld(bool bHeld)
 
 void CBlockInteractor::RequestPlace()
 {
-	m_bPlaceRequested = true;
+	if (m_fPlaceCoolDown <= 0.f)
+	{
+		m_bPlaceRequested = true;
+		m_fPlaceCoolDown = 0.25f;
+	}
 }
 
 void CBlockInteractor::RequestBreak()
@@ -197,7 +204,7 @@ float CBlockInteractor::_CalcBreakRequired(const BlockCell& cell) const
 	if (cell.IsAir())
 		return 0.0f;
 
-	return 5.25f;
+	return 2.25f;
 }
 
 bool CBlockInteractor::_TryPlaceBlock()
@@ -211,6 +218,29 @@ bool CBlockInteractor::_TryPlaceBlock()
 	if (placeCell.IsAir()) 
 		return false;
 
+	if (m_pMotor)
+	{
+		XMFLOAT3 playerCenter{}, playerHalf{};
+		m_pMotor->GetCollisionAABB(playerCenter, playerHalf);
+
+		playerHalf.x += 0.12f;
+		playerHalf.y += 0.12f;
+		playerHalf.z += 0.12f;
+
+		const XMFLOAT3 blockCenter =
+		{
+			placePos.x + 0.5f,
+			placePos.y + 0.5f,
+			placePos.z + 0.5f
+		};
+
+		const XMFLOAT3 blockHalf = { 0.5f, 0.5f, 0.5f };
+
+		if (_OverlapAABB(playerCenter, playerHalf, blockCenter, blockHalf))
+			return false;
+
+	}
+
 	return m_pWorld->TryPlaceBlock(placePos.x, placePos.y, placePos.z, placeCell);
 }
 
@@ -221,6 +251,14 @@ bool CBlockInteractor::_TryBreakBlock()
 
 	const XMINT3 placePos = m_hitResult.block;
 	return m_pWorld->TryBreakBlock(placePos.x, placePos.y, placePos.z);
+}
+
+bool CBlockInteractor::_OverlapAABB(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf)
+{
+	return
+		std::fabs(aCenter.x - bCenter.x) <= (aHalf.x + bHalf.x) &&
+		std::fabs(aCenter.y - bCenter.y) <= (aHalf.y + bHalf.y) &&
+		std::fabs(aCenter.z - bCenter.z) <= (aHalf.z + bHalf.z);
 }
 
 void CBlockInteractor::_MakeCenterRay(OUT XMFLOAT3& outOrigin, XMFLOAT3& outDir) const

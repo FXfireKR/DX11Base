@@ -20,6 +20,8 @@ public:
 	bool IsGrounded();
 	const XMFLOAT3& GetVelocity() const;
 
+	void GetCollisionAABB(XMFLOAT3& outCenter, XMFLOAT3& outHalfExtents) const;
+
 	inline void SetFrozen(bool bFrozen) { m_bFrozen = bFrozen; }
 	inline bool IsFrozen() const { return m_bFrozen; }
 

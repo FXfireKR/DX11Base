@@ -80,6 +80,13 @@ const XMFLOAT3& CCharacterMotor::GetVelocity() const
 	return m_velocity;
 }
 
+void CCharacterMotor::GetCollisionAABB(XMFLOAT3& outCenter, XMFLOAT3& outHalfExtents) const
+{
+	const XMFLOAT3 footPos = m_pOwnTransform ? m_pOwnTransform->GetWorldTrans() : XMFLOAT3{};
+	outCenter = { footPos.x, footPos.y + m_fHalfHeight, footPos.z };
+	outHalfExtents = { m_fHalfWidth, m_fHalfHeight, m_fHalfWidth };
+}
+
 void CCharacterMotor::_AppluHorizontalMove(float fDelta)
 {
 	XMVECTOR forward = XMVectorSet(0.f, 0.f, 1.f, 0.f);
@@ -198,9 +205,16 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 
 void CCharacterMotor::_RefreshGrounded()
 {
+	/*if (m_velocity.y > 0.f)
+	{
+		m_bGrounded = false;
+		return;
+	}*/
+
 	XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
 
-	const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.02f, 0.05f, m_fHalfWidth - 0.02f };
+	//const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.02f, 0.05f, m_fHalfWidth - 0.02f };
+	const XMFLOAT3 probeHalf = { m_fHalfWidth * 0.45f, 0.05f, m_fHalfWidth * 0.45f };
 	const XMFLOAT3 probeCenter = { footPos.x, footPos.y - 0.05f, footPos.z };
 
 	const bool wasGrounded = m_bGrounded;
