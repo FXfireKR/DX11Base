@@ -75,6 +75,8 @@ BlockCell CHeightmapChunkGenerator::_MakeBlockCell(const char* blockName) const
 	const BLOCK_ID blockID = BlockDB.FindBlockID(blockName);
 
 	BlockPropHashMap props;
+	props.insert({ fnv1a_64("snowy"), fnv1a_64("false") });
+
 	STATE_INDEX sidx{};
 	const bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 	assert(ok);

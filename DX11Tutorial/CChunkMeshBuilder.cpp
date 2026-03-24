@@ -79,6 +79,7 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
         return false;
 
     const uint32_t baseIndex = static_cast<uint32_t>(outMesh.vertices.size());
+    const XMFLOAT4 tint = ResolveBlockTint(quad);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -88,8 +89,9 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
         v.position.z = quad.verts[i].pos.z + static_cast<float>(lz);
 
         v.normal = quad.verts[i].normal;
-        v.color = {1.f, 1.f, 1.f, 1.f};
+        v.color = tint;
         v.uv = _RemapAtlasUV(region, quad.verts[i].uv);
+        
 
         outMesh.vertices.push_back(v);
     }
@@ -101,6 +103,15 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
     outMesh.indices.push_back(baseIndex + 2);
     outMesh.indices.push_back(baseIndex + 3);
     return true;
+}
+
+XMFLOAT4 CChunkMeshBuilder::ResolveBlockTint(const BakedQuad& quad) const
+{
+    if (quad.tintIndex < 0)
+        return { 1.f, 1.f, 1.f, 1.f };
+
+        // 나중에 biom grass color sampler
+    return {0.55f, 0.74f, 0.32f, 1.f};
 }
 
 XMFLOAT2 CChunkMeshBuilder::_RemapAtlasUV(const AtlasRegion& region, const XMFLOAT2& localUV) const

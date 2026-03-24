@@ -22,6 +22,8 @@ private:
 	bool _AppendQuad(const BakedQuad& quad, int lx, int ly, int lz
 		, ChunkMeshData& outMesh) const;
 
+	XMFLOAT4 ResolveBlockTint(const BakedQuad& quad) const;
+
 	XMFLOAT2 _RemapAtlasUV(const AtlasRegion& region, const XMFLOAT2& localUV) const;
 };
 
