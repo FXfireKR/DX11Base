@@ -34,6 +34,43 @@ void CCamera::UpdateCameraMatrix()
 	_UpdateProjectionMatrix();
 }
 
+void CCamera::SetProjToPerspective()
+{
+	if (CAMERA_PROJECTION_TYPE::PERSPECTIVE == m_eProjectionType)
+		return;
+
+	m_eProjectionType = CAMERA_PROJECTION_TYPE::PERSPECTIVE;
+	m_bDirty = true;
+}
+
+
+void CCamera::SetProjToOrthographic()
+{
+	if (CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC == m_eProjectionType)
+		return;
+
+	m_eProjectionType = CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC;
+	m_bDirty = true;
+}
+
+void CCamera::SetOrthographicSize(float width, float height)
+{
+	m_kOrthographic.fWidth = width;
+	m_kOrthographic.fHeight = height;
+
+	if (CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC == m_eProjectionType)
+		m_bDirty = true;
+}
+
+void CCamera::SetOrthographicNearFar(float nearZ, float farZ)
+{
+	m_kOrthographic.fNearZ = nearZ;
+	m_kOrthographic.fFarZ = farZ;
+
+	if (CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC == m_eProjectionType)
+		m_bDirty = true;
+}
+
 inline void CCamera::SetFov(float newFov)
 {
 	m_kPerspective.fFieldOfView = newFov;

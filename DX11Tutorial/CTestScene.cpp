@@ -52,6 +52,9 @@ void CTestScene::Awake()
 	m_pCurrentCamera = cam;
 
 	_CreateHighlight();
+	
+	_CreateUICamera();
+	_CreateCrosshairUI();
 
 	ctrl->SetCameraTransform(pivotTransform);
 	interactor->SetCameraTransform(pivotTransform);
@@ -145,6 +148,13 @@ void CTestScene::BuildRenderFrame()
 	// matrix setting
 	rw.SetViewMatrix(pCurrentCamera->GetViewMatrix());
 	rw.SetProjectionMatrix(pCurrentCamera->GetProjMatrix());
+
+	if (m_pUICamera)
+	{
+		m_pUICamera->UpdateCameraMatrix();
+		rw.SetUIViewMatrix(m_pUICamera->GetViewMatrix());
+		rw.SetUIProjectionMatrix(m_pUICamera->GetProjMatrix());
+	}
 
 	auto SnapToStep = [](float v, float step)
 	{
@@ -305,6 +315,17 @@ void CTestScene::BuildRenderFrame()
 
 	_SubmitChunkBoundsDebug(rw);
 	_SubmitSectionBoundsDebug(rw);
+
+	if (m_pCrosshairMesh && m_pCrosshairPipeline)
+	{
+		RenderItem uiItem{};
+		uiItem.eRenderPass = ERenderPass::ORTH_PASS;
+		uiItem.pMesh = m_pCrosshairMesh;
+		uiItem.pPipeline = m_pCrosshairPipeline;
+		uiItem.pMaterial = m_pCrosshairMaterial;
+		XMStoreFloat4x4(&uiItem.world, XMMatrixTranspose(XMMatrixIdentity()));
+		rw.Submit(uiItem);
+	}
 
 	GetObjectManager().ProcessPeddingDestroy();
 }
@@ -607,6 +628,53 @@ void CTestScene::_CreateTextureAtlas()
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/stone"), "../Resource/assets/minecraft/textures/block/stone.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/sand"), "../Resource/assets/minecraft/textures/block/sand.png");
 	rta.AddTileFromFile(rw.GetContext(), fnv1a_64("minecraft:block/bricks"), "../Resource/assets/minecraft/textures/block/bricks.png");*/
+}
+
+void CTestScene::_CreateUICamera()
+{
+	auto* uiCamObj = AddAndGetObject("UICamera");
+	auto* tr = uiCamObj->AddComponent<CTransform>();
+	tr->Init();
+	tr->SetLocalTrans({0.f, 0.f, -10.f});
+	tr->BuildWorldMatrix();
+
+	auto* cam = uiCamObj->AddComponent<CCamera>();
+	cam->Init();
+	cam->SetProjToOrthographic();
+	cam->SetOrthographicSize((float)g_ScreenSizeX, (float)g_ScreenSizeY);
+	cam->SetOrthographicNearFar(0.1f, 1000.f);
+	cam->UpdateCameraMatrix();
+
+	m_pUICamera = cam;
+}
+
+void CTestScene::_CreateCrosshairUI()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	VERTEX_POSITION verts[4] =
+	{
+		{{ -8.f, 0.f, 0.f }},
+		{{ 8.f, 0.f, 0.f }},
+		{{ 0.f, -8.f, 0.f }},
+		{{ 0.f, 8.f, 0.f }},
+	};
+
+	uint32_t indices[4] = { 0, 1, 2, 3 };
+
+	const uint64_t meshKey = fnv1a_64("UICrosshairMesh");
+	m_pCrosshairMesh = rw.GetMeshManager().CreateOrUpdateDynamicMesh(
+		rw.GetContext(),
+		meshKey,
+		verts,
+		sizeof(VERTEX_POSITION),
+		4,
+		indices,
+		4
+	);
+
+	m_pCrosshairPipeline = m_pChunkBoundsDebugPipeline;
+	m_pCrosshairMaterial = m_pChunkBoundsDebugMaterial;
 }
 
 void CTestScene::_CreateSkyBillboardResources()

@@ -49,24 +49,7 @@ void CRenderWorld::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 void CRenderWorld::BeginFrame()
 {
-	CB_FrameData cb;
-	XMStoreFloat4x4(&cb.view, XMMatrixTranspose(m_matView));
-	XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(m_matProjection));
-	cb.lightDirWs = m_vLightDirWs;
-	cb.lightColorIntensity = m_vLightColorIntensity;
-	cb.ambientColor = m_vAmbientColor;
-	cb.skyColor = m_vSkyColor;
-	XMStoreFloat4x4(&cb.lightViewProj, XMMatrixTranspose(m_matLightViewProj));
-	cb.shadowParams = m_vShadowParams;
-
-	D3D11_MAPPED_SUBRESOURCE mapped{};
-	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-	memcpy(mapped.pData, &cb, sizeof(CB_FrameData));
-	m_pContext->Unmap(m_pCBFrame.Get(), 0);
-	
-
-	m_pContext->VSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
-	m_pContext->PSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
+	_UnloadFrameConstants(m_matView, m_matProjection);
 
 	m_pContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
@@ -100,6 +83,9 @@ void CRenderWorld::DrawFrame()
     m_renderManager.DrawPass(m_pContext, ERenderPass::OPAQUE_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::TRANSPARENT_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::DEBUG_PASS);
+
+
+	_UnloadFrameConstants(m_matUIView, m_matUIProjection);
     m_renderManager.DrawPass(m_pContext, ERenderPass::ORTH_PASS);
 }
 
@@ -211,4 +197,25 @@ void CRenderWorld::_CreateShadowResources()
 	m_kShadowViewport.Height = static_cast<float>(m_uShadowMapSize);
 	m_kShadowViewport.MinDepth = 0.0f;
 	m_kShadowViewport.MaxDepth = 1.0f;
+}
+
+void CRenderWorld::_UnloadFrameConstants(XMMATRIX view, XMMATRIX proj)
+{
+	CB_FrameData cb{};
+	XMStoreFloat4x4(&cb.view, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&cb.proj, XMMatrixTranspose(proj));
+	cb.lightDirWs = m_vLightDirWs;
+	cb.lightColorIntensity = m_vLightColorIntensity;
+	cb.ambientColor = m_vAmbientColor;
+	cb.skyColor = m_vSkyColor;
+	XMStoreFloat4x4(&cb.lightViewProj, XMMatrixTranspose(m_matLightViewProj));
+	cb.shadowParams = m_vShadowParams;
+
+	D3D11_MAPPED_SUBRESOURCE mapped{};
+	m_pContext->Map(m_pCBFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	memcpy(mapped.pData, &cb, sizeof(CB_FrameData));
+	m_pContext->Unmap(m_pCBFrame.Get(), 0);
+
+	m_pContext->VSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
+	m_pContext->PSSetConstantBuffers(0, 1, m_pCBFrame.GetAddressOf());
 }

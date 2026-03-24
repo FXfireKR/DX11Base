@@ -37,6 +37,13 @@ public:
 
 	void UpdateCameraMatrix();
 
+	void SetProjToPerspective();
+	void SetProjToOrthographic();
+
+	void SetOrthographicSize(float width, float height);
+	void SetOrthographicNearFar(float nearZ, float farZ);
+
+public:
 	inline void SetFov(float newFov);
 	inline void SetAspectRatio(float newRatio);
 

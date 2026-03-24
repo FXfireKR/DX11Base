@@ -54,6 +54,7 @@ private:
 	void _CreateRenderTargetView();
 	void _CreateDepthStencilView();
 	void _CreateShadowResources();
+	void _UnloadFrameConstants(XMMATRIX view, XMMATRIX proj);
 
 public:
 	inline void SetBackColor(float r, float g, float b, float a) {
@@ -65,28 +66,16 @@ public:
 
 	inline void SetViewMatrix(XMMATRIX view) { m_matView = view; }
 	inline void SetProjectionMatrix(XMMATRIX proj) { m_matProjection = proj; }
-	inline void SetDirectionalLight(const XMFLOAT3& dirWs, const XMFLOAT3& color, float intensity)
-	{
-		m_vLightDirWs = { dirWs.x, dirWs.y, dirWs.z, 0.0f };
-		m_vLightColorIntensity = { color.x, color.y, color.z, intensity };
-	}
 
-	inline void SetAmbientLight(const XMFLOAT3& ambient) 
-	{ 
-		m_vAmbientColor = { ambient.x, ambient.y, ambient.z, 0.0f }; 
-	}
-	inline void SetSkyColor(const XMFLOAT3& skyColor)
-	{
-		m_vSkyColor = { skyColor.x, skyColor.y, skyColor.z, 1.0f };
-	}
-	inline void SetLightViewProj(XMMATRIX lightViewProj)
-	{
-		m_matLightViewProj = lightViewProj;
-	}
-	inline void SetShadowParams(float bias, float shadowMinLight)
-	{
-		m_vShadowParams = { bias, shadowMinLight, 0.0f, 0.0f };
-	}
+	inline void SetUIViewMatrix(XMMATRIX view) { m_matUIView = view; }
+	inline void SetUIProjectionMatrix(XMMATRIX proj) { m_matUIProjection = proj; }
+
+	inline void SetDirectionalLight(const XMFLOAT3& dirWs, const XMFLOAT3& color, float intensity) { m_vLightDirWs = { dirWs.x, dirWs.y, dirWs.z, 0.0f }; m_vLightColorIntensity = { color.x, color.y, color.z, intensity }; }
+	inline void SetAmbientLight(const XMFLOAT3& ambient) { m_vAmbientColor = { ambient.x, ambient.y, ambient.z, 0.0f }; }
+	inline void SetSkyColor(const XMFLOAT3& skyColor) { m_vSkyColor = { skyColor.x, skyColor.y, skyColor.z, 1.0f }; }
+	inline void SetLightViewProj(XMMATRIX lightViewProj) { m_matLightViewProj = lightViewProj; }
+	inline void SetShadowParams(float bias, float shadowMinLight) { m_vShadowParams = { bias, shadowMinLight, 0.0f, 0.0f }; }
+
 	inline ID3D11ShaderResourceView* GetShadowMapSRV() const { return m_pShadowSRV.Get(); }
 
 
@@ -131,6 +120,9 @@ private:
 
 	XMMATRIX m_matView = XMMatrixIdentity();
 	XMMATRIX m_matProjection = XMMatrixIdentity();
+
+	XMMATRIX m_matUIView = XMMatrixIdentity();
+	XMMATRIX m_matUIProjection = XMMatrixIdentity();
 
 	ComPtr<ID3D11Buffer> m_pCBFrame; // b0
 	ComPtr<ID3D11Buffer> m_pCBObject; // b1

@@ -33,6 +33,8 @@ private:
 	void _CreateHighlight();
 	void _CreateWorldRender();
 	void _CreateTextureAtlas();
+	void _CreateUICamera();
+	void _CreateCrosshairUI();
 
 	void _CreateSkyBillboardResources();
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);
@@ -66,6 +68,11 @@ private:
 	CMaterial* m_pChunkBoundsDebugMaterial = nullptr;
 
 	ESectionDebugMode m_eSectionDebugMode = ESectionDebugMode::OFF;
+
+	CCamera* m_pUICamera = nullptr;
+	CMesh* m_pCrosshairMesh = nullptr;
+	CPipeline* m_pCrosshairPipeline = nullptr;
+	CMaterial* m_pCrosshairMaterial = nullptr;
 
 private:
 	CMesh* m_pSkyBillboardMesh = nullptr;
