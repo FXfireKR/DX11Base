@@ -98,6 +98,20 @@
       }
   },
 
+  "UIInvertMask": {
+      "VS": {
+        "path": "UIInvertMask.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "UIInvertMask.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  },
+
   "ShadowDepth": {
       "VS": {
         "path": "ShadowDepth.hlsl",

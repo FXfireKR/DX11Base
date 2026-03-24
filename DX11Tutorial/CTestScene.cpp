@@ -308,10 +308,10 @@ void CTestScene::BuildRenderFrame()
 		rw.Submit(item);
 	});
 
-	m_blockBreakParticleSystem.SubmitRender(rw, *pCurrentCamera);
-
 	_SubmitSunMoonBillboards(rw);
 	_ApplySkyClearColor();
+
+	m_blockBreakParticleSystem.SubmitRender(rw, *pCurrentCamera);
 
 	_SubmitChunkBoundsDebug(rw);
 	_SubmitSectionBoundsDebug(rw);
@@ -665,7 +665,7 @@ void CTestScene::_CreateCrosshairUI()
 	auto& samplerManager = rw.GetSamplerManager();
 
 	// shader
-	const uint64_t shaderID = fnv1a_64("Billboard");
+	const uint64_t shaderID = fnv1a_64("UIInvertMask");
 	auto* shader = shaderManager.CreateShader(shaderID, 0);
 	shaderManager.Compile();
 
