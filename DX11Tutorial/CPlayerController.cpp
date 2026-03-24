@@ -162,10 +162,7 @@ void CPlayerController::_UpdateActionIntent()
 {
 	CMouseDevice& mouse = CInputManager::Get().Mouse();
 
-	if (mouse.GetKeyDown(VK_LBUTTON))
-	{
-		m_pBlockInteractor->RequestBreak();
-	}
+	m_pBlockInteractor->SetBreakHeld(mouse.GetKey(VK_LBUTTON));
 
 	if (mouse.GetKeyDown(VK_RBUTTON))
 	{

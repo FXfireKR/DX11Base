@@ -15,20 +15,28 @@ public:
 	void LateUpdate(float fDelta) override;
 
 public:
-	void SetWorld(CWorld* pWorld);
-	void SetCameraTransform(CTransform* pCamTransform);
-	void SetHighlightObject(CObject* pHighlightObject);
+	void SetBreakHeld(bool bHeld);
 
 	void RequestPlace();
 	void RequestBreak();
 
 public:
-	const BlockHitResult& GetBlockHit() const;
+	inline void SetWorld(CWorld* pWorld) { m_pWorld = pWorld; }
+	inline void SetCameraTransform(CTransform* pCamTransform) { m_pCamTransform = pCamTransform; }
+	inline void SetHighlightObject(CObject* pHighlightObject) { m_pHighlightObject = pHighlightObject; }
+	inline void SetParticleSystem() {}
+
+	inline const BlockHitResult& GetBlockHit() const { return m_hitResult; }
 
 private:
 	void _UpdateRaycast();
 	void _UpdateHighlight();
 	void _ConsumeRequests();
+
+	void _UpdateMining(float fDelta);
+	void _ResetMining();
+	bool _IsSameMiningTarget(const BlockHitResult& hit) const;
+	float _CalcBreakRequired(const BlockCell& cell) const;
 
 	bool _TryPlaceBlock();
 	bool _TryBreakBlock();
@@ -41,10 +49,23 @@ private:
 	CTransform* m_pCamTransform = nullptr;
 	CObject* m_pHighlightObject = nullptr;
 
+	// particle...
+
+private:
 	BlockHitResult m_hitResult{};
+	float m_fReach = 7.f;
+
+	bool m_bBreakHeld = false;
+	bool m_bMining = false;
+	XMINT3 m_miningBlock{};
+	XMINT3 m_miningNormal{};
+	BlockCell m_miningCell{};
+	float m_fBreakAccum = 0.f;
+	float m_fBreakRequired = 0.25f;
+
+	float m_fHitFxCoolDown = 0.f;
+	
 
 	bool m_bPlaceRequested = false;
 	bool m_bBreakRequested = false;
-
-	float m_fReach = 15.f;
 };

@@ -119,6 +119,7 @@
       <AdditionalIncludeDirectories>ImGui;ImGui/backend;$(SolutionDir)Libraries/inc/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,6 +144,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
