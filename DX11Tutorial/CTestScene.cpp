@@ -318,12 +318,16 @@ void CTestScene::BuildRenderFrame()
 
 	if (m_pCrosshairMesh && m_pCrosshairPipeline)
 	{
+		const float crosshairSize = 32.0f;
+
+		XMMATRIX matWorld = XMMatrixScaling(crosshairSize, crosshairSize, 1.0f) * XMMatrixTranslation(0.f, 0.f, 0.f);
+
 		RenderItem uiItem{};
 		uiItem.eRenderPass = ERenderPass::ORTH_PASS;
 		uiItem.pMesh = m_pCrosshairMesh;
 		uiItem.pPipeline = m_pCrosshairPipeline;
 		uiItem.pMaterial = m_pCrosshairMaterial;
-		XMStoreFloat4x4(&uiItem.world, XMMatrixTranspose(XMMatrixIdentity()));
+		XMStoreFloat4x4(&uiItem.world, XMMatrixTranspose(matWorld));
 		rw.Submit(uiItem);
 	}
 
@@ -652,29 +656,54 @@ void CTestScene::_CreateCrosshairUI()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
-	VERTEX_POSITION verts[4] =
-	{
-		{{ -8.f, 0.f, 0.f }},
-		{{ 8.f, 0.f, 0.f }},
-		{{ 0.f, -8.f, 0.f }},
-		{{ 0.f, 8.f, 0.f }},
-	};
+	auto& shaderManager = rw.GetShaderManager();
+	auto& ilManager = rw.GetIALayoutManager();
+	auto& pipelineManager = rw.GetPipelineManager();
+	auto& meshManager = rw.GetMeshManager();
+	auto& materialManager = rw.GetMaterialManager();
+	auto& textureManager = rw.GetTextureManager();
+	auto& samplerManager = rw.GetSamplerManager();
 
-	uint32_t indices[4] = { 0, 1, 2, 3 };
+	// shader
+	const uint64_t shaderID = fnv1a_64("Billboard");
+	auto* shader = shaderManager.CreateShader(shaderID, 0);
+	shaderManager.Compile();
 
-	const uint64_t meshKey = fnv1a_64("UICrosshairMesh");
-	m_pCrosshairMesh = rw.GetMeshManager().CreateOrUpdateDynamicMesh(
-		rw.GetContext(),
-		meshKey,
-		verts,
-		sizeof(VERTEX_POSITION),
-		4,
-		indices,
-		4
+	// input layout
+	const uint64_t layoutID =
+		ilManager.Create(VERTEX_POSITION_UV::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+
+	// pipeline
+	const uint64_t pipeID = pipelineManager.Create(fnv1a_64("UICrosshairPipeline"));
+	auto* pipeline = pipelineManager.Get(pipeID);
+	pipeline->SetShader(shaderManager.Get(shaderID, 0));
+	pipeline->SetInputLayout(ilManager.Get(layoutID));
+	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+
+	// mesh
+	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("UICrosshairQuad"));
+
+	// material
+	const uint64_t materialID = materialManager.Create(fnv1a_64("UICrosshairMaterial"));
+	auto* material = materialManager.Get(materialID);
+
+	// texture
+	const uint64_t textureID = textureManager.LoadTexture2D(
+		fnv1a_64("ui/crosshair"),
+		"../Resource/assets/minecraft/textures/gui/sprites/hud/crosshair.png",
+		TEXTURE_USAGE::StaticColor
 	);
 
-	m_pCrosshairPipeline = m_pChunkBoundsDebugPipeline;
-	m_pCrosshairMaterial = m_pChunkBoundsDebugMaterial;
+	// sampler
+	const uint64_t samplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_WARP);
+
+	material->SetSampler(0, samplerManager.Get(samplerID)->Get());
+	material->SetTexture(0, textureManager.GetTexture(textureID)->GetShaderResourceView());
+
+	m_pCrosshairMesh = meshManager.Get(meshID);
+	m_pCrosshairPipeline = pipeline;
+	m_pCrosshairMaterial = material;
 }
 
 void CTestScene::_CreateSkyBillboardResources()
