@@ -688,7 +688,7 @@ void CTestScene::_CreateSkyBillboardResources()
 	auto& textureManager = rw.GetTextureManager();
 	auto& samplerManager = rw.GetSamplerManager();
 
-	const uint64_t shaderID = fnv1a_64("Billboard");
+	const uint64_t shaderID = fnv1a_64("SkyBillboard");
 	auto* shader = shaderManager.CreateShader(shaderID, 0);
 	shaderManager.Compile();
 

@@ -150,7 +150,7 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 	if (m_pParticle && m_fHitFxCoolDown <= 0.f)
 	{
 		m_pParticle->SpawnBreakBurst(m_miningBlock, m_miningCell, m_miningNormal);
-		m_fHitFxCoolDown = 0.08f;
+		m_fHitFxCoolDown = 0.25f;
 	}
 
 	if (m_fBreakAccum < m_fBreakRequired)

@@ -84,6 +84,20 @@
       }
   },
 
+  "SkyBillboard": {
+      "VS": {
+        "path": "SkyBillboard.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "SkyBillboard.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  },
+
   "ShadowDepth": {
       "VS": {
         "path": "ShadowDepth.hlsl",

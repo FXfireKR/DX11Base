@@ -137,12 +137,18 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 	if (!picked)
 		picked = &model->quads.front();
 
-	AtlasRegion region{};
-	if (!BlockResDB.TryGetRegion(picked->debugTextureKey.c_str(), region))
+	XMFLOAT2 uvMin{}, uvMax{};
+	if (!BlockResDB.TryGetBlockParticleRegion(picked->debugTextureKey.c_str(), uvMin, uvMax))
 		return;
 
-	const XMFLOAT2 uvMin = { region.u0, region.v0 };
-	const XMFLOAT2 uvMax = { region.u1, region.v1 };
+	const float uLen = uvMax.x - uvMin.x;
+	const float vLen = uvMax.y - uvMin.y;
+
+	float uSize = _RandomRange(0.f, uLen);
+	float vSize = _RandomRange(0.f, vLen);
+
+	float startU = _RandomRange(uvMin.x, uvMax.x - uSize);
+	float startV = _RandomRange(uvMin.y, uvMax.y - vSize);
 
 	const XMFLOAT3 center =
 	{
@@ -179,7 +185,7 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 		const float size = _RandomRange(0.08f, 0.14f);
 		const float life = _RandomRange(0.35f, 0.55f);
 
-		_EmitOne(center, vel, size, life, uvMin, uvMax);
+		_EmitOne(center, vel, size, life, { startU, startV }, { startU + uSize, startV + vSize });
 	}
 }
 
