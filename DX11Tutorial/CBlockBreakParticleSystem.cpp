@@ -24,6 +24,8 @@ void CBlockBreakParticleSystem::Initialize(CRenderWorld& rw)
 	m_vecParticles.resize(m_uMaxParticles);
 
 	_CreateRenderResource(rw);
+
+	srand(GetTickCount64());
 }
 
 void CBlockBreakParticleSystem::Update(float fDelta)
@@ -50,8 +52,6 @@ void CBlockBreakParticleSystem::Update(float fDelta)
 
 void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const BlockCell& cell, const XMINT3& hitNormal)
 {
-	XMFLOAT2 uvMin{}, uvMax{};
-
 	const BakedModel* model = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
 	if (!model || model->quads.empty())
 		return;
@@ -75,6 +75,44 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 	if (!BlockResDB.TryGetRegion(picked->debugTextureKey.c_str(), region))
 		return;
 
+	const XMFLOAT2 uvMin = { region.u0, region.v0 };
+	const XMFLOAT2 uvMax = { region.u1, region.v1 };
+
+	const XMFLOAT3 center =
+	{
+		static_cast<float>(blockPos.x) + 0.5f,
+		static_cast<float>(blockPos.y) + 0.5f,
+		static_cast<float>(blockPos.z) + 0.5f
+	};
+
+	const XMFLOAT3 normal =
+	{
+		static_cast<float>(hitNormal.x),
+		static_cast<float>(hitNormal.y),
+		static_cast<float>(hitNormal.z)
+	};
+
+	for (int i = 0; i < 12; ++i)
+	{
+		const XMFLOAT3 randDir =
+		{
+			_RandomRange(-1.5f, 1.5f),
+			_RandomRange(0.f, 1.f),
+			_RandomRange(-1.5f, 1.5f),
+		};
+
+		const XMFLOAT3 vel =
+		{
+			normal.x * 0.9f + randDir.x * 1.4f,
+			normal.y * 0.6f + randDir.y * 1.7f,
+			normal.z * 0.9f + randDir.z * 1.4f,
+		};
+
+		const float size = _RandomRange(0.08f, 0.14f);
+		const float life = _RandomRange(0.35f, 0.55f);
+
+		_EmitOne(center, vel, size, life, uvMin, uvMax);
+	}
 }
 
 void CBlockBreakParticleSystem::SubmitRender(CRenderWorld& rw, const CCamera& camera)

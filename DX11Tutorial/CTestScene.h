@@ -55,6 +55,8 @@ private:
 	CWorld m_VoxelWorld;
 	WorldTimeParams timeParams{};
 
+	CBlockBreakParticleSystem m_blockBreakParticleSystem;
+
 	CObject* m_pPlayer = nullptr;
 	CObject* m_pHighlightObject = nullptr;
 

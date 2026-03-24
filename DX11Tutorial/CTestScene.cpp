@@ -17,6 +17,8 @@ void CTestScene::Awake()
 
 	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial);
 
+	m_blockBreakParticleSystem.Initialize(GetRenderWorld());
+
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
 	tr->Init();
@@ -36,6 +38,7 @@ void CTestScene::Awake()
 	auto* interactor = m_pPlayer->AddComponent<CBlockInteractor>();
 	interactor->Init();
 	interactor->SetWorld(&m_VoxelWorld);
+	interactor->SetParticleSystem(&m_blockBreakParticleSystem);
 
 	// 카메라 피벗(자식 오브젝트)
 	auto* pivot = AddAndGetObject("PlayerCameraPivot");
@@ -108,6 +111,7 @@ void CTestScene::Update(float fDelta)
 	XMFLOAT3 Trans = tr->GetWorldTrans();
 
 	m_VoxelWorld.Update(fDelta, Trans);
+	m_blockBreakParticleSystem.Update(fDelta);
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
 	{
@@ -136,14 +140,16 @@ void CTestScene::BuildRenderFrame()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
+	const CCamera* pCurrentCamera = GetCurrentCamera();
+
 	// matrix setting
-	rw.SetViewMatrix(GetCurrentCamera()->GetViewMatrix());
-	rw.SetProjectionMatrix(GetCurrentCamera()->GetProjMatrix());
+	rw.SetViewMatrix(pCurrentCamera->GetViewMatrix());
+	rw.SetProjectionMatrix(pCurrentCamera->GetProjMatrix());
 
 	auto SnapToStep = [](float v, float step)
-		{
-			return floorf(v / step + 0.5f) * step;
-		};
+	{
+		return floorf(v / step + 0.5f) * step;
+	};
 
 	{
 		// sun / moon direction
@@ -235,7 +241,7 @@ void CTestScene::BuildRenderFrame()
 		rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
 	}
 
-	const CTransform* pCamTr = GetCurrentCamera()->GetTransform();
+	const CTransform* pCamTr = pCurrentCamera->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
 	XMFLOAT3 camLook = { 0.f, 0.f, 0.f };
 
@@ -246,51 +252,53 @@ void CTestScene::BuildRenderFrame()
 	}
 
 	GetObjectManager().ForEachAliveEnabled([&](CObject& obj)
+	{
+		auto* render = obj.GetComponent<CMeshRenderer>();
+		auto* transform = obj.GetComponent<CTransform>();
+
+		if (!render || !transform) return;
+		if (!render->GetMesh()) return;
+
+		transform->BuildWorldMatrix();
+		const XMMATRIX matWorld = transform->GetWorldMatrix();
+
+		// shadow pass
+		if (render->GetRenderPass() == ERenderPass::OPAQUE_PASS && m_pChunkShadowPipeline)
 		{
-			auto* render = obj.GetComponent<CMeshRenderer>();
-			auto* transform = obj.GetComponent<CTransform>();
+			RenderItem shadowItem{};
+			shadowItem.eRenderPass = ERenderPass::SHADOW_PASS;
+			shadowItem.pMesh = render->GetMesh();
+			shadowItem.pPipeline = m_pChunkShadowPipeline;
+			shadowItem.pMaterial = nullptr;
+			DirectX::XMStoreFloat4x4(&shadowItem.world, XMMatrixTranspose(matWorld));
+			rw.Submit(shadowItem);
+		}
 
-			if (!render || !transform) return;
-			if (!render->GetMesh()) return;
+		// main pass
+		RenderItem item{};
+		item.eRenderPass = render->GetRenderPass();
+		item.pMesh = render->GetMesh();
+		item.pPipeline = render->GetPipeline();
+		item.pMaterial = render->GetMaterial();
 
-			transform->BuildWorldMatrix();
-			const XMMATRIX matWorld = transform->GetWorldMatrix();
+		const XMFLOAT3 worldPos = transform->GetWorldTrans();
+		const XMFLOAT3 toObj =
+		{
+			worldPos.x - camPos.x,
+			worldPos.y - camPos.y,
+			worldPos.z - camPos.z
+		};
 
-			// shadow pass
-			if (render->GetRenderPass() == ERenderPass::OPAQUE_PASS && m_pChunkShadowPipeline)
-			{
-				RenderItem shadowItem{};
-				shadowItem.eRenderPass = ERenderPass::SHADOW_PASS;
-				shadowItem.pMesh = render->GetMesh();
-				shadowItem.pPipeline = m_pChunkShadowPipeline;
-				shadowItem.pMaterial = nullptr;
-				DirectX::XMStoreFloat4x4(&shadowItem.world, XMMatrixTranspose(matWorld));
-				rw.Submit(shadowItem);
-			}
+		item.fSortDepth =
+			toObj.x * camLook.x +
+			toObj.y * camLook.y +
+			toObj.z * camLook.z;
 
-			// main pass
-			RenderItem item{};
-			item.eRenderPass = render->GetRenderPass();
-			item.pMesh = render->GetMesh();
-			item.pPipeline = render->GetPipeline();
-			item.pMaterial = render->GetMaterial();
+		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
+		rw.Submit(item);
+	});
 
-			const XMFLOAT3 worldPos = transform->GetWorldTrans();
-			const XMFLOAT3 toObj =
-			{
-				worldPos.x - camPos.x,
-				worldPos.y - camPos.y,
-				worldPos.z - camPos.z
-			};
-
-			item.fSortDepth =
-				toObj.x * camLook.x +
-				toObj.y * camLook.y +
-				toObj.z * camLook.z;
-
-			DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
-			rw.Submit(item);
-		});
+	m_blockBreakParticleSystem.SubmitRender(rw, *pCurrentCamera);
 
 	_SubmitSunMoonBillboards(rw);
 	_ApplySkyClearColor();

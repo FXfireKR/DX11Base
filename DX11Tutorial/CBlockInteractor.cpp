@@ -160,6 +160,11 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 
 	if (!bBroken)
 		return;
+
+	if (m_pParticle)
+	{
+		m_pParticle->SpawnBreakBurst(breakPos, breakCell, breakNormal);
+	}
 }
 
 void CBlockInteractor::_ResetMining()

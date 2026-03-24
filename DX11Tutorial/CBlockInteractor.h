@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CComponentBase.h"
 #include "BlockRaycastTypes.h"
+#include "CBlockBreakParticleSystem.h"
 
 class CWorld;
 class CInventoryComponent;
@@ -24,7 +25,7 @@ public:
 	inline void SetWorld(CWorld* pWorld) { m_pWorld = pWorld; }
 	inline void SetCameraTransform(CTransform* pCamTransform) { m_pCamTransform = pCamTransform; }
 	inline void SetHighlightObject(CObject* pHighlightObject) { m_pHighlightObject = pHighlightObject; }
-	inline void SetParticleSystem() {}
+	inline void SetParticleSystem(CBlockBreakParticleSystem* pParticleSystem) { m_pParticle = pParticleSystem; }
 
 	inline const BlockHitResult& GetBlockHit() const { return m_hitResult; }
 
@@ -48,8 +49,7 @@ private:
 	CInventoryComponent* m_pInventory = nullptr;
 	CTransform* m_pCamTransform = nullptr;
 	CObject* m_pHighlightObject = nullptr;
-
-	// particle...
+	CBlockBreakParticleSystem* m_pParticle = nullptr;
 
 private:
 	BlockHitResult m_hitResult{};
