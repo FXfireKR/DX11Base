@@ -100,6 +100,44 @@ void CPipeline::CreateAdditiveState(ID3D11Device* pDevice, bool bCullNone)
 	pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
 }
 
+void CPipeline::CreateUIInvertState(ID3D11Device* pDevice, bool bCullNone)
+{
+	D3D11_RASTERIZER_DESC rs{};
+	rs.FillMode = D3D11_FILL_SOLID;
+	rs.CullMode = bCullNone ? D3D11_CULL_NONE : D3D11_CULL_BACK;
+	rs.FrontCounterClockwise = FALSE;
+	pDevice->CreateRasterizerState(&rs, m_pRasterizerState.GetAddressOf());
+
+	// UI는 depth 영향 받지 않게
+	D3D11_DEPTH_STENCIL_DESC dsd{};
+	dsd.DepthEnable = false;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsd.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	dsd.StencilEnable = false;
+	pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf());
+
+	D3D11_BLEND_DESC bd{};
+	bd.AlphaToCoverageEnable = false;
+	bd.IndependentBlendEnable = false;
+
+	auto& rt = bd.RenderTarget[0];
+	rt.BlendEnable = true;
+
+	// out = src*(1-dest) + dest*(1-src)
+	rt.SrcBlend = D3D11_BLEND_INV_DEST_COLOR;
+	rt.DestBlend = D3D11_BLEND_INV_SRC_COLOR;
+	rt.BlendOp = D3D11_BLEND_OP_ADD;
+
+	// alpha는 크게 의미 없으니 단순 처리
+	rt.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rt.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+	rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	pDevice->CreateBlendState(&bd, m_pBlendState.GetAddressOf());
+}
+
 void CPipeline::SetShader(CShader* const pShader_)
 {
 	if (nullptr == pShader_) 

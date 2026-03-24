@@ -679,7 +679,7 @@ void CTestScene::_CreateCrosshairUI()
 	pipeline->SetShader(shaderManager.Get(shaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+	pipeline->CreateUIInvertState(rw.GetDevice(), true);
 
 	// mesh
 	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("UICrosshairQuad"));
