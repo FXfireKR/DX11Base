@@ -50,6 +50,72 @@ void CBlockBreakParticleSystem::Update(float fDelta)
 	}
 }
 
+void CBlockBreakParticleSystem::SpawnHitChip(const XMINT3& blockPos, const BlockCell& cell, const XMINT3& hitNormal)
+{
+	const BakedModel* model = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
+	if (!model || model->quads.empty())
+		return;
+
+	uint8_t eFaceDir = static_cast<uint8_t>(NormalToFaceDir(hitNormal));
+
+	const BakedQuad* picked = nullptr;
+	for (const BakedQuad& q : model->quads)
+	{
+		if (q.dir == eFaceDir)
+		{
+			picked = &q;
+			break;
+		}
+	}
+
+	if (!picked)
+		picked = &model->quads.front();
+
+	AtlasRegion region{};
+	if (!BlockResDB.TryGetRegion(picked->debugTextureKey.c_str(), region))
+		return;
+
+	const XMFLOAT2 uvMin = { region.u0, region.v0 };
+	const XMFLOAT2 uvMax = { region.u1, region.v1 };
+
+	const XMFLOAT3 spawnPos =
+	{
+		blockPos.x + 0.5f + hitNormal.x * 0.45f,
+		blockPos.y + 0.5f + hitNormal.y * 0.45f,
+		blockPos.z + 0.5f + hitNormal.z * 0.45f,
+	};
+
+	const XMFLOAT3 normal =
+	{
+		static_cast<float>(hitNormal.x),
+		static_cast<float>(hitNormal.y),
+		static_cast<float>(hitNormal.z)
+	};
+
+	int iTartgetParticle = 3 + (rand() % 4);
+	for (int i = 0; i < iTartgetParticle; ++i)
+	{
+		const XMFLOAT3 randDir =
+		{
+			_RandomRange(-0.5f, 0.5f),
+			_RandomRange(0.f, 0.5f),
+			_RandomRange(-0.5f, 0.5f),
+		};
+
+		const XMFLOAT3 vel =
+		{
+			normal.x * 0.35f + randDir.x * 0.45f,
+			normal.y * 0.25f + randDir.y * 0.55f,
+			normal.z * 0.35f + randDir.z * 0.45f,
+		};
+
+		const float size = _RandomRange(0.04f, 0.07f);
+		const float life = _RandomRange(0.12f, 0.22f);
+
+		_EmitOne(spawnPos, vel, size, life, uvMin, uvMax);
+	}
+}
+
 void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const BlockCell& cell, const XMINT3& hitNormal)
 {
 	const BakedModel* model = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
@@ -92,13 +158,15 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 		static_cast<float>(hitNormal.z)
 	};
 
-	for (int i = 0; i < 12; ++i)
+
+	int iTargetParticle = 5 + (rand() % 12);
+	for (int i = 0; i < iTargetParticle; ++i)
 	{
 		const XMFLOAT3 randDir =
 		{
-			_RandomRange(-1.5f, 1.5f),
-			_RandomRange(0.f, 1.f),
-			_RandomRange(-1.5f, 1.5f),
+			_RandomRange(-1.f, 1.f),
+			_RandomRange(0.f, 2.f),
+			_RandomRange(-1.f, 1.f),
 		};
 
 		const XMFLOAT3 vel =

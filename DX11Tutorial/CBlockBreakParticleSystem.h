@@ -30,6 +30,7 @@ public:
 	void Initialize(CRenderWorld& rw);
 	void Update(float fDelta);
 
+	void SpawnHitChip(const XMINT3& blockPos, const BlockCell& cell, const XMINT3& hitNormal);
 	void SpawnBreakBurst(const XMINT3& blockPos, const BlockCell& cell, const XMINT3& hitNormal);
 	void SubmitRender(CRenderWorld& rw, const CCamera& camera);
 

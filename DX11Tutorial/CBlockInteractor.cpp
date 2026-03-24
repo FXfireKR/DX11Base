@@ -147,6 +147,12 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 	m_fBreakAccum += fDelta;
 	m_fHitFxCoolDown -= fDelta;
 
+	if (m_pParticle && m_fHitFxCoolDown <= 0.f)
+	{
+		m_pParticle->SpawnBreakBurst(m_miningBlock, m_miningCell, m_miningNormal);
+		m_fHitFxCoolDown = 0.08f;
+	}
+
 	if (m_fBreakAccum < m_fBreakRequired)
 		return;
 
@@ -162,9 +168,7 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 		return;
 
 	if (m_pParticle)
-	{
 		m_pParticle->SpawnBreakBurst(breakPos, breakCell, breakNormal);
-	}
 }
 
 void CBlockInteractor::_ResetMining()
@@ -193,7 +197,7 @@ float CBlockInteractor::_CalcBreakRequired(const BlockCell& cell) const
 	if (cell.IsAir())
 		return 0.0f;
 
-	return 0.25f;
+	return 5.25f;
 }
 
 bool CBlockInteractor::_TryPlaceBlock()
