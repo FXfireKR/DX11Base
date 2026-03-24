@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "CGameWorld.h"
 #include "CRenderWorld.h"
+#include "CBlockBreakParticleSystem.h"
 
 void CGameWorld::Initialize(CRenderWorld& renderWorld_)
 {

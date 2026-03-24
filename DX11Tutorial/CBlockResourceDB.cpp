@@ -73,6 +73,17 @@ bool CBlockResourceDB::TryGetRegion(const char* textureKey, AtlasRegion& outRegi
 	return m_runtimeAtlas.TryGetRegion(textureKey, outRegion);
 }
 
+bool CBlockResourceDB::TryGetBlockParticleRegion(const char* textureKey, XMFLOAT2& outUVMin, XMFLOAT2& outUVMax) const
+{
+	AtlasRegion region{};
+	if (!m_runtimeAtlas.TryGetRegion(textureKey, region))
+		return false;
+
+	outUVMin = { region.u0, region.v0 };
+	outUVMax = { region.u1, region.v1 };
+	return true;
+}
+
 bool CBlockResourceDB::_ResolveTextureFilePath(const char* textureKey, string& outPath) const
 {
 	outPath.clear();

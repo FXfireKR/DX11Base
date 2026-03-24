@@ -2,7 +2,7 @@
 
 #include "CoreTypes.h"
 
-#include "CChunkType.h"
+#include "ChunkType.h"
 #include "ChunkMath.h"
 #include "ChunkRenderTypes.h"
 

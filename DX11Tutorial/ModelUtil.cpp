@@ -28,6 +28,17 @@ DirectX::XMFLOAT3 FaceNormal(FACE_DIR dir)
 	}
 }
 
+FACE_DIR NormalToFaceDir(const DirectX::XMINT3& normal)
+{
+	if (normal.x == 1)	return FACE_DIR::PX;
+	if (normal.x == -1) return FACE_DIR::NX;
+	if (normal.y == 1)	return FACE_DIR::PY;
+	if (normal.y == -1) return FACE_DIR::NY;
+	if (normal.z == 1)	return FACE_DIR::PZ;
+	if (normal.z == -1)	return FACE_DIR::NZ;
+	return FACE_DIR::COUNT;
+}
+
 bool TryParseFaceDir(const char* strDir, FACE_DIR& outDir)
 {
 	if (!strDir) return false;

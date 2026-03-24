@@ -33,6 +33,7 @@ enum class ROT_AXIS : uint8_t
 };
 
 DirectX::XMFLOAT3 FaceNormal(FACE_DIR dir);
+FACE_DIR NormalToFaceDir(const DirectX::XMINT3& normal);
 bool TryParseFaceDir(const char* strDir, FACE_DIR& outDir);
 bool TryParseAxis(const char* strAxis, ROT_AXIS& outAxis);
 float MCCoordToUnit(float v);

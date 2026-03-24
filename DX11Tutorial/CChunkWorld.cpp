@@ -471,7 +471,7 @@ BlockCell CChunkWorld::_SampleBaseBlock(int wx, int wy, int wz) const
 	if (wy != 0)
 		return { 0, 0 };
 
-	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:stone");
+	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:dirt");
 	BlockPropHashMap props;
 	STATE_INDEX sidx{};
 	bool ok = BlockDB.EncodeStateIndex(stone, props, sidx);

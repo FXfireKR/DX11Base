@@ -4,6 +4,7 @@
 #include "CRuntimeAtlas.h"
 #include "CRuntimeAtlasBuilder.h"
 
+struct BlockCell;
 
 class CBlockResourceDB : public singleton<CBlockResourceDB>
 {
@@ -18,7 +19,7 @@ public:
 
 	const AtlasRegion* FindAtlasRegion(const char* textureKey) const;
 	bool TryGetRegion(const char* textureKey, AtlasRegion& outRegion) const;
-
+	bool TryGetBlockParticleRegion(const char* textureKey, XMFLOAT2& outMinUV, XMFLOAT2& outMaxUV) const;
 
 	inline ID3D11ShaderResourceView* GetAtlasTextureView() const { return m_runtimeAtlas.GetShaderResourceView(); }
 
