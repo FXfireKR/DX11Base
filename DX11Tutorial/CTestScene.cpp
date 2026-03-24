@@ -125,6 +125,18 @@ void CTestScene::Update(float fDelta)
 	{
 		m_bSpawnStreamingReady = m_VoxelWorld.GetChunkWorld().IsSpawnAreaReady(Trans);
 
+		
+		constexpr float kPlayerHalfWidth = 0.3f;
+		constexpr float kPlayerHalfHeight = 0.9f;
+		const int spawnWx = 0;
+		const int spawnWz = 0;
+		float spawnFootY = 0.f;
+
+		if (m_VoxelWorld.FindSpawnFootY(spawnWx, spawnWz, { kPlayerHalfWidth, kPlayerHalfHeight, kPlayerHalfWidth }, spawnFootY))
+		{
+			tr->SetLocalTrans({ spawnWx, spawnFootY, spawnWz });
+		}
+
 		if (auto* motor = m_pPlayer->GetComponent<CCharacterMotor>())
 		{
 			motor->SetFrozen(!m_bSpawnStreamingReady);

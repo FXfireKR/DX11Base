@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CChunkColumn.h"
 #include "IBlockAccessor.hpp"
+#include "IChunkGenerator.h"
 
 class CScene;
 class CObject;
@@ -80,7 +81,7 @@ private:
 	void _LoadColumn(int cx, int cz);
 	void _UnloadColumn(int cx, int cz);
 
-	void _GenerateFlatTestColumn(CChunkColumn& column);
+
 	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz);
 	void _DestoryRenderObject(CChunkSection& section);
 	
@@ -91,7 +92,7 @@ private:
 
 	string _MakeSectionName(int cx, int sy, int cz);
 
-	BlockCell _SampleBaseBlock(int wx, int wy, int wz) const;
+	void _GenerateBaseColumn(CChunkColumn& column);
 	BlockCell _GetBaseBlock(int wx, int wy, int wz) const;
 	bool _TryGetModifiedBlock(int wx, int wy, int wz, BlockCell& outCell) const;
 
@@ -112,6 +113,9 @@ private:
 
 	unordered_map<uint64_t, CChunkColumn> m_columns;
 	unordered_map<uint64_t, ModifiedColumnOverlay> m_modifiedColumns;
+
+	unique_ptr<IChunkGenerator> m_pGenerator;
+	WorldGenerateSettings m_genSettings{};
 
 	EDebugReloadPhase m_debugReloadPhase = EDebugReloadPhase::NONE;
 	vector<ChunkCoord> m_debugReloadCoords;

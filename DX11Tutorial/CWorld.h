@@ -33,6 +33,7 @@ public:
 	BlockCell GetBlockCell(int wx, int wy, int wz) const;
 	bool IsSolidBlockAt(int wx, int wy, int wz) const;
 	bool CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtents) const;
+	bool FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const;
 
 public:
 	inline CChunkWorld& GetChunkWorld() { return *(m_pChunkWorld.get()); }

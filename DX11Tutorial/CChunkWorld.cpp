@@ -4,6 +4,9 @@
 #include "CPipeline.h"
 #include "CMaterial.h"
 #include "CWorld.h"
+#include "CFlatChunkGenerator.h"
+#include "CHeightmapChunkGenerator.h"
+
 #include "ChunkMath.h"
 
 using namespace ChunkMath;
@@ -13,6 +16,15 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pipeline, CMaterial* mate
 	m_pScene = &scene;
 	m_pPipeline = pipeline;
 	m_pMaterial = material;
+
+	m_genSettings.seed = 12345u;
+	m_genSettings.baseHeight = 48;
+	m_genSettings.heightAmplitude = 12;
+	m_genSettings.frequency = 0.01f;
+	m_genSettings.seaLevel = 48;
+
+	m_pGenerator = std::make_unique<CHeightmapChunkGenerator>();
+	m_pGenerator->Initialize(m_genSettings);
 }
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
@@ -324,7 +336,7 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 
 	if (!column.IsGenerated())
 	{
-		_GenerateFlatTestColumn(column);
+		_GenerateBaseColumn(column);
 		column.SetGenerated(true);
 	}
 
@@ -374,26 +386,6 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 	column->SetGenerated(false);
 
 	dbg.AddChunkUnload();
-}
-
-void CChunkWorld::_GenerateFlatTestColumn(CChunkColumn& column)
-{
-	const ChunkCoord coord = column.GetCoord();
-
-	CChunkSection* pSection = column.EnsureSection(0);
-	if (nullptr == pSection)
-		return;
-
-	for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
-	{
-		for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
-		{
-			const int wx = coord.x * CHUNK_SIZE_X + lx;
-			const int wz = coord.z * CHUNK_SIZE_Z + lz;
-
-			pSection->SetBlock(lx, 0, lz, _SampleBaseBlock(wx, 0, wz));
-		}
-	}
 }
 
 void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz)
@@ -463,26 +455,20 @@ string CChunkWorld::_MakeSectionName(int cx, int sy, int cz)
 	return string(buf);
 }
 
-BlockCell CChunkWorld::_SampleBaseBlock(int wx, int wy, int wz) const
+void CChunkWorld::_GenerateBaseColumn(CChunkColumn& column)
 {
-	if (wy < 0 || wy >= CHUNK_SIZE_Y)
-		return { 0, 0 };
+	if (!m_pGenerator)
+		return;
 
-	if (wy != 0)
-		return { 0, 0 };
-
-	BLOCK_ID stone = BlockDB.FindBlockID("minecraft:dirt");
-	BlockPropHashMap props;
-	STATE_INDEX sidx{};
-	bool ok = BlockDB.EncodeStateIndex(stone, props, sidx);
-	assert(ok);
-
-	return { stone, sidx };
+	m_pGenerator->GenerateColumn(column);
 }
 
 BlockCell CChunkWorld::_GetBaseBlock(int wx, int wy, int wz) const
 {
-	return _SampleBaseBlock(wx, wy, wz);
+	if (!m_pGenerator)
+		return {0,0};
+
+	return m_pGenerator->SampleBlock(wx, wy, wz);
 	//if (wy < 0 || wy >= CHUNK_SIZE_Y)
 	//	return { 0, 0 };
 

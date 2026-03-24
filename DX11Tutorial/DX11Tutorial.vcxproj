@@ -186,8 +186,10 @@
     <ClInclude Include="CDeltaTimeManager.h" />
     <ClInclude Include="CDualSenseDevice.h" />
     <ClInclude Include="CDummyThread.h" />
+    <ClInclude Include="CFlatChunkGenerator.h" />
     <ClInclude Include="CGamePadHub.h" />
     <ClInclude Include="CGameWorld.h" />
+    <ClInclude Include="CHeightmapChunkGenerator.h" />
     <ClInclude Include="ChunkMath.h" />
     <ClInclude Include="ChunkRenderTypes.h" />
     <ClInclude Include="ChunkTypes.h" />
@@ -297,7 +299,9 @@
     <ClCompile Include="CDebugCollector.cpp" />
     <ClCompile Include="CDebugOverlay.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />
+    <ClCompile Include="CFlatChunkGenerator.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
+    <ClCompile Include="CHeightmapChunkGenerator.cpp" />
     <ClCompile Include="CInitializeScene.cpp" />
     <ClCompile Include="CInputManager.cpp" />
     <ClCompile Include="CInventoryComponent.cpp" />
@@ -315,6 +319,7 @@
     <ClCompile Include="CWindow.cpp" />
     <ClCompile Include="CWorld.cpp" />
     <ClCompile Include="CWorldTime.cpp" />
+    <ClInclude Include="IChunkGenerator.h" />
     <ClCompile Include="ModelUtil.cpp" />
     <ClInclude Include="RenderPassTypes.h" />
     <ClCompile Include="ResourceUtil.cpp" />

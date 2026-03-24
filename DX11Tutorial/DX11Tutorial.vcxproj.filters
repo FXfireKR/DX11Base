@@ -471,6 +471,15 @@
     <ClInclude Include="CBlockBreakParticleSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="IChunkGenerator.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CFlatChunkGenerator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CHeightmapChunkGenerator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -708,6 +717,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CBlockBreakParticleSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CFlatChunkGenerator.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CHeightmapChunkGenerator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

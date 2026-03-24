@@ -104,3 +104,30 @@ bool CWorld::CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtent
 	}
 	return false;
 }
+
+bool CWorld::FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const
+{
+	outFootY = 0.f;
+
+	for (int y = CHUNK_SIZE_Y - 2; y >= 0; --y)
+	{
+		if (!IsSolidBlockAt(wx, y, wz))
+			continue;
+
+		const float footY = static_cast<float>(y + 1) + 0.001f;
+		const XMFLOAT3 center =
+		{
+			static_cast<float>(wx) + 0.5f,
+			footY + halfExtents.y,
+			static_cast<float>(wz) + 0.5f,
+		};
+
+		if (!CheckAABBBlocked(center, halfExtents))
+		{
+			outFootY = footY;
+			return true;
+		}
+	}
+
+	return false;
+}
