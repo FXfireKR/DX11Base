@@ -81,6 +81,7 @@ void CRenderWorld::DrawFrame()
 
     m_renderManager.DrawPass(m_pContext, ERenderPass::SKY_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::OPAQUE_PASS);
+	m_renderManager.DrawPass(m_pContext, ERenderPass::CUTOUT_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::TRANSPARENT_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::DEBUG_PASS);
 

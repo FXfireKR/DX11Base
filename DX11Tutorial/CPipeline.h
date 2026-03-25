@@ -11,6 +11,8 @@ public:
 	void Initialize();
 
 	void CreateOpaqueState(ID3D11Device* pDevice);
+	void CreateCutoutAlphaTestState(ID3D11Device* pDevice, bool bCullNone = true);
+	void CreateSkyAlphaState(ID3D11Device* pDevice, bool bCullNone = true);
 	void CreateTransparentAlphaState(ID3D11Device* pDevice, bool bCullNone = true);
 	void CreateAdditiveState(ID3D11Device* pDevice, bool bCullNone = true);
 	void CreateUIInvertState(ID3D11Device* pDevice, bool bCullNone = true);

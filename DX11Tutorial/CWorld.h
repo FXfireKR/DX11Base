@@ -23,6 +23,7 @@ public:
 	~CWorld() = default;
 
 	void Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+		, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
 		, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial);
 	void Update(float fDelta, XMFLOAT3 pos);
 	void LateUpdate(CScene& scene);

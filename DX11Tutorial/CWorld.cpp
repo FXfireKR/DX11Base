@@ -9,9 +9,14 @@ CWorld::CWorld()
 }
 
 void CWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+	, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
 	, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial)
 {
-    m_pChunkWorld->Initialize(scene, pOpaquePipeline, pOpaqueMaterial, pTranslucentPipeline, pTranslucentMaterial);
+	m_pChunkWorld->Initialize(scene, pOpaquePipeline, pOpaqueMaterial
+		, pCutoutPipeline, pCutoutMaterial
+		, pTranslucentPipeline, pTranslucentMaterial
+	);
+
 	m_worldTime.Initialize(0.25f);
 }
 

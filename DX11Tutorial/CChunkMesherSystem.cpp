@@ -36,9 +36,10 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 			continue;
 
 		ChunkSectionMeshSet meshSet;
-		builder.BuildSectionMesh(world, sectionCoord.x, sectionCoord.y, sectionCoord.z, *pSection, meshSet);
+		builder.BuildSectionMeshes(world, sectionCoord.x, sectionCoord.y, sectionCoord.z, *pSection, meshSet);
 
 		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::OPAQUE_SLOT, meshSet.opaque);
+		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::CUTOUT_SLOT, meshSet.cutout);
 		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::TRANSLUCENT_SLOT, meshSet.translucent);
 
 		pSection->ClearDirty();

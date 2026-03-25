@@ -15,7 +15,11 @@ void CTestScene::Awake()
 {
 	_CreateWorldRender();
 
-	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial);
+	m_VoxelWorld.Initialize(*this
+		, m_pChunkPipeline, m_pChunkMaterial
+		, m_pChunkCutoutPipeline, m_pChunkCutoutMaterial
+		, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial
+	);
 
 	m_blockBreakParticleSystem.Initialize(GetRenderWorld());
 
@@ -577,6 +581,9 @@ void CTestScene::_CreateWorldRender()
 	auto normalShaderID = fnv1a_64("NormalImageForward");
 	auto normalShader = shaderManager.CreateShader(normalShaderID, 0);
 
+	auto cutoutShaderID = fnv1a_64("NormalImageForward");
+	auto cutoutShader = shaderManager.CreateShader(cutoutShaderID, 0);
+
 	auto shadowShaderID = fnv1a_64("ShadowDepth");
 	auto shadowShader = shaderManager.CreateShader(shadowShaderID, 0);
 
@@ -584,6 +591,7 @@ void CTestScene::_CreateWorldRender()
 
 	// input layout	
 	auto layoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { normalShaderID, 0 }, normalShader->GetVertexBlob());
+	auto cutoutLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { cutoutShaderID, 0 }, cutoutShader->GetVertexBlob());
 	auto shadowLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shadowShaderID, 0 }, shadowShader->GetVertexBlob());
 
 	// opaque chunk pipeline
@@ -593,6 +601,14 @@ void CTestScene::_CreateWorldRender()
 	opaquePipeline->SetInputLayout(ilManager.Get(layoutID));
 	opaquePipeline->CreateOpaqueState(rw.GetDevice());
 	opaquePipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// transparent chunk pipeline
+	auto cutoutPipeID = pipelineManager.Create(fnv1a_64("ChunkCutoutPipeline"));
+	auto cutoutPipeline = pipelineManager.Get(cutoutPipeID);
+	cutoutPipeline->SetShader(shaderManager.Get(cutoutShaderID, 0));
+	cutoutPipeline->SetInputLayout(ilManager.Get(cutoutLayoutID));
+	cutoutPipeline->CreateTransparentAlphaState(rw.GetDevice(), false);
+	cutoutPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// transparent chunk pipeline
 	auto transPipeID = pipelineManager.Create(fnv1a_64("ChunkTransparentPipeline"));
@@ -617,15 +633,20 @@ void CTestScene::_CreateWorldRender()
 	// material	
 	auto opauqMaterialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
 	auto* opaqueMaterial = materialManager.Get(opauqMaterialID);
-
 	opaqueMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
 	opaqueMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
 	opaqueMaterial->SetTexture(1, rw.GetShadowMapSRV());
 	opaqueMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
 
+	auto cutoutMaterialID = materialManager.Create(fnv1a_64("ChunkCutoutMaterial"));
+	auto* cutoutMaterial = materialManager.Get(cutoutMaterialID);
+	cutoutMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
+	cutoutMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
+	cutoutMaterial->SetTexture(1, rw.GetShadowMapSRV());
+	cutoutMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
+
 	auto transMaterialID = materialManager.Create(fnv1a_64("ChunkTransparentMaterial"));
 	auto* transMaterial = materialManager.Get(transMaterialID);
-
 	transMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
 	transMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
 	transMaterial->SetTexture(1, rw.GetShadowMapSRV());
@@ -633,6 +654,9 @@ void CTestScene::_CreateWorldRender()
 
 	m_pChunkPipeline = opaquePipeline;
 	m_pChunkMaterial = opaqueMaterial;
+
+	m_pChunkCutoutPipeline = cutoutPipeline;
+	m_pChunkCutoutMaterial = cutoutMaterial;
 
 	m_pChunkTransparentPipeline = transPipeline;
 	m_pChunkTransparentMaterial = transMaterial;
@@ -759,7 +783,7 @@ void CTestScene::_CreateSkyBillboardResources()
 	pipeline->SetShader(shaderManager.Get(shaderID, 0));
 	pipeline->SetInputLayout(ilManager.Get(layoutID));
 	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+	pipeline->CreateSkyAlphaState(rw.GetDevice(), true);
 
 	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("SkyBillboardQuad"));
 	const uint64_t sunMatID = materialManager.Create(fnv1a_64("SunBillboardMaterial"));
@@ -830,7 +854,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(sunCenter, sunDir, m_fSunBillboardSize, m_fSunBillboardSize);
 
 		RenderItem item{};
-		item.eRenderPass = ERenderPass::TRANSPARENT_PASS;
+		item.eRenderPass = ERenderPass::SKY_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pSunBillboardMaterial;
@@ -842,7 +866,7 @@ void CTestScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(moonCenter, moonDir, m_fMoonBillboardSize, m_fMoonBillboardSize);
 
 		RenderItem item{};
-		item.eRenderPass = ERenderPass::TRANSPARENT_PASS;
+		item.eRenderPass = ERenderPass::SKY_PASS;
 		item.pMesh = m_pSkyBillboardMesh;
 		item.pPipeline = m_pSkyBillboardPipeline;
 		item.pMaterial = m_pMoonBillboardMaterial;

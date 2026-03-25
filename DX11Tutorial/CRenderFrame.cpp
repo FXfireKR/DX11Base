@@ -20,6 +20,7 @@ void CRenderFrame::Draw(ID3D11DeviceContext* pContext)
 	_DrawPass(pContext, ERenderPass::SHADOW_PASS);
 	_DrawPass(pContext, ERenderPass::SKY_PASS);
 	_DrawPass(pContext, ERenderPass::OPAQUE_PASS);
+	_DrawPass(pContext, ERenderPass::CUTOUT_PASS);
 	_DrawPass(pContext, ERenderPass::TRANSPARENT_PASS);
 	_DrawPass(pContext, ERenderPass::DEBUG_PASS);
 	_DrawPass(pContext, ERenderPass::ORTH_PASS);

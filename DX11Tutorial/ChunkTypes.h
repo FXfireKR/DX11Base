@@ -83,6 +83,7 @@ struct ChunkMeshData
 enum class EChunkSectionRenderSlot : uint8_t
 {
 	OPAQUE_SLOT = 0,
+	CUTOUT_SLOT,
 	TRANSLUCENT_SLOT,
 
 	COUNT,
@@ -91,17 +92,19 @@ enum class EChunkSectionRenderSlot : uint8_t
 struct ChunkSectionMeshSet
 {
 	ChunkMeshData opaque; // OPAQUE, CUTOUT
+	ChunkMeshData cutout;
 	ChunkMeshData translucent; // TRANSLUCENT
 
 	void Clear()
 	{
 		opaque.Clear();
+		cutout.Clear();
 		translucent.Clear();
 	}
 
 	bool EmptyAll() const
 	{
-		return opaque.Empty() && translucent.Empty();
+		return opaque.Empty() && cutout.Empty() && translucent.Empty();
 	}
 };
 

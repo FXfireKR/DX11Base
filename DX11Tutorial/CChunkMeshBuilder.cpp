@@ -3,10 +3,10 @@
 #include "CChunkWorld.h"
 
 
-bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int sy, int cz
-    , const CChunkSection& section, ChunkSectionMeshSet& outMeshs) const
+bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
+    , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
-    outMeshs.Clear();
+    outMeshes.Clear();
 
     const int baseWx = cx * CHUNK_SIZE_X;
     const int baseWy = sy * CHUNK_SECTION_SIZE;
@@ -30,7 +30,7 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
                 const int wy = baseWy + ly;
                 const int wz = baseWz + lz;
     
-                _AppendBlockQuads(world, wx, wy, wz, lx, ly, lz, cell, outMeshs);
+                _AppendBlockQuads(world, wx, wy, wz, lx, ly, lz, cell, outMeshes);
             }
         }
     }    
@@ -38,22 +38,26 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
 }
 
 bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, int lx, int ly, int lz
-    , const BlockCell& cell, ChunkSectionMeshSet& outMeshs) const
+    , const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
 {
     ChunkMeshData* pTargetMesh = nullptr;
 
     switch (BlockDB.GetRenderLayer(cell.blockID))
     {
+        case BLOCK_RENDER_LAYER::CUTOUT_LAYER:
+        {
+            pTargetMesh = &outMeshes.cutout;
+        } break;
+
         case BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER:
         {
-            pTargetMesh = &outMeshs.translucent;
+            pTargetMesh = &outMeshes.translucent;
         } break;
 
         case BLOCK_RENDER_LAYER::OPAQUE_LAYER:
-        case BLOCK_RENDER_LAYER::CUTOUT_LAYER:
         default:
         {
-            pTargetMesh = &outMeshs.opaque;
+            pTargetMesh = &outMeshes.opaque;
         } break;
     }
 
@@ -111,7 +115,7 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
         return false;
     }
 
-    return BlockDB.IsFaceOccluder(neighbor.blockID);
+    return BlockDB.IsFaceOccluder(neighbor.blockID);    
 }
 
 bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int lz, ChunkMeshData& outMesh) const

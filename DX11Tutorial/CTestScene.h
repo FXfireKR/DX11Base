@@ -55,6 +55,9 @@ private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
 
+	CPipeline* m_pChunkCutoutPipeline = nullptr;
+	CMaterial* m_pChunkCutoutMaterial = nullptr;
+
 	CPipeline* m_pChunkTransparentPipeline = nullptr;
 	CMaterial* m_pChunkTransparentMaterial = nullptr;
 

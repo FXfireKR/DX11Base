@@ -8,13 +8,13 @@ class CChunkSection;
 class CChunkMeshBuilder
 {
 public:
-	bool BuildSectionMesh(const CChunkWorld& world, int cx, int sy, int cz
-		, const CChunkSection& section, ChunkSectionMeshSet& outMeshs) const;
+	bool BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
+		, const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const;
 
 private:
 	bool _AppendBlockQuads(const CChunkWorld& world
 		, int wx, int wy, int wz, int lx, int ly, int lz
-		, const BlockCell& cell, ChunkSectionMeshSet& outMeshs) const;
+		, const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const;
 
 	bool _ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell
 		, FACE_DIR dir) const;

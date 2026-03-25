@@ -7,6 +7,7 @@ enum class ERenderPass : uint8_t
 	SHADOW_PASS = 0,
 	SKY_PASS,
 	OPAQUE_PASS,
+	CUTOUT_PASS,
 	TRANSPARENT_PASS,
 	DEBUG_PASS,
 	ORTH_PASS,

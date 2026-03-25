@@ -40,7 +40,9 @@ public:
 	CChunkWorld() = default;
 	~CChunkWorld() = default;
 
-	void Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial);
+	void Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+		, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
+		, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial);
 	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
 	bool PopDirty(SectionCoord& outSectionCoord);
 
@@ -112,6 +114,10 @@ private:
 	// Opaque
 	CPipeline* m_pOpaquePipeline = nullptr;
 	CMaterial* m_pOpaqueMaterial = nullptr;
+
+	// Cutout
+	CPipeline* m_pCutoutPipeline = nullptr;
+	CMaterial* m_pCutoutMaterial = nullptr;
 
 	// Translucent
 	CPipeline* m_pTranslucentPipeline = nullptr;

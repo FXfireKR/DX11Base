@@ -12,12 +12,16 @@
 using namespace ChunkMath;
 
 void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+	, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
 	, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial)
 {
 	m_pScene = &scene;
 
 	m_pOpaquePipeline = pOpaquePipeline;
 	m_pOpaqueMaterial = pOpaqueMaterial;
+
+	m_pCutoutPipeline = pCutoutPipeline;
+	m_pCutoutMaterial = pCutoutMaterial;
 
 	m_pTranslucentPipeline = pTranslucentPipeline;
 	m_pTranslucentMaterial = pTranslucentMaterial;
@@ -402,6 +406,7 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 void CChunkWorld::_EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz)
 {
 	_EnsureRenderObject(section, cx, sy, cz, EChunkSectionRenderSlot::OPAQUE_SLOT);
+	_EnsureRenderObject(section, cx, sy, cz, EChunkSectionRenderSlot::CUTOUT_SLOT);
 	_EnsureRenderObject(section, cx, sy, cz, EChunkSectionRenderSlot::TRANSLUCENT_SLOT);
 }
 
@@ -429,6 +434,13 @@ void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, in
 			mr->SetPipeline(m_pOpaquePipeline);
 			mr->SetMaterial(m_pOpaqueMaterial);
 			mr->SetRenderPass(ERenderPass::OPAQUE_PASS);
+		} break;
+
+		case EChunkSectionRenderSlot::CUTOUT_SLOT:
+		{
+			mr->SetPipeline(m_pCutoutPipeline);
+			mr->SetMaterial(m_pTranslucentMaterial);
+			mr->SetRenderPass(ERenderPass::CUTOUT_PASS);
 		} break;
 
 		case EChunkSectionRenderSlot::TRANSLUCENT_SLOT:
