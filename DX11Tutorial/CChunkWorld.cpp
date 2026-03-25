@@ -79,12 +79,6 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 			_UnloadColumn(coord.x, coord.z);
 		}
 	}
-
-	// 예: 플레이어 발밑 근처가 아니라, 카메라 앞쪽 공중에 임시로
-	SetBlockLight(playerWorldPos.x + 0, playerWorldPos.y + 1, playerWorldPos.z + 0, 15);
-	SetBlockLight(playerWorldPos.x + 1, playerWorldPos.y + 1, playerWorldPos.z + 0, 12);
-	SetBlockLight(playerWorldPos.x + 2, playerWorldPos.y + 1, playerWorldPos.z + 0, 9);
-	SetBlockLight(playerWorldPos.x + 3, playerWorldPos.y + 1, playerWorldPos.z + 0, 6);
 	
 	_UpdateDebugStats();
 }
@@ -191,6 +185,8 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 		_MarkDirty(cx, sy, cz - 1);
 	else if (lz == CHUNK_SIZE_Z - 1)
 		_MarkDirty(cx, sy, cz + 1);
+
+	_UpdateBlockLightOnBlockChanged(wx, wy, wz, oldFinal, newCell);
 
 	dbg.AddBlockEdit();
 	return true;
@@ -739,6 +735,183 @@ void CChunkWorld::_ApplyModifiedOverlayToColumn(CChunkColumn& column)
 	}
 
 	column.SetModified(true);
+}
+
+bool CChunkWorld::_CanBlockLightPassThrough(const BlockCell& cell) const
+{
+	if (cell.IsAir())
+		return true;
+
+	return !BlockDB.IsFaceOccluder(cell.blockID);
+}
+
+void CChunkWorld::_UpdateBlockLightOnBlockChanged(int wx, int wy, int wz
+	, const BlockCell& oldCell, const BlockCell& newCell)
+{
+	const uint8_t oldEmission = BlockDB.GetLightEmission(oldCell.blockID);
+	const uint8_t newEmission = BlockDB.GetLightEmission(newCell.blockID);
+
+	const bool oldPass = _CanBlockLightPassThrough(oldCell);
+	const bool newPass = _CanBlockLightPassThrough(newCell);
+
+	// 1. 기존 source 제거
+	if (oldEmission > 0)
+	{
+		_PropagateBlockLightRemove(wx, wy, wz);
+	}
+	// 2. 통로가 막혔으면 기존 빛 제거
+	else if (oldPass && !newPass)
+	{
+		_PropagateBlockLightRemove(wx, wy, wz);
+	}
+
+	// 3. 통로가 열렸으면 주변에서 다시 채움
+	if (!oldPass && newPass)
+	{
+		_RelightBlockLightAround(wx, wy, wz);
+	}
+
+	// 4. 새 source 추가
+	if (newEmission > 0)
+	{
+		_PropagateBlockLightAdd(wx, wy, wz, newEmission);
+	}
+}
+
+void CChunkWorld::_PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission)
+{
+	if (emission == 0)
+		return;
+
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return;
+
+	queue<BlockLightNode> q;
+
+	if (GetBlockLight(wx, wy, wz) < emission)
+		SetBlockLight(wx, wy, wz, emission);
+
+	q.push({ {wx, wy, wz}, emission });
+
+	while (!q.empty())
+	{
+		BlockLightNode cur = q.front();
+		q.pop();
+
+		if (cur.light <= 1)
+			continue;
+
+		const uint8_t nextLight = cur.light - 1;
+
+		for (const XMINT3& dir : g_BlockLightDirs)
+		{
+			const int nx = cur.w.x + dir.x;
+			const int ny = cur.w.y + dir.y;
+			const int nz = cur.w.z + dir.z;
+
+			if (ny < 0 || ny >= CHUNK_SIZE_Y)
+				continue;
+
+			const BlockCell neighborCell = GetBlock(nx, ny, nz);
+			if (!_CanBlockLightPassThrough(neighborCell))
+				continue;
+
+			if (GetBlockLight(nx, ny, nz) >= nextLight)
+				continue;
+
+			SetBlockLight(nx, ny, nz, nextLight);
+			q.push({ {nx, ny, nz} , nextLight });
+		}
+	}
+
+}
+
+void CChunkWorld::_PropagateBlockLightRemove(int wx, int wy, int wz)
+{
+	const uint8_t startLight = GetBlockLight(wx, wy, wz);
+	if (startLight == 0)
+		return;
+
+	std::queue<BlockLightNode> removeQ;
+	std::vector<BlockLightNode> relightSeeds;
+	relightSeeds.reserve(64);
+
+	SetBlockLight(wx, wy, wz, 0);
+	removeQ.push({ {wx, wy, wz}, startLight });
+
+	while (!removeQ.empty())
+	{
+		BlockLightNode cur = removeQ.front();
+		removeQ.pop();
+
+		for (const XMINT3& dir : g_BlockLightDirs)
+		{
+			const int nx = cur.w.x + dir.x;
+			const int ny = cur.w.y + dir.y;
+			const int nz = cur.w.z + dir.z;
+
+			if (ny < 0 || ny >= CHUNK_SIZE_Y)
+				continue;
+
+			const uint8_t neighborLight = GetBlockLight(nx, ny, nz);
+			if (neighborLight == 0)
+				continue;
+
+			const BlockCell neighborCell = GetBlock(nx, ny, nz);
+			const uint8_t neighborEmission = BlockDB.GetLightEmission(neighborCell.blockID);
+
+			// 다른 source 후보는 나중에 다시 퍼뜨리기
+			if (neighborEmission > 0)
+			{
+				relightSeeds.push_back({ {nx, ny, nz}, neighborEmission });
+			}
+
+			if (neighborLight < cur.light)
+			{
+				SetBlockLight(nx, ny, nz, 0);
+				removeQ.push({ {nx, ny, nz}, neighborLight });
+			}
+			else
+			{
+				relightSeeds.push_back({ {nx, ny, nz}, neighborLight });
+			}
+		}
+	}
+
+	for (const BlockLightNode& seed : relightSeeds)
+	{
+		if (seed.light == 0)
+			continue;
+
+		_PropagateBlockLightAdd(seed.w.x, seed.w.y, seed.w.z, seed.light);
+	}
+}
+
+void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz)
+{
+	for (const XMINT3& dir : g_BlockLightDirs)
+	{
+		const int nx = wx + dir.x;
+		const int ny = wy + dir.y;
+		const int nz = wz + dir.z;
+
+		if (ny < 0 || ny >= CHUNK_SIZE_Y)
+			continue;
+
+		const BlockCell neighborCell = GetBlock(nx, ny, nz);
+
+		const uint8_t emission = BlockDB.GetLightEmission(neighborCell.blockID);
+		if (emission > 0)
+		{
+			_PropagateBlockLightAdd(nx, ny, nz, emission);
+		}
+
+		const uint8_t neighborLight = GetBlockLight(nx, ny, nz);
+		if (neighborLight > 1)
+		{
+			_PropagateBlockLightAdd(nx, ny, nz, neighborLight);
+		}
+	}
 }
 
 void CChunkWorld::_UpdateDebugStats()

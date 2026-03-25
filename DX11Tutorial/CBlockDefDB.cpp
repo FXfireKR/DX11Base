@@ -481,6 +481,9 @@ const bool CBlockDefDB::_ParseBlockDefRaw(const rapidjson::Value& root, BlockDef
 
 		if (render.HasMember("cullSameBlockFace") && render["cullSameBlockFace"].IsBool())
 			outRaw.render.cullSameBlockFace = render["cullSameBlockFace"].GetBool();
+
+		if (render.HasMember("lightEmissions") && render["lightEmissions"].IsInt())
+			outRaw.render.lightEmissions = static_cast<uint8_t>(render["lightEmissions"].GetUint());
 	}
 
 	if (root.HasMember("collision") && root["collision"].IsObject())

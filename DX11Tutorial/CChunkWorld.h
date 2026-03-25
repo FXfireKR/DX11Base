@@ -34,6 +34,22 @@ struct ModifiedColumnOverlay
 	unordered_map<uint16_t, BlockCell> cells;
 };
 
+struct BlockLightNode
+{
+	XMINT3 w { 0, 0, 0 };
+	uint8_t light = 0;
+};
+
+const XMINT3 g_BlockLightDirs[6] =
+{
+	{  1,  0,  0 },
+	{ -1,  0,  0 },
+	{  0,  1,  0 },
+	{  0, -1,  0 },
+	{  0,  0,  1 },
+	{  0,  0, -1 },
+};
+
 class CChunkWorld : public IBlockAccessor
 {
 public:
@@ -109,6 +125,13 @@ private:
 	void _EraseModifiedBlock(int wx, int wy, int wz);
 
 	void _ApplyModifiedOverlayToColumn(CChunkColumn& column);
+	
+	bool _CanBlockLightPassThrough(const BlockCell& cell) const;
+	void _UpdateBlockLightOnBlockChanged(int wx, int wy, int wz, const BlockCell& oldCell, const BlockCell& newCell);
+	void _PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission);
+	void _PropagateBlockLightRemove(int wx, int wy, int wz);
+	void _RelightBlockLightAround(int wx, int wy, int wz);
+
 	void _UpdateDebugStats();
 
 public:

@@ -20,7 +20,7 @@ void CInventoryComponent::Init()
 
 	{
 		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:cobblestone");
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:torch");
 		STATE_INDEX sidx;
 		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
 		assert(ok);
