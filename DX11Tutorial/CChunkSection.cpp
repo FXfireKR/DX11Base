@@ -30,24 +30,39 @@ void CChunkSection::SetBlock(int lx, int ly, int lz, const BlockCell& cell)
     const bool isAir = cell.IsAir();
 
     oldCell = cell;
+
     if (wasAir != isAir)
-    {
         m_nonAirCount += isAir ? -1 : 1;
-    }
 
     m_bDirty = true;
 }
 
 uint8_t CChunkLightSection::GetBlockLight(int lx, int ly, int lz) const
 {
-    return 0;
+    return m_blockLight[MakeIndex(lx, ly, lz)];
 }
 
 void CChunkLightSection::SetBlockLight(int lx, int ly, int lz, uint8_t level)
 {
+    if (level > 15)
+        level = 15;
+
+    uint8_t& oldLevel = m_blockLight[MakeIndex(lx, ly, lz)];
+    if (oldLevel == level)
+        return;
+
+    const bool wasZero = (oldLevel == 0);
+    const bool isZero = (level == 0);
+
+    oldLevel = level;
+
+    if (wasZero != isZero)
+        m_nonZeroCount += isZero ? -1 : 1;
+
 }
 
 void CChunkLightSection::Clear()
 {
-
+    m_blockLight.fill(0);
+    m_nonZeroCount = 0;
 }

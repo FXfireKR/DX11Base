@@ -17,11 +17,17 @@ public:
 	~CChunkColumn() = default;
 
 	void Initialize(int cx, int cz);
+
 	void ResetSection(int sy);
+	void ResetBlockLightSection(int sy);
 
 	CChunkSection* GetSection(int sy);
 	const CChunkSection* GetSection(int sy) const;
 	CChunkSection* EnsureSection(int sy);
+
+	CChunkLightSection* GetBlockLightSection(int sy);
+	const CChunkLightSection* GetBlockLightSection(int sy) const;
+	CChunkLightSection* EnsureBlockLightSection(int sy);
 
 public:
 	inline const ChunkCoord& GetCoord() const { return m_coord; }
@@ -44,8 +50,8 @@ public:
 private:
 	array<unique_ptr<CChunkSection>, CHUNK_SECTION_COUNT> m_sections;
 	array<unique_ptr<CChunkLightSection>, CHUNK_SECTION_COUNT> m_blockLightSections;
-	ChunkCoord m_coord{};
 
+	ChunkCoord m_coord{};
 	EChunkResidency m_eResidency = EChunkResidency::RESIDENT;
 	bool m_bGenerated = false;
 	bool m_bModified = false;

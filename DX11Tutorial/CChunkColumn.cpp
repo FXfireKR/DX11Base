@@ -18,6 +18,14 @@ void CChunkColumn::ResetSection(int sy)
 	m_sections[sy].reset();
 }
 
+void CChunkColumn::ResetBlockLightSection(int sy)
+{
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return;
+
+	m_blockLightSections[sy].reset();
+}
+
 CChunkSection* CChunkColumn::GetSection(int sy)
 {
 	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
@@ -43,4 +51,31 @@ CChunkSection* CChunkColumn::EnsureSection(int sy)
 		m_sections[sy] = make_unique<CChunkSection>();
 
 	return m_sections[sy].get();
+}
+
+CChunkLightSection* CChunkColumn::GetBlockLightSection(int sy)
+{
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	return m_blockLightSections[sy].get();
+}
+
+const CChunkLightSection* CChunkColumn::GetBlockLightSection(int sy) const
+{
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	return m_blockLightSections[sy].get();
+}
+
+CChunkLightSection* CChunkColumn::EnsureBlockLightSection(int sy)
+{
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	if (!m_blockLightSections[sy])
+		m_blockLightSections[sy] = make_unique<CChunkLightSection>();
+
+	return m_blockLightSections[sy].get();
 }

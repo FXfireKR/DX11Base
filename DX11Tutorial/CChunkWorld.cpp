@@ -193,27 +193,106 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 
 uint8_t CChunkWorld::GetBlockLight(int wx, int wy, int wz) const
 {
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return 0;
 
+	int cx, sy, cz;
+	int lx, ly, lz;
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return 0;
+
+	const CChunkLightSection* pLightSection = FindBlockLightSection(cx, sy, cz);
+	if (nullptr == pLightSection)
+		return 0;
+
+	return pLightSection->GetBlockLight(lx, ly, lz);
 }
 
 void CChunkWorld::SetBlockLight(int wx, int wy, int wz, uint8_t level)
 {
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return;
 
+	if (level > 15)
+		level = 15;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return;
+
+	if (level == 0)
+	{
+		CChunkLightSection* pLightSection = FindBlockLightSectionMutable(cx, sy, cz);
+		if (nullptr == pLightSection)
+			return;
+
+		pLightSection->SetBlockLight(lx, ly, lz, 0);
+
+		if (pLightSection->IsAllZero())
+		{
+			if (CChunkColumn* pColumn = _FindColumn(cx, cz))
+				pColumn->ResetBlockLightSection(sy);
+		}
+	}
+	else
+	{
+		CChunkLightSection* pLightSection = EnsureBlockLightSection(cx, sy, cz);
+		if (nullptr == pLightSection)
+			return;
+
+		pLightSection->SetBlockLight(lx, ly, lz, level);
+	}
+
+	_MarkDirty(cx, sy, cz);
+
+	if (lx == 0)
+		_MarkDirty(cx - 1, sy, cz);
+	else if (lx == CHUNK_SIZE_X - 1)
+		_MarkDirty(cx + 1, sy, cz);
+
+	if (ly == 0 && sy > 0)
+		_MarkDirty(cx, sy - 1, cz);
+	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
+		_MarkDirty(cx, sy + 1, cz);
+
+	if (lz == 0)
+		_MarkDirty(cx, sy, cz - 1);
+	else if (lz == CHUNK_SIZE_Z - 1)
+		_MarkDirty(cx, sy, cz + 1);
 }
 
 CChunkLightSection* CChunkWorld::FindBlockLightSectionMutable(int cx, int sy, int cz)
 {
-	return nullptr;
+	CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return nullptr;
+
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	return pColumn->GetBlockLightSection(sy);
 }
 
 const CChunkLightSection* CChunkWorld::FindBlockLightSection(int cx, int sy, int cz) const
 {
-	return nullptr;
+	const CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return nullptr;
+
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	return pColumn->GetBlockLightSection(sy);
 }
 
 CChunkLightSection* CChunkWorld::EnsureBlockLightSection(int cx, int sy, int cz)
 {
-	return nullptr;
+	if (sy < 0 || sy >= CHUNK_SECTION_COUNT)
+		return nullptr;
+
+	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
+	return column.EnsureBlockLightSection(sy);
 }
 
 CChunkSection* CChunkWorld::FindSectionDataMutable(int cx, int sy, int cz)
@@ -420,6 +499,7 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
 	{
 		column->ResetSection(sy);
+		column->ResetBlockLightSection(sy);
 	}
 
 	column->SetResidency(EChunkResidency::RESIDENT);
