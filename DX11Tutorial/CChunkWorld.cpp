@@ -80,6 +80,11 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 		}
 	}
 
+	// 예: 플레이어 발밑 근처가 아니라, 카메라 앞쪽 공중에 임시로
+	SetBlockLight(playerWorldPos.x + 0, playerWorldPos.y + 1, playerWorldPos.z + 0, 15);
+	SetBlockLight(playerWorldPos.x + 1, playerWorldPos.y + 1, playerWorldPos.z + 0, 12);
+	SetBlockLight(playerWorldPos.x + 2, playerWorldPos.y + 1, playerWorldPos.z + 0, 9);
+	SetBlockLight(playerWorldPos.x + 3, playerWorldPos.y + 1, playerWorldPos.z + 0, 6);
 	
 	_UpdateDebugStats();
 }
@@ -471,16 +476,6 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 
 		_EnsureRenderObjects(*pSection, cx, sy, cz);
 		_MarkDirty(cx, sy, cz);
-	}
-
-	if (cx == 0 && cz == 0)
-	{
-		const int y = 58; // 지표면 위 공기 칸으로 맞춰서 테스트
-		SetBlockLight(8, y, 8, 15);
-		SetBlockLight(9, y, 8, 12);
-		SetBlockLight(10, y, 8, 9);
-		SetBlockLight(11, y, 8, 6);
-		SetBlockLight(12, y, 8, 3);
 	}
 
 	dbg.AddChunkLoad();

@@ -165,10 +165,15 @@ XMFLOAT4 CChunkMeshBuilder::_ResolveQuadColor_DebugBlockLight(const CChunkWorld&
     const uint8_t light = _ResolveQuadBlockLight(world, quad, wx, wy, wz);
     const float t = static_cast<float>(light) / 15.0f;
 
-    XMFLOAT4 tint = ResolveBlockTint(quad);
+    if (light == 0)
+        return { 0.08f, 0.08f, 0.08f, 1.0f };
+
+    const float ts = static_cast<float>(light) / 15.0f;
+    return { 1.0f, 0.25f + 0.75f * ts , 0.0f, 1.0f };
+    /*XMFLOAT4 tint = ResolveBlockTint(quad);
     float brightness = 0.2f + 0.8f * t;
 
-    return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };
+    return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };*/
 }
 
 XMFLOAT4 CChunkMeshBuilder::ResolveBlockTint(const BakedQuad& quad) const
