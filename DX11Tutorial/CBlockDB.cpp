@@ -114,6 +114,11 @@ const bool CBlockDB::UseAmbientOcclusion(BLOCK_ID blockID) const
 	return m_blockDefDB.UseAmbientOcclusion(blockID);
 }
 
+const bool CBlockDB::CanCullSameBlockFace(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.CanCullSameBlockFace(blockID);
+}
+
 const bool CBlockDB::IsFaceOccluder(BLOCK_ID blockID) const
 {
 	return m_blockDefDB.IsFaceOccluder(blockID);

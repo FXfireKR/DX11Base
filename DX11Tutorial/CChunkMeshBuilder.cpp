@@ -100,10 +100,9 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     const BLOCK_RENDER_LAYER neighborLayer = BlockDB.GetRenderLayer(neighbor.blockID);
 
     // 단, 같은 translucent 블록끼리는 내부면 제거
-    if (curLayer == BLOCK_RENDER_LAYER::CUTOUT_LAYER &&
-        neighborLayer == BLOCK_RENDER_LAYER::CUTOUT_LAYER &&
-        cell.blockID == neighbor.blockID &&
-        cell.stateIndex == neighbor.stateIndex)
+    if (cell.blockID == neighbor.blockID &&
+        cell.stateIndex == neighbor.stateIndex &&
+        BlockDB.CanCullSameBlockFace(cell.blockID))
     {
         return true;
     }
@@ -112,13 +111,6 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER ||
         neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER)
     {
-        if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
-            neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
-            cell.blockID == neighbor.blockID &&
-            cell.stateIndex == neighbor.stateIndex)
-        {
-            return true;
-        }
         return false;
     }
 

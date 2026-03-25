@@ -190,6 +190,15 @@ const bool CBlockDefDB::UseAmbientOcclusion(BLOCK_ID blockID) const
 	return pBlockDef->render.bAmbientOcclusion;
 }
 
+const bool CBlockDefDB::CanCullSameBlockFace(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return false;
+
+	return pBlockDef->render.bCullSameBlockFace;
+}
+
 const bool CBlockDefDB::IsFaceOccluder(BLOCK_ID blockID) const
 {
 	const BlockDef* pBlockDef = GetBlockDef(blockID);
@@ -460,6 +469,9 @@ const bool CBlockDefDB::_ParseBlockDefRaw(const rapidjson::Value& root, BlockDef
 
 		if (render.HasMember("ambientOcclusion") && render["ambientOcclusion"].IsBool())
 			outRaw.render.ambientOcclusion = render["ambientOcclusion"].GetBool();
+
+		if (render.HasMember("cullSameBlockFace") && render["cullSameBlockFace"].IsBool())
+			outRaw.render.cullSameBlockFace = render["cullSameBlockFace"].GetBool();
 	}
 
 	if (root.HasMember("collision") && root["collision"].IsObject())
@@ -585,6 +597,9 @@ void CBlockDefDB::_ApplyRawToRuntime(const BlockDefRaw& raw, BlockDef& outDef)
 
 	if (raw.render.ambientOcclusion.has_value())
 		outDef.render.bAmbientOcclusion = raw.render.ambientOcclusion.value();
+
+	if (raw.render.cullSameBlockFace.has_value())
+		outDef.render.bCullSameBlockFace = raw.render.cullSameBlockFace.value();
 
 	if (raw.collision.colType.has_value())
 		outDef.collision.colType = raw.collision.colType.value();
