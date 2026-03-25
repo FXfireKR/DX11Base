@@ -91,8 +91,8 @@ enum class EChunkSectionRenderSlot : uint8_t
 
 struct ChunkSectionMeshSet
 {
-	ChunkMeshData opaque; // OPAQUE, CUTOUT
-	ChunkMeshData cutout;
+	ChunkMeshData opaque; // OPAQUE
+	ChunkMeshData cutout; // CUTOUT
 	ChunkMeshData translucent; // TRANSLUCENT
 
 	void Clear()

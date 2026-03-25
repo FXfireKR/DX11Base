@@ -502,10 +502,25 @@ bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& 
 
 string CChunkWorld::_MakeSectionName(int cx, int sy, int cz, EChunkSectionRenderSlot slot)
 {
-	const char* suffix = (slot == EChunkSectionRenderSlot::OPAQUE_SLOT) ? "opaque" : "translucent";
+	std::string suffix = "";
+	switch (slot)
+	{
+		case EChunkSectionRenderSlot::OPAQUE_SLOT:
+		{
+			suffix = "opauqe";
+		} break;
+		case EChunkSectionRenderSlot::CUTOUT_SLOT:
+		{
+			suffix = "cutout";
+		} break;
+		case EChunkSectionRenderSlot::TRANSLUCENT_SLOT:
+		{
+			suffix = "translucent";
+		} break;
+	}
 
 	char buf[96];
-	sprintf(buf, "%d_%d_%d_%s", cx, sy, cz, suffix);
+	sprintf(buf, "%d_%d_%d_%s", cx, sy, cz, suffix.c_str());
 	return string(buf);
 }
 
