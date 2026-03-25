@@ -205,6 +205,9 @@ const bool CBlockDefDB::IsFaceOccluder(BLOCK_ID blockID) const
 	if (pBlockDef->render.layer == BLOCK_RENDER_LAYER::INVISIBLE_LAYER)
 		return false;
 
+	if (pBlockDef->render.layer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER)
+		return false;
+
 	return true;
 }
 

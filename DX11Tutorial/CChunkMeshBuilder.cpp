@@ -65,7 +65,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     {
         if (quad.bHasCullFace)
         {
-            if (_ShouldCullFace(world, wx, wy, wz, static_cast<FACE_DIR>(quad.cullFaceDir)))
+            if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
                 continue;
         }
 
@@ -74,7 +74,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     return true;
 }
 
-bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, FACE_DIR dir) const
+bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, FACE_DIR dir) const
 {
     XMINT3 n{};
     switch (dir)
@@ -89,6 +89,28 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     }
 
     const BlockCell neighbor = world.GetBlock(wx + n.x, wy + n.y, wz + n.z);
+    if (neighbor.IsAir())
+        return false;
+
+    const BLOCK_RENDER_LAYER curLayer = BlockDB.GetRenderLayer(cell.blockID);
+    const BLOCK_RENDER_LAYER neighborLayer = BlockDB.GetRenderLayer(neighbor.blockID);
+
+    // translucent가 한쪽이라도 끼면 기본은 컬링하지 않음
+    if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER ||
+        neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER)
+    {
+        // 단, 같은 translucent 블록끼리는 내부면 제거
+        if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
+            neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
+            cell.blockID == neighbor.blockID &&
+            cell.stateIndex == neighbor.stateIndex)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     return BlockDB.IsFaceOccluder(neighbor.blockID);
 }
 

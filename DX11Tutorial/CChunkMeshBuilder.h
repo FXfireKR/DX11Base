@@ -16,7 +16,7 @@ private:
 		, int wx, int wy, int wz, int lx, int ly, int lz
 		, const BlockCell& cell, ChunkSectionMeshSet& outMeshs) const;
 
-	bool _ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz
+	bool _ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell
 		, FACE_DIR dir) const;
 
 	bool _AppendQuad(const BakedQuad& quad, int lx, int ly, int lz

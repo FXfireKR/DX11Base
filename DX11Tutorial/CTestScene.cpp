@@ -599,7 +599,7 @@ void CTestScene::_CreateWorldRender()
 	auto transPipeline = pipelineManager.Get(transPipeID);
 	transPipeline->SetShader(shaderManager.Get(normalShaderID, 0));
 	transPipeline->SetInputLayout(ilManager.Get(layoutID));
-	transPipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+	transPipeline->CreateTransparentAlphaState(rw.GetDevice(), false);
 	transPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// shadow chunk pipeline
