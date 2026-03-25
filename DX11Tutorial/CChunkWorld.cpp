@@ -439,7 +439,7 @@ void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, in
 		case EChunkSectionRenderSlot::CUTOUT_SLOT:
 		{
 			mr->SetPipeline(m_pCutoutPipeline);
-			mr->SetMaterial(m_pTranslucentMaterial);
+			mr->SetMaterial(m_pCutoutMaterial);
 			mr->SetRenderPass(ERenderPass::CUTOUT_PASS);
 		} break;
 

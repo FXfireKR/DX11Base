@@ -581,7 +581,7 @@ void CTestScene::_CreateWorldRender()
 	auto normalShaderID = fnv1a_64("NormalImageForward");
 	auto normalShader = shaderManager.CreateShader(normalShaderID, 0);
 
-	auto cutoutShaderID = fnv1a_64("NormalImageForward");
+	auto cutoutShaderID = fnv1a_64("NormalImageCutout");
 	auto cutoutShader = shaderManager.CreateShader(cutoutShaderID, 0);
 
 	auto shadowShaderID = fnv1a_64("ShadowDepth");
