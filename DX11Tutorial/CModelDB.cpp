@@ -375,6 +375,8 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
     XMFLOAT3 p[4];
     BuildFaceQuadPositions01(modelElem, eDir, p);
 
+    XMFLOAT3 faceNorm = FaceToNormalFloat3(eDir);
+
     // element rotation (optional)
     if (modelElem.bHasRotation)
     {
@@ -404,8 +406,7 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
         if (XMVectorGetX(XMVector3Dot(n, baseN)) < 0.0f)
             n = XMVectorNegate(n);
 
-        XMFLOAT3 faceNorm{};
-        XMStoreFloat3(&faceNorm, n);     
+        XMStoreFloat3(&faceNorm, n);
     }
 
     // 2) Resolve uv01: (u0,v0,u1,v1) in 0..1, with top-left origin (0,0)
@@ -453,8 +454,6 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
     {
         m_usedTextureKeys.insert(normalizedTextureKey);
     }
-
-    const XMFLOAT3 faceNorm = FaceToNormalFloat3(eDir);
 
     q.verts[0] = { p[0], faceNorm, uv[0], 0xFFFFFFFF };
     q.verts[1] = { p[1], faceNorm, uv[1], 0xFFFFFFFF };

@@ -73,6 +73,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
             BakedQuad quad = srcQuad;
+
             _ApplyModelRotation(quad, applied.x, applied.y);
 
             if (quad.bHasCullFace)
