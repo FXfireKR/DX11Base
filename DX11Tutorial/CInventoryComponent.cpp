@@ -6,15 +6,41 @@ void CInventoryComponent::Init()
 	m_arrayHotBar.fill({ {0, 0}, 0 });
 	m_iSelectedSlot = 0;
 
-	BlockPropHashMap props;
-	BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:glass");
-	STATE_INDEX sidx;
-	bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-	assert(ok);
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:glass");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
 
-	m_arrayHotBar[0].block.blockID = blockID;
-	m_arrayHotBar[0].block.stateIndex = sidx;
-	m_arrayHotBar[0].count = 999;
+		m_arrayHotBar[0].block.blockID = blockID;
+		m_arrayHotBar[0].block.stateIndex = sidx;
+		m_arrayHotBar[0].count = 999;
+	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:cobblestone");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[1].block.blockID = blockID;
+		m_arrayHotBar[1].block.stateIndex = sidx;
+		m_arrayHotBar[1].count = 999;
+	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:oak_leaves");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[2].block.blockID = blockID;
+		m_arrayHotBar[2].block.stateIndex = sidx;
+		m_arrayHotBar[2].count = 999;
+	}
 }
 
 void CInventoryComponent::Start()

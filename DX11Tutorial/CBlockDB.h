@@ -24,6 +24,7 @@ public: // Block Def
 	BLOCK_ID FindBlockID(const char* blockName) const;
 	const char* FindBlockName(BLOCK_ID blockID) const;
 
+
 	const bool IsValidBlockID(BLOCK_ID blockID) const;
 	const bool IsAir(BLOCK_ID blockID) const;
 	const bool IsOpaque(BLOCK_ID blockID) const;
