@@ -81,9 +81,9 @@ private:
 	void _LoadColumn(int cx, int cz);
 	void _UnloadColumn(int cx, int cz);
 
-
+	void _EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz);
 	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot);
-	void _DestoryRenderObject(CChunkSection& section);
+	void _DestoryRenderObjects(CChunkSection& section);
 	
 	void _MarkDirty(int cx, int sy, int cz);
 	bool _WorldToSectionLocal(int wx, int wy, int wz,

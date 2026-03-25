@@ -152,13 +152,13 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 
 					if (pSection->IsEmpty())
 					{
-						_DestoryRenderObject(*pSection);
+						_DestoryRenderObjects(*pSection);
 						pColumn->ResetSection(sy);
 						bCurrentSectionRemoved = true;
 					}
-					else if (!pSection->HasRenderObjectID() && !pSection->IsEmpty())
+					else if (!pSection->HasAnyRenderObjectID() && !pSection->IsEmpty())
 					{
-						_EnsureRenderObject(*pSection, cx, sy, cz);
+						_EnsureRenderObjects(*pSection, cx, sy, cz);
 					}
 				}
 			}
@@ -258,7 +258,7 @@ bool CChunkWorld::IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const
 			if (pSection->IsBuildQueued())
 				return false;
 
-			if (!pSection->HasRenderObjectID())
+			if (!pSection->HasAnyRenderObjectID())
 				return false;
 		}
 	}
@@ -361,7 +361,7 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 		if (nullptr == pSection)
 			continue;
 
-		_EnsureRenderObject(*pSection, cx, sy, cz);
+		_EnsureRenderObjects(*pSection, cx, sy, cz);
 		_MarkDirty(cx, sy, cz);
 	}
 
@@ -383,7 +383,7 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 		if (nullptr == pSection)
 			continue;
 
-		_DestoryRenderObject(*pSection);
+		_DestoryRenderObjects(*pSection);
 
 		pSection->SetBuildQueued(false);
 	}
@@ -397,6 +397,12 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 	column->SetGenerated(false);
 
 	dbg.AddChunkUnload();
+}
+
+void CChunkWorld::_EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz)
+{
+	_EnsureRenderObject(section, cx, sy, cz, EChunkSectionRenderSlot::OPAQUE_SLOT);
+	_EnsureRenderObject(section, cx, sy, cz, EChunkSectionRenderSlot::TRANSLUCENT_SLOT);
 }
 
 void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot)
@@ -437,7 +443,7 @@ void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, in
 	section.SetRenderObjectID(slot, obj->GetID());
 }
 
-void CChunkWorld::_DestoryRenderObject(CChunkSection& section)
+void CChunkWorld::_DestoryRenderObjects(CChunkSection& section)
 {
 	for (size_t i = 0; i < static_cast<size_t>(EChunkSectionRenderSlot::COUNT); ++i)
 	{
