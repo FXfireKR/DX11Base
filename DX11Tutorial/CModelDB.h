@@ -46,6 +46,7 @@ private:
 	void _BakeOneElementFace(IN const ModelResolved& modelResolved, const ModelElement& modelElem, int faceDir, OUT BakedModel& bakedModel);
 
 	string _BuildModelPath(string resourceRoot, string modelKey);
+	XMFLOAT3 RotatePointAroundOrigin01(const XMFLOAT3& p, const XMFLOAT3& origin01, ROT_AXIS axis, float angleDeg);
 
 private:
 	string m_strResourceRoot;

@@ -378,8 +378,34 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
     // element rotation (optional)
     if (modelElem.bHasRotation)
     {
-        // TODO:
-        // ApplyElementRotation(p, modelElem); // origin도 0..1로 변환해서 사용
+        XMFLOAT3 origin01 =
+        {
+            modelElem.rotOrigin[0] / 16.0f,
+            modelElem.rotOrigin[1] / 16.0f,
+            modelElem.rotOrigin[2] / 16.0f
+        };
+
+        for (int i = 0; i < 4; ++i)
+        {
+            p[i] = RotatePointAroundOrigin01(p[i], origin01, static_cast<ROT_AXIS>(modelElem.rotAxis), modelElem.rotAngleDeg);
+        }
+
+        XMVECTOR v0 = XMLoadFloat3(&p[0]);
+        XMVECTOR v1 = XMLoadFloat3(&p[1]);
+        XMVECTOR v2 = XMLoadFloat3(&p[2]);
+
+        XMVECTOR e0 = XMVectorSubtract(v1, v0);
+        XMVECTOR e1 = XMVectorSubtract(v2, v0);
+        XMVECTOR n = XMVector3Normalize(XMVector3Cross(e0, e1));
+
+        XMFLOAT3 base = FaceToNormalFloat3(eDir);
+        XMVECTOR baseN = XMLoadFloat3(&base);
+
+        if (XMVectorGetX(XMVector3Dot(n, baseN)) < 0.0f)
+            n = XMVectorNegate(n);
+
+        XMFLOAT3 faceNorm{};
+        XMStoreFloat3(&faceNorm, n);     
     }
 
     // 2) Resolve uv01: (u0,v0,u1,v1) in 0..1, with top-left origin (0,0)
@@ -455,4 +481,31 @@ string CModelDB::_BuildModelPath(string resourceRoot, string modelKey)
         path = path.substr(7);
 
     return resourceRoot + "assets/" + nameSpace + "/models/" + path + ".json";
+}
+
+XMFLOAT3 CModelDB::RotatePointAroundOrigin01(const XMFLOAT3& p, const XMFLOAT3& origin01, ROT_AXIS axis, float angleDeg)
+{
+    XMVECTOR v = XMVectorSet(
+        p.x - origin01.x,
+        p.y - origin01.y,
+        p.z - origin01.z,
+        0.0f);
+
+    const float rad = XMConvertToRadians(angleDeg);
+
+    XMMATRIX R = XMMatrixIdentity();
+    switch (axis)
+    {
+        case ROT_AXIS::X: R = XMMatrixRotationX(rad); break;
+        case ROT_AXIS::Y: R = XMMatrixRotationY(rad); break;
+        case ROT_AXIS::Z: R = XMMatrixRotationZ(rad); break;
+        default: break;
+    }
+
+    v = XMVector3TransformCoord(v, R);
+    v = XMVectorAdd(v, XMVectorSet(origin01.x, origin01.y, origin01.z, 0.0f));
+
+    XMFLOAT3 out{};
+    XMStoreFloat3(&out, v);
+    return out;
 }
