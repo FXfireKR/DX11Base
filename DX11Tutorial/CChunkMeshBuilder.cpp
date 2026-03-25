@@ -99,11 +99,19 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     const BLOCK_RENDER_LAYER curLayer = BlockDB.GetRenderLayer(cell.blockID);
     const BLOCK_RENDER_LAYER neighborLayer = BlockDB.GetRenderLayer(neighbor.blockID);
 
+    // 단, 같은 translucent 블록끼리는 내부면 제거
+    if (curLayer == BLOCK_RENDER_LAYER::CUTOUT_LAYER &&
+        neighborLayer == BLOCK_RENDER_LAYER::CUTOUT_LAYER &&
+        cell.blockID == neighbor.blockID &&
+        cell.stateIndex == neighbor.stateIndex)
+    {
+        return true;
+    }
+
     // translucent가 한쪽이라도 끼면 기본은 컬링하지 않음
     if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER ||
         neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER)
     {
-        // 단, 같은 translucent 블록끼리는 내부면 제거
         if (curLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
             neighborLayer == BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER &&
             cell.blockID == neighbor.blockID &&
@@ -111,7 +119,6 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
         {
             return true;
         }
-
         return false;
     }
 
