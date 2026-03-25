@@ -39,14 +39,10 @@ public:
 	}
 
 	inline bool IsEmpty() const { return m_nonAirCount == 0; }
-
-private:
-	int _ToIndex(int lx, int ly, int lz) const;
 	
 private:
 	array<BlockCell, CHUNK_SECTION_VOLUME> m_cells{};
 	uint16_t m_nonAirCount = 0;
-
 
 	bool m_bDirty = true;
 	bool m_bBuildQueued = false;
@@ -58,4 +54,24 @@ private:
 		INVALID_OBJECT_ID,
 		INVALID_OBJECT_ID
 	};
+};
+
+
+/*
+* 분리한 이유는 Section은 비어있을 수 있지만 Light는 공간으로 전파되므로, 둘은 공존할 수 없는 경우가 존재함.
+* 따라서 분리.
+*/
+
+class CChunkLightSection
+{
+public:
+	uint8_t GetBlockLight(int lx, int ly, int lz) const;
+	void SetBlockLight(int lx, int ly, int lz, uint8_t level);
+	void Clear();
+
+	inline bool IsAllZero() const { return m_nonZeroCount == 0; }
+
+private:
+	array<uint8_t, CHUNK_SECTION_VOLUME> m_blockLight{};
+	uint16_t m_nonZeroCount = 0;
 };

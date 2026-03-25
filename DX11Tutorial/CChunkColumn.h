@@ -43,6 +43,7 @@ public:
 
 private:
 	array<unique_ptr<CChunkSection>, CHUNK_SECTION_COUNT> m_sections;
+	array<unique_ptr<CChunkLightSection>, CHUNK_SECTION_COUNT> m_blockLightSections;
 	ChunkCoord m_coord{};
 
 	EChunkResidency m_eResidency = EChunkResidency::RESIDENT;

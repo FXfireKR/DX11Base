@@ -52,6 +52,13 @@ public:
 
 	bool SetBlock(int wx, int wy, int wz, const BlockCell& newCell);
 
+	uint8_t GetBlockLight(int wx, int wy, int wz) const;
+	void SetBlockLight(int wx, int wy, int wz, uint8_t level);
+
+	CChunkLightSection* FindBlockLightSectionMutable(int cx, int sy, int cz);
+	const CChunkLightSection* FindBlockLightSection(int cx, int sy, int cz) const;
+	CChunkLightSection* EnsureBlockLightSection(int cx, int sy, int cz);
+
 	CChunkSection* FindSectionDataMutable(int cx, int sy, int cz);
 	const CChunkSection* FindSectionData(int cx, int sy, int cz) const;
 	CObject* FindRenderObject(int cx, int sy, int cz, EChunkSectionRenderSlot slot);

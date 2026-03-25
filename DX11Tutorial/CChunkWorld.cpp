@@ -191,6 +191,31 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 	return true;
 }
 
+uint8_t CChunkWorld::GetBlockLight(int wx, int wy, int wz) const
+{
+
+}
+
+void CChunkWorld::SetBlockLight(int wx, int wy, int wz, uint8_t level)
+{
+
+}
+
+CChunkLightSection* CChunkWorld::FindBlockLightSectionMutable(int cx, int sy, int cz)
+{
+	return nullptr;
+}
+
+const CChunkLightSection* CChunkWorld::FindBlockLightSection(int cx, int sy, int cz) const
+{
+	return nullptr;
+}
+
+CChunkLightSection* CChunkWorld::EnsureBlockLightSection(int cx, int sy, int cz)
+{
+	return nullptr;
+}
+
 CChunkSection* CChunkWorld::FindSectionDataMutable(int cx, int sy, int cz)
 {
 	auto* column = _FindColumn(cx, cz);
@@ -673,3 +698,5 @@ void CChunkWorld::_UpdateDebugStats()
 	dbg.SetModifiedColumnCount(modifiedColumns);
 	dbg.SetModifiedCellCount(modifiedCells);
 }
+
+

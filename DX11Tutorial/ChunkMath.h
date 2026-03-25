@@ -57,4 +57,9 @@ namespace ChunkMath
 		return static_cast<uint16_t>(wy * CHUNK_SIZE_Z * CHUNK_SIZE_X + lz * CHUNK_SIZE_X + lx);
 	}
 
+	inline int MakeIndex(int lx, int ly, int lz)
+	{
+		return lx + (lz * CHUNK_SECTION_SIZE) + (ly * CHUNK_SECTION_SIZE * CHUNK_SECTION_SIZE);
+	}
+
 }

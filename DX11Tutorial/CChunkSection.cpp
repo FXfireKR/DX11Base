@@ -1,5 +1,9 @@
 ﻿#include "pch.h"
 #include "CChunkSection.h"
+#include "ChunkMath.h"
+#include "CChunkWorld.h"
+
+using namespace ChunkMath;
 
 CChunkSection::CChunkSection()
 {
@@ -13,12 +17,12 @@ CChunkSection::CChunkSection()
 BlockCell CChunkSection::GetBlock(int lx, int ly, int lz) const
 { 
     // TODO : 복사해서 넘길 이유가 없다면 나중에 const-ref로 바꾸자.
-    return m_cells[_ToIndex(lx, ly, lz)];
+    return m_cells[MakeIndex(lx, ly, lz)];
 }
 
 void CChunkSection::SetBlock(int lx, int ly, int lz, const BlockCell& cell)
 {
-    BlockCell& oldCell = m_cells[_ToIndex(lx, ly, lz)];
+    BlockCell& oldCell = m_cells[MakeIndex(lx, ly, lz)];
     if (oldCell == cell)
         return;
 
@@ -34,7 +38,16 @@ void CChunkSection::SetBlock(int lx, int ly, int lz, const BlockCell& cell)
     m_bDirty = true;
 }
 
-int CChunkSection::_ToIndex(int lx, int ly, int lz) const
+uint8_t CChunkLightSection::GetBlockLight(int lx, int ly, int lz) const
 {
-    return lx + (lz * CHUNK_SECTION_SIZE) + (ly * CHUNK_SECTION_SIZE * CHUNK_SECTION_SIZE);
+    return 0;
+}
+
+void CChunkLightSection::SetBlockLight(int lx, int ly, int lz, uint8_t level)
+{
+}
+
+void CChunkLightSection::Clear()
+{
+
 }
