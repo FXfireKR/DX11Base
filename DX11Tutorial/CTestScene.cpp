@@ -15,7 +15,7 @@ void CTestScene::Awake()
 {
 	_CreateWorldRender();
 
-	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial);
+	m_VoxelWorld.Initialize(*this, m_pChunkPipeline, m_pChunkMaterial, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial);
 
 	m_blockBreakParticleSystem.Initialize(GetRenderWorld());
 
@@ -587,12 +587,20 @@ void CTestScene::_CreateWorldRender()
 	auto shadowLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shadowShaderID, 0 }, shadowShader->GetVertexBlob());
 
 	// opaque chunk pipeline
-	auto pipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
-	auto pipeline = pipelineManager.Get(pipeID);
-	pipeline->SetShader(shaderManager.Get(normalShaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->CreateOpaqueState(rw.GetDevice());
-	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	auto opaquePipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
+	auto opaquePipeline = pipelineManager.Get(opaquePipeID);
+	opaquePipeline->SetShader(shaderManager.Get(normalShaderID, 0));
+	opaquePipeline->SetInputLayout(ilManager.Get(layoutID));
+	opaquePipeline->CreateOpaqueState(rw.GetDevice());
+	opaquePipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// transparent chunk pipeline
+	auto transPipeID = pipelineManager.Create(fnv1a_64("ChunkTransparentPipeline"));
+	auto transPipeline = pipelineManager.Get(transPipeID);
+	transPipeline->SetShader(shaderManager.Get(normalShaderID, 0));
+	transPipeline->SetInputLayout(ilManager.Get(layoutID));
+	transPipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+	transPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// shadow chunk pipeline
 	auto shadowPipeID = pipelineManager.Create(fnv1a_64("ChunkShadowPipeline"));
@@ -607,18 +615,29 @@ void CTestScene::_CreateWorldRender()
 	auto shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::SHADOWCOMPARISON);
 
 	// material	
-	auto materialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
-	auto* material = materialManager.Get(materialID);
+	auto opauqMaterialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
+	auto* opaqueMaterial = materialManager.Get(opauqMaterialID);
 
-	material->SetTexture(0, BlockResDB.GetAtlasTextureView());
-	material->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
+	opaqueMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
+	opaqueMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
+	opaqueMaterial->SetTexture(1, rw.GetShadowMapSRV());
+	opaqueMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
 
-	material->SetTexture(1, rw.GetShadowMapSRV());
-	material->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
+	auto transMaterialID = materialManager.Create(fnv1a_64("ChunkTransparentMaterial"));
+	auto* transMaterial = materialManager.Get(transMaterialID);
 
-	m_pChunkPipeline = pipeline;
+	transMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
+	transMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
+	transMaterial->SetTexture(1, rw.GetShadowMapSRV());
+	transMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
+
+	m_pChunkPipeline = opaquePipeline;
+	m_pChunkMaterial = opaqueMaterial;
+
+	m_pChunkTransparentPipeline = transPipeline;
+	m_pChunkTransparentMaterial = transMaterial;
+
 	m_pChunkShadowPipeline = shadowPipeline;
-	m_pChunkMaterial = material;
 }
 
 void CTestScene::_CreateTextureAtlas()

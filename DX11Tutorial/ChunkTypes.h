@@ -53,9 +53,6 @@ struct SectionCoordHasher
 	}
 };
 
-// WorldBlockPos = XMINT3
-// LocalBlockPos = XMINT3
-
 struct ChunkRenderEntry
 {
 	OBJECT_ID renderObj = INVALID_OBJECT_ID;
@@ -83,24 +80,30 @@ struct ChunkMeshData
 	}
 };
 
-//using ChunkCoord = DirectX::XMINT3;
-//
-//struct ChunkColumnCoord
-//{
-//	int cx = 0;
-//	int cz = 0;
-//
-//	bool operator==(const ChunkColumnCoord& rhs) const
-//	{
-//		return cx == rhs.cx && cz == rhs.cz;
-//	}
-//
-//	bool operator!=(const ChunkColumnCoord& rhs) const
-//	{
-//		return !(*this == rhs);
-//	}
-//};
-//
+enum class EChunkSectionRenderSlot : uint8_t
+{
+	OPAQUE_SLOT = 0,
+	TRANSLUCENT_SLOT,
+
+	COUNT,
+};
+
+struct ChunkSectionMeshSet
+{
+	ChunkMeshData opaque; // OPAQUE, CUTOUT
+	ChunkMeshData translucent; // TRANSLUCENT
+
+	void Clear()
+	{
+		opaque.Clear();
+		translucent.Clear();
+	}
+
+	bool EmptyAll() const
+	{
+		return opaque.Empty() && translucent.Empty();
+	}
+};
 
 struct BlockCell
 {
@@ -131,24 +134,3 @@ struct BlockCell
 	}
 };
 static_assert(sizeof(BlockCell) == 4, "BlockCell must be 4 bytes");
-
-//
-//struct ChunkSection
-//{
-//	std::array<BlockCell, CHUNK_SECTION_VOLUME> blocks{};
-//	bool dirty = true;
-//	bool dirtyQueued = false;
-//
-//	ChunkSection()
-//	{
-//		blocks.fill(BlockCell{ 0, 0 });
-//	}
-//};
-//
-//struct ChunkColumn
-//{
-//	ChunkColumnCoord coord;
-//	std::unique_ptr<ChunkSection> sections[CHUNK_SECTION_COUNT]{};
-//
-//	std::array<uint64_t, CHUNK_SECTION_COUNT> renderObj;
-//};

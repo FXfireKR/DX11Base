@@ -40,7 +40,7 @@ public:
 	CChunkWorld() = default;
 	~CChunkWorld() = default;
 
-	void Initialize(CScene& scene, CPipeline* pipeline, CMaterial* material);
+	void Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial);
 	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
 	bool PopDirty(SectionCoord& outSectionCoord);
 
@@ -52,7 +52,7 @@ public:
 
 	CChunkSection* FindSectionDataMutable(int cx, int sy, int cz);
 	const CChunkSection* FindSectionData(int cx, int sy, int cz) const;
-	CObject* FindRenderObject(int cx, int sy, int cz);
+	CObject* FindRenderObject(int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 
 	bool IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const;
 
@@ -82,7 +82,7 @@ private:
 	void _UnloadColumn(int cx, int cz);
 
 
-	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz);
+	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 	void _DestoryRenderObject(CChunkSection& section);
 	
 	void _MarkDirty(int cx, int sy, int cz);
@@ -90,7 +90,7 @@ private:
 		int& outCx, int& outSy, int& outCz,
 		int& outLx, int& outLy, int& outLz) const;
 
-	string _MakeSectionName(int cx, int sy, int cz);
+	string _MakeSectionName(int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 
 	void _GenerateBaseColumn(CChunkColumn& column);
 	BlockCell _GetBaseBlock(int wx, int wy, int wz) const;
@@ -108,8 +108,14 @@ public:
 
 private:
 	CScene* m_pScene = nullptr;
-	CPipeline* m_pPipeline = nullptr;
-	CMaterial* m_pMaterial = nullptr;
+
+	// Opaque
+	CPipeline* m_pOpaquePipeline = nullptr;
+	CMaterial* m_pOpaqueMaterial = nullptr;
+
+	// Translucent
+	CPipeline* m_pTranslucentPipeline = nullptr;
+	CMaterial* m_pTranslucentMaterial = nullptr;
 
 	unordered_map<uint64_t, CChunkColumn> m_columns;
 	unordered_map<uint64_t, ModifiedColumnOverlay> m_modifiedColumns;

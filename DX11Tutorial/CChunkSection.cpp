@@ -6,7 +6,6 @@ CChunkSection::CChunkSection()
     m_cells.fill(BlockCell{});
     m_nonAirCount = 0;
     m_bDirty = true;
-    m_renderObjectID = INVALID_OBJECT_ID;
 }
 
 BlockCell CChunkSection::GetBlock(int lx, int ly, int lz) const

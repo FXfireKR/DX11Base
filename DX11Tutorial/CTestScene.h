@@ -54,6 +54,10 @@ private:
 private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;
+
+	CPipeline* m_pChunkTransparentPipeline = nullptr;
+	CMaterial* m_pChunkTransparentMaterial = nullptr;
+
 	CWorld m_VoxelWorld;
 	WorldTimeParams timeParams{};
 

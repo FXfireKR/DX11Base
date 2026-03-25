@@ -8,13 +8,16 @@
 #include "CMeshManager.h"
 #include "CChunkWorld.h"
 
-static uint64_t MakeChunkMeshKey(int cx, int cy, int cz)
+static uint64_t MakeChunkMeshKey(int cx, int cy, int cz, EChunkSectionRenderSlot slot)
 {
 	// packing
 	uint64_t x = (uint32_t)(cx & 0xFFFF);
 	uint64_t y = (uint32_t)(cy & 0xFFFF);
 	uint64_t z = (uint32_t)(cz & 0xFFFF);
-	return (x) | (y << 16) | (z << 32);
+	uint64_t s = (uint64_t)(static_cast<uint8_t>(slot) & 0xFF);
+
+
+	return (x) | (y << 16) | (z << 32) | (s << 48);
 }
 
 void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
@@ -32,27 +35,43 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 		if (!pSection->IsDirty())
 			continue;
 
-		ChunkMeshData meshData;
-		builder.BuildSectionMesh(world, sectionCoord.x, sectionCoord.y, sectionCoord.z, *pSection, meshData);
+		ChunkSectionMeshSet meshSet;
+		builder.BuildSectionMesh(world, sectionCoord.x, sectionCoord.y, sectionCoord.z, *pSection, meshSet);
 
-		CObject* pRenderObject = world.FindRenderObject(sectionCoord.x, sectionCoord.y, sectionCoord.z);
-		if (nullptr == pRenderObject)
-			continue;
+		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::OPAQUE_SLOT, meshSet.opaque);
+		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::TRANSLUCENT_SLOT, meshSet.translucent);
 
-		auto* meshRender = pRenderObject->GetComponent<CMeshRenderer>();
-		if (nullptr == meshRender)
-			continue;
-
-		const uint64_t meshKey = MakeChunkMeshKey(sectionCoord.x, sectionCoord.y, sectionCoord.z);
-		CMesh* mesh = scene.GetRenderWorld().GetMeshManager().CreateOrUpdateDynamicMesh(scene.GetRenderWorld().GetContext()
-			, meshKey, meshData.vertices.data(), sizeof(ChunkMeshVertex), meshData.vertices.size(), meshData.indices.data(), meshData.indices.size());
-
-		if (nullptr == mesh)
-			continue;
-
-		meshRender->SetMesh(mesh);
 		pSection->ClearDirty();
-
 		dbg.AddRebuiltSection();
 	}
+}
+
+void CChunkMesherSystem::UploadSectionMesh(CScene& scene, CChunkWorld& world, const SectionCoord& sectionCoord
+	, EChunkSectionRenderSlot slot, const ChunkMeshData& meshData)
+{
+	CObject* pRenderObject = world.FindRenderObject(sectionCoord.x, sectionCoord.y, sectionCoord.z, slot);
+	if (nullptr == pRenderObject)
+		return;
+
+	auto* meshRender = pRenderObject->GetComponent<CMeshRenderer>();
+	if (nullptr == meshRender)
+		return;
+
+	const uint64_t meshKey = MakeChunkMeshKey(sectionCoord.x, sectionCoord.y, sectionCoord.z, slot);
+	
+	CMesh* mesh = scene.GetRenderWorld().GetMeshManager().CreateOrUpdateDynamicMesh(
+		scene.GetRenderWorld().GetContext(),
+		meshKey,
+		meshData.vertices.data(),
+		sizeof(ChunkMeshVertex),
+		static_cast<uint32_t>(meshData.vertices.size()),
+		meshData.indices.data(),
+		static_cast<uint32_t>(meshData.indices.size())
+	);
+
+	if (nullptr == mesh)
+		return;
+
+	meshRender->SetMesh(mesh);
+	pRenderObject->SetEnable(!meshData.Empty());
 }

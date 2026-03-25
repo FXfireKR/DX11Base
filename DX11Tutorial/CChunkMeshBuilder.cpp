@@ -3,9 +3,10 @@
 #include "CChunkWorld.h"
 
 
-bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int sy, int cz, const CChunkSection& section, ChunkMeshData& outMesh) const
+bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int sy, int cz
+    , const CChunkSection& section, ChunkSectionMeshSet& outMeshs) const
 {
-    outMesh.Clear();
+    outMeshs.Clear();
 
     const int baseWx = cx * CHUNK_SIZE_X;
     const int baseWy = sy * CHUNK_SECTION_SIZE;
@@ -29,7 +30,7 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
                 const int wy = baseWy + ly;
                 const int wz = baseWz + lz;
     
-                _AppendBlockQuads(world, wx, wy, wz, lx, ly, lz, cell, outMesh);
+                _AppendBlockQuads(world, wx, wy, wz, lx, ly, lz, cell, outMeshs);
             }
         }
     }    
@@ -37,8 +38,25 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
 }
 
 bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, int lx, int ly, int lz
-    , const BlockCell& cell, ChunkMeshData& outMesh) const
+    , const BlockCell& cell, ChunkSectionMeshSet& outMeshs) const
 {
+    ChunkMeshData* pTargetMesh = nullptr;
+
+    switch (BlockDB.GetRenderLayer(cell.blockID))
+    {
+        case BLOCK_RENDER_LAYER::TRANSLUCENT_LAYER:
+        {
+            pTargetMesh = &outMeshs.translucent;
+        } break;
+
+        case BLOCK_RENDER_LAYER::OPAQUE_LAYER:
+        case BLOCK_RENDER_LAYER::CUTOUT_LAYER:
+        default:
+        {
+            pTargetMesh = &outMeshs.opaque;
+        } break;
+    }
+
     const BakedModel* pBakedModel = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
     if (nullptr == pBakedModel)
         return false;
@@ -51,9 +69,8 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
                 continue;
         }
 
-        _AppendQuad(quad, lx, ly, lz, outMesh);
+        _AppendQuad(quad, lx, ly, lz, *pTargetMesh);
     }
-
     return true;
 }
 

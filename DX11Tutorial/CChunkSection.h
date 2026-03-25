@@ -18,10 +18,25 @@ public:
 	inline const bool IsBuildQueued() const { return m_bBuildQueued; }
 	inline void SetBuildQueued(bool bQueued) { m_bBuildQueued = bQueued; }
 
-	inline bool HasRenderObjectID() const { return IsValidObjectID(m_renderObjectID); }
-	inline const OBJECT_ID GetRenderObjectID() const { return m_renderObjectID; }
-	inline void SetRenderObjectID(OBJECT_ID id) { m_renderObjectID = id; }
-	inline void ClearRenderObjectID() { m_renderObjectID = INVALID_OBJECT_ID; }
+	inline bool HasRenderObjectID(EChunkSectionRenderSlot eSlot) const { return IsValidObjectID(m_renderObjectIDs[static_cast<int>(eSlot)]); }
+	inline const OBJECT_ID GetRenderObjectID(EChunkSectionRenderSlot eSlot) const { return m_renderObjectIDs[static_cast<int>(eSlot)]; }
+	inline void SetRenderObjectID(EChunkSectionRenderSlot eSlot, OBJECT_ID id) { m_renderObjectIDs[static_cast<int>(eSlot)] = id; }
+	inline void ClearRenderObjectID(EChunkSectionRenderSlot eSlot) { m_renderObjectIDs[static_cast<int>(eSlot)] = INVALID_OBJECT_ID; }
+	inline void ClearAllRenderObjectIDs()
+	{
+		for (OBJECT_ID& id : m_renderObjectIDs)
+			id = INVALID_OBJECT_ID;
+	}
+
+	inline bool HasAnyRenderObjectID() const
+	{
+		for (OBJECT_ID id : m_renderObjectIDs)
+		{
+			if (IsValidObjectID(id))
+				return true;
+		}
+		return false;
+	}
 
 	inline bool IsEmpty() const { return m_nonAirCount == 0; }
 
@@ -37,5 +52,9 @@ private:
 	bool m_bBuildQueued = false;
 
 	// handle
-	OBJECT_ID m_renderObjectID = INVALID_OBJECT_ID;
+	array<OBJECT_ID, static_cast<size_t>(EChunkSectionRenderSlot::COUNT)> m_renderObjectIDs
+	{
+		INVALID_OBJECT_ID,
+		INVALID_OBJECT_ID
+	};
 };

@@ -8,9 +8,10 @@ CWorld::CWorld()
 {
 }
 
-void CWorld::Initialize(CScene& scene, CPipeline* chunkPipeline, CMaterial* chunkMaterial)
+void CWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+	, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial)
 {
-    m_pChunkWorld->Initialize(scene, chunkPipeline, chunkMaterial);
+    m_pChunkWorld->Initialize(scene, pOpaquePipeline, pOpaqueMaterial, pTranslucentPipeline, pTranslucentMaterial);
 	m_worldTime.Initialize(0.25f);
 }
 

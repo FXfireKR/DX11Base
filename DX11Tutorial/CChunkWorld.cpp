@@ -11,17 +11,25 @@
 
 using namespace ChunkMath;
 
-void CChunkWorld::Initialize(CScene& scene, CPipeline* pipeline, CMaterial* material)
+void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
+	, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial)
 {
 	m_pScene = &scene;
-	m_pPipeline = pipeline;
-	m_pMaterial = material;
 
-	m_genSettings.seed = 12345u;
-	m_genSettings.baseHeight = 48;
-	m_genSettings.heightAmplitude = 12;
-	m_genSettings.frequency = 0.01f;
-	m_genSettings.seaLevel = 48;
+	m_pOpaquePipeline = pOpaquePipeline;
+	m_pOpaqueMaterial = pOpaqueMaterial;
+
+	m_pTranslucentPipeline = pTranslucentPipeline;
+	m_pTranslucentMaterial = pTranslucentMaterial;
+
+	// Chunk generator setting
+	{
+		m_genSettings.seed = 12345u;
+		m_genSettings.baseHeight = 48;
+		m_genSettings.heightAmplitude = 12;
+		m_genSettings.frequency = 0.01f;
+		m_genSettings.seaLevel = 48;
+	}
 
 	m_pGenerator = std::make_unique<CHeightmapChunkGenerator>();
 	m_pGenerator->Initialize(m_genSettings);
@@ -203,7 +211,7 @@ const CChunkSection* CChunkWorld::FindSectionData(int cx, int sy, int cz) const
 	return column->GetSection(sy);
 }
 
-CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
+CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz, EChunkSectionRenderSlot slot)
 {
 	auto* column = _FindColumn(cx, cz);
 	if (nullptr == column)
@@ -216,7 +224,7 @@ CObject* CChunkWorld::FindRenderObject(int cx, int sy, int cz)
 	if (nullptr == section)
 		return nullptr;
 
-	OBJECT_ID id = section->GetRenderObjectID();
+	OBJECT_ID id = section->GetRenderObjectID(slot);
 	if (!IsValidObjectID(id)) 
 		return nullptr;
 
@@ -391,33 +399,56 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 	dbg.AddChunkUnload();
 }
 
-void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz)
+void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot)
 {
-	if (section.HasRenderObjectID())
+	if (section.HasRenderObjectID(slot))
 		return;
 
-	string name = _MakeSectionName(cx, sy, cz);
+	string name = _MakeSectionName(cx, sy, cz, slot);
 	CObject* obj = m_pScene->AddAndGetObject(name);
 
 	auto* tr = obj->AddComponent<CTransform>();
 	auto* mr = obj->AddComponent<CMeshRenderer>();
 
-	tr->SetLocalTrans(XMFLOAT3((float)(cx * CHUNK_SIZE_X), (float)(sy * CHUNK_SECTION_SIZE), (float)(cz * CHUNK_SIZE_Z)));
+	tr->SetLocalTrans(XMFLOAT3(
+		(float)(cx * CHUNK_SIZE_X), 
+		(float)(sy * CHUNK_SECTION_SIZE), 
+		(float)(cz * CHUNK_SIZE_Z))
+	);
 
-	// 기본 파이프라인/메터리얼 세팅
-	mr->SetPipeline(m_pPipeline);
-	mr->SetMaterial(m_pMaterial);
+	switch (slot)
+	{
+		case EChunkSectionRenderSlot::OPAQUE_SLOT:
+		{
+			mr->SetPipeline(m_pOpaquePipeline);
+			mr->SetMaterial(m_pOpaqueMaterial);
+			mr->SetRenderPass(ERenderPass::OPAQUE_PASS);
+		} break;
 
-	section.SetRenderObjectID(obj->GetID());
+		case EChunkSectionRenderSlot::TRANSLUCENT_SLOT:
+		{
+			mr->SetPipeline(m_pTranslucentPipeline);
+			mr->SetMaterial(m_pTranslucentMaterial);
+			mr->SetRenderPass(ERenderPass::TRANSPARENT_PASS);
+		} break;
+	}
+
+	obj->SetEnable(false);
+	section.SetRenderObjectID(slot, obj->GetID());
 }
 
 void CChunkWorld::_DestoryRenderObject(CChunkSection& section)
 {
-	if (!section.HasRenderObjectID())
-		return;
+	for (size_t i = 0; i < static_cast<size_t>(EChunkSectionRenderSlot::COUNT); ++i)
+	{
+		const EChunkSectionRenderSlot slot = static_cast<EChunkSectionRenderSlot>(i);
 
-	m_pScene->DestroyObject(section.GetRenderObjectID());
-	section.ClearRenderObjectID();
+		if (!section.HasRenderObjectID(slot))
+			continue;
+
+		m_pScene->DestroyObject(section.GetRenderObjectID(slot));
+		section.ClearRenderObjectID(slot);
+	}
 }
 
 void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
@@ -451,10 +482,12 @@ bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& 
 	return true;
 }
 
-string CChunkWorld::_MakeSectionName(int cx, int sy, int cz)
+string CChunkWorld::_MakeSectionName(int cx, int sy, int cz, EChunkSectionRenderSlot slot)
 {
-	char buf[64];
-	sprintf(buf, "%d_%d_%d", cx, sy, cz);
+	const char* suffix = (slot == EChunkSectionRenderSlot::OPAQUE_SLOT) ? "opaque" : "translucent";
+
+	char buf[96];
+	sprintf(buf, "%d_%d_%d_%s", cx, sy, cz, suffix);
 	return string(buf);
 }
 
@@ -472,24 +505,6 @@ BlockCell CChunkWorld::_GetBaseBlock(int wx, int wy, int wz) const
 		return {0,0};
 
 	return m_pGenerator->SampleBlock(wx, wy, wz);
-	//if (wy < 0 || wy >= CHUNK_SIZE_Y)
-	//	return { 0, 0 };
-
-	//int cx, sy, cz;
-	//int lx, ly, lz;
-
-	//if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
-	//	return { 0, 0 };
-
-	//const CChunkColumn* pColumn = _FindColumn(cx, cz);
-	//if (nullptr == pColumn)
-	//	return { 0, 0 };
-
-	//const CChunkSection* pSection = pColumn->GetSection(sy);
-	//if (nullptr == pSection)
-	//	return { 0, 0 };
-
-	//return pSection->GetBlock(lx, ly, lz);
 }
 
 bool CChunkWorld::_TryGetModifiedBlock(int wx, int wy, int wz, BlockCell& outCell) const
