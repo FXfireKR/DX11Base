@@ -38,7 +38,12 @@ public:
 	bool FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const;
 
 private:
-	bool _ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced);
+	bool _ResolvePlaceBlock(const BlockCell& selected, const XMINT3& hitNormal, BlockCell& outPlaced) const;
+	bool _ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced) const;
+
+	bool _CanPlaceResolvedBlock(int wx, int wy, int wz, const BlockCell& placed) const;
+	bool _CanSupportTorchFloor(int wx, int wy, int wz) const;
+	bool _CanSupportWallTorch(int wx, int wy, int wz, const BlockCell& placed) const;
 
 public:
 	inline CChunkWorld& GetChunkWorld() { return *(m_pChunkWorld.get()); }

@@ -133,6 +133,8 @@ private:
 	void _PropagateBlockLightRemove(int wx, int wy, int wz);
 	void _RelightBlockLightAround(int wx, int wy, int wz);
 	void _RebuildActiveBlockLightCache();
+	void _ValidateAttachmentAround(int wx, int wy, int wz);
+	bool _IsUnsupportedAttachedBlock(int wx, int wy, int wz) const;
 
 	void _UpdateDebugStats();
 
@@ -168,5 +170,5 @@ private:
 	unordered_set<uint64_t> m_tmpWanted;
 	//int m_iStreamRadius = 2; // debug
 	//int m_iStreamRadius = 4; // real
-	int m_iStreamRadius = 8; // real
+	int m_iStreamRadius = 6; // real
 };

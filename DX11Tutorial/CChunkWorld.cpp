@@ -205,6 +205,7 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 		_MarkDirty(cx, sy, cz + 1);
 
 	_UpdateBlockLightOnBlockChanged(wx, wy, wz, oldFinal, newCell);
+	_ValidateAttachmentAround(wx, wy, wz);
 
 	dbg.AddBlockEdit();
 	return true;
@@ -998,6 +999,74 @@ void CChunkWorld::_RebuildActiveBlockLightCache()
 			}
 		}
 	}
+}
+
+void CChunkWorld::_ValidateAttachmentAround(int wx, int wy, int wz)
+{
+	static const XMINT3 dirs[6] =
+	{
+		{ 1, 0, 0 }, { -1, 0, 0 },
+		{ 0, 1, 0 }, { 0,-1, 0 },
+		{ 0, 0, 1 }, { 0, 0,-1 },
+	};
+
+	for (const XMINT3& d : dirs)
+	{
+		const int nx = wx + d.x;
+		const int ny = wy + d.y;
+		const int nz = wz + d.z;
+
+		if (ny < 0 || ny >= CHUNK_SIZE_Y)
+			continue;
+
+		if (_IsUnsupportedAttachedBlock(nx, ny, nz))
+		{
+			SetBlock(nx, ny, nz, { 0, 0 });
+		}
+	}
+}
+
+bool CChunkWorld::_IsUnsupportedAttachedBlock(int wx, int wy, int wz) const
+{
+	const BlockCell cell = GetBlock(wx, wy, wz);
+	if (cell.IsAir())
+		return false;
+
+	const BLOCK_ID torchID = BlockDB.FindBlockID("minecraft:torch");
+	const BLOCK_ID wallTorchID = BlockDB.FindBlockID("minecraft:wall_torch");
+
+	if (cell.blockID == torchID)
+	{
+		const BlockCell below = GetBlock(wx, wy - 1, wz);
+		if (below.IsAir())
+			return true;
+
+		return !BlockDB.IsFaceOccluder(below.blockID);
+	}
+
+	if (cell.blockID == wallTorchID)
+	{
+		uint64_t facingHash = 0;
+		if (!BlockDB.TryGetStateValueHash(cell.blockID, cell.stateIndex, fnv1a_64("facing"), facingHash))
+			return true;
+
+		XMINT3 supportDir{};
+
+		if (facingHash == fnv1a_64("north"))      supportDir = { 0, 0, 1 };
+		else if (facingHash == fnv1a_64("south")) supportDir = { 0, 0,-1 };
+		else if (facingHash == fnv1a_64("east"))  supportDir = { -1, 0, 0 };
+		else if (facingHash == fnv1a_64("west"))  supportDir = { 1, 0, 0 };
+		else
+			return true;
+
+		const BlockCell support = GetBlock(wx + supportDir.x, wy + supportDir.y, wz + supportDir.z);
+		if (support.IsAir())
+			return true;
+
+		return !BlockDB.IsFaceOccluder(support.blockID);
+	}
+
+	return false;
 }
 
 void CChunkWorld::_UpdateDebugStats()

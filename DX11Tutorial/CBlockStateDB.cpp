@@ -175,6 +175,42 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 	return true;
 }
 
+bool CBlockStateDB::TryGetStateValueHash(BLOCK_ID blockID, STATE_INDEX stateIndex, PROP_HASH propHash, VALUE_HASH& outValueHash) const
+{
+	outValueHash = 0;
+
+	const BlockTypeDef* typeDef = _FindBlockType(blockID);
+	if (!typeDef)
+		return false;
+
+	PROPERTY_ID pid = 0;
+	if (!m_propRegistry.FindByHash(propHash, pid))
+		return false;
+
+	auto slotIt = typeDef->mapPropToSlot.find(pid);
+	if (slotIt == typeDef->mapPropToSlot.end())
+		return false;
+
+	const uint8_t slot = slotIt->second;
+	if (slot >= typeDef->vecProps.size())
+		return false;
+
+	std::vector<VALUE_INDEX> decoded;
+	_DecodeStateIndex(*typeDef, stateIndex, decoded);
+
+	if (slot >= decoded.size())
+		return false;
+
+	const PropertyDomain& dom = typeDef->vecProps[slot];
+	const VALUE_INDEX vIdx = decoded[slot];
+
+	if (vIdx >= dom.vecIndexToValueHash.size())
+		return false;
+
+	outValueHash = dom.vecIndexToValueHash[vIdx];
+	return true;
+}
+
 bool CBlockStateDB::_ScanBlockStateFiles(vector<filesystem::path>& outFiles) const
 {
 	outFiles.clear();

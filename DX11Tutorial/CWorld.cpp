@@ -43,11 +43,14 @@ bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const XMINT3& hitNormal, cons
 	const BlockCell cur = m_pChunkWorld->GetBlock(wx, wy, wz);
 	if (!cur.IsAir()) return false;
 
-	//const BlockCell below = m_pChunkWorld->GetBlock(wx - hitNormal.x, wy - hitNormal.y, wz - hitNormal.z);
-	//if (below.IsAir()) return false;
-	//if (!BlockDB.IsFaceOccluder(below.blockID)) return false
+	BlockCell placed{};
+	if (!_ResolvePlaceBlock(cell, hitNormal, placed))
+		return false;
 
-	m_pChunkWorld->SetBlock(wx, wy, wz, cell);
+	if (!_CanPlaceResolvedBlock(wx, wy, wz, placed))
+		return false;
+
+	m_pChunkWorld->SetBlock(wx, wy, wz, placed);
 	return true;
 }
 
@@ -142,7 +145,17 @@ bool CWorld::FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& 
 	return false;
 }
 
-bool CWorld::_ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced)
+bool CWorld::_ResolvePlaceBlock(const BlockCell& selected, const XMINT3& hitNormal, BlockCell& outPlaced) const
+{
+	const BLOCK_ID torchID = BlockDB.FindBlockID("minecraft:torch");
+	if (selected.blockID == torchID)
+		return _ResolveTorchPlacement(hitNormal, outPlaced);
+
+	outPlaced = selected;
+	return true;
+}
+
+bool CWorld::_ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced) const
 {
 	if (hitNormal.y < 0)
 		return false;
@@ -178,4 +191,50 @@ bool CWorld::_ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlace
 	}
 
 	return false;
+}
+
+bool CWorld::_CanPlaceResolvedBlock(int wx, int wy, int wz, const BlockCell& placed) const
+{
+	const BLOCK_ID torchID = BlockDB.FindBlockID("minecraft:torch");
+	const BLOCK_ID wallTorchID = BlockDB.FindBlockID("minecraft:wall_torch");
+
+	if (placed.blockID == torchID)
+		return _CanSupportTorchFloor(wx, wy, wz);
+
+	if (placed.blockID == wallTorchID)
+		return _CanSupportWallTorch(wx, wy, wz, placed);
+
+	return true;
+}
+
+bool CWorld::_CanSupportTorchFloor(int wx, int wy, int wz) const
+{
+	const BlockCell below = m_pChunkWorld->GetBlock(wx, wy - 1, wz);
+	if (below.IsAir())
+		return false;
+
+	return BlockDB.IsFaceOccluder(below.blockID);
+}
+
+bool CWorld::_CanSupportWallTorch(int wx, int wy, int wz, const BlockCell& placed) const
+{
+	uint64_t facingHash = 0;
+	if (!BlockDB.TryGetStateValueHash(placed.blockID, placed.stateIndex, fnv1a_64("facing"), facingHash))
+		return false;
+
+	XMINT3 supportDir{};
+
+	// facing은 torch가 향하는 방향, support는 그 반대편 벽
+	if (facingHash == fnv1a_64("north"))      supportDir = { 0, 0, 1 };
+	else if (facingHash == fnv1a_64("south")) supportDir = { 0, 0,-1 };
+	else if (facingHash == fnv1a_64("east"))  supportDir = { -1, 0, 0 };
+	else if (facingHash == fnv1a_64("west"))  supportDir = { 1, 0, 0 };
+	else
+		return false;
+
+	const BlockCell support = m_pChunkWorld->GetBlock(wx + supportDir.x, wy + supportDir.y, wz + supportDir.z);
+	if (support.IsAir())
+		return false;
+
+	return BlockDB.IsFaceOccluder(support.blockID);
 }
