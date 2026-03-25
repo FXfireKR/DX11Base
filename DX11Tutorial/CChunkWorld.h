@@ -63,6 +63,7 @@ public:
 	bool PopDirty(SectionCoord& outSectionCoord);
 
 	// IBlockAccessor
+	bool CanRaycastHit(const BlockCell& cell) const override;
 	BlockCell GetBlock(int wx, int wy, int wz) const override;
 	bool IsSolid(const BlockCell& cell) const override;
 

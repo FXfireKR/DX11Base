@@ -41,6 +41,18 @@ void CInventoryComponent::Init()
 		m_arrayHotBar[2].block.stateIndex = sidx;
 		m_arrayHotBar[2].count = 999;
 	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:cobblestone");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[3].block.blockID = blockID;
+		m_arrayHotBar[3].block.stateIndex = sidx;
+		m_arrayHotBar[3].count = 999;
+	}
 }
 
 void CInventoryComponent::Start()

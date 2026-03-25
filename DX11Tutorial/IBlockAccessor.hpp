@@ -7,6 +7,7 @@ public:
 	IBlockAccessor() = default;
 	virtual ~IBlockAccessor() = default;
 
+	virtual bool CanRaycastHit(const BlockCell& cell) const PURE;
 	virtual BlockCell GetBlock(int wx, int wy, int wz) const PURE;
 	virtual bool IsSolid(const BlockCell& cell) const PURE;
 };

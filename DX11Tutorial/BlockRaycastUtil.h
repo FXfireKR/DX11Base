@@ -77,7 +77,7 @@ namespace BlockRaycastUtil
 		// 시작 셀 검사
 		{
 			const BlockCell startCell = world.GetBlock(coord.x, coord.y, coord.z);
-			if (true == world.IsSolid(startCell))
+			if (true == world.CanRaycastHit(startCell))
 			{
 				outResult.bHit = true;
 				outResult.block = coord;
@@ -121,7 +121,7 @@ namespace BlockRaycastUtil
 			if (t > maxDist) break;
 
 			const BlockCell cell = world.GetBlock(coord.x, coord.y, coord.z);
-			if (true == world.IsSolid(cell))
+			if (true == world.CanRaycastHit(cell))
 			{
 				outResult.bHit = true;
 				outResult.block = coord;

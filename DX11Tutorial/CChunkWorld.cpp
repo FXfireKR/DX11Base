@@ -93,6 +93,14 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 	return true;
 }
 
+bool CChunkWorld::CanRaycastHit(const BlockCell& cell) const
+{
+	if (cell.IsAir())
+		return false;
+
+	return BlockDB.GetRenderLayer(cell.blockID) != BLOCK_RENDER_LAYER::INVISIBLE_LAYER;
+}
+
 BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
 {
 	if (wy < 0 || wy >= CHUNK_SIZE_Y)
