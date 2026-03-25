@@ -1,7 +1,10 @@
 ﻿#include "pch.h"
 #include "CWorld.h"
 #include "CChunkMesherSystem.h"
+#include "ChunkMath.h"
 #include "BlockRaycastUtil.h"
+
+using namespace ChunkMath;
 
 CWorld::CWorld()
     : m_pChunkWorld(make_unique<CChunkWorld>())
@@ -224,12 +227,7 @@ bool CWorld::_CanSupportWallTorch(int wx, int wy, int wz, const BlockCell& place
 
 	XMINT3 supportDir{};
 
-	// facing은 torch가 향하는 방향, support는 그 반대편 벽
-	if (facingHash == fnv1a_64("north"))      supportDir = { 0, 0, -1 };
-	else if (facingHash == fnv1a_64("south")) supportDir = { 0, 0, 1 };
-	else if (facingHash == fnv1a_64("east"))  supportDir = { -1, 0, 0 };
-	else if (facingHash == fnv1a_64("west"))  supportDir = { 1, 0, 0 };
-	else
+	if (!GetWallTorchSupportDirFromFacing(facingHash, supportDir))
 		return false;
 
 	const BlockCell support = m_pChunkWorld->GetBlock(wx + supportDir.x, wy + supportDir.y, wz + supportDir.z);
