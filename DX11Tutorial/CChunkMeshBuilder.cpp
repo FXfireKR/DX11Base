@@ -2,7 +2,6 @@
 #include "CChunkMeshBuilder.h"
 #include "CChunkWorld.h"
 
-
 bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
     , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
@@ -73,7 +72,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
                 continue;
         }
 
-        _AppendQuad(quad, lx, ly, lz, *pTargetMesh);
+        _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
     }
     return true;
 }
@@ -117,7 +116,8 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     return BlockDB.IsFaceOccluder(neighbor.blockID);    
 }
 
-bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int lz, ChunkMeshData& outMesh) const
+bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& quad
+    , int wx, int wy, int wz, int lx, int ly, int lz, ChunkMeshData& outMesh) const
 {
     AtlasRegion region{};
 
@@ -126,7 +126,7 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
         return false;
 
     const uint32_t baseIndex = static_cast<uint32_t>(outMesh.vertices.size());
-    const XMFLOAT4 tint = ResolveBlockTint(quad);
+    const XMFLOAT4 color = _ResolveQuadColor_DebugBlockLight(world, quad, wx, wy, wz);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -134,12 +134,10 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
         v.position.x = quad.verts[i].pos.x + static_cast<float>(lx);
         v.position.y = quad.verts[i].pos.y + static_cast<float>(ly);
         v.position.z = quad.verts[i].pos.z + static_cast<float>(lz);
-
         v.normal = quad.verts[i].normal;
-        v.color = tint;
+        v.color = color;
         v.uv = _RemapAtlasUV(region, quad.verts[i].uv);
         
-
         outMesh.vertices.push_back(v);
     }
 
@@ -150,6 +148,27 @@ bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int l
     outMesh.indices.push_back(baseIndex + 2);
     outMesh.indices.push_back(baseIndex + 3);
     return true;
+}
+
+uint8_t CChunkMeshBuilder::_ResolveQuadBlockLight(const CChunkWorld& world, const BakedQuad& quad, int wx, int wy, int wz) const
+{
+    if (quad.bHasCullFace)
+    {
+        const XMINT3 n = FaceToNormalInt3(static_cast<FACE_DIR>(quad.cullFaceDir));
+        return world.GetBlockLight(wx + n.x, wy + n.y, wz + n.z);
+    }
+    return world.GetBlockLight(wx, wy, wz);
+}
+
+XMFLOAT4 CChunkMeshBuilder::_ResolveQuadColor_DebugBlockLight(const CChunkWorld& world, const BakedQuad& quad, int wx, int wy, int wz) const
+{
+    const uint8_t light = _ResolveQuadBlockLight(world, quad, wx, wy, wz);
+    const float t = static_cast<float>(light) / 15.0f;
+
+    XMFLOAT4 tint = ResolveBlockTint(quad);
+    float brightness = 0.2f + 0.8f * t;
+
+    return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };
 }
 
 XMFLOAT4 CChunkMeshBuilder::ResolveBlockTint(const BakedQuad& quad) const

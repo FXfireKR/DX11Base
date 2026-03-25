@@ -199,6 +199,15 @@ const bool CBlockDefDB::CanCullSameBlockFace(BLOCK_ID blockID) const
 	return pBlockDef->render.bCullSameBlockFace;
 }
 
+const uint8_t CBlockDefDB::GetLightEmission(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return false;
+
+	return pBlockDef->render.lightEmissions;
+}
+
 const bool CBlockDefDB::IsFaceOccluder(BLOCK_ID blockID) const
 {
 	const BlockDef* pBlockDef = GetBlockDef(blockID);
@@ -600,6 +609,9 @@ void CBlockDefDB::_ApplyRawToRuntime(const BlockDefRaw& raw, BlockDef& outDef)
 
 	if (raw.render.cullSameBlockFace.has_value())
 		outDef.render.bCullSameBlockFace = raw.render.cullSameBlockFace.value();
+
+	if (raw.render.lightEmissions.has_value())
+		outDef.render.lightEmissions = raw.render.lightEmissions.value();
 
 	if (raw.collision.colType.has_value())
 		outDef.collision.colType = raw.collision.colType.value();

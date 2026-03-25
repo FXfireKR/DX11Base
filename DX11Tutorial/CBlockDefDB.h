@@ -34,6 +34,7 @@ public:
 	const bool HasCollision(BLOCK_ID blockID) const;
 	const bool UseAmbientOcclusion(BLOCK_ID blockID) const;
 	const bool CanCullSameBlockFace(BLOCK_ID blockID) const;
+	const uint8_t GetLightEmission(BLOCK_ID blockID) const;
 	const bool IsFaceOccluder(BLOCK_ID blockID) const;
 
 public:

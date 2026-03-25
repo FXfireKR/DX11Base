@@ -428,7 +428,7 @@ void CModelDB::_BakeOneElementFace(IN const ModelResolved& modelResolved, const 
         m_usedTextureKeys.insert(normalizedTextureKey);
     }
 
-    const XMFLOAT3 faceNorm = FaceNormal(eDir);
+    const XMFLOAT3 faceNorm = FaceToNormalFloat3(eDir);
 
     q.verts[0] = { p[0], faceNorm, uv[0], 0xFFFFFFFF };
     q.verts[1] = { p[1], faceNorm, uv[1], 0xFFFFFFFF };

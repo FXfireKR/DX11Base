@@ -473,6 +473,16 @@ void CChunkWorld::_LoadColumn(int cx, int cz)
 		_MarkDirty(cx, sy, cz);
 	}
 
+	if (cx == 0 && cz == 0)
+	{
+		const int y = 58; // 지표면 위 공기 칸으로 맞춰서 테스트
+		SetBlockLight(8, y, 8, 15);
+		SetBlockLight(9, y, 8, 12);
+		SetBlockLight(10, y, 8, 9);
+		SetBlockLight(11, y, 8, 6);
+		SetBlockLight(12, y, 8, 3);
+	}
+
 	dbg.AddChunkLoad();
 }
 

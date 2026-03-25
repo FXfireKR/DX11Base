@@ -14,7 +14,7 @@
 	0,1,2 / 0,2,3
 */
 
-DirectX::XMFLOAT3 FaceNormal(FACE_DIR dir)
+DirectX::XMFLOAT3 FaceToNormalFloat3(FACE_DIR dir)
 {
 	switch (dir)
 	{
@@ -25,6 +25,20 @@ DirectX::XMFLOAT3 FaceNormal(FACE_DIR dir)
 		case FACE_DIR::PZ: return { 0.f, 0.f, 1.f };
 		case FACE_DIR::NZ: return { 0.f, 0.f, -1.f };
 		default: return { 0.f, 0.f, 0.f };
+	}
+}
+
+DirectX::XMINT3 FaceToNormalInt3(FACE_DIR dir)
+{
+	switch (dir)
+	{
+		case FACE_DIR::PX: return { 1, 0, 0 };
+		case FACE_DIR::NX: return { -1, 0, 0 };
+		case FACE_DIR::PY: return { 0, 1, 0 };
+		case FACE_DIR::NY: return { 0, -1, 0 };
+		case FACE_DIR::PZ: return { 0, 0, 1 };
+		case FACE_DIR::NZ: return { 0, 0, -1 };
+		default: return { 0, 0, 0 };
 	}
 }
 

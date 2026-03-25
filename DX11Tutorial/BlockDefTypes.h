@@ -34,6 +34,7 @@ struct BlockRenderDef
 	BLOCK_RENDER_LAYER layer = BLOCK_RENDER_LAYER::OPAQUE_LAYER;
 	bool bAmbientOcclusion = true;
 	bool bCullSameBlockFace = false;
+	uint8_t lightEmissions = 0;
 };
 
 struct BlockCollisionDef
@@ -86,6 +87,7 @@ struct BlockRenderDefRaw
 	std::optional<BLOCK_RENDER_LAYER> layer;
 	std::optional<bool> ambientOcclusion;
 	std::optional<bool> cullSameBlockFace;
+	std::optional<int> lightEmissions;
 };
 
 struct BlockCollisionDefRaw

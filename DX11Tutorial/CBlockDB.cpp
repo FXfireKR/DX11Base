@@ -119,6 +119,11 @@ const bool CBlockDB::CanCullSameBlockFace(BLOCK_ID blockID) const
 	return m_blockDefDB.CanCullSameBlockFace(blockID);
 }
 
+const uint8_t CBlockDB::GetLightEmission(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.GetLightEmission(blockID);
+}
+
 const bool CBlockDB::IsFaceOccluder(BLOCK_ID blockID) const
 {
 	return m_blockDefDB.IsFaceOccluder(blockID);
