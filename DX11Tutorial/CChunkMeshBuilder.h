@@ -29,6 +29,11 @@ private:
 	XMFLOAT4 _ResolveQuadColor_DebugBlockLight(const CChunkWorld& world, const BakedQuad& quad
 		, int wx, int wy, int wz) const;
 
+	XMFLOAT3 _RotatePointByBlockState(const XMFLOAT3& p, uint8_t rotXDeg, uint8_t rotYDeg) const;
+	XMFLOAT3 _RotateNormalByBlockState(const XMFLOAT3& n, uint8_t rotXDeg, uint8_t rotYDeg) const;
+	FACE_DIR _RotateFaceDirY(FACE_DIR dir, uint8_t rotYDeg) const;
+	void _ApplyModelRotation(BakedQuad& quad, uint8_t rotXDeg, uint8_t rotYDeg) const;
+
 	XMFLOAT4 ResolveBlockTint(const BakedQuad& quad) const;
 	XMFLOAT2 _RemapAtlasUV(const AtlasRegion& region, const XMFLOAT2& localUV) const;
 };

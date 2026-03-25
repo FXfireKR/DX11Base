@@ -1052,10 +1052,10 @@ bool CChunkWorld::_IsUnsupportedAttachedBlock(int wx, int wy, int wz) const
 
 		XMINT3 supportDir{};
 
-		if (facingHash == fnv1a_64("north"))      supportDir = { 0, 0, 1 };
-		else if (facingHash == fnv1a_64("south")) supportDir = { 0, 0,-1 };
-		else if (facingHash == fnv1a_64("east"))  supportDir = { -1, 0, 0 };
-		else if (facingHash == fnv1a_64("west"))  supportDir = { 1, 0, 0 };
+		if (facingHash == fnv1a_64("north"))      supportDir = { 0, 0, -1 };
+		else if (facingHash == fnv1a_64("south")) supportDir = { 0, 0, 1 };
+		else if (facingHash == fnv1a_64("east"))  supportDir = { 1, 0, 0 };
+		else if (facingHash == fnv1a_64("west"))  supportDir = { -1, 0, 0 };
 		else
 			return true;
 

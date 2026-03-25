@@ -60,20 +60,31 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
         } break;
     }
 
-    const BakedModel* pBakedModel = BlockDB.GetBakedModel(cell.blockID, cell.stateIndex);
-    if (nullptr == pBakedModel)
+    vector<AppliedModel> vecModels;
+    if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels))
         return false;
 
-    for (const BakedQuad& quad : pBakedModel->quads)
+    for (const AppliedModel& applied : vecModels)
     {
-        if (quad.bHasCullFace)
-        {
-            if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
-                continue;
-        }
+        const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
+        if (!pBakedModel)
+            continue;
 
-        _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+        for (const BakedQuad& srcQuad : pBakedModel->quads)
+        {
+            BakedQuad quad = srcQuad;
+            _ApplyModelRotation(quad, applied.x, applied.y);
+
+            if (quad.bHasCullFace)
+            {
+                if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
+                    continue;
+            }
+
+            _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+        }
     }
+    
     return true;
 }
 
@@ -169,6 +180,92 @@ XMFLOAT4 CChunkMeshBuilder::_ResolveQuadColor_DebugBlockLight(const CChunkWorld&
     XMFLOAT4 tint = ResolveBlockTint(quad);
 
     return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };
+}
+
+XMFLOAT3 CChunkMeshBuilder::_RotatePointByBlockState(const XMFLOAT3& p, uint8_t rotXDeg, uint8_t rotYDeg) const
+{
+    XMVECTOR v = XMVectorSet(p.x - 0.5f, p.y - 0.5f, p.z - 0.5f, 0.0f);
+
+    if (rotXDeg != 0)
+    {
+        const float rx = XMConvertToRadians(static_cast<float>(rotXDeg));
+        v = XMVector3Transform(v, XMMatrixRotationX(rx));
+    }
+
+    if (rotYDeg != 0)
+    {
+        const float ry = XMConvertToRadians(static_cast<float>(rotYDeg));
+        v = XMVector3Transform(v, XMMatrixRotationY(ry));
+    }
+
+    XMFLOAT3 out{};
+    XMStoreFloat3(&out, v);
+
+    out.x += 0.5f;
+    out.y += 0.5f;
+    out.z += 0.5f;
+    return out;
+}
+
+XMFLOAT3 CChunkMeshBuilder::_RotateNormalByBlockState(const XMFLOAT3& n, uint8_t rotXDeg, uint8_t rotYDeg) const
+{
+    XMVECTOR v = XMVectorSet(n.x, n.y, n.z, 0.0f);
+
+    if (rotXDeg != 0)
+    {
+        const float rx = XMConvertToRadians(static_cast<float>(rotXDeg));
+        v = XMVector3TransformNormal(v, XMMatrixRotationX(rx));
+    }
+
+    if (rotYDeg != 0)
+    {
+        const float ry = XMConvertToRadians(static_cast<float>(rotYDeg));
+        v = XMVector3TransformNormal(v, XMMatrixRotationY(ry));
+    }
+
+    v = XMVector3Normalize(v);
+
+    XMFLOAT3 out{};
+    XMStoreFloat3(&out, v);
+    return out;
+}
+
+FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, uint8_t rotYDeg) const
+{
+    const int step = (rotYDeg / 90) & 3;
+    FACE_DIR cur = dir;
+
+    for (int i = 0; i < step; ++i)
+    {
+        switch (cur)
+        {
+        case FACE_DIR::PZ: cur = FACE_DIR::PX; break;
+        case FACE_DIR::PX: cur = FACE_DIR::NZ; break;
+        case FACE_DIR::NZ: cur = FACE_DIR::NX; break;
+        case FACE_DIR::NX: cur = FACE_DIR::PZ; break;
+        default: break; // PY / NY unchanged
+        }
+    }
+
+    return cur;
+}
+
+void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, uint8_t rotXDeg, uint8_t rotYDeg) const
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        quad.verts[i].pos = _RotatePointByBlockState(quad.verts[i].pos, rotXDeg, rotYDeg);
+        quad.verts[i].normal = _RotateNormalByBlockState(quad.verts[i].normal, rotXDeg, rotYDeg);
+    }
+
+    // 지금 wall_torch는 y 회전만 쓰므로 dir/cullFace도 y만 반영
+    quad.dir = static_cast<uint8_t>(_RotateFaceDirY(static_cast<FACE_DIR>(quad.dir), rotYDeg));
+
+    if (quad.bHasCullFace)
+    {
+        quad.cullFaceDir = static_cast<uint8_t>(
+            _RotateFaceDirY(static_cast<FACE_DIR>(quad.cullFaceDir), rotYDeg));
+    }
 }
 
 XMFLOAT4 CChunkMeshBuilder::ResolveBlockTint(const BakedQuad& quad) const

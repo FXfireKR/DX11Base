@@ -168,7 +168,7 @@ private:
 
 	vector<SectionCoord> m_vecDirtyQueue;
 	unordered_set<uint64_t> m_tmpWanted;
-	//int m_iStreamRadius = 2; // debug
+	int m_iStreamRadius = 2; // debug
 	//int m_iStreamRadius = 4; // real
-	int m_iStreamRadius = 6; // real
+	//int m_iStreamRadius = 6; // real
 };
