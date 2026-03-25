@@ -43,14 +43,15 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 {
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
+	bool bStreamChanged = false;
 
 	m_tmpWanted.clear();
 
 	// 비용이 커지면 vector 대신 다른거
 	size_t newCap = static_cast<size_t>((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
 
-	if (m_tmpWanted.capacity() < newCap)
-		m_tmpWanted.reserve(newCap);
+	//if (m_tmpWanted.capacity() < newCap)
+	//	m_tmpWanted.reserve(newCap);
 
 	for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
 	{
@@ -60,26 +61,35 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 			const int cz = centerCz + dz;
 			const uint64_t key = MakeColumnKey(cx, cz);
 
-			m_tmpWanted.push_back(key);
+			m_tmpWanted.emplace(key);
 
 			CChunkColumn* column = _FindColumn(cx, cz);
 			if (nullptr == column || !column->IsActive())
 			{
 				_LoadColumn(cx, cz);
+				bStreamChanged = true;
 			}
 		}
 	}
 
-	for (auto& kv : m_columns)
+	for (auto& kv : m_columns)	
 	{
-		const bool keep = std::find(m_tmpWanted.begin(), m_tmpWanted.end(), kv.first) != m_tmpWanted.end();
+		CChunkColumn& column = kv.second;
+		if (!column.IsActive())
+			continue;
+
+		const bool keep = m_tmpWanted.find(kv.first) != m_tmpWanted.end();
 		if (false == keep)
 		{
-			const ChunkCoord coord = kv.second.GetCoord();
+			const ChunkCoord coord = column.GetCoord();
 			_UnloadColumn(coord.x, coord.z);
+			bStreamChanged = true;
 		}
 	}
 	
+	if (bStreamChanged)
+		_RebuildActiveBlockLightCache();
+
 	_UpdateDebugStats();
 }
 
@@ -918,6 +928,74 @@ void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz)
 		if (neighborLight > 1)
 		{
 			_PropagateBlockLightAdd(nx, ny, nz, neighborLight);
+		}
+	}
+}
+
+void CChunkWorld::_RebuildActiveBlockLightCache()
+{
+	// 1) active 컬럼 light cache clear
+	for (auto& kv : m_columns)
+	{
+		CChunkColumn& col = kv.second;
+		if (!col.IsActive())
+			continue;
+
+		const ChunkCoord coord = col.GetCoord();
+
+		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		{
+			col.ResetBlockLightSection(sy);
+
+			CChunkSection* sec = col.GetSection(sy);
+			if (!sec)
+				continue;
+
+			_MarkDirty(coord.x, sy, coord.z);
+		}
+	}
+
+	// 2) emissive source scan + flood
+	for (auto& kv : m_columns)
+	{
+		CChunkColumn& col = kv.second;
+		if (!col.IsActive())
+			continue;
+
+		const ChunkCoord coord = col.GetCoord();
+
+		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		{
+			CChunkSection* sec = col.GetSection(sy);
+			if (!sec)
+				continue;
+
+			const int baseWx = coord.x * CHUNK_SIZE_X;
+			const int baseWy = sy * CHUNK_SECTION_SIZE;
+			const int baseWz = coord.z * CHUNK_SIZE_Z;
+
+			for (int ly = 0; ly < CHUNK_SECTION_SIZE; ++ly)
+			{
+				for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
+				{
+					for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
+					{
+						const BlockCell cell = sec->GetBlock(lx, ly, lz);
+						if (cell.IsAir())
+							continue;
+
+						const uint8_t emission = BlockDB.GetLightEmission(cell.blockID);
+						if (emission == 0)
+							continue;
+
+						const int wx = baseWx + lx;
+						const int wy = baseWy + ly;
+						const int wz = baseWz + lz;
+
+						_PropagateBlockLightAdd(wx, wy, wz, emission);
+					}
+				}
+			}
 		}
 	}
 }

@@ -132,6 +132,7 @@ private:
 	void _PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission);
 	void _PropagateBlockLightRemove(int wx, int wy, int wz);
 	void _RelightBlockLightAround(int wx, int wy, int wz);
+	void _RebuildActiveBlockLightCache();
 
 	void _UpdateDebugStats();
 
@@ -164,7 +165,7 @@ private:
 	vector<ChunkCoord> m_debugReloadCoords;
 
 	vector<SectionCoord> m_vecDirtyQueue;
-	vector<uint64_t> m_tmpWanted;
+	unordered_set<uint64_t> m_tmpWanted;
 	//int m_iStreamRadius = 2; // debug
 	int m_iStreamRadius = 4; // real
 	//int m_iStreamRadius = 8; // real
