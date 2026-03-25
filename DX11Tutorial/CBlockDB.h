@@ -33,6 +33,13 @@ public: // Block Def
 	const float GetHardness(BLOCK_ID blockID) const;
 	const char* GetSoundProfile(BLOCK_ID blockID) const;
 
+	const BLOCK_RENDER_LAYER GetRenderLayer(BLOCK_ID blockID) const;
+	const BLOCK_COLLISION_TYPE GetCollisionType(BLOCK_ID blockID) const;
+
+	const bool HasCollision(BLOCK_ID blockID) const;
+	const bool UseAmbientOcclusion(BLOCK_ID blockID) const;
+	const bool IsFaceOccluder(BLOCK_ID blockID) const;
+
 public: // Block Tag
 	const bool HasBlockTag(BLOCK_ID blockID, const char* tagName) const;
 	const bool HasBlockTagHash(BLOCK_ID blockID, BLOCK_TAG_HASH tagHash) const;

@@ -154,6 +154,60 @@ const char* CBlockDefDB::GetsoundProfile(BLOCK_ID blockID) const
 	return pBlockDef->sound.profile.c_str();
 }
 
+const BLOCK_RENDER_LAYER CBlockDefDB::GetRenderLayer(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return BLOCK_RENDER_LAYER::INVISIBLE_LAYER;
+
+	return pBlockDef->render.layer;
+}
+
+const BLOCK_COLLISION_TYPE CBlockDefDB::GetCollisionType(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return BLOCK_COLLISION_TYPE::NONE;
+
+	return pBlockDef->collision.colType;
+}
+
+const bool CBlockDefDB::HasCollision(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return false;
+
+	return pBlockDef->collision.colType != BLOCK_COLLISION_TYPE::NONE;
+}
+
+const bool CBlockDefDB::UseAmbientOcclusion(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return false;
+
+	return pBlockDef->render.bAmbientOcclusion;
+}
+
+const bool CBlockDefDB::IsFaceOccluder(BLOCK_ID blockID) const
+{
+	const BlockDef* pBlockDef = GetBlockDef(blockID);
+	if (!pBlockDef)
+		return false;
+
+	if (pBlockDef->properties.bAir)
+		return false;
+
+	if (!pBlockDef->properties.bFullCube)
+		return false;
+
+	if (pBlockDef->render.layer == BLOCK_RENDER_LAYER::INVISIBLE_LAYER)
+		return false;
+
+	return true;
+}
+
 bool CBlockDefDB::_LoadRegistry()
 {
 	const filesystem::path filePath 

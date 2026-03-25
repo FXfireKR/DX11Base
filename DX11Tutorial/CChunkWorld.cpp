@@ -96,7 +96,10 @@ BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
 
 bool CChunkWorld::IsSolid(const BlockCell& cell) const
 {
-	return !cell.IsAir();
+	if (cell.IsAir())
+		return false;
+
+	return BlockDB.HasCollision(cell.blockID);
 }
 
 bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)

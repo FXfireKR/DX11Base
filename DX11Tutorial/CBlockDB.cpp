@@ -94,6 +94,31 @@ const char* CBlockDB::GetSoundProfile(BLOCK_ID blockID) const
 	return m_blockDefDB.GetsoundProfile(blockID);
 }
 
+const BLOCK_RENDER_LAYER CBlockDB::GetRenderLayer(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.GetRenderLayer(blockID);
+}
+
+const BLOCK_COLLISION_TYPE CBlockDB::GetCollisionType(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.GetCollisionType(blockID);
+}
+
+const bool CBlockDB::HasCollision(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.HasCollision(blockID);
+}
+
+const bool CBlockDB::UseAmbientOcclusion(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.UseAmbientOcclusion(blockID);
+}
+
+const bool CBlockDB::IsFaceOccluder(BLOCK_ID blockID) const
+{
+	return m_blockDefDB.IsFaceOccluder(blockID);
+}
+
 const bool CBlockDB::HasBlockTag(BLOCK_ID blockID, const char* tagName) const
 {
 	return m_blockTagDB.HasTag(blockID, tagName);

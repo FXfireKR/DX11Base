@@ -18,7 +18,11 @@ bool CChunkMeshBuilder::BuildSectionMesh(const CChunkWorld& world, int cx, int s
             for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
             {
                 const BlockCell cell = section.GetBlock(lx, ly, lz);
+
                 if (cell.IsAir())
+                    continue;
+
+                if (BlockDB.GetRenderLayer(cell.blockID) == BLOCK_RENDER_LAYER::INVISIBLE_LAYER)
                     continue;
     
                 const int wx = baseWx + lx;
@@ -67,7 +71,8 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
     default: break;
     }
 
-    return world.IsSolid(world.GetBlock(wx + n.x, wy + n.y, wz + n.z));
+    const BlockCell neighbor = world.GetBlock(wx + n.x, wy + n.y, wz + n.z);
+    return BlockDB.IsFaceOccluder(neighbor.blockID);
 }
 
 bool CChunkMeshBuilder::_AppendQuad(const BakedQuad& quad, int lx, int ly, int lz, ChunkMeshData& outMesh) const

@@ -200,7 +200,7 @@ void CTestScene::BuildRenderFrame()
 		}
 
 		// 지면 기준으로 고정
-		focus.y = 0.0f;
+		//focus.y = 0.0f;
 
 		// world-space snap
 		focus.x = SnapToStep(focus.x, 0.5f);

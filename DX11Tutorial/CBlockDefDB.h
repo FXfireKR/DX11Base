@@ -28,6 +28,13 @@ public:
 	float GetHardness(BLOCK_ID blockID) const;
 	const char* GetsoundProfile(BLOCK_ID blockID) const;
 
+	const BLOCK_RENDER_LAYER GetRenderLayer(BLOCK_ID blockID) const;
+	const BLOCK_COLLISION_TYPE GetCollisionType(BLOCK_ID blockID) const;
+
+	const bool HasCollision(BLOCK_ID blockID) const;
+	const bool UseAmbientOcclusion(BLOCK_ID blockID) const;
+	const bool IsFaceOccluder(BLOCK_ID blockID) const;
+
 public:
 	inline const vector<BlockDef>& GetBlockDefs() const { return m_vecBlockDefs; }
 

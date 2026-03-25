@@ -204,7 +204,13 @@ float CBlockInteractor::_CalcBreakRequired(const BlockCell& cell) const
 	if (cell.IsAir())
 		return 0.0f;
 
-	return 2.25f;
+	const float fHardness = BlockDB.GetHardness(cell.blockID);
+
+	// 임시
+	if (fHardness <= 0.f)
+		return 0.05f;
+
+	return std::max(0.1f, fHardness * 0.75f);
 }
 
 bool CBlockInteractor::_TryPlaceBlock()
