@@ -55,6 +55,7 @@ private:
 	array<OBJECT_ID, static_cast<size_t>(EChunkSectionRenderSlot::COUNT)> m_renderObjectIDs
 	{
 		INVALID_OBJECT_ID,
+		INVALID_OBJECT_ID,
 		INVALID_OBJECT_ID
 	};
 };

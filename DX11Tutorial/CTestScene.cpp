@@ -607,7 +607,7 @@ void CTestScene::_CreateWorldRender()
 	auto cutoutPipeline = pipelineManager.Get(cutoutPipeID);
 	cutoutPipeline->SetShader(shaderManager.Get(cutoutShaderID, 0));
 	cutoutPipeline->SetInputLayout(ilManager.Get(cutoutLayoutID));
-	cutoutPipeline->CreateTransparentAlphaState(rw.GetDevice(), false);
+	cutoutPipeline->CreateCutoutAlphaTestState(rw.GetDevice(), false);
 	cutoutPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// transparent chunk pipeline
