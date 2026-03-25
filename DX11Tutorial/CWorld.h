@@ -29,13 +29,16 @@ public:
 	void LateUpdate(CScene& scene);
 
 	bool RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const;
-	bool TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell);
+	bool TryPlaceBlock(int wx, int wy, int wz, const XMINT3& hitNormal, const BlockCell& cell);
 	bool TryBreakBlock(int wx, int wy, int wz);
 
 	BlockCell GetBlockCell(int wx, int wy, int wz) const;
 	bool IsSolidBlockAt(int wx, int wy, int wz) const;
 	bool CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtents) const;
 	bool FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const;
+
+private:
+	bool _ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced);
 
 public:
 	inline CChunkWorld& GetChunkWorld() { return *(m_pChunkWorld.get()); }

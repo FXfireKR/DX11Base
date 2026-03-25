@@ -247,7 +247,7 @@ bool CBlockInteractor::_TryPlaceBlock()
 
 	}
 
-	return m_pWorld->TryPlaceBlock(placePos.x, placePos.y, placePos.z, placeCell);
+	return m_pWorld->TryPlaceBlock(placePos.x, placePos.y, placePos.z, m_hitResult.normal, placeCell);
 }
 
 bool CBlockInteractor::_TryBreakBlock()

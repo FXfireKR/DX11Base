@@ -23,9 +23,11 @@ static uint64_t MakeChunkMeshKey(int cx, int cy, int cz, EChunkSectionRenderSlot
 void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 {
 	CChunkMeshBuilder builder;
-
 	SectionCoord sectionCoord{};
-	while (world.PopDirty(sectionCoord))
+
+
+	int budget = 4;
+	while ( budget > 0 && world.PopDirty(sectionCoord))
 	{
 		CChunkSection* pSection = world.FindSectionDataMutable(sectionCoord.x, sectionCoord.y, sectionCoord.z);
 		if (nullptr == pSection) 
@@ -44,6 +46,8 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 
 		pSection->ClearDirty();
 		dbg.AddRebuiltSection();
+
+		--budget;
 	}
 }
 

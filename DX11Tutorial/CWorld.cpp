@@ -38,10 +38,14 @@ bool CWorld::RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, fl
 	return BlockRaycastUtil::RaycastVoxelDDA(*m_pChunkWorld, origin, dirNorm, maxDist, BlockRaycastOptions(), outHitResult);
 }
 
-bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const BlockCell& cell)
+bool CWorld::TryPlaceBlock(int wx, int wy, int wz, const XMINT3& hitNormal, const BlockCell& cell)
 {
 	const BlockCell cur = m_pChunkWorld->GetBlock(wx, wy, wz);
 	if (!cur.IsAir()) return false;
+
+	//const BlockCell below = m_pChunkWorld->GetBlock(wx - hitNormal.x, wy - hitNormal.y, wz - hitNormal.z);
+	//if (below.IsAir()) return false;
+	//if (!BlockDB.IsFaceOccluder(below.blockID)) return false
 
 	m_pChunkWorld->SetBlock(wx, wy, wz, cell);
 	return true;
@@ -133,6 +137,44 @@ bool CWorld::FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& 
 			outFootY = footY;
 			return true;
 		}
+	}
+
+	return false;
+}
+
+bool CWorld::_ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced)
+{
+	if (hitNormal.y < 0)
+		return false;
+
+	if (hitNormal.y > 0)
+	{
+		BlockPropHashMap props;
+		BLOCK_ID id = BlockDB.FindBlockID("minecraft:torch");
+		STATE_INDEX sidx{};
+		if (!BlockDB.EncodeStateIndex(id, props, sidx))
+			return false;
+
+		outPlaced = { id, sidx };
+		return true;
+	}
+
+	if (hitNormal.x != 0 || hitNormal.z != 0)
+	{
+		BlockPropHashMap props;
+		BLOCK_ID id = BlockDB.FindBlockID("minecraft:wall_torch");
+
+		if (hitNormal.x > 0)      props[fnv1a_64("facing")] = fnv1a_64("east");
+		else if (hitNormal.x < 0) props[fnv1a_64("facing")] = fnv1a_64("west");
+		else if (hitNormal.z > 0) props[fnv1a_64("facing")] = fnv1a_64("south");
+		else if (hitNormal.z < 0) props[fnv1a_64("facing")] = fnv1a_64("north");
+
+		STATE_INDEX sidx{};
+		if (!BlockDB.EncodeStateIndex(id, props, sidx))
+			return false;
+
+		outPlaced = { id, sidx };
+		return true;
 	}
 
 	return false;
