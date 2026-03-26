@@ -19,9 +19,11 @@ WorldLightingParams CWorldLight::Evaluate(const WorldTimeParams& timeParams) con
     out.sunIntensity = saturate(timeParams.daylight * 1.15f);
 
     // ---------- ambient ----------
-    const XMFLOAT3 night = { 0.05f, 0.07f, 0.10f };
+    const XMFLOAT3 night = { 0.08f, 0.10f, 0.14f };
     const XMFLOAT3 day = { 0.28f, 0.30f, 0.33f };
+
     out.ambientColor = _LerpColor(night, day, timeParams.daylight);
+    out.ambientStrength = 0.45f + timeParams.daylight * 0.55f;
 
     // ---------- sky ----------
     const XMFLOAT3 skyNight = { 0.02f, 0.03f, 0.06f };

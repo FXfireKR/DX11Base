@@ -36,7 +36,7 @@ private:
 	void _CreateUICamera();
 	void _CreateCrosshairUI();
 
-	void _BuildLightingState(const WorldTimeParams& timeParams)
+	void _BuildLightingState(const WorldTimeParams& timeParams);
 
 	void _CreateSkyBillboardResources();
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);

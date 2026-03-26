@@ -177,26 +177,22 @@ void CTestScene::BuildRenderFrame()
 		return floorf(v / step + 0.5f) * step;
 	};
 
-
 	{
-		// sun / moon direction
-		XMFLOAT3 sunDir{}, moonDir{};
-		_CalcSunMoonDirection(sunDir, moonDir);
+		const WorldLightingParams lp = m_VoxelWorld.BuildWorldLighting();
+		rw.SetDirectionalLight(lp.sunDir, lp.sunColor, lp.sunIntensity);
+		rw.SetSkyColor(lp.skyColor);
 
-		// daylight 기반 조명 세기
-		const float sunIntensity = saturate(timeParams.daylight * 1.15f);
+		XMFLOAT3 finalAmbient =
+		{
+			lp.ambientColor.x * lp.ambientStrength,
+			lp.ambientColor.y * lp.ambientStrength,
+			lp.ambientColor.z * lp.ambientStrength
+		};
+		rw.SetAmbientLight(finalAmbient);
 
-		// 실제 lighting 방향도 sunDir와 통일
-		rw.SetDirectionalLight(sunDir, { 1.0f, 0.97f, 0.92f }, sunIntensity);
+		const bool bShadowEnabled = lp.shadowEnabled;
 
-		const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
-		const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
-		rw.SetAmbientLight(_LerpColor(ambientNight, ambientDay, timeParams.daylight));
-
-		// shadow는 낮에만 유효하게
-		const bool bShadowEnabled = (timeParams.daylight > 0.08f);
-
-		// focus: player 기준 + world snap
+		// ----- shadow camera -----
 		XMFLOAT3 focus = { 0.f, 0.f, 0.f };
 		if (auto* playerTr = m_pPlayer->GetComponent<CTransform>())
 		{
@@ -204,17 +200,12 @@ void CTestScene::BuildRenderFrame()
 			focus = playerTr->GetWorldTrans();
 		}
 
-		// 지면 기준으로 고정
-		//focus.y = 0.0f;
-
-		// world-space snap
 		focus.x = SnapToStep(focus.x, 0.5f);
 		focus.z = SnapToStep(focus.z, 0.5f);
 
 		XMVECTOR vFocus = XMLoadFloat3(&focus);
-		XMVECTOR vLightDir = XMVector3Normalize(XMLoadFloat3(&sunDir));
+		XMVECTOR vLightDir = XMVector3Normalize(XMLoadFloat3(&lp.sunDir));
 
-		// directional light camera
 		XMVECTOR vEye = vFocus + XMVectorScale(vLightDir, 48.0f);
 		XMVECTOR vTarget = vFocus;
 
@@ -226,11 +217,10 @@ void CTestScene::BuildRenderFrame()
 		const float kShadowOrthoSize = 48.0f;
 		const float kShadowNear = 1.0f;
 		const float kShadowFar = 120.0f;
-		const float kShadowMapSize = 2048.0f; // CRenderWorld와 맞춰둘 것
+		const float kShadowMapSize = 2048.0f;
 
 		XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
 
-		// light-space texel snap
 		XMVECTOR vFocusLS = XMVector3TransformCoord(vFocus, matLightView);
 
 		XMFLOAT3 focusLS{};
@@ -263,10 +253,99 @@ void CTestScene::BuildRenderFrame()
 		);
 
 		rw.SetLightViewProj(matLightView * matLightProj);
-
-		// 낮이 아니면 사실상 shadow 끄기
 		rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
 	}
+	
+
+	//{
+	//	// sun / moon direction
+	//	XMFLOAT3 sunDir{}, moonDir{};
+	//	_CalcSunMoonDirection(sunDir, moonDir);
+
+	//	// daylight 기반 조명 세기
+	//	const float sunIntensity = saturate(timeParams.daylight * 1.15f);
+
+	//	// 실제 lighting 방향도 sunDir와 통일
+	//	rw.SetDirectionalLight(sunDir, { 1.0f, 0.97f, 0.92f }, sunIntensity);
+
+	//	const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
+	//	const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
+	//	rw.SetAmbientLight(_LerpColor(ambientNight, ambientDay, timeParams.daylight));
+
+	//	// shadow는 낮에만 유효하게
+	//	const bool bShadowEnabled = (timeParams.daylight > 0.08f);
+
+	//	// focus: player 기준 + world snap
+	//	XMFLOAT3 focus = { 0.f, 0.f, 0.f };
+	//	if (auto* playerTr = m_pPlayer->GetComponent<CTransform>())
+	//	{
+	//		playerTr->BuildWorldMatrix();
+	//		focus = playerTr->GetWorldTrans();
+	//	}
+
+	//	// 지면 기준으로 고정
+	//	//focus.y = 0.0f;
+
+	//	// world-space snap
+	//	focus.x = SnapToStep(focus.x, 0.5f);
+	//	focus.z = SnapToStep(focus.z, 0.5f);
+
+	//	XMVECTOR vFocus = XMLoadFloat3(&focus);
+	//	XMVECTOR vLightDir = XMVector3Normalize(XMLoadFloat3(&sunDir));
+
+	//	// directional light camera
+	//	XMVECTOR vEye = vFocus + XMVectorScale(vLightDir, 48.0f);
+	//	XMVECTOR vTarget = vFocus;
+
+	//	XMVECTOR vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+	//	float upDot = fabsf(XMVectorGetX(XMVector3Dot(vLightDir, vUp)));
+	//	if (upDot > 0.98f)
+	//		vUp = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+
+	//	const float kShadowOrthoSize = 48.0f;
+	//	const float kShadowNear = 1.0f;
+	//	const float kShadowFar = 120.0f;
+	//	const float kShadowMapSize = 2048.0f; // CRenderWorld와 맞춰둘 것
+
+	//	XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
+
+	//	// light-space texel snap
+	//	XMVECTOR vFocusLS = XMVector3TransformCoord(vFocus, matLightView);
+
+	//	XMFLOAT3 focusLS{};
+	//	XMStoreFloat3(&focusLS, vFocusLS);
+
+	//	const float texelSize = kShadowOrthoSize / kShadowMapSize;
+
+	//	const float snappedX = roundf(focusLS.x / texelSize) * texelSize;
+	//	const float snappedY = roundf(focusLS.y / texelSize) * texelSize;
+
+	//	XMVECTOR vDeltaLS = XMVectorSet(
+	//		snappedX - focusLS.x,
+	//		snappedY - focusLS.y,
+	//		0.0f,
+	//		0.0f
+	//	);
+
+	//	XMMATRIX invLightView = XMMatrixInverse(nullptr, matLightView);
+	//	XMVECTOR vDeltaWS = XMVector3TransformNormal(vDeltaLS, invLightView);
+
+	//	vEye += vDeltaWS;
+	//	vTarget += vDeltaWS;
+
+	//	matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
+	//	XMMATRIX matLightProj = XMMatrixOrthographicLH(
+	//		kShadowOrthoSize,
+	//		kShadowOrthoSize,
+	//		kShadowNear,
+	//		kShadowFar
+	//	);
+
+	//	rw.SetLightViewProj(matLightView * matLightProj);
+
+	//	// 낮이 아니면 사실상 shadow 끄기
+	//	rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
+	//}
 
 	const CTransform* pCamTr = pCurrentCamera->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
