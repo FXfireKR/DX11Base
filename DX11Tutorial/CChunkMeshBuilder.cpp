@@ -70,6 +70,26 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
         if (!pBakedModel)
             continue;
 
+        if (cell.blockID == BlockDB.FindBlockID("minecraft:wall_torch"))
+        {
+            uint64_t facingHash = 0;
+            BlockDB.TryGetStateValueHash(cell.blockID, cell.stateIndex, fnv1a_64("facing"), facingHash);
+
+#ifdef DEBUG_LOG
+            cout << "[WallTorch Mesh] facing=";
+            if (facingHash == fnv1a_64("north")) cout << "north";
+            else if (facingHash == fnv1a_64("south")) cout << "south";
+            else if (facingHash == fnv1a_64("east"))  cout << "east";
+            else if (facingHash == fnv1a_64("west"))  cout << "west";
+            else cout << "unknown";
+
+            cout << ", applied.x=" << (int)applied.x
+                << ", applied.y=" << (int)applied.y
+                << ", model=" << applied.modelKey
+                << endl;
+#endif // DEBUG_LOG
+        }
+
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
             BakedQuad quad = srcQuad;
@@ -183,7 +203,7 @@ XMFLOAT4 CChunkMeshBuilder::_ResolveQuadColor_DebugBlockLight(const CChunkWorld&
     return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };
 }
 
-XMFLOAT3 CChunkMeshBuilder::_RotatePointByBlockState(const XMFLOAT3& p, uint8_t rotXDeg, uint8_t rotYDeg) const
+XMFLOAT3 CChunkMeshBuilder::_RotatePointByBlockState(const XMFLOAT3& p, int rotXDeg, int rotYDeg) const
 {
     XMVECTOR v = XMVectorSet(p.x - 0.5f, p.y - 0.5f, p.z - 0.5f, 0.0f);
 
@@ -208,7 +228,7 @@ XMFLOAT3 CChunkMeshBuilder::_RotatePointByBlockState(const XMFLOAT3& p, uint8_t 
     return out;
 }
 
-XMFLOAT3 CChunkMeshBuilder::_RotateNormalByBlockState(const XMFLOAT3& n, uint8_t rotXDeg, uint8_t rotYDeg) const
+XMFLOAT3 CChunkMeshBuilder::_RotateNormalByBlockState(const XMFLOAT3& n, int rotXDeg, int rotYDeg) const
 {
     XMVECTOR v = XMVectorSet(n.x, n.y, n.z, 0.0f);
 
@@ -231,7 +251,7 @@ XMFLOAT3 CChunkMeshBuilder::_RotateNormalByBlockState(const XMFLOAT3& n, uint8_t
     return out;
 }
 
-FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, uint8_t rotYDeg) const
+FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, int rotYDeg) const
 {
     const int step = (rotYDeg / 90) & 3;
     FACE_DIR cur = dir;
@@ -251,21 +271,23 @@ FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, uint8_t rotYDeg) const
     return cur;
 }
 
-void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, uint8_t rotXDeg, uint8_t rotYDeg) const
+void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, int rotXDeg, int rotYDeg) const
 {
+    const int fixedY = static_cast<int>((360 - rotYDeg) % 360);
+
     for (int i = 0; i < 4; ++i)
     {
-        quad.verts[i].pos = _RotatePointByBlockState(quad.verts[i].pos, rotXDeg, rotYDeg);
-        quad.verts[i].normal = _RotateNormalByBlockState(quad.verts[i].normal, rotXDeg, rotYDeg);
+        quad.verts[i].pos = _RotatePointByBlockState(quad.verts[i].pos, rotXDeg, fixedY);
+        quad.verts[i].normal = _RotateNormalByBlockState(quad.verts[i].normal, rotXDeg, fixedY);
     }
 
     // 지금 wall_torch는 y 회전만 쓰므로 dir/cullFace도 y만 반영
-    quad.dir = static_cast<uint8_t>(_RotateFaceDirY(static_cast<FACE_DIR>(quad.dir), rotYDeg));
+    quad.dir = static_cast<uint8_t>(_RotateFaceDirY(static_cast<FACE_DIR>(quad.dir), fixedY));
 
     if (quad.bHasCullFace)
     {
         quad.cullFaceDir = static_cast<uint8_t>(
-            _RotateFaceDirY(static_cast<FACE_DIR>(quad.cullFaceDir), rotYDeg));
+            _RotateFaceDirY(static_cast<FACE_DIR>(quad.cullFaceDir), fixedY));
     }
 }
 

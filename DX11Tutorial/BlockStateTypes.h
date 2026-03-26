@@ -42,8 +42,8 @@ struct AppliedModel
 {
 	std::string modelKey;
 	uint64_t modelHash = 0;
-	uint8_t x = 0;
-	uint8_t y = 0;
+	int x = 0;
+	int y = 0;
 	bool uvlock = false;
 	uint16_t weight = 1;
 };

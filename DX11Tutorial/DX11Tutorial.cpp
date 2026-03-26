@@ -1,8 +1,7 @@
 ﻿#include "pch.h"
 #include "CSystem.h"
 
-#ifdef _DEBUG
-
+#ifdef DEBUG_LOG
 // CMD form
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
@@ -15,7 +14,7 @@
 static int nFlag = _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 //static int nBreak_1 = _CrtSetBreakAlloc(2595);
 
-#endif // _DEBUG
+#endif // DEBUG_LOG
 
 unsigned long g_ScreenSizeX = 0;
 unsigned long g_ScreenSizeY = 0;

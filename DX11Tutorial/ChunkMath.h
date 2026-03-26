@@ -64,10 +64,10 @@ namespace ChunkMath
 
 	static bool GetWallTorchSupportDirFromFacing(uint64_t facingHash, XMINT3& outDir)
 	{
-		if (facingHash == fnv1a_64("north")) { outDir = { 0, 0, -1 }; return true; }
-		else if (facingHash == fnv1a_64("south")) { outDir = { 0, 0,  1 }; return true; }
-		else if (facingHash == fnv1a_64("east")) { outDir = { -1, 0, 0 }; return true; }
-		else if (facingHash == fnv1a_64("west")) { outDir = { 1, 0, 0 }; return true; }
+		if (facingHash == fnv1a_64("north"))		{ outDir = { 0, 0, 1 }; return true; }
+		else if (facingHash == fnv1a_64("south"))	{ outDir = { 0, 0, -1 }; return true; }
+		else if (facingHash == fnv1a_64("east"))	{ outDir = { -1, 0, 0 }; return true; }
+		else if (facingHash == fnv1a_64("west"))	{ outDir = { 1, 0, 0 }; return true; }
 		return false;
 	}
 

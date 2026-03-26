@@ -15,9 +15,10 @@
 #include <tchar.h>
 #include <stdio.h>
 
-#ifdef _DEBUG
+#define DEBUG_LOG
+#ifdef DEBUG_LOG
 #include <iostream>
-#endif // _DEBUG
+#endif // DEBUG_LOG
 
 #include <fstream>
 #include <functional>

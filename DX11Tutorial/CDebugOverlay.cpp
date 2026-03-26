@@ -1,6 +1,15 @@
 ﻿#include "pch.h"
 #include "CDebugOverlay.h"
 
+static const char* FacingHashToString(uint64_t h)
+{
+    if (h == fnv1a_64("north")) return "north";
+    if (h == fnv1a_64("south")) return "south";
+    if (h == fnv1a_64("east"))  return "east";
+    if (h == fnv1a_64("west"))  return "west";
+    return "unknown";
+}
+
 void CDebugOverlay::Render()
 {
 #ifdef IMGUI_ACTIVATE
@@ -71,6 +80,16 @@ void CDebugOverlay::Render()
                 s.player.hitNormal.x, s.player.hitNormal.y, s.player.hitNormal.z);
             ImGui::Text("Target Block ID : %u", s.player.targetBlockId);
             ImGui::Text("Target StateIdx : %u", (unsigned)s.player.targetStateIndex);
+
+            if (s.player.targetBlockId == BlockDB.FindBlockID("minecraft:wall_torch"))
+            {
+                uint64_t facingHash = 0;
+                if (BlockDB.TryGetStateValueHash(s.player.targetBlockId, s.player.targetStateIndex, fnv1a_64("facing"), facingHash))
+                {
+                    ImGui::Text("WallTorch Facing : %s", FacingHashToString(facingHash));
+                }
+            }
+
         }
     }
 
