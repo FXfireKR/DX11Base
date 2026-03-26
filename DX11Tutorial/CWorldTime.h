@@ -8,12 +8,12 @@ struct WorldTimeParams
 	float sunAngleRad = 0.f;
 	float moonAngleRad = 0.f;
 
-	float sunHeight; // -1 ~ 1
+	float sunHeight = 0.f; // -1 ~ 1
 	float daylight = 0.f;	// 0 ~ 1
 	float night = 0.f;	// 0 ~ 1
 
-	float sunriseFactor;
-	float sunsetFactor;
+	float sunriseFactor = 0.f;
+	float sunsetFactor = 0.f;
 };
 
 class CWorldTime
@@ -29,6 +29,7 @@ public:
 	float GetTickOfDay() const;
 	WorldTimeParams Evaluate() const;
 
+public:
 	inline void SetPaused(bool bPaused) { m_bPaused = bPaused; }
 	inline bool IsPaused() const { return m_bPaused; }
 

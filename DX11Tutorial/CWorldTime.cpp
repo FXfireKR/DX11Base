@@ -60,20 +60,20 @@ float CWorldTime::GetTickOfDay() const
 
 WorldTimeParams CWorldTime::Evaluate() const
 {
-	WorldTimeParams out{};
+    WorldTimeParams out{};
 
-	out.day01 = GetDay01();
-	out.tickOfDay = GetTickOfDay();
+    out.day01 = GetDay01();
+    out.tickOfDay = GetTickOfDay();
 
-	const float phase = out.day01 * XM_2PI - XM_PIDIV2;
+    const float phase = out.day01 * XM_2PI - XM_PIDIV2;
 
-	out.sunAngleRad = phase;
-	out.moonAngleRad = phase + XM_PI;
+    out.sunAngleRad = phase;
+    out.moonAngleRad = phase + XM_PI;
 
-	const float sunHeight = sinf(out.sunAngleRad);
+    out.sunHeight = sinf(out.sunAngleRad);
 
-	out.daylight = Saturate(0.5f + 0.5f * sunHeight);
-	out.night = 1.0f - out.daylight;
+    out.daylight = Saturate(0.5f + 0.5f * out.sunHeight);
+    out.night = 1.0f - out.daylight;
 
-	return out;
+    return out;
 }

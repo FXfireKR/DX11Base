@@ -37,6 +37,8 @@ public:
 	bool CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtents) const;
 	bool FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const;
 
+	inline WorldTimeParams BuildWorldTimeParams() const { return m_worldTime.Evaluate(); }
+
 private:
 	bool _ResolvePlaceBlock(const BlockCell& selected, const XMINT3& hitNormal, BlockCell& outPlaced) const;
 	bool _ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlaced) const;

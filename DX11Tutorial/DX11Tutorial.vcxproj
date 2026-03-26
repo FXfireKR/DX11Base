@@ -233,6 +233,7 @@
     <ClInclude Include="CDirectX11Adapter.h" />
     <ClInclude Include="CWindow.h" />
     <ClInclude Include="CWorld.h" />
+    <ClInclude Include="CWorldLight.h" />
     <ClInclude Include="CWorldTime.h" />
     <ClInclude Include="DebugTypes.h" />
     <ClInclude Include="DebugUtil.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="CWindow.cpp" />
     <ClCompile Include="CWorld.cpp" />
+    <ClCompile Include="CWorldLight.cpp" />
     <ClCompile Include="CWorldTime.cpp" />
     <ClInclude Include="IChunkGenerator.h" />
     <ClCompile Include="ModelUtil.cpp" />
