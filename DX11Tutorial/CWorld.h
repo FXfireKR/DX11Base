@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CChunkWorld.h"
 #include "CWorldTime.h"
+#include "CWorldLight.h"
 #include "BlockRaycastTypes.h"
 
 /*
@@ -37,7 +38,8 @@ public:
 	bool CheckAABBBlocked(const XMFLOAT3& center, const XMFLOAT3& halfExtents) const;
 	bool FindSpawnFootY(int wx, int wz, const XMFLOAT3& halfExtents, float& outFootY) const;
 
-	inline WorldTimeParams BuildWorldTimeParams() const { return m_worldTime.Evaluate(); }
+	inline WorldTimeParams BuildWorldTime() const { return m_worldTime.Evaluate(); }
+	inline WorldLightingParams BuildWorldLighting() const { return m_worldLight.Evaluate(BuildWorldTime()); }
 
 private:
 	bool _ResolvePlaceBlock(const BlockCell& selected, const XMINT3& hitNormal, BlockCell& outPlaced) const;
@@ -57,4 +59,5 @@ public:
 private:
 	unique_ptr<CChunkWorld> m_pChunkWorld;
 	CWorldTime m_worldTime;
+	CWorldLight m_worldLight;
 };

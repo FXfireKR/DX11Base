@@ -179,24 +179,6 @@ void CTestScene::BuildRenderFrame()
 
 
 	{
-		const WorldTimeParams timeParams = m_VoxelWorld.BuildWorldTimeParams();
-
-		rw.SetSkyColor(timeParams.skyColor);
-
-		rw.SetDirectionalLight(timeParams.sunDirWs, timeParams.sunColor, timeParams.sunIntensity);
-
-		XMFLOAT3 ambient =
-		{
-			timeParams.ambientColor.x * timeParams.ambientStrength,
-			timeParams.ambientColor.y * timeParams.ambientStrength,
-			timeParams.ambientColor.z * timeParams.ambientStrength
-		};
-
-		rw.SetAmbientLight(ambient);
-	}
-
-
-	{
 		// sun / moon direction
 		XMFLOAT3 sunDir{}, moonDir{};
 		_CalcSunMoonDirection(sunDir, moonDir);
