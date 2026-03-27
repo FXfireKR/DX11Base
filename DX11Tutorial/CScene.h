@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "CObjectManager.h"
+#include "GameWorldHeader.h"
 
 class CGameWorld;
-class CRenderWorld;
 
 enum class SCENE_TYPE : unsigned char
 {

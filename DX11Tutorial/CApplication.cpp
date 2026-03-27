@@ -29,6 +29,8 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	CInputManager::Get().SetKeyboardDevice(m_rawInputDispatcher.GetKeyboard());
 	CInputManager::Get().SetGamePadDevice(m_rawInputDispatcher.GetGamePad());
 
+	m_audio.Initialize();
+
 	return true;
 }
 
@@ -50,6 +52,7 @@ void Application::Tick()
 	{
 		// Input Dispatch
 		m_rawInputDispatcher.DispatchRawQueue();
+		m_audio.Tick();
 
 		// ImGui
 #ifdef IMGUI_ACTIVATE

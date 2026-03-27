@@ -2,7 +2,7 @@
 #include "Resource.h"
 #include "CSystem.h"
 
-System::System()
+CWindowSystem::CWindowSystem()
 {
 	m_hWnd = NULL;
 	m_hInstance = NULL;
@@ -10,26 +10,29 @@ System::System()
 	m_lpcWstrApkName = L"";
 }
 
-System::~System()
+CWindowSystem::~CWindowSystem()
 {
 }
 
-bool System::Initialize()
+bool CWindowSystem::Initialize()
 {
 	int iScreenWidth = 0;
 	int iScreenHeight = 0;
 
 	_InitializeWindow(iScreenWidth, iScreenHeight);
 
-	if (nullptr == m_pApplication) m_pApplication = new Application;
-	if (false == m_pApplication->Initialize(m_hWnd, iScreenWidth, iScreenHeight)) return false;
+	if (nullptr == m_pApplication) 
+		m_pApplication = new Application;
+
+	if (false == m_pApplication->Initialize(m_hWnd, iScreenWidth, iScreenHeight)) 
+		return false;
 
 	m_bRunning = true;
 
 	return true;
 }
 
-void System::Relase()
+void CWindowSystem::Relase()
 {
 	if (nullptr != m_pApplication)
 	{
@@ -39,7 +42,7 @@ void System::Relase()
 	}
 }
 
-void System::Run()
+void CWindowSystem::Run()
 {
 	MSG kMessage;
 	ZeroMemory(&kMessage, sizeof(MSG));
@@ -56,7 +59,7 @@ void System::Run()
 	}
 }
 
-LRESULT CALLBACK System::WndHandler(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
+LRESULT CALLBACK CWindowSystem::WndHandler(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
 	return m_pApplication->WndProc(hWnd_, uMessage_, wParam_, lParam_);
 	/*switch (uMessage_)
@@ -65,7 +68,7 @@ LRESULT CALLBACK System::WndHandler(HWND hWnd_, UINT uMessage_, WPARAM wParam_, 
 	}*/
 }
 
-void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
+void CWindowSystem::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 {
 	DEVMODE kScreenSettings;
 	int iPosX = 0, iPosY = 0;
@@ -127,7 +130,7 @@ void System::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 	return;
 }
 
-void System::_Tick()
+void CWindowSystem::_Tick()
 {
 	m_pApplication->Tick();
 }

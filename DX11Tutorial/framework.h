@@ -89,7 +89,7 @@ using namespace Microsoft::WRL;
 #endif // _DEBUG
 
 // FMOD
-#include <FMOD/fmod.h>
+#include <FMOD/fmod.hpp>
 #ifdef _DEBUG
 #pragma comment(lib, "FMOD\\debug\\fmodL_vc.lib")
 #else // _DEBUG

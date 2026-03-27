@@ -1,0 +1,251 @@
+﻿#include "pch.h"
+#include "CAudioSystem.h"
+
+#define FMOD_RESULT_OK(result) result == FMOD_RESULT::FMOD_OK
+
+#ifndef SAFE_RELEASE_FMOD_SOUND
+#define SAFE_RELEASE_FMOD_SOUND(p) if ((p) != nullptr) { (p)->release(); (p) = nullptr; }
+#endif
+
+CAudioSystem::CAudioSystem()
+	: m_pSystem(nullptr)
+{
+	m_busGroups.fill(nullptr);
+	m_busVolumes.fill(1.0f);
+}
+
+CAudioSystem::~CAudioSystem()
+{
+	Shutdown();
+}
+
+bool CAudioSystem::Initialize()
+{
+	if (m_pSystem)
+		return true;
+
+	FMOD_RESULT result = FMOD::System_Create(&m_pSystem);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	result = m_pSystem->init(512, FMOD_INIT_NORMAL, nullptr);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	result = m_pSystem->set3DSettings(1.0f, 1.0f, 1.0f);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	if (!_CreateChannelGroups())
+		return false;
+
+	return true;
+}
+
+void CAudioSystem::Shutdown()
+{
+	UnloadAllSounds();
+
+	for (size_t i = 0; i < AUDIO_BUS_COUNT; ++i)
+		m_busGroups[i] = nullptr;
+
+	if (m_pSystem)
+	{
+		m_pSystem->close();
+		m_pSystem->release();
+		m_pSystem = nullptr;
+	}
+}
+
+void CAudioSystem::Tick()
+{
+	if (!m_pSystem)
+		return;
+
+	m_pSystem->update();
+}
+
+bool CAudioSystem::LoadSound(SoundID id, const char* path, const AudioLoadDesc& desc)
+{
+	if (!m_pSystem || !path || !path[0])
+		return false;
+
+	auto it = m_mapSounds.find(id);
+	if (it != m_mapSounds.end())
+		return true;
+
+	FMOD_MODE mode = _MakeModelFlags(desc);
+
+	FMOD::Sound* pSound = nullptr;
+	FMOD_RESULT result = m_pSystem->createSound(path, mode, nullptr, &pSound);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	m_mapSounds.emplace(id, pSound);
+	return true;
+}
+
+void CAudioSystem::UnloadAllSounds()
+{
+	for (auto& kv : m_mapSounds)
+	{
+		SAFE_RELEASE_FMOD_SOUND(kv.second);
+	}
+	m_mapSounds.clear();
+}
+
+FMOD::Channel* CAudioSystem::Play2D(SoundID id, float volume /*= 1.f*/, EAudioBus bus /*= EAudioBus::SFX*/)
+{
+	if (!m_pSystem)
+		return nullptr;
+
+	auto it = m_mapSounds.find(id);
+	if (it == m_mapSounds.end())
+		return nullptr;
+
+	FMOD::Channel* pChannel = nullptr;
+	FMOD_RESULT result = m_pSystem->playSound(it->second, nullptr, true, &pChannel);
+	if (!FMOD_RESULT_OK(result))
+		return nullptr;
+
+	if (FMOD::ChannelGroup* pGroup = _GetBusGroup(bus))
+	{
+		pChannel->setChannelGroup(pGroup);
+	}
+
+	pChannel->setVolume(volume);
+	pChannel->setPaused(false);
+
+	return pChannel;
+}
+
+FMOD::Channel* CAudioSystem::Play3D(SoundID id, const XMFLOAT3& worldPos, float volume /*= 1.f*/
+	, float minDistance /*= 1.f*/, float maxDistance /*= 32.f*/, EAudioBus bus /*= EAudioBus::SFX*/)
+{
+	if (!m_pSystem)
+		return nullptr;
+
+	auto it = m_mapSounds.find(id);
+	if (it == m_mapSounds.end())
+		return nullptr;
+
+	FMOD::Channel* pChannel = nullptr;
+	FMOD_RESULT result = m_pSystem->playSound(it->second, nullptr, true, &pChannel);
+	if (!FMOD_RESULT_OK(result))
+		return nullptr;
+
+	if (FMOD::ChannelGroup* pGroup = _GetBusGroup(bus))
+	{
+		pChannel->setChannelGroup(pGroup);
+	}
+
+	FMOD_VECTOR pos = _ToFMOD(worldPos);
+	FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
+
+	pChannel->setMode(FMOD_3D);
+	pChannel->set3DAttributes(&pos, &vel);
+	pChannel->set3DMinMaxDistance(minDistance, maxDistance);
+	pChannel->setVolume(volume);
+	pChannel->setPaused(false);
+
+	return pChannel;
+}
+
+void CAudioSystem::SetListener(const AudioListenerState& state)
+{
+	if (!m_pSystem)
+		return;
+
+	FMOD_VECTOR pos = _ToFMOD(state.pos);
+	FMOD_VECTOR vel = _ToFMOD(state.vel);
+	FMOD_VECTOR forward = _ToFMOD(state.forward);
+	FMOD_VECTOR up = _ToFMOD(state.up);
+
+	m_pSystem->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
+}
+
+void CAudioSystem::SetBusVolume(EAudioBus bus, float volume)
+{
+	const int idx = static_cast<int>(bus);
+	if (idx < 0 || idx >= static_cast<int>(AUDIO_BUS_COUNT))
+		return;
+
+	if (volume < 0.f) volume = 0.f;
+	if (volume > 1.f) volume = 1.f;
+
+	m_busVolumes[idx] = volume;
+
+	FMOD::ChannelGroup* pGroup = _GetBusGroup(bus);
+	if (pGroup)
+	{
+		pGroup->setVolume(volume);
+	}
+}
+
+float CAudioSystem::GetBusVolume(EAudioBus bus) const
+{
+	const int idx = static_cast<int>(bus);
+	if (idx < 0 || idx >= static_cast<int>(AUDIO_BUS_COUNT))
+		return 1.0f;
+
+	return m_busVolumes[idx];
+}
+
+FMOD::ChannelGroup* CAudioSystem::_GetBusGroup(EAudioBus bus)
+{
+	return m_busGroups[static_cast<size_t>(bus)];
+}
+
+bool CAudioSystem::_CreateChannelGroups()
+{
+	if (!m_pSystem)
+		return false;
+
+	FMOD_RESULT result = m_pSystem->getMasterChannelGroup(&m_busGroups[static_cast<size_t>(EAudioBus::MASTER)]);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	result = m_pSystem->createChannelGroup("BGM", &m_busGroups[static_cast<size_t>(EAudioBus::BGM)]);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	result = m_pSystem->createChannelGroup("SFX", &m_busGroups[static_cast<size_t>(EAudioBus::SFX)]);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	result = m_pSystem->createChannelGroup("AMBIENT", &m_busGroups[static_cast<size_t>(EAudioBus::AMBIENT)]);
+	if (!FMOD_RESULT_OK(result))
+		return false;
+
+	_GetBusGroup(EAudioBus::MASTER)->addGroup(_GetBusGroup(EAudioBus::BGM));
+	_GetBusGroup(EAudioBus::MASTER)->addGroup(_GetBusGroup(EAudioBus::SFX));
+	_GetBusGroup(EAudioBus::MASTER)->addGroup(_GetBusGroup(EAudioBus::AMBIENT));
+
+	return true;
+}
+
+FMOD_MODE CAudioSystem::_MakeModelFlags(const AudioLoadDesc& desc) const
+{
+	FMOD_MODE mode = FMOD_DEFAULT;
+
+	if (desc.bLoop)		mode |= FMOD_LOOP_NORMAL;
+	else				mode |= FMOD_LOOP_OFF;
+
+	if (desc.b3D)		mode |= FMOD_3D;
+	else				mode |= FMOD_2D;
+
+	if (desc.bStream)	mode |= FMOD_CREATESTREAM;
+	else				mode |= FMOD_CREATESAMPLE;
+
+	return mode;
+}
+
+FMOD_VECTOR CAudioSystem::_ToFMOD(const XMFLOAT3& v)
+{
+	return FMOD_VECTOR
+	{
+		v.x,
+		v.y,
+		v.z
+	};
+}

@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "CApplication.h"
 
-class System
+class CWindowSystem
 {
 public:
-	System();
-	~System();
+	CWindowSystem();
+	~CWindowSystem();
 
 	bool Initialize();
 	void Relase();
@@ -27,4 +27,4 @@ private:
 };
 
 static LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_);
-static System* g_pSystem = 0;
+static CWindowSystem* g_pSystem = 0;

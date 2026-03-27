@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "CTestScene.h"
-#include "CRenderWorld.h"
 #include "CChunkMesherSystem.h"
 
 CTestScene::CTestScene()

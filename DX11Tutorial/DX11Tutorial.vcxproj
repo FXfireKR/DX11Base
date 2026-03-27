@@ -163,6 +163,7 @@
     <ClInclude Include="BlockStateTypes.h" />
     <ClInclude Include="BlockTagTypes.h" />
     <ClInclude Include="CApplication.h" />
+    <ClInclude Include="CAudioSystem.h" />
     <ClInclude Include="CBlockBreakParticleSystem.h" />
     <ClInclude Include="CBlockDB.h" />
     <ClInclude Include="CBlockDefDB.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="DX11Tutorial.h" />
     <ClInclude Include="EncodingUtil.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameWorldHeader.h" />
     <ClInclude Include="HashUtil.h" />
     <ClInclude Include="IBlockAccessor.hpp" />
     <ClInclude Include="IFileWrapper.h" />
@@ -283,6 +285,7 @@
     <ClInclude Include="ResourceUtil.h" />
     <ClInclude Include="SceneHeader.h" />
     <ClCompile Include="BlockStateTypes.cpp" />
+    <ClCompile Include="CAudioSystem.cpp" />
     <ClCompile Include="CBlockBreakParticleSystem.cpp" />
     <ClCompile Include="CBlockDB.cpp" />
     <ClCompile Include="CBlockDefDB.cpp" />

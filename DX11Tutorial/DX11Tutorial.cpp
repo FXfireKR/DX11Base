@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	System* pSystem = new System;
+	CWindowSystem* pSystem = new CWindowSystem;
 	if (true == pSystem->Initialize())
 	{
 		pSystem->Run();

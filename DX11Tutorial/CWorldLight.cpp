@@ -16,14 +16,15 @@ WorldLightingParams CWorldLight::Evaluate(const WorldTimeParams& timeParams) con
     XMStoreFloat3(&out.moonDir, vMoon);
 
     // ---------- intensity ----------
-    out.sunIntensity = saturate(timeParams.daylight * 1.15f);
+    //out.sunIntensity = saturate(timeParams.daylight * 1.15f);
+    out.sunIntensity = 0.3f + timeParams.daylight * 1.4f;
 
     // ---------- ambient ----------
     const XMFLOAT3 night = { 0.08f, 0.10f, 0.14f };
     const XMFLOAT3 day = { 0.28f, 0.30f, 0.33f };
 
     out.ambientColor = _LerpColor(night, day, timeParams.daylight);
-    out.ambientStrength = 0.45f + timeParams.daylight * 0.55f;
+    out.ambientStrength = 0.22f + timeParams.daylight * 0.78f;
 
     // ---------- sky ----------
     const XMFLOAT3 skyNight = { 0.02f, 0.03f, 0.06f };
