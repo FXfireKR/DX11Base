@@ -13,8 +13,9 @@ Application::~Application()
 bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
 	m_renderWorld.Initialize(hWnd_, iScreenWidth_, iScreenHeight_);
+	m_audio.Initialize();
 
-	m_gameWorld.Initialize(m_renderWorld);
+	m_gameWorld.Initialize(m_renderWorld, m_audio);
 
 	m_window.Initialize(hWnd_);
 
@@ -29,7 +30,6 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	CInputManager::Get().SetKeyboardDevice(m_rawInputDispatcher.GetKeyboard());
 	CInputManager::Get().SetGamePadDevice(m_rawInputDispatcher.GetGamePad());
 
-	m_audio.Initialize();
 
 	return true;
 }
@@ -52,7 +52,6 @@ void Application::Tick()
 	{
 		// Input Dispatch
 		m_rawInputDispatcher.DispatchRawQueue();
-		m_audio.Tick();
 
 		// ImGui
 #ifdef IMGUI_ACTIVATE
@@ -68,6 +67,7 @@ void Application::Tick()
 
 		// Frame Fence
 		{
+			m_audio.Tick();
 			m_gameWorld.BuildRenderFrame();
 			m_gameWorld.RenderDebugOverlay();
 		}

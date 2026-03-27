@@ -6,6 +6,7 @@ void CScene::OnCreate(CGameWorld& gameWorld)
 {
 	// renderWorld 가져오기
 	m_pRenderWorld = gameWorld.GetRenderWorld();
+	m_pAudioSystem = gameWorld.GetAudioSystem();
 
 	// 카메라가 존재하지 않으므로, 오브젝트를 만들어서 넣어준다.
 	if (nullptr == m_pCurrentCamera) {

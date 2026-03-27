@@ -77,7 +77,6 @@ public:
 	inline void SetDispatchPerFrame(size_t uPerFrame) { m_uDispatchPerFrame = uPerFrame; }
 	inline size_t GetDispatchPerFrame() const { return m_uDispatchPerFrame; }
 	
-
 private:
 	void _Dispatch();
 

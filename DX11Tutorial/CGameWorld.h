@@ -11,7 +11,7 @@ public:
 	CGameWorld() = default;
 	~CGameWorld() = default;
 
-	void Initialize(CRenderWorld& renderWorld_);
+	void Initialize(CRenderWorld& renderWorld_, CAudioSystem& audioSystem);
 	void Tick();
 	void BuildRenderFrame();
 	void RenderDebugOverlay();
@@ -21,6 +21,7 @@ private:
 
 public:
 	inline CRenderWorld* GetRenderWorld() const { return m_pRenderWorld; }
+	inline CAudioSystem* GetAudioSystem() const { return m_pAudioSystem; }
 
 private:
 	CDebugOverlay m_debugOverlay;
@@ -28,6 +29,7 @@ private:
 	CSceneManager m_sceneManager;
 
 	CRenderWorld* m_pRenderWorld = nullptr;
+	CAudioSystem* m_pAudioSystem = nullptr;
 
 private: // fixed-update logic elements
 	const float FIXED_DELTA = 1.0f / 60.0f; // 120.f는 추후

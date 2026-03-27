@@ -3,9 +3,10 @@
 #include "CRenderWorld.h"
 #include "CBlockBreakParticleSystem.h"
 
-void CGameWorld::Initialize(CRenderWorld& renderWorld_)
+void CGameWorld::Initialize(CRenderWorld& renderWorld_, CAudioSystem& audioSystem)
 {
 	m_pRenderWorld = &renderWorld_;
+	m_pAudioSystem = &audioSystem;
 
 	m_gameTimeManager.Init();
 

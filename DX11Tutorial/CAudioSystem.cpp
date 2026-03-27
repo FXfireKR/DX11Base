@@ -41,6 +41,7 @@ bool CAudioSystem::Initialize()
 	if (!_CreateChannelGroups())
 		return false;
 
+	assert(m_pSystem);
 	return true;
 }
 
@@ -190,12 +191,7 @@ FMOD::Channel* CAudioSystem::_Play(const AudioRequest& request)
 		pChannel->setChannelGroup(pGroup);
 	}
 
-	// 재생할 볼륨 * 속한 채널의 볼륨 * 마스터 볼륨
-	float fVolume = request.volume * GetVolume(request.bus) * GetVolume(EAudioBus::MASTER);
-	
-	pChannel->setVolume(fVolume);
-	pChannel->setPaused(false);
-	
+	// 재생할 볼륨 * 속한 채널의 볼륨 * 마스터 볼륨	
 	if (request.b3D)
 	{
 		FMOD_VECTOR pos = _ToFMOD(request.pos);
@@ -205,6 +201,9 @@ FMOD::Channel* CAudioSystem::_Play(const AudioRequest& request)
 		pChannel->set3DAttributes(&pos, &vel);
 		pChannel->set3DMinMaxDistance(request.minDistance, request.maxDistance);
 	}
+
+	pChannel->setVolume(request.volume);
+	pChannel->setPaused(false);
 
 	return pChannel;
 }

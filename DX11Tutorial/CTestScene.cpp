@@ -52,7 +52,9 @@ void CTestScene::Awake()
 
 	auto* cam = pivot->AddComponent<CCamera>();
 	cam->Init();
+
 	m_pCurrentCamera = cam;
+	m_pListenerTransform = pivotTransform;
 
 	_CreateHighlight();
 	
@@ -66,6 +68,8 @@ void CTestScene::Awake()
 	_CreateSkyBillboardResources();
 
 	m_bSpawnStreamingReady = false;
+
+	GetAudioSystem().LoadSound(fnv1a_64("LMC"), "../Resource/assets/minecraft/LMC.wav", false);
 }
 
 void CTestScene::Start()
@@ -100,12 +104,20 @@ void CTestScene::Update(float fDelta)
 
 	ImGui::DragFloat("Shadow Bias : %.6f", &m_debugBias, 0.00001f, 0.0f, 0.002f, "%.6f");
 
+	float fMaster = GetAudioSystem().GetVolume(EAudioBus::MASTER);
+	ImGui::DragFloat("Master Volume : %.3f", &fMaster, 0.01f, 0.f, 1.0f);
+	GetAudioSystem().SetVolume(EAudioBus::MASTER, fMaster);
+
+	float fBGM = GetAudioSystem().GetVolume(EAudioBus::BGM);
+	ImGui::DragFloat("BGM Volume : %.3f", &fBGM, 0.01f, 0.f, 1.0f);
+	GetAudioSystem().SetVolume(EAudioBus::BGM, fBGM);
+
 #endif // IMGUI_ACTIVATE
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
 	{
 		m_bShowChunkBounds = !m_bShowChunkBounds;
-	}
+	}	
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F3))
 	{
@@ -127,7 +139,6 @@ void CTestScene::Update(float fDelta)
 	if (!m_bSpawnStreamingReady)
 	{
 		m_bSpawnStreamingReady = m_VoxelWorld.GetChunkWorld().IsSpawnAreaReady(Trans);
-
 		
 		constexpr float kPlayerHalfWidth = 0.3f;
 		constexpr float kPlayerHalfHeight = 0.9f;
@@ -143,8 +154,14 @@ void CTestScene::Update(float fDelta)
 		if (auto* motor = m_pPlayer->GetComponent<CCharacterMotor>())
 		{
 			motor->SetFrozen(!m_bSpawnStreamingReady);
+			if (m_bSpawnStreamingReady)
+			{
+				GetAudioSystem().Submit3D(fnv1a_64("LMC"), { spawnWx, spawnFootY, spawnWz }, 1.0f, 1.0, 24.0f, EAudioBus::BGM);
+			}
 		}
 	}
+
+	_UpdateAudioListener(fDelta);
 }
 
 void CTestScene::LateUpdate(float fDelta)
@@ -1180,4 +1197,29 @@ void CTestScene::_SubmitSectionBoundsDebug(CRenderWorld& rw) const
 			rw.Submit(item);
 		}
 	});
+}
+
+void CTestScene::_UpdateAudioListener(float fDelta)
+{
+	if (!m_pListenerTransform)
+		return;
+
+	m_pListenerTransform->BuildWorldMatrix();
+
+	AudioListenerState state{};
+	state.pos = m_pListenerTransform->GetWorldTrans();
+	state.forward = m_pListenerTransform->GetLookNorm();
+	state.up = m_pListenerTransform->GetUpNorm();
+
+	if (m_bHasPrevListenerPos && fDelta > 0.0001f)
+	{
+		state.vel.x = (state.pos.x - m_prevListenerPos.x) / fDelta;
+		state.vel.y = (state.pos.y - m_prevListenerPos.y) / fDelta;
+		state.vel.z = (state.pos.z - m_prevListenerPos.z) / fDelta;
+	}
+
+	m_prevListenerPos = state.pos;
+	m_bHasPrevListenerPos = true;
+	
+	GetAudioSystem().SetListener(state);
 }

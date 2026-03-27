@@ -53,6 +53,13 @@ private:
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
 
+	void _UpdateAudioListener(float fDelta);
+
+private:
+	CTransform* m_pListenerTransform = nullptr;
+	XMFLOAT3 m_prevListenerPos{};
+	bool m_bHasPrevListenerPos = false;
+
 private:
 	CPipeline* m_pChunkPipeline = nullptr;
 	CMaterial* m_pChunkMaterial = nullptr;

@@ -57,13 +57,18 @@ public:
 	const CCamera* GetCurrentCamera() const { return m_pCurrentCamera; }
 
 	inline CRenderWorld& GetRenderWorld() { return *m_pRenderWorld; }
+	inline CAudioSystem& GetAudioSystem() { return *m_pAudioSystem; }
+
 	inline const bool& IsRequestForChange() { return m_bChangeSceneReq; }
 	inline const SCENE_TYPE& GetNextScene() { return m_eNextSceneReq; }
 
 protected:
 	CObjectManager m_objectManager;
 	CCamera* m_pCurrentCamera = nullptr;
-	CRenderWorld* m_pRenderWorld = nullptr; // not-own
+
+	// not-own
+	CRenderWorld* m_pRenderWorld = nullptr; 
+	CAudioSystem* m_pAudioSystem = nullptr;
 
 	bool m_bChangeSceneReq = false;
 	SCENE_TYPE m_eNextSceneReq = SCENE_TYPE::END_SCENE;
