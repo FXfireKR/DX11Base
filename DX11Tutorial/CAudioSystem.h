@@ -1,5 +1,4 @@
 ﻿#pragma once
-using namespace FMOD;
 
 enum class EAudioBus
 {
@@ -36,17 +35,19 @@ struct AudioLoadDesc
 {
 	bool bLoop = false;
 	bool b3D = false;
-	bool bStream = false;
 };
 
 struct AudioRequest
 {
 	bool b3D = false;
 	SoundID id = 0;
+
 	XMFLOAT3 pos{};
+
 	float volume = 1.f;
 	float minDistance = 1.f;
 	float maxDistance = 24.f;
+
 	EAudioBus bus = EAudioBus::SFX;
 };
 
@@ -60,27 +61,31 @@ public:
 	void Shutdown();
 	void Tick();
 
-	bool LoadSound(SoundID id, const char* path, const AudioLoadDesc& desc);
-	void UnloadAllSounds();
-
-	FMOD::Channel* Play2D(SoundID id, float volume = 1.f, EAudioBus bus = EAudioBus::SFX);
-	FMOD::Channel* Play3D(SoundID id, const XMFLOAT3& worldPos, float volume = 1.f
-		, float minDistance = 1.f, float maxDistance = 32.f, EAudioBus bus = EAudioBus::SFX);
-
-	void SetListener(const AudioListenerState& state);
-
-	void SetBusVolume(EAudioBus bus, float volume);
-	float GetBusVolume(EAudioBus bus) const;
+public:
+	void Submit2D(SoundID soundID, float volume = 1.f, EAudioBus bus = EAudioBus::SFX);
+	void Submit3D(SoundID soundID, const XMFLOAT3& pos, float volume = 1.f
+		, float minDistance = 1.f, float maxDistance = 24.f, EAudioBus bus = EAudioBus::SFX);
 
 public:
-	inline void SetMasterVolume(float volume) { m_fMasterVolume = volume; }
-	inline float GetMasterVolume() const { return m_fMasterVolume; }
+	bool LoadSound(SoundID id, const char* path, bool b3D, bool bLoop = false);
+	void SetListener(const AudioListenerState& state);
+
+	void SetVolume(EAudioBus bus, float volume);
+	float GetVolume(EAudioBus bus) const;
+
+public:
+	inline void SetDispatchPerFrame(size_t uPerFrame) { m_uDispatchPerFrame = uPerFrame; }
+	inline size_t GetDispatchPerFrame() const { return m_uDispatchPerFrame; }
 	
 
 private:
+	void _Dispatch();
+
+	FMOD::Channel* _Play(const AudioRequest& request);
+
 	FMOD::ChannelGroup* _GetBusGroup(EAudioBus bus);
 	bool _CreateChannelGroups();
-	FMOD_MODE _MakeModelFlags(const AudioLoadDesc& desc) const;
+	FMOD_MODE _MakeModeFlags(const AudioLoadDesc& desc) const;
 	FMOD_VECTOR _ToFMOD(const XMFLOAT3& v);
 
 private:
@@ -91,7 +96,6 @@ private:
 	array<FMOD::ChannelGroup*, AUDIO_BUS_COUNT> m_busGroups{};
 	array<float, AUDIO_BUS_COUNT> m_busVolumes{};
 
-	float m_fMasterVolume = 1.0f;
-
 	queue<AudioRequest> m_pendingRequests;
+	size_t m_uDispatchPerFrame = 16;
 };
