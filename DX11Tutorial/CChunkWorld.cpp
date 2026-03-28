@@ -42,6 +42,8 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMateria
 
 	m_pGenerator = std::make_unique<CHeightmapChunkGenerator>();
 	m_pGenerator->Initialize(m_genSettings);
+
+	m_vecDirtyQueue.reserve(CHUNK_SECTION_COUNT * (m_iStreamRadius + m_iWarmRadiusOffset));
 }
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
@@ -50,6 +52,8 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
+
+	m_currentCenterChunk = { centerCx, centerCz };
 
 	bool bStreamChanged = false;
 
@@ -134,10 +138,13 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 				}
 			}
 		}
+	}
+
+	{
+		OPTICK_EVENT("RebuildAndUpdateDebug");
 
 		if (bStreamChanged)
 		{
-			OPTICK_EVENT("_RebuildActiveBlockLightCache");
 			_RebuildActiveBlockLightCache();
 		}
 
@@ -206,11 +213,39 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 	if (m_vecDirtyQueue.empty())
 		return false;
 
-	outSectionCoord = m_vecDirtyQueue.back();
-	m_vecDirtyQueue.pop_back();
+	int bestIndex = -1;
+	int bestScore = INT_MAX;
+
+	for (int i = 0; i < (int)m_vecDirtyQueue.size(); ++i)
+	{
+		const SectionCoord& sc = m_vecDirtyQueue[i];
+		CChunkSection* pSection = FindSectionDataMutable(sc.x, sc.y, sc.z);
+		if (nullptr == pSection)
+			continue;
+
+		const bool isMeshDirty = pSection->IsMeshDirty();
+		const int dist = std::max(
+			std::abs(sc.x - m_currentCenterChunk.x),
+			std::abs(sc.z - m_currentCenterChunk.y));
+
+		// mesh dirty를 light dirty보다 훨씬 우선
+		// 같은 종류면 가까운 거리 우선
+		const int score = dist * 10 + (isMeshDirty ? 0 : 1000);
+
+		if (score < bestScore)
+		{
+			bestScore = score;
+			bestIndex = i;
+		}
+	}
+
+	if (bestIndex < 0)
+		return false;
+
+	outSectionCoord = m_vecDirtyQueue[bestIndex];
+	m_vecDirtyQueue.erase(m_vecDirtyQueue.begin() + bestIndex);
 	return true;
 }
-
 bool CChunkWorld::CanRaycastHit(const BlockCell& cell) const
 {
 	if (cell.IsAir())
@@ -295,22 +330,43 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 	}
 
 	if (!bCurrentSectionRemoved)
-		_MarkDirty(cx, sy, cz);
+	{
+		_MarkMeshDirty(cx, sy, cz);
+		_MarkLightDirty(cx, sy, cz);
+	}
 
 	if (lx == 0)
-		_MarkDirty(cx - 1, sy, cz);
+	{
+		_MarkMeshDirty(cx - 1, sy, cz);
+		_MarkLightDirty(cx - 1, sy, cz);
+	}
 	else if (lx == CHUNK_SIZE_X - 1)
-		_MarkDirty(cx + 1, sy, cz);
+	{
+		_MarkMeshDirty(cx + 1, sy, cz);
+		_MarkLightDirty(cx + 1, sy, cz);
+	}
 
 	if (ly == 0 && sy > 0)
-		_MarkDirty(cx, sy - 1, cz);
+	{
+		_MarkMeshDirty(cx, sy - 1, cz);
+		_MarkLightDirty(cx, sy - 1, cz);
+	}
 	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
-		_MarkDirty(cx, sy + 1, cz);
+	{
+		_MarkMeshDirty(cx, sy + 1, cz);
+		_MarkLightDirty(cx, sy + 1, cz);
+	}
 
 	if (lz == 0)
-		_MarkDirty(cx, sy, cz - 1);
+	{
+		_MarkMeshDirty(cx, sy, cz - 1);
+		_MarkLightDirty(cx, sy, cz - 1);
+	}
 	else if (lz == CHUNK_SIZE_Z - 1)
-		_MarkDirty(cx, sy, cz + 1);
+	{
+		_MarkMeshDirty(cx, sy, cz + 1);
+		_MarkLightDirty(cx, sy, cz + 1);
+	}
 
 	_UpdateBlockLightOnBlockChanged(wx, wy, wz, oldFinal, newCell);
 	_ValidateAttachmentAround(wx, wy, wz);
@@ -372,22 +428,22 @@ void CChunkWorld::SetBlockLight(int wx, int wy, int wz, uint8_t level)
 		pLightSection->SetBlockLight(lx, ly, lz, level);
 	}
 
-	_MarkDirty(cx, sy, cz);
+	_MarkLightDirty(cx, sy, cz);
 
 	if (lx == 0)
-		_MarkDirty(cx - 1, sy, cz);
+		_MarkLightDirty(cx - 1, sy, cz);
 	else if (lx == CHUNK_SIZE_X - 1)
-		_MarkDirty(cx + 1, sy, cz);
+		_MarkLightDirty(cx + 1, sy, cz);
 
 	if (ly == 0 && sy > 0)
-		_MarkDirty(cx, sy - 1, cz);
+		_MarkLightDirty(cx, sy - 1, cz);
 	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
-		_MarkDirty(cx, sy + 1, cz);
+		_MarkLightDirty(cx, sy + 1, cz);
 
 	if (lz == 0)
-		_MarkDirty(cx, sy, cz - 1);
+		_MarkLightDirty(cx, sy, cz - 1);
 	else if (lz == CHUNK_SIZE_Z - 1)
-		_MarkDirty(cx, sy, cz + 1);
+		_MarkLightDirty(cx, sy, cz + 1);
 }
 
 CChunkLightSection* CChunkWorld::FindBlockLightSectionMutable(int cx, int sy, int cz)
@@ -622,7 +678,7 @@ void CChunkWorld::_HotloadColumn(int cx, int cz)
 			continue;
 
 		_EnsureRenderObjects(*pSection, cx, sy, cz);
-		_MarkDirty(cx, sy, cz);
+		_MarkMeshDirty(cx, sy, cz);
 	}
 
 	dbg.AddChunkLoad();
@@ -672,9 +728,6 @@ void CChunkWorld::_ColdUnloadColumn(int cx, int cz)
 	pColumn->SetResidency(EChunkResidency::RESIDENT);
 }
 
-void CChunkWorld::_ProcessPendingDestoryObjects(int budget)
-{
-}
 #else // OPTIMIZATION_2
 void CChunkWorld::_LoadColumn(int cx, int cz)
 {
@@ -802,6 +855,37 @@ void CChunkWorld::_DestoryRenderObjects(CChunkSection& section)
 	}
 }
 
+#ifdef OPTIMIZATION_2
+void CChunkWorld::_MarkMeshDirty(int cx, int sy, int cz)
+{
+	CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz);
+	if (nullptr == pSection)
+		return;
+
+	pSection->MarkMeshDirty();
+
+	if (pSection->IsBuildQueued())
+		return;
+
+	pSection->SetBuildQueued(true);
+	m_vecDirtyQueue.push_back({ cx, sy, cz });
+}
+
+void CChunkWorld::_MarkLightDirty(int cx, int sy, int cz)
+{
+	CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz);
+	if (nullptr == pSection)
+		return;
+
+	pSection->MarkLightDirty();
+
+	if (pSection->IsBuildQueued())
+		return;
+
+	pSection->SetBuildQueued(true);
+	m_vecDirtyQueue.push_back({ cx, sy, cz });
+}
+#else // OPTIMIZATION_2
 void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
 {
 	CChunkSection* pSection = FindSectionDataMutable(cx, sy, cz);
@@ -816,6 +900,7 @@ void CChunkWorld::_MarkDirty(int cx, int sy, int cz)
 	pSection->SetBuildQueued(true);
 	m_vecDirtyQueue.push_back({ cx, sy, cz });
 }
+#endif // OPTIMIZATION_2
 
 bool CChunkWorld::_WorldToSectionLocal(int wx, int wy, int wz, int& outCx, int& outSy, int& outCz, int& outLx, int& outLy, int& outLz) const
 {
@@ -1143,65 +1228,76 @@ void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz)
 
 void CChunkWorld::_RebuildActiveBlockLightCache()
 {
+	OPTICK_EVENT();
+
 	// 1) active 컬럼 light cache clear
-	for (auto& kv : m_columns)
 	{
-		CChunkColumn& col = kv.second;
-		if (!col.IsActive())
-			continue;
+		OPTICK_EVENT("LightCacheClear");
 
-		const ChunkCoord coord = col.GetCoord();
-
-		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		for (auto& kv : m_columns)
 		{
-			col.ResetBlockLightSection(sy);
-
-			CChunkSection* sec = col.GetSection(sy);
-			if (!sec)
+			CChunkColumn& col = kv.second;
+			if (!col.IsActive())
 				continue;
 
-			_MarkDirty(coord.x, sy, coord.z);
+			const ChunkCoord coord = col.GetCoord();
+
+			for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+			{
+				col.ResetBlockLightSection(sy);
+
+				CChunkSection* sec = col.GetSection(sy);
+				if (!sec)
+					continue;
+
+				_MarkLightDirty(coord.x, sy, coord.z);
+			}
 		}
 	}
+	
 
 	// 2) emissive source scan + flood
-	for (auto& kv : m_columns)
 	{
-		CChunkColumn& col = kv.second;
-		if (!col.IsActive())
-			continue;
+		OPTICK_EVENT("EmissiveSourceScan");
 
-		const ChunkCoord coord = col.GetCoord();
-
-		for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+		for (auto& kv : m_columns)
 		{
-			CChunkSection* sec = col.GetSection(sy);
-			if (!sec)
+			CChunkColumn& col = kv.second;
+			if (!col.IsActive())
 				continue;
 
-			const int baseWx = coord.x * CHUNK_SIZE_X;
-			const int baseWy = sy * CHUNK_SECTION_SIZE;
-			const int baseWz = coord.z * CHUNK_SIZE_Z;
+			const ChunkCoord coord = col.GetCoord();
 
-			for (int ly = 0; ly < CHUNK_SECTION_SIZE; ++ly)
+			for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
 			{
-				for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
+				CChunkSection* sec = col.GetSection(sy);
+				if (!sec)
+					continue;
+
+				const int baseWx = coord.x * CHUNK_SIZE_X;
+				const int baseWy = sy * CHUNK_SECTION_SIZE;
+				const int baseWz = coord.z * CHUNK_SIZE_Z;
+
+				for (int ly = 0; ly < CHUNK_SECTION_SIZE; ++ly)
 				{
-					for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
+					for (int lz = 0; lz < CHUNK_SIZE_Z; ++lz)
 					{
-						const BlockCell cell = sec->GetBlock(lx, ly, lz);
-						if (cell.IsAir())
-							continue;
+						for (int lx = 0; lx < CHUNK_SIZE_X; ++lx)
+						{
+							const BlockCell cell = sec->GetBlock(lx, ly, lz);
+							if (cell.IsAir())
+								continue;
 
-						const uint8_t emission = BlockDB.GetLightEmission(cell.blockID);
-						if (emission == 0)
-							continue;
+							const uint8_t emission = BlockDB.GetLightEmission(cell.blockID);
+							if (emission == 0)
+								continue;
 
-						const int wx = baseWx + lx;
-						const int wy = baseWy + ly;
-						const int wz = baseWz + lz;
+							const int wx = baseWx + lx;
+							const int wy = baseWy + ly;
+							const int wz = baseWz + lz;
 
-						_PropagateBlockLightAdd(wx, wy, wz, emission);
+							_PropagateBlockLightAdd(wx, wy, wz, emission);
+						}
 					}
 				}
 			}

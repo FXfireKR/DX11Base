@@ -9,7 +9,12 @@ CChunkSection::CChunkSection()
 {
     m_cells.fill(BlockCell{});
     m_nonAirCount = 0;
+#ifdef OPTIMIZATION_2
+    m_bMeshDirty = true;
+    m_bLightDirty = true;
+#else // OPTIMIZATION_2
     m_bDirty = true;
+#endif // OPTIMIZATION_2
     m_bBuildQueued = false;
     ClearAllRenderObjectIDs();
 }
@@ -34,7 +39,12 @@ void CChunkSection::SetBlock(int lx, int ly, int lz, const BlockCell& cell)
     if (wasAir != isAir)
         m_nonAirCount += isAir ? -1 : 1;
 
+#ifdef OPTIMIZATION_2
+    m_bMeshDirty = true;
+    m_bLightDirty = true;
+#else // OPTIMIZATION_2
     m_bDirty = true;
+#endif // OPTIMIZATION_2
 }
 
 uint8_t CChunkLightSection::GetBlockLight(int lx, int ly, int lz) const

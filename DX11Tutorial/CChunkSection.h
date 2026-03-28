@@ -11,9 +11,23 @@ public:
 	void SetBlock(int lx, int ly, int lz, const BlockCell& cell);
 
 public:
+#ifdef OPTIMIZATION_2
+	inline void MarkDirty() { m_bMeshDirty = m_bLightDirty = true; }
+	inline void MarkMeshDirty() { m_bMeshDirty = true; }
+	inline void MarkLightDirty() { m_bLightDirty = true; }
+
+	inline const bool IsDirty() const { return m_bMeshDirty || m_bLightDirty; }
+	inline const bool IsMeshDirty() const { return m_bMeshDirty; }
+	inline const bool IsLightDirty() const { return m_bLightDirty; }
+
+	inline void ClearDirty() { m_bMeshDirty = m_bLightDirty = false; }
+	inline void ClearMeshDirty() { m_bMeshDirty = false; }
+	inline void ClearLightDirty() { m_bLightDirty = false; }
+#else // OPTIMIZATION_2
 	inline void MarkDirty() { m_bDirty = true; }
-	inline void ClearDirty() { m_bDirty = false; }
 	inline const bool IsDirty() const { return m_bDirty; }
+	inline void ClearDirty() { m_bDirty = false; }
+#endif // OPTIMIZATION_2
 
 	inline const bool IsBuildQueued() const { return m_bBuildQueued; }
 	inline void SetBuildQueued(bool bQueued) { m_bBuildQueued = bQueued; }
@@ -44,7 +58,12 @@ private:
 	array<BlockCell, CHUNK_SECTION_VOLUME> m_cells{};
 	uint16_t m_nonAirCount = 0;
 
-	bool m_bDirty = true;
+#ifdef OPTIMIZATION_2
+	bool m_bMeshDirty = false;
+	bool m_bLightDirty = false;
+#else // OPTIMIZATION_2
+	bool m_bDirty = false;
+#endif // OPTIMIZATION_2
 	bool m_bBuildQueued = false;
 
 	// handle

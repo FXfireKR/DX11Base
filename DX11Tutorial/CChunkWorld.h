@@ -112,15 +112,19 @@ private:
 	void _HotloadColumn(int cx, int cz);
 	void _PreUnloadColumn(int cx, int cz);
 	void _ColdUnloadColumn(int cx, int cz);
-
-	void _ProcessPendingDestoryObjects(int budget);
 #endif // OPTIMIZATION_2
 
 	void _EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz);
 	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 	void _DestoryRenderObjects(CChunkSection& section);
 	
+#ifdef OPTIMIZATION_2
+	void _MarkMeshDirty(int cx, int sy, int cz);
+	void _MarkLightDirty(int cx, int sy, int cz);
+#else // OPTIMIZATION_2
 	void _MarkDirty(int cx, int sy, int cz);
+#endif // OPTIMIZATION_2
+
 	bool _WorldToSectionLocal(int wx, int wy, int wz,
 		int& outCx, int& outSy, int& outCz,
 		int& outLx, int& outLy, int& outLz) const;
@@ -176,6 +180,7 @@ private:
 	vector<ChunkCoord> m_debugReloadCoords;
 
 	vector<SectionCoord> m_vecDirtyQueue;
+	XMINT2 m_currentCenterChunk{ 0, 0 };
 
 	int m_iStreamRadius = 6; // 6 ~ 8
 
@@ -187,8 +192,6 @@ private:
 	int m_iHotloadBudgetPerFrame = 2;
 	int m_iPreUnloadBudgetPerFrame = 4;
 	int m_iColdUnloadBudgetPerFrame = 1;
-
-	vector<OBJECT_ID> m_pendingDestroyObjectIDs;
 #else // OPTIMIZATION_2
 	unordered_set<uint64_t> m_tmpWanted;
 #endif // OPTIMIZATION_2

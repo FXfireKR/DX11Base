@@ -34,9 +34,20 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 		if (nullptr == pSection) 
 			continue;
 
+#ifdef OPTIMIZATION_2
+		const bool bMeshDirty = pSection->IsMeshDirty();
+		const bool bLightDirty = pSection->IsLightDirty();
+#endif // OPTIMIZATION_2
+
 		pSection->SetBuildQueued(false);
+
+#ifdef OPTIMIZATION_2
+		if (!bMeshDirty && !bLightDirty)
+			continue;
+#else // OPTIMIZATION_2
 		if (!pSection->IsDirty())
 			continue;
+#endif // OPTIMIZATION_2
 
 		ChunkSectionMeshSet meshSet;
 		builder.BuildSectionMeshes(world, sectionCoord.x, sectionCoord.y, sectionCoord.z, *pSection, meshSet);
@@ -45,9 +56,17 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::CUTOUT_SLOT, meshSet.cutout);
 		UploadSectionMesh(scene, world, sectionCoord, EChunkSectionRenderSlot::TRANSLUCENT_SLOT, meshSet.translucent);
 
-		pSection->ClearDirty();
-		dbg.AddRebuiltSection();
+#ifdef OPTIMIZATION_2
+		if (bMeshDirty)
+			pSection->ClearDirty();
 
+		if (bMeshDirty || bLightDirty)
+			pSection->ClearLightDirty();
+#else // OPTIMIZATION_2
+		pSection->ClearDirty();
+#endif // OPTIMIZATION_2
+
+		dbg.AddRebuiltSection();
 		--budget;
 	}
 }
