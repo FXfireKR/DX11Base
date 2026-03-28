@@ -145,7 +145,13 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 		if (bStreamChanged)
 		{
+			m_bPendingFullRelight = true;
+		}
+
+		if (m_bPendingFullRelight && !bStreamChanged)
+		{
 			_RebuildActiveBlockLightCache();
+			m_bPendingFullRelight = false;
 		}
 
 		{
@@ -220,7 +226,11 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 	{
 		const SectionCoord& sc = m_vecDirtyQueue[i];
 		CChunkSection* pSection = FindSectionDataMutable(sc.x, sc.y, sc.z);
-		if (nullptr == pSection)
+
+		if (nullptr == pSection || !pSection->IsDirty())
+			continue;
+
+		if (!pSection->IsBuildQueued())
 			continue;
 
 		const bool isMeshDirty = pSection->IsMeshDirty();
@@ -231,7 +241,6 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 		// mesh dirty를 light dirty보다 훨씬 우선
 		// 같은 종류면 가까운 거리 우선
 		const int score = dist * 10 + (isMeshDirty ? 0 : 1000);
-
 		if (score < bestScore)
 		{
 			bestScore = score;
@@ -240,7 +249,10 @@ bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
 	}
 
 	if (bestIndex < 0)
+	{
+		m_vecDirtyQueue.clear();
 		return false;
+	}
 
 	outSectionCoord = m_vecDirtyQueue[bestIndex];
 	m_vecDirtyQueue.erase(m_vecDirtyQueue.begin() + bestIndex);
@@ -700,7 +712,7 @@ void CChunkWorld::_PreUnloadColumn(int cx, int cz)
 			continue;
 
 		_DestoryRenderObjects(*pSection);   // 이제 즉시 destroy가 아니라 queue 처리
-		pSection->SetBuildQueued(false);
+		//pSection->SetBuildQueued(false);
 	}
 
 	pColumn->SetResidency(EChunkResidency::RESIDENT);

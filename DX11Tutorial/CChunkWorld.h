@@ -192,6 +192,8 @@ private:
 	int m_iHotloadBudgetPerFrame = 2;
 	int m_iPreUnloadBudgetPerFrame = 4;
 	int m_iColdUnloadBudgetPerFrame = 1;
+
+	bool m_bPendingFullRelight = true;
 #else // OPTIMIZATION_2
 	unordered_set<uint64_t> m_tmpWanted;
 #endif // OPTIMIZATION_2
