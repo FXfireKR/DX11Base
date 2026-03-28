@@ -441,7 +441,9 @@ void CTestScene::BuildRenderFrame()
 		rw.Submit(uiItem);
 	}
 
-	GetObjectManager().ProcessPeddingDestroy();
+	{
+		GetObjectManager().ProcessPeddingDestroy();
+	}
 }
 
 void CTestScene::_CreateChunkObject()

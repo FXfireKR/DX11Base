@@ -49,4 +49,5 @@ private:
 	vector<uint32_t> m_vecSparse;
 	vector<unique_ptr<CObject>> m_vecObjects;
 	vector<OBJECT_ID> m_vecFreeIDs;
+	size_t m_uDestroyBudget = 8;
 };

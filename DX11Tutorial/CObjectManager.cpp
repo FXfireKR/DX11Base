@@ -75,11 +75,18 @@ void CObjectManager::Destroy(OBJECT_ID uObjectID_)
 
 void CObjectManager::ProcessPeddingDestroy()
 {
+	OPTICK_EVENT("ProcessPeddingDestroy");
+
+	size_t count = 0;
 	for (int i = static_cast<int>(m_vecObjects.size() - 1); i >= 0; --i) 
 	{
 		if (true == m_vecObjects[i]->GetPeddingDestroy()) 
 		{
 			_RemoveObjectAtIndex(i);
+			++count;
+
+			if (m_uDestroyBudget < count)
+				return;
 		}
 	}
 }

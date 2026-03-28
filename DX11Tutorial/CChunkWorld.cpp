@@ -11,6 +11,11 @@
 
 using namespace ChunkMath;
 
+static inline int ChunkDistChebyshev(int ax, int az, int bx, int bz)
+{
+	return std::max(std::abs(ax - bx), std::abs(az - bz));
+}
+
 void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
 	, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
 	, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial)
@@ -45,54 +50,155 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
+
 	bool bStreamChanged = false;
 
+#ifdef OPTIMIZATION_2
+	const int hotRadius = m_iStreamRadius;
+	const int warmRadius = m_iStreamRadius + m_iWarmRadiusOffset;
+	const int coldRadius = m_iStreamRadius + m_iColdRadiusOffset;
+
+	int preloadBudget = m_iPreloadBudgetPerFrame;
+	int hotloadBudget = m_iHotloadBudgetPerFrame;
+	int preUnloadBudget = m_iPreUnloadBudgetPerFrame;
+	int coldUnloadBudget = m_iColdUnloadBudgetPerFrame;
+
+	{
+		OPTICK_EVENT("BuildWantedSet");
+
+		for (int dz = -warmRadius; dz <= warmRadius; ++dz)
+		{
+			for (int dx = -warmRadius; dx <= warmRadius; ++dx)
+			{
+				const int cx = centerCx + dx;
+				const int cz = centerCz + dz;
+				const int dist = std::max(std::abs(dx), std::abs(dz));
+
+				CChunkColumn* pColumn = _FindColumn(cx, cz);
+
+				// warm 범위 내에서는 preload
+				if (dist <= warmRadius)
+				{
+					if ((!pColumn || !pColumn->IsGenerated()) && preloadBudget > 0)
+					{
+						_PreloadColumn(cx, cz);
+						--preloadBudget;
+						bStreamChanged = true;
+						pColumn = _FindColumn(cx, cz);
+					}
+				}
+
+				// hot 범위 내에서는 render object 활성
+				if (dist <= hotRadius)
+				{
+					if (pColumn && !pColumn->IsActive() && hotloadBudget > 0)
+					{
+						_HotloadColumn(cx, cz);
+						--hotloadBudget;
+						bStreamChanged = true;
+					}
+				}
+			}
+		}
+	}
+
+	{
+		OPTICK_EVENT("UnloadFarColumns");
+
+		for (auto& kv : m_columns)
+		{
+			CChunkColumn& column = kv.second;
+			const ChunkCoord coord = column.GetCoord();
+			const int dist = ChunkDistChebyshev(coord.x, coord.z, centerCx, centerCz);
+
+			// hot 범위 밖 + active 라면 render만 내리기
+			if (dist > warmRadius && column.IsActive())
+			{
+				if (preUnloadBudget > 0)
+				{
+					_PreUnloadColumn(coord.x, coord.z);
+					--preUnloadBudget;
+					bStreamChanged = true;
+				}
+				continue;
+			}
+
+			// 충분히 멀어졌다면 cold unload
+			if (dist > coldRadius && column.IsResident())
+			{
+				if (coldUnloadBudget > 0)
+				{
+					_ColdUnloadColumn(coord.x, coord.z);
+					--coldUnloadBudget;
+					bStreamChanged = true;
+				}
+			}
+		}
+
+		if (bStreamChanged)
+		{
+			OPTICK_EVENT("_RebuildActiveBlockLightCache");
+			_RebuildActiveBlockLightCache();
+		}
+
+		{
+			OPTICK_EVENT("_UpdateDebugStats");
+			_UpdateDebugStats();
+		}
+	}
+
+#else // OPTIMIZATION_2
 	m_tmpWanted.clear();
 
-	// 비용이 커지면 vector 대신 다른거
 	size_t newCap = static_cast<size_t>((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
 
-	//if (m_tmpWanted.capacity() < newCap)
-	//	m_tmpWanted.reserve(newCap);
-
-	for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
 	{
-		for (int dx = -m_iStreamRadius; dx <= m_iStreamRadius; ++dx)
+		OPTICK_EVENT("BuildWantedSet");
+		for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
 		{
-			const int cx = centerCx + dx;
-			const int cz = centerCz + dz;
-			const uint64_t key = MakeColumnKey(cx, cz);
-
-			m_tmpWanted.emplace(key);
-
-			CChunkColumn* column = _FindColumn(cx, cz);
-			if (nullptr == column || !column->IsActive())
+			for (int dx = -m_iStreamRadius; dx <= m_iStreamRadius; ++dx)
 			{
-				_LoadColumn(cx, cz);
+				const int cx = centerCx + dx;
+				const int cz = centerCz + dz;
+				const uint64_t key = MakeColumnKey(cx, cz);
+
+				m_tmpWanted.emplace(key);
+
+				CChunkColumn* column = _FindColumn(cx, cz);
+				if (nullptr == column || !column->IsActive())
+				{
+					_LoadColumn(cx, cz);
+					bStreamChanged = true;
+				}
+			}
+		}
+	}
+
+	{
+		OPTICK_EVENT("UnloadFarColumns");
+		for (auto& kv : m_columns)
+		{
+			CChunkColumn& column = kv.second;
+			if (!column.IsActive())
+				continue;
+
+			const bool keep = m_tmpWanted.find(kv.first) != m_tmpWanted.end();
+			if (false == keep)
+			{
+				const ChunkCoord coord = column.GetCoord();
+				_UnloadColumn(coord.x, coord.z);
 				bStreamChanged = true;
 			}
 		}
 	}
 
-	for (auto& kv : m_columns)	
-	{
-		CChunkColumn& column = kv.second;
-		if (!column.IsActive())
-			continue;
-
-		const bool keep = m_tmpWanted.find(kv.first) != m_tmpWanted.end();
-		if (false == keep)
-		{
-			const ChunkCoord coord = column.GetCoord();
-			_UnloadColumn(coord.x, coord.z);
-			bStreamChanged = true;
-		}
-	}
-	
 	if (bStreamChanged)
+	{
 		_RebuildActiveBlockLightCache();
+	}
 
 	_UpdateDebugStats();
+#endif // OPTIMIZATION_2
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)
@@ -471,6 +577,105 @@ CChunkColumn& CChunkWorld::_GetOrCreateColumn(int cx, int cz)
 	return newIt->second;
 }
 
+#ifdef OPTIMIZATION_2
+void CChunkWorld::_LoadColumn(int cx, int cz)
+{
+	_PreloadColumn(cx, cz);
+	_HotloadColumn(cx, cz);
+}
+void CChunkWorld::_UnloadColumn(int cx, int cz)
+{
+	_PreUnloadColumn(cx, cz);
+	_ColdUnloadColumn(cx, cz);
+}
+void CChunkWorld::_PreloadColumn(int cx, int cz)
+{
+	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
+
+	if (!column.IsGenerated())
+	{
+		_GenerateBaseColumn(column);
+		column.SetGenerated(true);
+	}
+
+	_ApplyModifiedOverlayToColumn(column);
+
+	if (!column.IsActive())
+		column.SetResidency(EChunkResidency::RESIDENT);
+}
+
+void CChunkWorld::_HotloadColumn(int cx, int cz)
+{
+	CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return;
+
+	if (pColumn->IsActive())
+		return;
+
+	pColumn->SetResidency(EChunkResidency::ACTIVE);
+
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		CChunkSection* pSection = pColumn->GetSection(sy);
+		if (nullptr == pSection)
+			continue;
+
+		_EnsureRenderObjects(*pSection, cx, sy, cz);
+		_MarkDirty(cx, sy, cz);
+	}
+
+	dbg.AddChunkLoad();
+}
+
+void CChunkWorld::_PreUnloadColumn(int cx, int cz)
+{
+	CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return;
+
+	if (!pColumn->IsActive())
+		return;
+
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		CChunkSection* pSection = pColumn->GetSection(sy);
+		if (nullptr == pSection)
+			continue;
+
+		_DestoryRenderObjects(*pSection);   // 이제 즉시 destroy가 아니라 queue 처리
+		pSection->SetBuildQueued(false);
+	}
+
+	pColumn->SetResidency(EChunkResidency::RESIDENT);
+
+	dbg.AddChunkUnload();
+}
+
+void CChunkWorld::_ColdUnloadColumn(int cx, int cz)
+{
+	CChunkColumn* pColumn = _FindColumn(cx, cz);
+	if (nullptr == pColumn)
+		return;
+
+	// 아직 active면 먼저 preunload만 하고 다음 프레임 cold unload
+	if (pColumn->IsActive())
+		return;
+
+	for (int sy = 0; sy < CHUNK_SECTION_COUNT; ++sy)
+	{
+		pColumn->ResetSection(sy);
+		pColumn->ResetBlockLightSection(sy);
+	}
+
+	pColumn->SetGenerated(false);
+	pColumn->SetResidency(EChunkResidency::RESIDENT);
+}
+
+void CChunkWorld::_ProcessPendingDestoryObjects(int budget)
+{
+}
+#else // OPTIMIZATION_2
 void CChunkWorld::_LoadColumn(int cx, int cz)
 {
 	CChunkColumn& column = _GetOrCreateColumn(cx, cz);
@@ -529,6 +734,7 @@ void CChunkWorld::_UnloadColumn(int cx, int cz)
 
 	dbg.AddChunkUnload();
 }
+#endif // OPTIMIZATION_2
 
 void CChunkWorld::_EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz)
 {

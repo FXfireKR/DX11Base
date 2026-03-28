@@ -64,43 +64,72 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
         } break;
     }
 
+#ifdef OPTIMIZATION_1
     const vector<AppliedModel>* vecModels;
     if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels) || !vecModels)
         return false;
 
     OPTICK_EVENT("ModelAppend");
-    for (const AppliedModel& applied : *vecModels)
+    const AppliedModel& applied = *(vecModels->begin());
+
+    const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
+    if (!pBakedModel)
+        return false;
+
+    OPTICK_EVENT("AppendModelQuads");
+    if (applied.rotate)
+    {
+        for (const BakedQuad& srcQuad : pBakedModel->quads)
+        {
+            BakedQuad quad = srcQuad;
+            _ApplyModelRotation(quad, applied.x, applied.y);
+
+            if (quad.bHasCullFace)
+                if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
+                    continue;
+
+            _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+        }
+    }
+    else // (!applied.rotate)
+    {
+        for (const BakedQuad& srcQuad : pBakedModel->quads)
+        {
+            if (srcQuad.bHasCullFace)
+                if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(srcQuad.cullFaceDir)))
+                    continue;
+
+            _AppendQuad(world, srcQuad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+        }
+    }
+    
+#else // OPTIMIZATION_1
+    vector<AppliedModel> vecModels;
+    if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels))
+        return false;
+
+    OPTICK_EVENT("ModelAppend");
+    for (const AppliedModel& applied : vecModels)
     {
         const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
         if (!pBakedModel)
             continue;
 
-        bool bRotate = applied.rotate;
-
         OPTICK_EVENT("AppendModelQuads");
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
-            if (!bRotate)
-            {
-                if (srcQuad.bHasCullFace)
-                    if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(srcQuad.cullFaceDir)))
-                        continue;
-
-                _AppendQuad(world, srcQuad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
-            }
-            else
-            {
-                BakedQuad quad = srcQuad;
+            BakedQuad quad = srcQuad;
+            if (applied.rotate)
                 _ApplyModelRotation(quad, applied.x, applied.y);
 
-                if (quad.bHasCullFace)
-                    if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
-                        continue;
+            if (quad.bHasCullFace)
+                if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
+                    continue;
 
-                _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
-            }            
+            _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
         }
     }
+#endif // OPTIMIZATION_1
     
     return true;
 }

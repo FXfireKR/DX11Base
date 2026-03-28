@@ -107,6 +107,15 @@ private:
 	void _LoadColumn(int cx, int cz);
 	void _UnloadColumn(int cx, int cz);
 
+#ifdef OPTIMIZATION_2
+	void _PreloadColumn(int cx, int cz);
+	void _HotloadColumn(int cx, int cz);
+	void _PreUnloadColumn(int cx, int cz);
+	void _ColdUnloadColumn(int cx, int cz);
+
+	void _ProcessPendingDestoryObjects(int budget);
+#endif // OPTIMIZATION_2
+
 	void _EnsureRenderObjects(CChunkSection& section, int cx, int sy, int cz);
 	void _EnsureRenderObject(CChunkSection& section, int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 	void _DestoryRenderObjects(CChunkSection& section);
@@ -167,8 +176,22 @@ private:
 	vector<ChunkCoord> m_debugReloadCoords;
 
 	vector<SectionCoord> m_vecDirtyQueue;
+
+	int m_iStreamRadius = 6; // 6 ~ 8
+
+#ifdef OPTIMIZATION_2
+	int m_iWarmRadiusOffset = 2; 
+	int m_iColdRadiusOffset = 4;
+
+	int m_iPreloadBudgetPerFrame = 2;
+	int m_iHotloadBudgetPerFrame = 2;
+	int m_iPreUnloadBudgetPerFrame = 4;
+	int m_iColdUnloadBudgetPerFrame = 1;
+
+	vector<OBJECT_ID> m_pendingDestroyObjectIDs;
+#else // OPTIMIZATION_2
 	unordered_set<uint64_t> m_tmpWanted;
-	//int m_iStreamRadius = 2; // debug
-	// int m_iStreamRadius = 4; // real
-	int m_iStreamRadius = 6; // real
+#endif // OPTIMIZATION_2
+
+	float m_fDebugStatsAccum = 0.f;
 };
