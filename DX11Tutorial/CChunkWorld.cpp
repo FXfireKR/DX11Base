@@ -849,6 +849,16 @@ void CChunkWorld::_EnsureRenderObject(CChunkSection& section, int cx, int sy, in
 		} break;
 	}
 
+	constexpr float kHalfX = CHUNK_SIZE_X * 0.5f;
+	constexpr float kHalfY = CHUNK_SECTION_SIZE * 0.5f;
+	constexpr float kHalfZ = CHUNK_SIZE_Z * 0.5f;
+
+	mr->SetFrustumCullEnabled(true);
+	mr->SetLocalBounds(
+		XMFLOAT3(kHalfX, kHalfY, kHalfZ)
+		, XMFLOAT3(kHalfX, kHalfY, kHalfZ)
+	);
+
 	obj->SetEnable(false);
 	section.SetRenderObjectID(slot, obj->GetID());
 }

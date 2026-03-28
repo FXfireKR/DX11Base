@@ -105,4 +105,11 @@ private:
 	bool m_bSpawnStreamingReady = false;
 
 	float m_debugBias = 0.0005f;
+
+	bool m_bFrustumculling = true;
+	uint32_t m_dbgFrustumTestCount = 0;
+	uint32_t m_dbgFrustumCulledCount = 0;
+
+	bool m_bSkyCruiseTest = false;
+	float m_fSkyCruiseY = 75.f;
 };

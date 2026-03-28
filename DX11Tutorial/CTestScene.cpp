@@ -2,6 +2,41 @@
 #include "CTestScene.h"
 #include "CChunkMesherSystem.h"
 
+namespace
+{
+	using namespace DirectX;
+
+	BoundingFrustum BuildWorldFrustum(CXMMATRIX view, CXMMATRIX proj)
+	{
+		BoundingFrustum localFrustum;
+		// 네 카메라는 LH이므로 false
+		BoundingFrustum::CreateFromMatrix(localFrustum, proj, false);
+
+		BoundingFrustum worldFrustum;
+		const XMMATRIX invView = XMMatrixInverse(nullptr, view);
+		localFrustum.Transform(worldFrustum, invView);
+		return worldFrustum;
+	}
+
+	bool IntersectsRendererBounds(const BoundingFrustum& frustum, const CTransform* transform, const CMeshRenderer* render)
+	{
+		const XMFLOAT3 worldPos = transform->GetWorldTrans();
+		const XMFLOAT3 center = render->GetLocalBoundsCenter();
+		const XMFLOAT3 extents = render->GetLocalBoundsExtents();
+
+		BoundingBox box{};
+		box.Center =
+		{
+			worldPos.x + center.x,
+			worldPos.y + center.y,
+			worldPos.z + center.z
+		};
+		box.Extents = extents;
+
+		return frustum.Intersects(box);
+	}
+}
+
 CTestScene::CTestScene()
 {
 }
@@ -104,6 +139,10 @@ void CTestScene::Update(float fDelta)
 	ImGui::DragFloat("Sun size : %.3f", &m_fSunBillboardSize);
 	ImGui::DragFloat("Moon size : %.3f", &m_fMoonBillboardSize);
 
+	ImGui::Checkbox("Frustum Culling", &m_bFrustumculling);
+	ImGui::Text("Frustum Test      : %u", m_dbgFrustumTestCount);
+	ImGui::Text("Frustum Culled    : %u", m_dbgFrustumCulledCount);
+
 	ImGui::DragFloat("Shadow Bias : %.6f", &m_debugBias, 0.00001f, 0.0f, 0.002f, "%.6f");
 
 	float fMaster = GetAudioSystem().GetVolume(EAudioBus::MASTER);
@@ -126,7 +165,20 @@ void CTestScene::Update(float fDelta)
 		m_eSectionDebugMode = static_cast<ESectionDebugMode>((static_cast<int>(m_eSectionDebugMode) + 1) % static_cast<int>(ESectionDebugMode::COUNT));
 	}
 
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F6))
+	{
+		m_bSkyCruiseTest = !m_bSkyCruiseTest;
+	}
+
+
 	CTransform* tr = m_pPlayer->GetComponent<CTransform>();
+	if (m_bSkyCruiseTest && tr)
+	{
+		XMFLOAT3 pos = tr->GetLocalTrans();
+		pos.y = m_fSkyCruiseY;
+		tr->SetLocalTrans(pos);
+	}
+
 	tr->BuildWorldMatrix();
 	XMFLOAT3 Trans = tr->GetWorldTrans();
 
@@ -135,7 +187,7 @@ void CTestScene::Update(float fDelta)
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
 	{
-		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
+		//m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
 	}
 
 	if (!m_bSpawnStreamingReady)
@@ -178,6 +230,11 @@ void CTestScene::BuildRenderFrame()
 	// matrix setting
 	rw.SetViewMatrix(pCurrentCamera->GetViewMatrix());
 	rw.SetProjectionMatrix(pCurrentCamera->GetProjMatrix());
+
+	const DirectX::BoundingFrustum mainFrustum = BuildWorldFrustum(pCurrentCamera->GetViewMatrix(), pCurrentCamera->GetProjMatrix());
+
+	uint32_t frustumTestCount = 0;
+	uint32_t frustumCulledCount = 0;
 
 	if (m_pUICamera)
 	{
@@ -269,97 +326,6 @@ void CTestScene::BuildRenderFrame()
 		rw.SetLightViewProj(matLightView * matLightProj);
 		rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
 	}
-	
-
-	//{
-	//	// sun / moon direction
-	//	XMFLOAT3 sunDir{}, moonDir{};
-	//	_CalcSunMoonDirection(sunDir, moonDir);
-
-	//	// daylight 기반 조명 세기
-	//	const float sunIntensity = saturate(timeParams.daylight * 1.15f);
-
-	//	// 실제 lighting 방향도 sunDir와 통일
-	//	rw.SetDirectionalLight(sunDir, { 1.0f, 0.97f, 0.92f }, sunIntensity);
-
-	//	const XMFLOAT3 ambientNight = { 0.05f, 0.07f, 0.10f };
-	//	const XMFLOAT3 ambientDay = { 0.28f, 0.30f, 0.33f };
-	//	rw.SetAmbientLight(_LerpColor(ambientNight, ambientDay, timeParams.daylight));
-
-	//	// shadow는 낮에만 유효하게
-	//	const bool bShadowEnabled = (timeParams.daylight > 0.08f);
-
-	//	// focus: player 기준 + world snap
-	//	XMFLOAT3 focus = { 0.f, 0.f, 0.f };
-	//	if (auto* playerTr = m_pPlayer->GetComponent<CTransform>())
-	//	{
-	//		playerTr->BuildWorldMatrix();
-	//		focus = playerTr->GetWorldTrans();
-	//	}
-
-	//	// 지면 기준으로 고정
-	//	//focus.y = 0.0f;
-
-	//	// world-space snap
-	//	focus.x = SnapToStep(focus.x, 0.5f);
-	//	focus.z = SnapToStep(focus.z, 0.5f);
-
-	//	XMVECTOR vFocus = XMLoadFloat3(&focus);
-	//	XMVECTOR vLightDir = XMVector3Normalize(XMLoadFloat3(&sunDir));
-
-	//	// directional light camera
-	//	XMVECTOR vEye = vFocus + XMVectorScale(vLightDir, 48.0f);
-	//	XMVECTOR vTarget = vFocus;
-
-	//	XMVECTOR vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-	//	float upDot = fabsf(XMVectorGetX(XMVector3Dot(vLightDir, vUp)));
-	//	if (upDot > 0.98f)
-	//		vUp = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-
-	//	const float kShadowOrthoSize = 48.0f;
-	//	const float kShadowNear = 1.0f;
-	//	const float kShadowFar = 120.0f;
-	//	const float kShadowMapSize = 2048.0f; // CRenderWorld와 맞춰둘 것
-
-	//	XMMATRIX matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
-
-	//	// light-space texel snap
-	//	XMVECTOR vFocusLS = XMVector3TransformCoord(vFocus, matLightView);
-
-	//	XMFLOAT3 focusLS{};
-	//	XMStoreFloat3(&focusLS, vFocusLS);
-
-	//	const float texelSize = kShadowOrthoSize / kShadowMapSize;
-
-	//	const float snappedX = roundf(focusLS.x / texelSize) * texelSize;
-	//	const float snappedY = roundf(focusLS.y / texelSize) * texelSize;
-
-	//	XMVECTOR vDeltaLS = XMVectorSet(
-	//		snappedX - focusLS.x,
-	//		snappedY - focusLS.y,
-	//		0.0f,
-	//		0.0f
-	//	);
-
-	//	XMMATRIX invLightView = XMMatrixInverse(nullptr, matLightView);
-	//	XMVECTOR vDeltaWS = XMVector3TransformNormal(vDeltaLS, invLightView);
-
-	//	vEye += vDeltaWS;
-	//	vTarget += vDeltaWS;
-
-	//	matLightView = XMMatrixLookAtLH(vEye, vTarget, vUp);
-	//	XMMATRIX matLightProj = XMMatrixOrthographicLH(
-	//		kShadowOrthoSize,
-	//		kShadowOrthoSize,
-	//		kShadowNear,
-	//		kShadowFar
-	//	);
-
-	//	rw.SetLightViewProj(matLightView * matLightProj);
-
-	//	// 낮이 아니면 사실상 shadow 끄기
-	//	rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
-	//}
 
 	const CTransform* pCamTr = pCurrentCamera->GetTransform();
 	XMFLOAT3 camPos = { 0.f, 0.f, 0.f };
@@ -394,6 +360,23 @@ void CTestScene::BuildRenderFrame()
 			rw.Submit(shadowItem);
 		}
 
+		if (m_bFrustumculling)
+		{
+			bool bVisible = true;
+
+			if (render->IsFrustumCullEnabled())
+			{
+				++frustumTestCount;
+
+				bVisible = IntersectsRendererBounds(mainFrustum, transform, render);
+				if (!bVisible)
+				{
+					++frustumCulledCount;
+					return;
+				}
+			}
+		}
+
 		// main pass
 		RenderItem item{};
 		item.eRenderPass = render->GetRenderPass();
@@ -417,6 +400,9 @@ void CTestScene::BuildRenderFrame()
 		DirectX::XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
 		rw.Submit(item);
 	});
+
+	m_dbgFrustumTestCount = frustumTestCount;
+	m_dbgFrustumCulledCount = frustumCulledCount;
 
 	_SubmitSunMoonBillboards(rw);
 	_ApplySkyClearColor();

@@ -48,7 +48,8 @@ private:
 
 	float m_fYaw = 0.f;
 
-	float m_fMoveSpeed = 15.f;
+	//float m_fMoveSpeed = 15.f;
+	float m_fMoveSpeed = 60.f;
 	float m_fJumpSpeed = 7.f;
 	float m_fGravity = 20.f;
 	float m_fMaxFallSpeed = 40.f;

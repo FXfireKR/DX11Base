@@ -182,16 +182,16 @@ private:
 	vector<SectionCoord> m_vecDirtyQueue;
 	XMINT2 m_currentCenterChunk{ 0, 0 };
 
-	int m_iStreamRadius = 6; // 6 ~ 8
+	int m_iStreamRadius = 14; // 6 ~ 8
 
 #ifdef OPTIMIZATION_2
-	int m_iWarmRadiusOffset = 2; 
-	int m_iColdRadiusOffset = 4;
+	int m_iWarmRadiusOffset = 3;
+	int m_iColdRadiusOffset = 5;
 
 	int m_iPreloadBudgetPerFrame = 2;
 	int m_iHotloadBudgetPerFrame = 2;
 	int m_iPreUnloadBudgetPerFrame = 2;
-	int m_iColdUnloadBudgetPerFrame = 2;
+	int m_iColdUnloadBudgetPerFrame = 1;
 
 	bool m_bPendingFullRelight = true;
 #else // OPTIMIZATION_2
