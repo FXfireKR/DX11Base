@@ -190,8 +190,8 @@ private:
 
 	int m_iPreloadBudgetPerFrame = 2;
 	int m_iHotloadBudgetPerFrame = 2;
-	int m_iPreUnloadBudgetPerFrame = 4;
-	int m_iColdUnloadBudgetPerFrame = 1;
+	int m_iPreUnloadBudgetPerFrame = 2;
+	int m_iColdUnloadBudgetPerFrame = 2;
 
 	bool m_bPendingFullRelight = true;
 #else // OPTIMIZATION_2
