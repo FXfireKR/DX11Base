@@ -59,6 +59,7 @@ public: // Mining Rule
 public: // Block State
 	bool EncodeStateIndex(BLOCK_ID blockID, const BlockPropHashMap& props, STATE_INDEX& outStateIndex) const;
 	bool GetAppliedModels(BLOCK_ID blockID, STATE_INDEX stateIndex, vector<AppliedModel>& outModels) const;
+	bool GetAppliedModels(BLOCK_ID blockID, STATE_INDEX stateIndex, const vector<AppliedModel>*& outModels) const;
 	bool TryGetStateValueHash(BLOCK_ID blockID, STATE_INDEX stateIndex, PROP_HASH propHash, VALUE_HASH& outValueHash) const;
 
 public: // Block Model

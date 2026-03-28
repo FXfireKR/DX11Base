@@ -44,11 +44,11 @@ public:
 	void SetOrthographicNearFar(float nearZ, float farZ);
 
 public:
-	inline void SetFov(float newFov);
-	inline void SetAspectRatio(float newRatio);
+	void SetFov(float newFov);
+	void SetAspectRatio(float newRatio);
 
 	inline const CAMERA_PROJECTION_TYPE& GetProjectionType() const { return m_eProjectionType; }
-	inline void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_);
+	void SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_);
 
 	inline const XMMATRIX& GetViewMatrix() const { return m_matView; }
 	inline const XMMATRIX& GetProjMatrix() const { return m_matProjection; }

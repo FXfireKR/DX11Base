@@ -71,19 +71,19 @@ void CCamera::SetOrthographicNearFar(float nearZ, float farZ)
 		m_bDirty = true;
 }
 
-inline void CCamera::SetFov(float newFov)
+void CCamera::SetFov(float newFov)
 {
 	m_kPerspective.fFieldOfView = newFov;
 	m_bDirty = true;
 }
 
-inline void CCamera::SetAspectRatio(float newRatio)
+void CCamera::SetAspectRatio(float newRatio)
 {
 	m_kPerspective.fAspectRatio = newRatio;
 	m_bDirty = true;
 }
 
-inline void CCamera::SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_)
+void CCamera::SetProjectionType(const CAMERA_PROJECTION_TYPE& eProjectionType_)
 {
 	m_eProjectionType = eProjectionType_;
 	m_bDirty = true;

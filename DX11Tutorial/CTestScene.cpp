@@ -52,6 +52,8 @@ void CTestScene::Awake()
 
 	auto* cam = pivot->AddComponent<CCamera>();
 	cam->Init();
+	float newAspect = static_cast<float>(INIT_SCREEN_SIZE_X) / static_cast<float>(INIT_SCREEN_SIZE_Y);
+	cam->SetAspectRatio(newAspect);
 
 	m_pCurrentCamera = cam;
 	m_pListenerTransform = pivotTransform;

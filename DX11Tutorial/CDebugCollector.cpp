@@ -76,7 +76,7 @@ void CDebugCollector::AddDrawCallCutout(int count)
 void CDebugCollector::AddDrawCallTranslucent(int count)
 {
     m_snapshot.render.drawCallCount += count;
-    m_snapshot.render.drawCallCountTranslucent += count;
+    m_snapshot.render.drawCallCountTransparent += count;
 }
 void CDebugCollector::AddDrawCallDebug(int count)
 {
@@ -151,7 +151,7 @@ void CDebugCollector::_ResetPerFrameCounters()
     m_snapshot.render.drawCallCountSky = 0;
     m_snapshot.render.drawCallCountShadow = 0;
     m_snapshot.render.drawCallCountCutout = 0;
-    m_snapshot.render.drawCallCountTranslucent = 0;
+    m_snapshot.render.drawCallCountTransparent = 0;
     m_snapshot.render.drawCallCountDebug = 0;
     m_snapshot.render.drawCallCountUI = 0;
     m_snapshot.render.pipelineBindCount = 0;

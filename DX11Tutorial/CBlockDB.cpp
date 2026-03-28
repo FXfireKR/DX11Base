@@ -201,6 +201,11 @@ bool CBlockDB::GetAppliedModels(BLOCK_ID blockID, STATE_INDEX stateIndex, vector
 	return m_blockStateDB.GetAppliedModels(blockID, stateIndex, outModels);
 }
 
+bool CBlockDB::GetAppliedModels(BLOCK_ID blockID, STATE_INDEX stateIndex, const vector<AppliedModel>*& outModels) const
+{
+	return m_blockStateDB.GetAppliedModels(blockID, stateIndex, outModels);
+}
+
 bool CBlockDB::TryGetStateValueHash(BLOCK_ID blockID, STATE_INDEX stateIndex, PROP_HASH propHash, VALUE_HASH& outValueHash) const
 {
 	return m_blockStateDB.TryGetStateValueHash(blockID, stateIndex, propHash, outValueHash);

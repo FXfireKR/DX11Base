@@ -30,6 +30,7 @@ public:
 	void Load();
 
 	bool GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels) const;
+	bool GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT const vector<AppliedModel>*& vecAppliedModels) const;
 	bool EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap& props, OUT STATE_INDEX& stateIndex) const;
 	bool TryGetStateValueHash(BLOCK_ID blockID, STATE_INDEX stateIndex, PROP_HASH propHash, VALUE_HASH& outValueHash) const;
 

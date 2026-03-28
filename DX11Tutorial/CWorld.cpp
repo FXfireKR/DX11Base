@@ -185,13 +185,6 @@ bool CWorld::_ResolveTorchPlacement(const XMINT3& hitNormal, BlockCell& outPlace
 		else if (hitNormal.z > 0) props[fnv1a_64("facing")] = fnv1a_64("south");
 		else if (hitNormal.z < 0) props[fnv1a_64("facing")] = fnv1a_64("north");
 
-#ifdef DEBUG_LOG
-		if (hitNormal.x > 0)      cout << "Place wall_torch facing=east" << endl;
-		else if (hitNormal.x < 0) cout << "Place wall_torch facing=west" << endl;
-		else if (hitNormal.z > 0) cout << "Place wall_torch facing=north" << endl;
-		else if (hitNormal.z < 0) cout << "Place wall_torch facing=south" << endl;
-#endif DEBUG_LOG
-
 		STATE_INDEX sidx{};
 		if (!BlockDB.EncodeStateIndex(id, props, sidx))
 			return false;

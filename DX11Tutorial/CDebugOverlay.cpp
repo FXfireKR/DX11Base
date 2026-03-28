@@ -23,7 +23,7 @@ void CDebugOverlay::Render()
         ImGui::Text("RenderExec    : %.3f", s.frame.renderExecuteMs);
         ImGui::Text("Present ms    : %.3f", s.frame.presentMs);
 
-        ImGui::PlotLines("Frame ms", h.frameMs, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 40.f, ImVec2(320, 80));
+        ImGui::PlotLines("Frame ms", h.frameMs, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 60.f, ImVec2(320, 80));
     }
 
     if (ImGui::CollapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen))
@@ -54,9 +54,9 @@ void CDebugOverlay::Render()
         ImGui::Text("Draw Calls Sky        : %d", s.render.drawCallCountSky);
         ImGui::Text("Draw Calls Opaque     : %d", s.render.drawCallCountOpaque);
         ImGui::Text("Draw Calls Cutout     : %d", s.render.drawCallCountCutout);
-        ImGui::Text("Draw Calls Translucent: %d", s.render.drawCallCountTranslucent);
+        ImGui::Text("Draw Calls Transparent: %d", s.render.drawCallCountTransparent);
         ImGui::Text("Draw Calls Debug      : %d", s.render.drawCallCountDebug);
-        ImGui::Text("Draw Calls UI         : %d", s.render.drawCallCountUI);
+        ImGui::Text("Draw Calls Orth       : %d", s.render.drawCallCountUI);
         ImGui::Text("Pipeline Bind Count   : %d", s.render.pipelineBindCount);
         ImGui::Text("Material Bind Count   : %d", s.render.materialBindCount);
         ImGui::Text("Mesh Bind Count       : %d", s.render.meshBindCount);

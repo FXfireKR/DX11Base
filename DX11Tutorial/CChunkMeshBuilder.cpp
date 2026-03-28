@@ -5,7 +5,7 @@
 bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
     , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
-    OPTICK_EVENT("BuildSectionMeshes");
+    OPTICK_EVENT();
 
     outMeshes.Clear();
 
@@ -64,34 +64,41 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
         } break;
     }
 
-    vector<AppliedModel> vecModels;
-    if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels))
+    const vector<AppliedModel>* vecModels;
+    if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels) || !vecModels)
         return false;
 
     OPTICK_EVENT("ModelAppend");
-    for (const AppliedModel& applied : vecModels)
+    for (const AppliedModel& applied : *vecModels)
     {
         const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
         if (!pBakedModel)
             continue;
-     
-        OPTICK_EVENT("const BakedQuad& srcQuad : pBakedModel->quads");
+
+        bool bRotate = applied.rotate;
+
+        OPTICK_EVENT("AppendModelQuads");
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
-            BakedQuad quad = srcQuad;
-
-            if (quad.bHasCullFace)
+            if (!bRotate)
             {
-                if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
-                    continue;
+                if (srcQuad.bHasCullFace)
+                    if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(srcQuad.cullFaceDir)))
+                        continue;
+
+                _AppendQuad(world, srcQuad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
             }
-
-            if (applied.rotate)
+            else
             {
+                BakedQuad quad = srcQuad;
                 _ApplyModelRotation(quad, applied.x, applied.y);
-            }
 
-            _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+                if (quad.bHasCullFace)
+                    if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
+                        continue;
+
+                _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
+            }            
         }
     }
     
@@ -100,18 +107,18 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
 
 bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, FACE_DIR dir) const
 {
-    OPTICK_EVENT("_ShouldCullFace");
+    OPTICK_EVENT();
 
     XMINT3 n{};
     switch (dir)
     {
-    case FACE_DIR::PX: n = { 1, 0, 0 }; break;
-    case FACE_DIR::NX: n = { -1, 0, 0 }; break;
-    case FACE_DIR::PY: n = { 0, 1, 0 }; break;
-    case FACE_DIR::NY: n = { 0, -1, 0 }; break;
-    case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
-    case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
-    default: break;
+        case FACE_DIR::PX: n = { 1, 0, 0 }; break;
+        case FACE_DIR::NX: n = { -1, 0, 0 }; break;
+        case FACE_DIR::PY: n = { 0, 1, 0 }; break;
+        case FACE_DIR::NY: n = { 0, -1, 0 }; break;
+        case FACE_DIR::PZ: n = { 0, 0, 1 }; break;
+        case FACE_DIR::NZ: n = { 0, 0, -1 }; break;
+        default: break;
     }
 
     const BlockCell neighbor = world.GetBlock(wx + n.x, wy + n.y, wz + n.z);
@@ -142,7 +149,7 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
 bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& quad
     , int wx, int wy, int wz, int lx, int ly, int lz, ChunkMeshData& outMesh) const
 {
-    OPTICK_EVENT("_AppendQuad");
+    OPTICK_EVENT();
 
     AtlasRegion region{};
 
@@ -266,7 +273,7 @@ FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, int rotYDeg) const
 
 void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, int rotXDeg, int rotYDeg) const
 {
-    OPTICK_EVENT("ModelRotation");
+    OPTICK_EVENT();
     const int fixedY = static_cast<int>((360 - rotYDeg) % 360);
 
     for (int i = 0; i < 4; ++i)

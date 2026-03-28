@@ -83,11 +83,14 @@ void CBlockStateDB::Load()
 
 bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels) const
 {
+	OPTICK_EVENT();
+
 	vecAppliedModels.clear();
 
 	const BlockTypeDef* typeDef = _FindBlockType(blockID);
 	const BlockStateDef* stateDef = _FindBlockState(blockID);
-	if (!typeDef || !stateDef) return false;
+	if (!typeDef || !stateDef)
+		return false;
 
 	// decode
 	std::vector<VALUE_INDEX> decoded;
@@ -100,18 +103,80 @@ bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex
 		for (const auto& t : rule.vecAndTerms)
 		{
 			auto slotIt = typeDef->mapPropToSlot.find(t.propID);
-			if (slotIt == typeDef->mapPropToSlot.end()) { ok = false; break; }
+			if (slotIt == typeDef->mapPropToSlot.end())
+			{
+				ok = false;
+				break;
+			}
 
 			VALUE_INDEX cur = decoded[slotIt->second];
-			if (cur != t.valueIndex) { ok = false; break; }
+			if (cur != t.valueIndex)
+			{
+				ok = false;
+				break;
+			}
 		}
 
-		if (!ok) continue;
+		if (!ok)
+			continue;
 
 		// 선택: 1차는 첫 번째
 		vecAppliedModels.push_back(rule.vecChoices[0]);
 		return true;
 	}
+
+
+
+	// 매칭 없음: 빈 반환
+	return true;
+}
+
+bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT const vector<AppliedModel>*& vecAppliedModels) const
+{
+	OPTICK_EVENT();
+
+	//vecAppliedModels.clear();
+
+	const BlockTypeDef* typeDef = _FindBlockType(blockID);
+	const BlockStateDef* stateDef = _FindBlockState(blockID);
+	if (!typeDef || !stateDef) 
+		return false;
+
+	// decode
+	std::vector<VALUE_INDEX> decoded;
+	_DecodeStateIndex(*typeDef, stateIndex, decoded);
+
+	// match
+	for (const auto& rule : stateDef->vecVariants)
+	{
+		bool ok = true;
+		for (const auto& t : rule.vecAndTerms)
+		{
+			auto slotIt = typeDef->mapPropToSlot.find(t.propID);
+			if (slotIt == typeDef->mapPropToSlot.end()) 
+			{ 
+				ok = false; 
+				break; 
+			}
+
+			VALUE_INDEX cur = decoded[slotIt->second];
+			if (cur != t.valueIndex) 
+			{ 
+				ok = false; 
+				break; 
+			}
+		}
+
+		if (!ok) 
+			continue;
+
+		// 선택: 1차는 첫 번째
+		//vecAppliedModels.push_back(rule.vecChoices[0]);
+		vecAppliedModels = &(rule.vecChoices);
+		return true;
+	}
+
+	
 
 	// 매칭 없음: 빈 반환
 	return true;
@@ -589,6 +654,8 @@ const BlockStateDef* CBlockStateDB::_FindBlockState(BLOCK_ID blockID) const
 
 void CBlockStateDB::_DecodeStateIndex(const BlockTypeDef& typeDef, STATE_INDEX sidx, std::vector<VALUE_INDEX>& outValueIndexPerProp) const
 {
+	OPTICK_EVENT();
+
 	outValueIndexPerProp.assign(typeDef.vecProps.size(), 0);
 
 	// 뒤에서 앞으로
