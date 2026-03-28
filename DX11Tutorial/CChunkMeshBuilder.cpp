@@ -5,6 +5,8 @@
 bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
     , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
+    OPTICK_EVENT("BuildSectionMeshes");
+
     outMeshes.Clear();
 
     const int baseWx = cx * CHUNK_SIZE_X;
@@ -39,6 +41,8 @@ bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int
 bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, int lx, int ly, int lz
     , const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
 {
+    OPTICK_EVENT("_AppendBlockQuads");
+
     ChunkMeshData* pTargetMesh = nullptr;
 
     switch (BlockDB.GetRenderLayer(cell.blockID))
@@ -64,42 +68,27 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels))
         return false;
 
+    OPTICK_EVENT("ModelAppend");
     for (const AppliedModel& applied : vecModels)
     {
         const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
         if (!pBakedModel)
             continue;
-
-        if (cell.blockID == BlockDB.FindBlockID("minecraft:wall_torch"))
-        {
-            uint64_t facingHash = 0;
-            BlockDB.TryGetStateValueHash(cell.blockID, cell.stateIndex, fnv1a_64("facing"), facingHash);
-
-#ifdef DEBUG_LOG
-            cout << "[WallTorch Mesh] facing=";
-            if (facingHash == fnv1a_64("north")) cout << "north";
-            else if (facingHash == fnv1a_64("south")) cout << "south";
-            else if (facingHash == fnv1a_64("east"))  cout << "east";
-            else if (facingHash == fnv1a_64("west"))  cout << "west";
-            else cout << "unknown";
-
-            cout << ", applied.x=" << (int)applied.x
-                << ", applied.y=" << (int)applied.y
-                << ", model=" << applied.modelKey
-                << endl;
-#endif // DEBUG_LOG
-        }
-
+     
+        OPTICK_EVENT("const BakedQuad& srcQuad : pBakedModel->quads");
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
             BakedQuad quad = srcQuad;
-
-            _ApplyModelRotation(quad, applied.x, applied.y);
 
             if (quad.bHasCullFace)
             {
                 if (_ShouldCullFace(world, wx, wy, wz, cell, static_cast<FACE_DIR>(quad.cullFaceDir)))
                     continue;
+            }
+
+            if (applied.rotate)
+            {
+                _ApplyModelRotation(quad, applied.x, applied.y);
             }
 
             _AppendQuad(world, quad, wx, wy, wz, lx, ly, lz, *pTargetMesh);
@@ -111,6 +100,8 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
 
 bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, FACE_DIR dir) const
 {
+    OPTICK_EVENT("_ShouldCullFace");
+
     XMINT3 n{};
     switch (dir)
     {
@@ -151,6 +142,8 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
 bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& quad
     , int wx, int wy, int wz, int lx, int ly, int lz, ChunkMeshData& outMesh) const
 {
+    OPTICK_EVENT("_AppendQuad");
+
     AtlasRegion region{};
 
     // TODO: #1 Change String key to Hash key
@@ -273,6 +266,7 @@ FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, int rotYDeg) const
 
 void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, int rotXDeg, int rotYDeg) const
 {
+    OPTICK_EVENT("ModelRotation");
     const int fixedY = static_cast<int>((360 - rotYDeg) % 360);
 
     for (int i = 0; i < 4; ++i)

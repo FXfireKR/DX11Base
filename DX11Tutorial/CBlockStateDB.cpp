@@ -524,14 +524,21 @@ bool CBlockStateDB::_ReadModelSpec(const rapidjson::Value& value, AppliedModel& 
 	outModel.modelKey = value["model"].GetString();
 	outModel.modelHash = fnv1a_64(outModel.modelKey);
 
-	if (value.HasMember("x") && value["x"].IsInt())
-		outModel.x = _NormalizeRot(value["x"].GetInt());
+	outModel.rotate = false;
 
-	if (value.HasMember("y") && value["y"].IsInt())
+	if (value.HasMember("x") && value["x"].IsInt()) {
+		outModel.x = _NormalizeRot(value["x"].GetInt());
+		outModel.rotate = true;
+	}
+
+	if (value.HasMember("y") && value["y"].IsInt()) {
 		outModel.y = _NormalizeRot(value["y"].GetInt());
+		outModel.rotate = true;
+	}
 
 	if (value.HasMember("uvlock") && value["uvlock"].IsBool())
 		outModel.uvlock = value["uvlock"].GetBool();
+
 
 	if (value.HasMember("weight") && value["weight"].IsInt())
 	{

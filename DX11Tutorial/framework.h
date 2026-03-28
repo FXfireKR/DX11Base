@@ -102,6 +102,26 @@ using namespace Microsoft::WRL;
 #include <rapidjson\stringbuffer.h>
 using namespace rapidjson;
 
+// Optick Profiler
+#define OPTICK_PROFILING
+
+#ifdef OPTICK_PROFILING
+#include <Optick\optick.h>
+#include <Optick\optick.config.h>
+#ifdef _DEBUG
+#pragma comment(lib, "Optick\\debug\\OptickCore.lib")
+#else // _DEBUG
+#pragma comment(lib, "Optick\\release\\OptickCore.lib")
+#endif // _DEBUG
+
+#if defined(_DEBUG) || defined(OPTICK_PROFILING)
+#define PROFILE_SCOPE() OPTICK_EVENT()
+#else
+#define PROFILE_SCOPE() ((void)0)
+#endif
+
+#endif // OPTICK_PROFILING
+
 
 // ImGuI
 #define IMGUI_ACTIVATE 1

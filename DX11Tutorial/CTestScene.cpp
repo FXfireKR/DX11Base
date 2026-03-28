@@ -69,7 +69,7 @@ void CTestScene::Awake()
 
 	m_bSpawnStreamingReady = false;
 
-	GetAudioSystem().LoadSound(fnv1a_64("LMC"), "../Resource/assets/minecraft/LMC.wav", false);
+	GetAudioSystem().LoadSound(fnv1a_64("LMCinst"), "../Resource/assets/minecraft/LMCinst.wav", false);
 }
 
 void CTestScene::Start()
@@ -154,10 +154,6 @@ void CTestScene::Update(float fDelta)
 		if (auto* motor = m_pPlayer->GetComponent<CCharacterMotor>())
 		{
 			motor->SetFrozen(!m_bSpawnStreamingReady);
-			if (m_bSpawnStreamingReady)
-			{
-				GetAudioSystem().Submit3D(fnv1a_64("LMC"), { spawnWx, spawnFootY, spawnWz }, 1.0f, 1.0, 24.0f, EAudioBus::BGM);
-			}
 		}
 	}
 

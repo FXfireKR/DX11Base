@@ -44,6 +44,7 @@ struct AppliedModel
 	uint64_t modelHash = 0;
 	int x = 0;
 	int y = 0;
+	bool rotate = false;
 	bool uvlock = false;
 	uint16_t weight = 1;
 };

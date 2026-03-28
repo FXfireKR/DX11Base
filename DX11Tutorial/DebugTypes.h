@@ -1,6 +1,7 @@
 ﻿#pragma once
-
+#include <cstdint>
 #include <DirectXMath.h>
+
 using namespace DirectX;
 
 struct FrameDebugStats
@@ -15,6 +16,18 @@ struct FrameDebugStats
     float presentMs = 0.f;
 };
 
+struct DebugHistory
+{
+    static constexpr int kMaxSamples = 180;
+    
+    float frameMs[kMaxSamples] = {};
+    float drawCalls[kMaxSamples] = {};
+    float visibleSections[kMaxSamples] = {};
+    float rebuildQueue[kMaxSamples] = {};
+
+    int head = 0;
+};
+
 struct WorldDebugStats
 {
     int loadedColumnCount = 0;
@@ -24,6 +37,9 @@ struct WorldDebugStats
     int dirtySectionCount = 0;
     int rebuildQueuedCount = 0;
     int rebuiltThisFrameCount = 0;
+
+    int hiddenSectionCount = 0;
+    int culledSectionCount = 0;
 
     int modifiedColumnCount = 0;
     int modifiedCellCount = 0;
@@ -38,8 +54,11 @@ struct RenderDebugStats
     int submittedRenderItemCount = 0;
 
     int drawCallCount = 0;
+
     int drawCallCountOpaque = 0;
     int drawCallCountShadow = 0;
+    int drawCallCountMasked = 0;
+    int drawCallCountTranslucent = 0;
     int drawCallCountUI = 0;
 
     int pipelineBindCount = 0;

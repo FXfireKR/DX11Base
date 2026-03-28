@@ -45,6 +45,9 @@ void Application::Release()
 
 void Application::Tick()
 {
+	OPTICK_FRAME("MainThread");
+	OPTICK_EVENT();
+
 	m_window.CalcWindowSize();
 
 	dbg.BeginFrame();

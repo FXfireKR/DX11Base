@@ -25,9 +25,10 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 	CChunkMeshBuilder builder;
 	SectionCoord sectionCoord{};
 
+	OPTICK_EVENT("RebuildDirtyChunks");
 
 	int budget = 4;
-	while ( budget > 0 && world.PopDirty(sectionCoord))
+	while (budget > 0 && world.PopDirty(sectionCoord))
 	{
 		CChunkSection* pSection = world.FindSectionDataMutable(sectionCoord.x, sectionCoord.y, sectionCoord.z);
 		if (nullptr == pSection) 
@@ -54,6 +55,8 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 void CChunkMesherSystem::UploadSectionMesh(CScene& scene, CChunkWorld& world, const SectionCoord& sectionCoord
 	, EChunkSectionRenderSlot slot, const ChunkMeshData& meshData)
 {
+	OPTICK_EVENT("UploadSectionMesh");
+
 	CObject* pRenderObject = world.FindRenderObject(sectionCoord.x, sectionCoord.y, sectionCoord.z, slot);
 	if (nullptr == pRenderObject)
 		return;

@@ -20,6 +20,8 @@ CMesh* CMeshManager::CreateOrUpdateDynamicMesh(ID3D11DeviceContext* pContext, ui
 	, const void* pVertices, uint32_t vertexStride, uint32_t vertexCnt
 	, const uint32_t* pIndices, uint32_t indexCnt)
 {
+	OPTICK_EVENT("CreateOrUpdateDynamicMesh");
+
 	CMesh* pMesh = nullptr;
 	auto it = m_mapMesh.find(meshKey);
 	if (it == m_mapMesh.end()) {

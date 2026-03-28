@@ -41,6 +41,8 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMateria
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 {
+	OPTICK_EVENT();
+
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
 	bool bStreamChanged = false;

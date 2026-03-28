@@ -72,4 +72,5 @@ private:
 private:
     DebugStatsSnapshot m_snapshot; // collect snapshot
     DebugStatsSnapshot m_displayShot; // N-1 Frame SnapShot
+    DebugHistory m_history;
 };
