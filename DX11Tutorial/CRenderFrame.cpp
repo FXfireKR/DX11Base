@@ -88,8 +88,13 @@ void CRenderFrame::_DrawItems(ID3D11DeviceContext* pContext, vector<RenderItem>&
 
 		switch (renderItem.eRenderPass)
 		{
-			case ERenderPass::SHADOW_PASS: dbg.AddDrawCallShadow(); break;
-			case ERenderPass::OPAQUE_PASS: dbg.AddDrawCallOpaque(); break;
+			case ERenderPass::SHADOW_PASS:		dbg.AddDrawCallShadow(); break;
+			case ERenderPass::SKY_PASS:			dbg.AddDrawCallSky(); break;
+			case ERenderPass::OPAQUE_PASS:		dbg.AddDrawCallOpaque(); break;
+			case ERenderPass::CUTOUT_PASS:		dbg.AddDrawCallCutout(); break;
+			case ERenderPass::TRANSPARENT_PASS:	dbg.AddDrawCallTranslucent(); break;
+			case ERenderPass::DEBUG_PASS:		dbg.AddDrawCallDebug(); break;
+			case ERenderPass::ORTH_PASS:		dbg.AddDrawCallUI(); break;
 			default: dbg.AddDrawCall(); break;
 		}
 		

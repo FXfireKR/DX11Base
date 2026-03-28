@@ -9,6 +9,7 @@ public:
     void EndFrame();
     
     inline const DebugStatsSnapshot& GetSnapshot() const { return m_displayShot; }
+    inline const DebugHistory& GetHistory() const { return m_history; }
 
 public:
     // -------------------------------------------------
@@ -38,6 +39,8 @@ public:
     void AddChunkUnload(int count = 1);
     void AddBlockEdit(int count = 1);
     void AddRebuiltSection(int count = 1);
+    void AddHiddenSection(int count = 1);
+    void AddCulledSection(int count = 1);
 
 public:
     // -------------------------------------------------
@@ -47,7 +50,11 @@ public:
 
     void AddDrawCall(int count = 1);
     void AddDrawCallOpaque(int count = 1);
+    void AddDrawCallSky(int count = 1);
     void AddDrawCallShadow(int count = 1);
+    void AddDrawCallCutout(int count = 1);
+    void AddDrawCallTranslucent(int count = 1);
+    void AddDrawCallDebug(int count = 1);
     void AddDrawCallUI(int count = 1);
 
     void AddPipelineBind(int count = 1);
@@ -68,6 +75,7 @@ public:
 
 private:
     void _ResetPerFrameCounters();
+    void _PushHistory();
 
 private:
     DebugStatsSnapshot m_snapshot; // collect snapshot

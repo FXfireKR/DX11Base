@@ -137,8 +137,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
 
-constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
-constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
+//constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
+//constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
+
+constexpr unsigned long INIT_SCREEN_SIZE_X = 1920; // 480
+constexpr unsigned long INIT_SCREEN_SIZE_Y = 1504; // 1504
 
 extern unsigned long g_ScreenSizeX;
 extern unsigned long g_ScreenSizeY;

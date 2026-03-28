@@ -56,9 +56,11 @@ struct RenderDebugStats
     int drawCallCount = 0;
 
     int drawCallCountOpaque = 0;
+    int drawCallCountSky = 0;
     int drawCallCountShadow = 0;
-    int drawCallCountMasked = 0;
+    int drawCallCountCutout = 0;
     int drawCallCountTranslucent = 0;
+    int drawCallCountDebug = 0;
     int drawCallCountUI = 0;
 
     int pipelineBindCount = 0;
