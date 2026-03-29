@@ -998,7 +998,7 @@ void CTestScene::_ApplySkyClearColor()
 	const float night = time.night;
 
 	// 1차 실험용 색
-	const XMFLOAT3 kNightColor = { 0.02f, 0.04f, 0.10f };
+	const XMFLOAT3 kNightColor = { 0.006f, 0.01f, 0.022f };
 	const XMFLOAT3 kDayColor = { 0.45f, 0.70f, 0.98f };
 	const XMFLOAT3 kDawnColor = { 0.95f, 0.46f, 0.18f };
 
@@ -1011,13 +1011,13 @@ void CTestScene::_ApplySkyClearColor()
 	const float dusk = std::max(sunrise, sunset);
 
 	// 해 뜨고 질 때만 주황색을 얹음
-	sky = _LerpColor(sky, kDawnColor, dusk * 0.65f);
+	sky = _LerpColor(sky, kDawnColor, dusk * 0.35f);
 
 	// 아주 깊은 밤은 조금 더 눌러줌
 	const float deepNight = smooth(night);
-	sky.x *= (1.f - 0.15f * deepNight);
-	sky.y *= (1.f - 0.10f * deepNight);
-	sky.z *= (1.f - 0.05f * deepNight);
+	sky.x *= (1.f - 0.35f * deepNight);
+	sky.y *= (1.f - 0.30f * deepNight);
+	sky.z *= (1.f - 0.22f * deepNight);
 
 	GetRenderWorld().SetSkyColor(sky);
 	GetRenderWorld().SetBackColor(sky.x, sky.y, sky.z, 1.0f);

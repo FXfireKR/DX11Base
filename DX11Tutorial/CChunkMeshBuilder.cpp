@@ -230,12 +230,11 @@ uint8_t CChunkMeshBuilder::_ResolveQuadBlockLight(const CChunkWorld& world, cons
 XMFLOAT4 CChunkMeshBuilder::_ResolveQuadColor_DebugBlockLight(const CChunkWorld& world, const BakedQuad& quad, int wx, int wy, int wz) const
 {
     const uint8_t light = _ResolveQuadBlockLight(world, quad, wx, wy, wz);
-    const float blockLight = static_cast<float>(light) / 15.0f;
+    const float blockLight01 = static_cast<float>(light) / 15.0f;
 
-    const float brightness = 0.1f + (0.9f * blockLight);
     XMFLOAT4 tint = ResolveBlockTint(quad);
 
-    return { tint.x* brightness, tint.y * brightness, tint.z * brightness, tint.w };
+    return { tint.x, tint.y, tint.z, blockLight01 };
 }
 
 XMFLOAT3 CChunkMeshBuilder::_RotatePointByBlockState(const XMFLOAT3& p, int rotXDeg, int rotYDeg) const
@@ -476,8 +475,7 @@ void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
     const uint32_t baseIndex = static_cast<uint32_t>(outMesh.vertices.size());
 
     const uint8_t light = _ResolveQuadBlockLight(world, faceCache.quad, wx, wy, wz);
-    const float blockLight = static_cast<float>(light) / 15.0f;
-    const float brightness = 0.1f + (0.9f * blockLight);
+    const float blockLight01 = static_cast<float>(light) / 15.0f;
 
     XMFLOAT4 tint = { 1.f, 1.f, 1.f, 1.f };
     if (faceCache.tintIndex >= 0)
@@ -485,10 +483,10 @@ void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
 
     const XMFLOAT4 color =
     {
-        tint.x * brightness,
-        tint.y * brightness,
-        tint.z * brightness,
-        tint.w
+        tint.x,
+        tint.y,
+        tint.z,
+        blockLight01
     };
 
     for (int i = 0; i < 4; ++i)

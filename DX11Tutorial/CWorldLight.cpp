@@ -16,20 +16,21 @@ WorldLightingParams CWorldLight::Evaluate(const WorldTimeParams& timeParams) con
     XMStoreFloat3(&out.moonDir, vMoon);
 
     // ---------- intensity ----------
-    //out.sunIntensity = saturate(timeParams.daylight * 1.15f);
-    out.sunIntensity = 0.3f + timeParams.daylight * 1.4f;
+    const float day01 = saturate((timeParams.daylight - 0.08f) / 0.92f);
+    // 밤에는 directional light 바닥값을 없앰
+    out.sunIntensity = day01 * 1.35f;
 
     // ---------- ambient ----------
-    const XMFLOAT3 night = { 0.08f, 0.10f, 0.14f };
-    const XMFLOAT3 day = { 0.28f, 0.30f, 0.33f };
+    const XMFLOAT3 night = { 0.025f, 0.032f, 0.050f };
+    const XMFLOAT3 day = { 0.28f,  0.30f,  0.33f };
 
-    out.ambientColor = _LerpColor(night, day, timeParams.daylight);
-    out.ambientStrength = 0.22f + timeParams.daylight * 0.78f;
+    out.ambientColor = _LerpColor(night, day, day01);
+    out.ambientStrength = 0.08f + day01 * 0.82f;
 
     // ---------- sky ----------
-    const XMFLOAT3 skyNight = { 0.02f, 0.03f, 0.06f };
-    const XMFLOAT3 skyDawn = { 0.45f, 0.28f, 0.18f };
-    const XMFLOAT3 skyDay = { 0.55f, 0.72f, 0.95f };
+    const XMFLOAT3 skyNight = { 0.006f, 0.010f, 0.022f };
+    const XMFLOAT3 skyDawn = { 0.45f,  0.28f,  0.18f };
+    const XMFLOAT3 skyDay = { 0.55f,  0.72f,  0.95f };
 
     if (timeParams.daylight < 0.35f)
     {
@@ -48,7 +49,8 @@ WorldLightingParams CWorldLight::Evaluate(const WorldTimeParams& timeParams) con
     out.sunColor = _LerpColor(warm, noon, timeParams.daylight);
 
     // ---------- shadow ----------
-    out.shadowEnabled = (timeParams.daylight > 0.08f);
+    // shadow도 낮에만 켬
+    out.shadowEnabled = (day01 > 0.12f);
 
     return out;
 }

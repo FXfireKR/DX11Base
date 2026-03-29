@@ -113,7 +113,13 @@ float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
 float4 PS(VS_OUTPUT input) : SV_Target
 {
     float4 tex0Color = texture0.Sample(sampler0, input.uv);
-    float4 albedo = tex0Color * input.color;
+
+    float3 tint = input.color.rgb;
+    float blockLight01 = saturate(input.color.a);
+
+    // alpha는 텍스처 alpha 그대로 사용
+    float3 albedo = tex0Color.rgb * tint;
+    float alpha = tex0Color.a;
 
     float3 N = normalize(input.normalWS);
     float3 L = normalize(lightDirWs.xyz);
@@ -124,9 +130,19 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float3 direct = lightColorIntensity.rgb * (NdotL * lightColorIntensity.a);
 
     float shadowFactor = ComputeShadowFactor(input.shadowPos, N, L);
+    float3 shadowedDirect = direct * shadowFactor;
 
-    float3 lighting = ambient + direct * shadowFactor;
-    return float4(albedo.rgb * lighting, albedo.a);
+    // torch / block light
+    // 곡선을 살짝 세워서 중간 레벨도 체감되게
+    float localL = saturate(pow(blockLight01, 0.80f));
+
+    // 따뜻한 계열 local light
+    float3 localLight = float3(1.00f, 0.92f, 0.82f) * (localL * 1.20f);
+
+    // 낮에는 태양광이 우세, 밤에는 local light가 우세
+    float3 lighting = ambient + max(shadowedDirect, localLight);
+
+    return float4(albedo * lighting, alpha);
 }
 
 // debug out
