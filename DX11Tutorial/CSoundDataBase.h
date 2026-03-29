@@ -71,6 +71,7 @@ public:
 
 public:
 	inline bool IsLoaded() const { return m_bLoadedComplete; }
+	inline queue<AudioLoadElemDesc>& GetPreLoadQueue() { return m_queuePreLoad; }
 
 private:
 	bool _LoadAssetIndex(const char* assetIndexPath);

@@ -31,12 +31,15 @@ bool CSoundDataBase::Load(const char* assetIndexPath, const char* objectsRoot)
 	{
 		for (const SoundClipDef& clip : event.second.clips)
 		{
+			if (clip.bStream)
+				continue;
+
 			AudioLoadElemDesc desc{};
 			desc.id = clip.soundID;
 			desc.objectPath = clip.objectPath;
 			desc.desc.b3D = event.second.playDesc.b3D;
 			desc.desc.bLoop = event.second.playDesc.bLoop;
-			desc.desc.bStream = clip.bStream;
+			desc.desc.bStream = false;
 
 			m_queuePreLoad.push(desc);
 		}

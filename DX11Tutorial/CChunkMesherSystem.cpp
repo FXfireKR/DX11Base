@@ -22,15 +22,15 @@ static uint64_t MakeChunkMeshKey(int cx, int cy, int cz, EChunkSectionRenderSlot
 
 void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 {
+	OPTICK_EVENT("RebuildDirtyChunks");
 
 	CChunkMeshBuilder builder;
 	SectionCoord sectionCoord{};
 
-	OPTICK_EVENT("RebuildDirtyChunks");
-
-	constexpr int MIN_BUDGET = 4;
+	constexpr int MIN_BUDGET = 2;
 	//int iCurrentBudget = std::max(MIN_BUDGET, static_cast<int>(world.GetDirtyQueueSize() / 100));
 	int iCurrentBudget = MIN_BUDGET;
+
 	while (iCurrentBudget > 0 && world.PopDirty(sectionCoord))
 	{
 		CChunkSection* pSection = world.FindSectionDataMutable(sectionCoord.x, sectionCoord.y, sectionCoord.z);

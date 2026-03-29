@@ -26,6 +26,14 @@ void CInitializeScene::Update(float fDelta)
 		BlockResDB.RegisterTextureKeys(BlockDB.GetUsedTextureKeys());
 		BlockResDB.Load();
 
+		auto& preloadQueue = BlockResDB.GetPreLoadQueue();
+		while(!preloadQueue.empty())
+		{
+			const auto& elem = preloadQueue.front();
+			GetAudioSystem().LoadSound(elem.id, elem.objectPath.c_str(), elem.desc.b3D, elem.desc.bLoop);
+			preloadQueue.pop();
+		}
+
 		m_bChangeSceneReq = true;
 		m_eNextSceneReq = SCENE_TYPE::TEST_SCENE;
 	}

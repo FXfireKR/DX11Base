@@ -115,7 +115,13 @@ bool CAudioSystem::LoadSound(SoundID id, const char* path, bool b3D, bool bLoop/
 	FMOD_MODE mode = _MakeModeFlags(newDesc);
 
 	FMOD::Sound* pSound = nullptr;
-	FMOD_RESULT result = m_pSystem->createSound(path, mode, nullptr, &pSound);
+	FMOD_RESULT result;
+
+	if (bStream)
+		result = m_pSystem->createStream(path, mode, nullptr, &pSound);
+	else
+		result = m_pSystem->createSound(path, mode, nullptr, &pSound);
+
 	if (!FMOD_RESULT_OK(result))
 		return false;
 
