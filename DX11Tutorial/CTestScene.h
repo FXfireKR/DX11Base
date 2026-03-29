@@ -116,7 +116,7 @@ private:
 	bool m_bBGMStarted = false;
 	bool m_bShadowEnabled = true;
 
-	SoundID m_sndBGM = fnv1a_64("LMCinst");
+	SoundID m_sndBGM = fnv1a_64("sweden");
 	SoundID m_sndPlace = fnv1a_64("block_place");
 	SoundID m_sndBreak = fnv1a_64("block_break");
 };

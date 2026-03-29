@@ -77,6 +77,7 @@ void CTestScene::Awake()
 	interactor->Init();
 	interactor->SetWorld(&m_VoxelWorld);
 	interactor->SetParticleSystem(&m_blockBreakParticleSystem);
+	interactor->SetAudioSystem(&GetAudioSystem());
 
 	// 카메라 피벗(자식 오브젝트)
 	auto* pivot = AddAndGetObject("PlayerCameraPivot");
@@ -106,9 +107,13 @@ void CTestScene::Awake()
 
 	m_bSpawnStreamingReady = false;
 
-	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
-	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
-	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
+
+	auto* a = BlockResDB.FindEvent("music.overworld.cherry_grove");
+	if (nullptr != a)
+	{
+		const auto& def = a->clips.begin() + 7;
+		GetAudioSystem().Submit2D(def->soundID, EAudioBus::BGM, def->volumeMul, def->pitchMul);
+	}
 }
 
 void CTestScene::Start()

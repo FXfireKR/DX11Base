@@ -77,6 +77,7 @@ void CAudioSystem::Submit2D(SoundID soundID, EAudioBus bus/*= EAudioBus::SFX*/, 
 	req.b3D = false;
 	req.id = soundID;
 	req.volume = volume;
+	req.pitch = pitch;
 	req.bus = bus;
 
 	m_pendingRequests.push(req);
@@ -213,6 +214,7 @@ FMOD::Channel* CAudioSystem::_Play(const AudioRequest& request)
 	}
 
 	pChannel->setVolume(request.volume);
+	pChannel->setPitch(request.pitch);
 	pChannel->setPaused(false);
 
 	return pChannel;

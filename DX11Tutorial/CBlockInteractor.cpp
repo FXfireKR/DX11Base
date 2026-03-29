@@ -4,6 +4,7 @@
 #include "CInventoryComponent.h"
 #include "CObject.h"
 #include "CTransform.h"
+#include "CAudioSystem.h"
 
 void CBlockInteractor::Init()
 {
@@ -112,17 +113,11 @@ void CBlockInteractor::_UpdateHighlight()
 
 void CBlockInteractor::_ConsumeRequests()
 {
-	//if (m_bBreakRequested)
-	//{
-	//	_TryBreakBlock();
-	//}
-
 	if (m_bPlaceRequested)
 	{
 		_TryPlaceBlock();
 	}
 
-	//m_bBreakRequested = false;
 	m_bPlaceRequested = false;
 }
 
@@ -154,9 +149,12 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 	m_fBreakAccum += fDelta;
 	m_fHitFxCoolDown -= fDelta;
 
-	if (m_pParticle && m_fHitFxCoolDown <= 0.f)
+	if (m_fHitFxCoolDown <= 0.f)
 	{
-		m_pParticle->SpawnBreakBurst(m_miningBlock, m_miningCell, m_miningNormal);
+		if (m_pParticle)
+			m_pParticle->SpawnBreakBurst(m_miningBlock, m_miningCell, m_miningNormal);
+
+		_PlayBlockSound(m_miningCell, EBlockSoundUsage::HIT, m_miningBlock, 0.03f);
 		m_fHitFxCoolDown = 0.25f;
 	}
 
@@ -173,6 +171,8 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 
 	if (!bBroken)
 		return;
+
+	_PlayBlockSound(breakCell, EBlockSoundUsage::BREAK, breakPos, 0.04f);
 
 	if (m_pParticle)
 		m_pParticle->SpawnBreakBurst(breakPos, breakCell, breakNormal);
@@ -244,10 +244,14 @@ bool CBlockInteractor::_TryPlaceBlock()
 
 		if (_OverlapAABB(playerCenter, playerHalf, blockCenter, blockHalf))
 			return false;
-
 	}
 
-	return m_pWorld->TryPlaceBlock(placePos.x, placePos.y, placePos.z, m_hitResult.normal, placeCell);
+	const bool bPlaced = m_pWorld->TryPlaceBlock(placePos.x, placePos.y, placePos.z, m_hitResult.normal, placeCell);
+
+	if (bPlaced)
+		_PlayBlockSound(placeCell, EBlockSoundUsage::PLACE, placePos, 0.02f);
+
+	return bPlaced;
 }
 
 bool CBlockInteractor::_TryBreakBlock()
@@ -274,4 +278,58 @@ void CBlockInteractor::_MakeCenterRay(OUT XMFLOAT3& outOrigin, XMFLOAT3& outDir)
 	XMVECTOR forward = XMVector3TransformNormal(XMVectorSet(0.f, 0.f, 1.f, 0.f), m_pCamTransform->GetWorldMatrix());
 	forward = XMVector3Normalize(forward);
 	XMStoreFloat3(&outDir, forward);
+}
+
+void CBlockInteractor::_PlayBlockSound(const BlockCell& cell, EBlockSoundUsage usage, const XMINT3& blockPos, float pitchJitter)
+{
+	if (!m_pAudio)
+		return;
+
+	if (cell.IsAir())
+		return;
+
+	ResolvedSound resolved{};
+	if (!BlockResDB.ResolveBlock(cell.blockID, usage, resolved))
+		return;
+
+	const XMFLOAT3 pos =
+	{
+		static_cast<float>(blockPos.x) + 0.5f,
+		static_cast<float>(blockPos.y) + 0.5f,
+		static_cast<float>(blockPos.z) + 0.5f
+	};
+
+	const float finalPitch = _RandomPitch(resolved.playDesc.pitch, pitchJitter);
+	
+	if (resolved.playDesc.b3D)
+	{
+		m_pAudio->Submit3D(
+			resolved.soundID,
+			pos,
+			resolved.playDesc.bus,
+			resolved.playDesc.volume,
+			finalPitch,
+			resolved.playDesc.minDistance,
+			resolved.playDesc.maxDistance
+		);
+	}
+	else
+	{
+		m_pAudio->Submit2D(
+			resolved.soundID,
+			resolved.playDesc.bus,
+			resolved.playDesc.volume,
+			finalPitch
+		);
+	}
+}
+
+float CBlockInteractor::_RandomPitch(float basePitch, float jitter) const
+{
+	if (jitter <= 0.f)
+		return basePitch;
+
+	const float t = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+	const float mul = (1.f - jitter) + (2.f * jitter * t);
+	return basePitch * mul;
 }

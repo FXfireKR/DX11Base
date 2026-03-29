@@ -8,6 +8,7 @@ class CInventoryComponent;
 class CCharacterMotor;
 class CTransform;
 class CObject;
+class CAudioSystem;
 
 class CBlockInteractor : public CComponentBase<CBlockInteractor, COMPONENT_TYPE::BLOCKINTERACTOR>
 {
@@ -27,6 +28,7 @@ public:
 	inline void SetCameraTransform(CTransform* pCamTransform) { m_pCamTransform = pCamTransform; }
 	inline void SetHighlightObject(CObject* pHighlightObject) { m_pHighlightObject = pHighlightObject; }
 	inline void SetParticleSystem(CBlockBreakParticleSystem* pParticleSystem) { m_pParticle = pParticleSystem; }
+	inline void SetAudioSystem(CAudioSystem* pAudioSystem) { m_pAudio = pAudioSystem; }
 
 	inline const BlockHitResult& GetBlockHit() const { return m_hitResult; }
 
@@ -47,6 +49,9 @@ private:
 
 	void _MakeCenterRay(OUT XMFLOAT3& outOrigin, XMFLOAT3& outDir) const;
 
+	void _PlayBlockSound(const BlockCell& cell, EBlockSoundUsage usage, const XMINT3& blockPos, float pitchJitter = 0.f);
+	float _RandomPitch(float basePitch, float jitter) const;
+
 private:
 	CWorld* m_pWorld = nullptr;
 	CInventoryComponent* m_pInventory = nullptr;
@@ -54,6 +59,7 @@ private:
 	CTransform* m_pCamTransform = nullptr;
 	CObject* m_pHighlightObject = nullptr;
 	CBlockBreakParticleSystem* m_pParticle = nullptr;
+	CAudioSystem* m_pAudio = nullptr;
 
 private:
 	BlockHitResult m_hitResult{};
