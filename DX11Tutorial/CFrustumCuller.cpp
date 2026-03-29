@@ -10,7 +10,7 @@ void CFrustumCuller::Update(CXMMATRIX view, CXMMATRIX proj)
 	localFrustum.Transform(m_worldFrustum, invView);
 }
 
-bool CFrustumCuller::IsVisible(const XMFLOAT3& worldTrans, const XMFLOAT3& boundCenter, const XMFLOAT3& boundExtents)
+bool CFrustumCuller::IsVisible(const XMFLOAT3& worldTrans, const XMFLOAT3& boundCenter, const XMFLOAT3& boundExtents) const
 {
 	BoundingBox box{};
 	box.Center =

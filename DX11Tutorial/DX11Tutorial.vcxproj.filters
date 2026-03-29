@@ -504,6 +504,9 @@
     <ClInclude Include="CGameScene.h">
       <Filter>Code\99_Scene</Filter>
     </ClInclude>
+    <ClInclude Include="CFrustumCuller.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -757,6 +760,9 @@
     </ClCompile>
     <ClCompile Include="CGameScene.cpp">
       <Filter>Code\99_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CFrustumCuller.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

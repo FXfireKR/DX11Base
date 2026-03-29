@@ -1,10 +1,11 @@
 ﻿#pragma once
 #include "CScene.h"
 #include "CWorld.h"
+#include "CFrustumCuller.h"
 
 class CGameScene : public CScene
 {
-private:
+private: // enum, struct
 	enum class ESectionDebugMode : uint8_t
 	{
 		OFF = 0,
@@ -112,6 +113,7 @@ private: // optional
 
 	float m_debugBias = 0.0005f;
 
+	CFrustumCuller m_frustumCuller;
 	bool m_bFrustumculling = true;
 	uint32_t m_dbgFrustumTestCount = 0;
 	uint32_t m_dbgFrustumCulledCount = 0;

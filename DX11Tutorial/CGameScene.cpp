@@ -2,41 +2,6 @@
 #include "CGameScene.h"
 #include "CChunkMesherSystem.h"
 
-namespace
-{
-	using namespace DirectX;
-
-	BoundingFrustum BuildWorldFrustum(CXMMATRIX view, CXMMATRIX proj)
-	{
-		BoundingFrustum localFrustum;
-		// 네 카메라는 LH이므로 false
-		BoundingFrustum::CreateFromMatrix(localFrustum, proj, false);
-
-		BoundingFrustum worldFrustum;
-		const XMMATRIX invView = XMMatrixInverse(nullptr, view);
-		localFrustum.Transform(worldFrustum, invView);
-		return worldFrustum;
-	}
-
-	bool IntersectsRendererBounds(const BoundingFrustum& frustum, const CTransform* transform, const CMeshRenderer* render)
-	{
-		const XMFLOAT3 worldPos = transform->GetWorldTrans();
-		const XMFLOAT3 center = render->GetLocalBoundsCenter();
-		const XMFLOAT3 extents = render->GetLocalBoundsExtents();
-
-		BoundingBox box{};
-		box.Center =
-		{
-			worldPos.x + center.x,
-			worldPos.y + center.y,
-			worldPos.z + center.z
-		};
-		box.Extents = extents;
-
-		return frustum.Intersects(box);
-	}
-}
-
 void CGameScene::Awake()
 {
 	_CreateWorldRender();
@@ -177,8 +142,7 @@ void CGameScene::BuildRenderFrame()
 	rw.SetViewMatrix(pCurrentCamera->GetViewMatrix());
 	rw.SetProjectionMatrix(pCurrentCamera->GetProjMatrix());
 
-	const DirectX::BoundingFrustum mainFrustum = BuildWorldFrustum(pCurrentCamera->GetViewMatrix(), pCurrentCamera->GetProjMatrix());
-
+	m_frustumCuller.Update(pCurrentCamera->GetViewMatrix(), pCurrentCamera->GetProjMatrix());
 	uint32_t frustumTestCount = 0;
 	uint32_t frustumCulledCount = 0;
 
@@ -311,7 +275,7 @@ void CGameScene::BuildRenderFrame()
 			{
 				++frustumTestCount;
 
-				bVisible = IntersectsRendererBounds(mainFrustum, transform, render);
+				bVisible = m_frustumCuller.IsVisible(transform->GetWorldTrans(), render->GetLocalBoundsCenter(), render->GetLocalBoundsExtents());
 				if (!bVisible)
 				{
 					++frustumCulledCount;
