@@ -43,7 +43,7 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMateria
 	m_pGenerator = std::make_unique<CHeightmapChunkGenerator>();
 	m_pGenerator->Initialize(m_genSettings);
 
-	m_vecDirtyQueue.reserve(CHUNK_SECTION_COUNT * (m_iStreamRadius + m_iWarmRadiusOffset));
+	m_vecDirtyQueue.reserve(10000);
 }
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
@@ -156,7 +156,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 		{
 			OPTICK_EVENT("_UpdateDebugStats");
-			_UpdateDebugStats();
+			//_UpdateDebugStats();
 		}
 	}
 
@@ -406,56 +406,10 @@ uint8_t CChunkWorld::GetBlockLight(int wx, int wy, int wz) const
 
 void CChunkWorld::SetBlockLight(int wx, int wy, int wz, uint8_t level)
 {
-	if (wy < 0 || wy >= CHUNK_SIZE_Y)
-		return;
-
-	if (level > 15)
-		level = 15;
-
-	int cx, sy, cz;
-	int lx, ly, lz;
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
-		return;
-
-	if (level == 0)
-	{
-		CChunkLightSection* pLightSection = FindBlockLightSectionMutable(cx, sy, cz);
-		if (nullptr == pLightSection)
-			return;
-
-		pLightSection->SetBlockLight(lx, ly, lz, 0);
-
-		if (pLightSection->IsAllZero())
-		{
-			if (CChunkColumn* pColumn = _FindColumn(cx, cz))
-				pColumn->ResetBlockLightSection(sy);
-		}
-	}
-	else
-	{
-		CChunkLightSection* pLightSection = EnsureBlockLightSection(cx, sy, cz);
-		if (nullptr == pLightSection)
-			return;
-
-		pLightSection->SetBlockLight(lx, ly, lz, level);
-	}
-
-	_MarkLightDirty(cx, sy, cz);
-
-	if (lx == 0)
-		_MarkLightDirty(cx - 1, sy, cz);
-	else if (lx == CHUNK_SIZE_X - 1)
-		_MarkLightDirty(cx + 1, sy, cz);
-
-	if (ly == 0 && sy > 0)
-		_MarkLightDirty(cx, sy - 1, cz);
-	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
-		_MarkLightDirty(cx, sy + 1, cz);
-
-	if (lz == 0)
-		_MarkLightDirty(cx, sy, cz - 1);
-	else if (lz == CHUNK_SIZE_Z - 1)
-		_MarkLightDirty(cx, sy, cz + 1);
+	LightDirtyTouchSet touched;
+	_SetBlockLightRawNoDirty(wx, wy, wz, level);
+	_TouchLightDirtyByWorld(touched, wx, wy, wz);
+	_FlushTouchedLightDirty(touched);
 }
 
 CChunkLightSection* CChunkWorld::FindBlockLightSectionMutable(int cx, int sy, int cz)
@@ -1079,37 +1033,37 @@ bool CChunkWorld::_CanBlockLightPassThrough(const BlockCell& cell) const
 	return !BlockDB.IsFaceOccluder(cell.blockID);
 }
 
-void CChunkWorld::_UpdateBlockLightOnBlockChanged(int wx, int wy, int wz
-	, const BlockCell& oldCell, const BlockCell& newCell)
+void CChunkWorld::_UpdateBlockLightOnBlockChanged(int wx, int wy, int wz,
+	const BlockCell& oldCell, const BlockCell& newCell)
 {
+	LightDirtyTouchSet touched;
+
 	const uint8_t oldEmission = BlockDB.GetLightEmission(oldCell.blockID);
 	const uint8_t newEmission = BlockDB.GetLightEmission(newCell.blockID);
 
 	const bool oldPass = _CanBlockLightPassThrough(oldCell);
 	const bool newPass = _CanBlockLightPassThrough(newCell);
 
-	// 1. 기존 source 제거
 	if (oldEmission > 0)
 	{
-		_PropagateBlockLightRemove(wx, wy, wz);
+		_PropagateBlockLightRemove(wx, wy, wz, touched);
 	}
-	// 2. 통로가 막혔으면 기존 빛 제거
 	else if (oldPass && !newPass)
 	{
-		_PropagateBlockLightRemove(wx, wy, wz);
+		_PropagateBlockLightRemove(wx, wy, wz, touched);
 	}
 
-	// 3. 통로가 열렸으면 주변에서 다시 채움
 	if (!oldPass && newPass)
 	{
-		_RelightBlockLightAround(wx, wy, wz);
+		_RelightBlockLightAround(wx, wy, wz, touched);
 	}
 
-	// 4. 새 source 추가
 	if (newEmission > 0)
 	{
-		_PropagateBlockLightAdd(wx, wy, wz, newEmission);
+		_PropagateBlockLightAdd(wx, wy, wz, newEmission, touched);
 	}
+
+	_FlushTouchedLightDirty(touched);
 }
 
 void CChunkWorld::_PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission)
@@ -1389,6 +1343,232 @@ bool CChunkWorld::_IsUnsupportedAttachedBlock(int wx, int wy, int wz) const
 	}
 
 	return false;
+}
+
+uint64_t CChunkWorld::_MakeLightDirtySectionKey(int cx, int sy, int cz)
+{
+	uint64_t x = static_cast<uint16_t>(cx & 0xFFFF);
+	uint64_t y = static_cast<uint16_t>(sy & 0xFFFF);
+	uint64_t z = static_cast<uint16_t>(cz & 0xFFFF);
+	return x | (y << 16) | (z << 32);
+}
+
+void CChunkWorld::_DecodeLightDirtySectionKey(uint64_t key, int& cx, int& sy, int& cz)
+{
+	cx = static_cast<int16_t>(key & 0xFFFF);
+	sy = static_cast<int16_t>((key >> 16) & 0xFFFF);
+	cz = static_cast<int16_t>((key >> 32) & 0xFFFF);
+}
+
+void CChunkWorld::_TouchLightDirtyByWorld(LightDirtyTouchSet& touched, int wx, int wy, int wz)
+{
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return;
+
+	touched.insert(_MakeLightDirtySectionKey(cx, sy, cz));
+
+	if (lx == 0)
+		touched.insert(_MakeLightDirtySectionKey(cx - 1, sy, cz));
+	else if (lx == CHUNK_SIZE_X - 1)
+		touched.insert(_MakeLightDirtySectionKey(cx + 1, sy, cz));
+
+	if (ly == 0 && sy > 0)
+		touched.insert(_MakeLightDirtySectionKey(cx, sy - 1, cz));
+	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
+		touched.insert(_MakeLightDirtySectionKey(cx, sy + 1, cz));
+
+	if (lz == 0)
+		touched.insert(_MakeLightDirtySectionKey(cx, sy, cz - 1));
+	else if (lz == CHUNK_SIZE_Z - 1)
+		touched.insert(_MakeLightDirtySectionKey(cx, sy, cz + 1));
+}
+
+void CChunkWorld::_FlushTouchedLightDirty(const LightDirtyTouchSet& touched)
+{
+	for (uint64_t key : touched)
+	{
+		int cx, sy, cz;
+		_DecodeLightDirtySectionKey(key, cx, sy, cz);
+		_MarkLightDirty(cx, sy, cz);
+	}
+}
+
+void CChunkWorld::_SetBlockLightRawNoDirty(int wx, int wy, int wz, uint8_t level)
+{
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return;
+
+	if (level > 15)
+		level = 15;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+		return;
+
+	if (level == 0)
+	{
+		CChunkLightSection* pLightSection = FindBlockLightSectionMutable(cx, sy, cz);
+		if (nullptr == pLightSection)
+			return;
+
+		pLightSection->SetBlockLight(lx, ly, lz, 0);
+
+		if (pLightSection->IsAllZero())
+		{
+			if (CChunkColumn* pColumn = _FindColumn(cx, cz))
+				pColumn->ResetBlockLightSection(sy);
+		}
+	}
+	else
+	{
+		CChunkLightSection* pLightSection = EnsureBlockLightSection(cx, sy, cz);
+		if (nullptr == pLightSection)
+			return;
+
+		pLightSection->SetBlockLight(lx, ly, lz, level);
+	}
+}
+
+void CChunkWorld::_PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission, LightDirtyTouchSet& touched)
+{
+	if (emission == 0)
+		return;
+
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return;
+
+	queue<BlockLightNode> q;
+
+	if (GetBlockLight(wx, wy, wz) < emission)
+	{
+		_SetBlockLightRawNoDirty(wx, wy, wz, emission);
+		_TouchLightDirtyByWorld(touched, wx, wy, wz);
+	}
+
+	q.push({ {wx, wy, wz}, emission });
+
+	while (!q.empty())
+	{
+		BlockLightNode cur = q.front();
+		q.pop();
+
+		if (cur.light <= 1)
+			continue;
+
+		const uint8_t nextLight = cur.light - 1;
+
+		for (const XMINT3& dir : g_BlockLightDirs)
+		{
+			const int nx = cur.w.x + dir.x;
+			const int ny = cur.w.y + dir.y;
+			const int nz = cur.w.z + dir.z;
+
+			if (ny < 0 || ny >= CHUNK_SIZE_Y)
+				continue;
+
+			const BlockCell neighborCell = GetBlock(nx, ny, nz);
+			if (!_CanBlockLightPassThrough(neighborCell))
+				continue;
+
+			if (GetBlockLight(nx, ny, nz) >= nextLight)
+				continue;
+
+			_SetBlockLightRawNoDirty(nx, ny, nz, nextLight);
+			_TouchLightDirtyByWorld(touched, nx, ny, nz);
+			q.push({ {nx, ny, nz}, nextLight });
+		}
+	}
+}
+
+void CChunkWorld::_PropagateBlockLightRemove(int wx, int wy, int wz, LightDirtyTouchSet& touched)
+{
+	const uint8_t startLight = GetBlockLight(wx, wy, wz);
+	if (startLight == 0)
+		return;
+
+	std::queue<BlockLightNode> removeQ;
+	std::vector<BlockLightNode> relightSeeds;
+	relightSeeds.reserve(64);
+
+	_SetBlockLightRawNoDirty(wx, wy, wz, 0);
+	_TouchLightDirtyByWorld(touched, wx, wy, wz);
+	removeQ.push({ {wx, wy, wz}, startLight });
+
+	while (!removeQ.empty())
+	{
+		BlockLightNode cur = removeQ.front();
+		removeQ.pop();
+
+		for (const XMINT3& dir : g_BlockLightDirs)
+		{
+			const int nx = cur.w.x + dir.x;
+			const int ny = cur.w.y + dir.y;
+			const int nz = cur.w.z + dir.z;
+
+			if (ny < 0 || ny >= CHUNK_SIZE_Y)
+				continue;
+
+			const uint8_t neighborLight = GetBlockLight(nx, ny, nz);
+			if (neighborLight == 0)
+				continue;
+
+			const BlockCell neighborCell = GetBlock(nx, ny, nz);
+			const uint8_t neighborEmission = BlockDB.GetLightEmission(neighborCell.blockID);
+
+			if (neighborEmission > 0)
+				relightSeeds.push_back({ {nx, ny, nz}, neighborEmission });
+
+			if (neighborLight < cur.light)
+			{
+				_SetBlockLightRawNoDirty(nx, ny, nz, 0);
+				_TouchLightDirtyByWorld(touched, nx, ny, nz);
+				removeQ.push({ {nx, ny, nz}, neighborLight });
+			}
+			else
+			{
+				relightSeeds.push_back({ {nx, ny, nz}, neighborLight });
+			}
+		}
+	}
+
+	for (const BlockLightNode& seed : relightSeeds)
+	{
+		if (seed.light == 0)
+			continue;
+
+		_PropagateBlockLightAdd(seed.w.x, seed.w.y, seed.w.z, seed.light, touched);
+	}
+}
+
+void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz, LightDirtyTouchSet& touched)
+{
+	for (const XMINT3& dir : g_BlockLightDirs)
+	{
+		const int nx = wx + dir.x;
+		const int ny = wy + dir.y;
+		const int nz = wz + dir.z;
+
+		if (ny < 0 || ny >= CHUNK_SIZE_Y)
+			continue;
+
+		const BlockCell neighborCell = GetBlock(nx, ny, nz);
+
+		const uint8_t emission = BlockDB.GetLightEmission(neighborCell.blockID);
+		if (emission > 0)
+		{
+			_PropagateBlockLightAdd(nx, ny, nz, emission, touched);
+		}
+
+		const uint8_t neighborLight = GetBlockLight(nx, ny, nz);
+		if (neighborLight > 1)
+		{
+			_PropagateBlockLightAdd(nx, ny, nz, neighborLight, touched);
+		}
+	}
 }
 
 void CChunkWorld::_UpdateDebugStats()

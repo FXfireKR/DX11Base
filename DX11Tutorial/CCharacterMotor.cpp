@@ -14,8 +14,8 @@ void CCharacterMotor::Init()
 
 	m_fYaw = 0.f;
 
-	//m_fMoveSpeed = 4.5f;
-	m_fMoveSpeed = 4.5f * 10.f;
+	m_fMoveSpeed = 4.5f;
+	//m_fMoveSpeed = 4.5f * 10.f;
 	m_fJumpSpeed = 7.f;
 	m_fGravity = 20.f;
 	m_fMaxFallSpeed = 40.f;

@@ -83,10 +83,10 @@ void CObjectManager::ProcessPeddingDestroy()
 		if (true == m_vecObjects[i]->GetPeddingDestroy()) 
 		{
 			_RemoveObjectAtIndex(i);
-			++count;
+			//++count;
 
-			if (m_uDestroyBudget < count)
-				return;
+			//if (m_uDestroyBudget < count)
+			//	return;
 		}
 	}
 }

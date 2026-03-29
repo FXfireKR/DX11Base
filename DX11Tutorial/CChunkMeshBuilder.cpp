@@ -2,6 +2,8 @@
 #include "CChunkMeshBuilder.h"
 #include "CChunkWorld.h"
 
+
+
 bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
     , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
@@ -42,6 +44,10 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     , const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
 {
     OPTICK_EVENT("_AppendBlockQuads");
+
+    // 패스트트랙
+    if (_TryAppendFastOpaqueCube(world, wx, wy, wz, lx, ly, lz, cell, outMeshes))
+        return true;
 
     ChunkMeshData* pTargetMesh = nullptr;
 
@@ -338,3 +344,169 @@ XMFLOAT2 CChunkMeshBuilder::_RemapAtlasUV(const AtlasRegion& region, const XMFLO
     return outUV;
 }
 
+bool CChunkMeshBuilder::_TryAppendFastOpaqueCube(const CChunkWorld& world,
+    int wx, int wy, int wz, int lx, int ly, int lz,
+    const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
+{
+    OPTICK_EVENT();
+
+    if (BlockDB.GetRenderLayer(cell.blockID) != BLOCK_RENDER_LAYER::OPAQUE_LAYER)
+        return false;
+
+    if (!BlockDB.IsFullCube(cell.blockID))
+        return false;
+
+    const FastCubeCache& cache = _GetOrBuildFastCubeCache(cell.blockID, cell.stateIndex);
+    if (!cache.canUse)
+        return false;
+
+    ChunkMeshData& mesh = outMeshes.opaque;
+
+    for (const FastCubeFaceCache& faceCache : cache.faces)
+    {
+        if (!faceCache.valid)
+            return false;
+
+        if (_ShouldCullFace(world, wx, wy, wz, cell, faceCache.face))
+            continue;
+
+        _AppendFastCubeFace(world, faceCache, wx, wy, wz, lx, ly, lz, mesh);
+    }
+
+    dbg.AddDrawCallTranslucent();
+    return true;
+}
+
+const FastCubeCache& CChunkMeshBuilder::_GetOrBuildFastCubeCache(BLOCK_ID blockID, STATE_INDEX stateIndex) const
+{
+    const FastCubeKey key = MakeFastCubeKey(blockID, stateIndex);
+
+    auto it = g_fastCubeCache.find(key);
+    if (it != g_fastCubeCache.end())
+        return it->second;
+
+    FastCubeCache cache{};
+    cache.initialized = true;
+    cache.canUse = false;
+
+    if (BlockDB.GetRenderLayer(blockID) != BLOCK_RENDER_LAYER::OPAQUE_LAYER)
+    {
+        auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+        return newIt->second;
+    }
+
+    if (!BlockDB.IsFullCube(blockID))
+    {
+        auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+        return newIt->second;
+    }
+
+    const vector<AppliedModel>* pModels = nullptr;
+    if (!BlockDB.GetAppliedModels(blockID, stateIndex, pModels) || !pModels || pModels->empty())
+    {
+        auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+        return newIt->second;
+    }
+
+    const AppliedModel& applied = (*pModels)[0];
+    if (applied.rotate)
+    {
+        auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+        return newIt->second;
+    }
+
+    const BakedModel* pModel = BlockDB.FindBakedModel(applied.modelHash);
+    if (!pModel || pModel->quads.size() != 6)
+    {
+        auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+        return newIt->second;
+    }
+
+    bool used[6] = {};
+
+    for (const BakedQuad& quad : pModel->quads)
+    {
+        if (!quad.bHasCullFace)
+        {
+            auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+            return newIt->second;
+        }
+
+        const int faceIdx = FaceDirToIndex(static_cast<FACE_DIR>(quad.cullFaceDir));
+        if (faceIdx < 0 || used[faceIdx])
+        {
+            auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+            return newIt->second;
+        }
+
+        AtlasRegion region{};
+        if (!BlockResDB.TryGetRegion(quad.debugTextureKey.c_str(), region))
+        {
+            auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+            return newIt->second;
+        }
+
+        used[faceIdx] = true;
+        cache.faces[faceIdx].valid = true;
+        cache.faces[faceIdx].face = static_cast<FACE_DIR>(quad.cullFaceDir);
+        cache.faces[faceIdx].region = region;
+        cache.faces[faceIdx].tintIndex = quad.tintIndex;
+        cache.faces[faceIdx].quad = quad;
+    }
+
+    for (bool b : used)
+    {
+        if (!b)
+        {
+            auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+            return newIt->second;
+        }
+    }
+
+    cache.canUse = true;
+    auto [newIt, _] = g_fastCubeCache.emplace(key, cache);
+    return newIt->second;
+}
+
+void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
+    const FastCubeFaceCache& faceCache,
+    int wx, int wy, int wz, int lx, int ly, int lz,
+    ChunkMeshData& outMesh) const
+{
+    const uint32_t baseIndex = static_cast<uint32_t>(outMesh.vertices.size());
+
+    const uint8_t light = _ResolveQuadBlockLight(world, faceCache.quad, wx, wy, wz);
+    const float blockLight = static_cast<float>(light) / 15.0f;
+    const float brightness = 0.1f + (0.9f * blockLight);
+
+    XMFLOAT4 tint = { 1.f, 1.f, 1.f, 1.f };
+    if (faceCache.tintIndex >= 0)
+        tint = { 0.55f, 0.74f, 0.32f, 1.f };
+
+    const XMFLOAT4 color =
+    {
+        tint.x * brightness,
+        tint.y * brightness,
+        tint.z * brightness,
+        tint.w
+    };
+
+    for (int i = 0; i < 4; ++i)
+    {
+        ChunkMeshVertex v{};
+        v.position.x = faceCache.quad.verts[i].pos.x + static_cast<float>(lx);
+        v.position.y = faceCache.quad.verts[i].pos.y + static_cast<float>(ly);
+        v.position.z = faceCache.quad.verts[i].pos.z + static_cast<float>(lz);
+        v.normal = faceCache.quad.verts[i].normal;
+        v.color = color;
+        v.uv = _RemapAtlasUV(faceCache.region, faceCache.quad.verts[i].uv);
+        outMesh.vertices.push_back(v);
+    }
+
+    outMesh.indices.push_back(baseIndex + 0);
+    outMesh.indices.push_back(baseIndex + 1);
+    outMesh.indices.push_back(baseIndex + 2);
+    outMesh.indices.push_back(baseIndex + 0);
+    outMesh.indices.push_back(baseIndex + 2);
+    outMesh.indices.push_back(baseIndex + 3);
+}

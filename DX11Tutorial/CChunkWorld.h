@@ -149,11 +149,25 @@ private:
 	void _ValidateAttachmentAround(int wx, int wy, int wz);
 	bool _IsUnsupportedAttachedBlock(int wx, int wy, int wz) const;
 
+	using LightDirtyTouchSet = std::unordered_set<uint64_t>;
+
+	static uint64_t _MakeLightDirtySectionKey(int cx, int sy, int cz);
+	static void _DecodeLightDirtySectionKey(uint64_t key, int& cx, int& sy, int& cz);
+
+	void _SetBlockLightRawNoDirty(int wx, int wy, int wz, uint8_t level);
+	void _TouchLightDirtyByWorld(LightDirtyTouchSet& touched, int wx, int wy, int wz);
+	void _FlushTouchedLightDirty(const LightDirtyTouchSet& touched);
+
+	void _PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission, LightDirtyTouchSet& touched);
+	void _PropagateBlockLightRemove(int wx, int wy, int wz, LightDirtyTouchSet& touched);
+	void _RelightBlockLightAround(int wx, int wy, int wz, LightDirtyTouchSet& touched);
+
 	void _UpdateDebugStats();
 
 public:
 	inline const int GetStreamRadius() const { return m_iStreamRadius; }
 	inline void SetStreamRadius(int iRadius) { m_iStreamRadius = iRadius > 0 ? iRadius : m_iStreamRadius; }
+	inline size_t GetDirtyQueueSize() const { return m_vecDirtyQueue.size(); }
 
 private:
 	CScene* m_pScene = nullptr;
