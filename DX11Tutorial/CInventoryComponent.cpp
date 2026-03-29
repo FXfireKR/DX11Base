@@ -6,89 +6,15 @@ void CInventoryComponent::Init()
 	m_arrayHotBar.fill({ {0, 0}, 0 });
 	m_iSelectedSlot = 0;
 
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:glass");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[0].block.blockID = blockID;
-		m_arrayHotBar[0].block.stateIndex = sidx;
-		m_arrayHotBar[0].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:torch");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[1].block.blockID = blockID;
-		m_arrayHotBar[1].block.stateIndex = sidx;
-		m_arrayHotBar[1].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:oak_leaves");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[2].block.blockID = blockID;
-		m_arrayHotBar[2].block.stateIndex = sidx;
-		m_arrayHotBar[2].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:cobblestone");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[3].block.blockID = blockID;
-		m_arrayHotBar[3].block.stateIndex = sidx;
-		m_arrayHotBar[3].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:dirt");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[4].block.blockID = blockID;
-		m_arrayHotBar[4].block.stateIndex = sidx;
-		m_arrayHotBar[4].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:oak_log");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[5].block.blockID = blockID;
-		m_arrayHotBar[5].block.stateIndex = sidx;
-		m_arrayHotBar[5].count = 999;
-	}
-
-	{
-		BlockPropHashMap props;
-		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:crafting_table");
-		STATE_INDEX sidx;
-		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
-		assert(ok);
-
-		m_arrayHotBar[6].block.blockID = blockID;
-		m_arrayHotBar[6].block.stateIndex = sidx;
-		m_arrayHotBar[6].count = 999;
-	}
+	TrySetSlot(0, "minecraft:torch");
+	TrySetSlot(1, "minecraft:glass");
+	TrySetSlot(2, "minecraft:oak_leaves");
+	TrySetSlot(3, "minecraft:cobblestone");
+	TrySetSlot(4, "minecraft:dirt");
+	TrySetSlot(5, "minecraft:oak_log");
+	TrySetSlot(6, "minecraft:crafting_table");
+	TrySetSlot(7, "minecraft:sand");
+	TrySetSlot(8, "minecraft:oak_planks");
 }
 
 void CInventoryComponent::Start()
@@ -102,7 +28,8 @@ int CInventoryComponent::GetSelectedSlotIndex() const
 
 void CInventoryComponent::SetSelectedSlotIndex(int index)
 {
-	if (index < 0 || index >= HOTBAR_SIZE) return;
+	if (index < 0 || index >= HOTBAR_SIZE) 
+		return;
 	m_iSelectedSlot = index;
 }
 
@@ -116,11 +43,46 @@ InventorySlot* CInventoryComponent::GetSelectedSlotMutable()
 	return &m_arrayHotBar[m_iSelectedSlot];
 }
 
+const InventorySlot* CInventoryComponent::GetSlot(int index) const
+{
+	if (index < 0 || index >= HOTBAR_SIZE) 
+		return nullptr;
+
+	return &m_arrayHotBar[index];
+}
+
+InventorySlot* CInventoryComponent::GetSlotMutable(int index)
+{
+	if (index < 0 || index >= HOTBAR_SIZE) 
+		return nullptr;
+
+	return &m_arrayHotBar[index];
+}
+
 BlockCell CInventoryComponent::GetSelectedPlaceBlock() const
 {
 	const InventorySlot& slot = m_arrayHotBar[m_iSelectedSlot];
-	if (slot.IsEmpty()) return { 0, 0 };
+	if (slot.IsEmpty()) 
+		return { 0, 0 };
+
 	return slot.block;
+}
+
+bool CInventoryComponent::TrySetSlot(int index, string blockName)
+{
+	if (index < 0 || index >= HOTBAR_SIZE)
+		return false;
+
+	BlockPropHashMap props;
+	BLOCK_ID blockID = BlockDB.FindBlockID(blockName.c_str());
+	STATE_INDEX sidx;
+	if (!BlockDB.EncodeStateIndex(blockID, props, sidx))
+		return false;
+
+	m_arrayHotBar[index].block.blockID = blockID;
+	m_arrayHotBar[index].block.stateIndex = sidx;
+	m_arrayHotBar[index].count = 999;
+	return true;
 }
 
 bool CInventoryComponent::TryConsumeSelectedOne()

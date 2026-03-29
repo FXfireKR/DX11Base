@@ -91,6 +91,10 @@ void CGameScene::Update(float fDelta)
 {
 	CScene::Update(fDelta);
 
+#ifdef IMGUI_ACTIVATE
+	_RenderHotbarOverlay();
+#endif // IMGUI_ACTIVATE
+
 	// World Time 계산 구조체 가져오기
 	timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
 
@@ -929,6 +933,127 @@ void CGameScene::_CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir
 	XMStoreFloat3(&outMoonDir, m);
 }
 
+#ifdef IMGUI_ACTIVATE
+bool CGameScene::_TryGetBlockIconUV(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1) const
+{
+	outUV0 = ImVec2(0.f, 0.f);
+	outUV1 = ImVec2(1.f, 1.f);
+
+	if (block.IsAir())
+		return false;
+
+	const BakedModel* pModel = BlockDB.GetBakedModel(block.blockID, block.stateIndex);
+	if (!pModel || pModel->quads.empty())
+		return false;
+
+	const AtlasRegion* pRegion = nullptr;
+
+	for (const BakedQuad& quad : pModel->quads)
+	{
+		if (quad.debugTextureKey.empty())
+			continue;
+
+		pRegion = BlockResDB.FindAtlasRegion(quad.debugTextureKey.c_str());
+		if (pRegion)
+			break;
+	}
+
+	if (!pRegion)
+		return false;
+
+	outUV0 = ImVec2(pRegion->u0, pRegion->v0);
+	outUV1 = ImVec2(pRegion->u1, pRegion->v1);
+	return true;
+}
+
+void CGameScene::_RenderHotbarOverlay()
+{
+	if (!m_pPlayer)
+		return;
+
+	const CInventoryComponent* pInventory = m_pPlayer->GetComponent<CInventoryComponent>();
+	if (!pInventory)
+		return;
+
+	ID3D11ShaderResourceView* pAtlasSRV = BlockResDB.GetAtlasTextureView();
+	if (!pAtlasSRV)
+		return;
+
+	ImDrawList* pDraw = ImGui::GetBackgroundDrawList();
+	const ImGuiViewport* vp = ImGui::GetMainViewport();
+
+	const float slotSize = 46.f;
+	const float slotGap = 6.f;
+	const float iconPad = 6.f;
+	const float bottomMargin = 22.f;
+	const float rounding = 6.f;
+
+	const float totalWidth =
+		(CInventoryComponent::HOTBAR_SIZE * slotSize) +
+		((CInventoryComponent::HOTBAR_SIZE - 1) * slotGap);
+
+	ImVec2 start;
+	start.x = vp->WorkPos.x + (vp->WorkSize.x - totalWidth) * 0.5f;
+	start.y = vp->WorkPos.y + vp->WorkSize.y - slotSize - bottomMargin;
+
+	const ImVec2 panelMin(start.x - 10.f, start.y - 10.f);
+	const ImVec2 panelMax(start.x + totalWidth + 10.f, start.y + slotSize + 10.f);
+
+	pDraw->AddRectFilled(panelMin, panelMax, IM_COL32(18, 18, 18, 170), 10.f);
+	pDraw->AddRect(panelMin, panelMax, IM_COL32(255, 255, 255, 40), 10.f, 0, 1.0f);
+
+	for (int i = 0; i < CInventoryComponent::HOTBAR_SIZE; ++i)
+	{
+		const InventorySlot* pSlot = pInventory->GetSlot(i);
+		if (!pSlot)
+			continue;
+
+		const float x = start.x + i * (slotSize + slotGap);
+		const ImVec2 slotMin(x, start.y);
+		const ImVec2 slotMax(x + slotSize, start.y + slotSize);
+
+		const bool bSelected = (i == pInventory->GetSelectedSlotIndex());
+
+		const ImU32 fillCol = bSelected
+			? IM_COL32(84, 78, 52, 230)
+			: IM_COL32(34, 34, 34, 210);
+
+		const ImU32 lineCol = bSelected
+			? IM_COL32(255, 220, 96, 255)
+			: IM_COL32(210, 210, 210, 120);
+
+		const float thickness = bSelected ? 3.0f : 1.0f;
+
+		pDraw->AddRectFilled(slotMin, slotMax, fillCol, rounding);
+		pDraw->AddRect(slotMin, slotMax, lineCol, rounding, 0, thickness);
+
+		if (!pSlot->IsEmpty())
+		{
+			ImVec2 uv0, uv1;
+			if (_TryGetBlockIconUV(pSlot->block, uv0, uv1))
+			{
+				const ImVec2 iconMin(slotMin.x + iconPad, slotMin.y + iconPad);
+				const ImVec2 iconMax(slotMax.x - iconPad, slotMax.y - iconPad);
+
+				pDraw->AddImage(
+					(ImTextureID)pAtlasSRV,
+					iconMin,
+					iconMax,
+					uv0,
+					uv1,
+					IM_COL32(255, 255, 255, 255));
+			}
+		}
+
+		char slotNum[8];
+		sprintf_s(slotNum, "%d", i + 1);
+		pDraw->AddText(
+			ImVec2(slotMin.x + 4.f, slotMin.y + 2.f),
+			IM_COL32(255, 255, 255, 160),
+			slotNum);
+	}
+}
+#endif // IMGUI_ACTIVATE
 
 void CGameScene::_UpdateAudioListener(float fDelta)
 {

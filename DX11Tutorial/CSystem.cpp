@@ -75,7 +75,7 @@ void CWindowSystem::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 
 	g_pSystem = this;
 	m_hInstance = GetModuleHandle(NULL);
-	m_lpcWstrApkName = L"DirectX11 Freedom";
+	m_lpcWstrApkName = L"Minecraft like voxel v1";
 
 	WNDCLASSEXW wcex;
 	wcex.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;

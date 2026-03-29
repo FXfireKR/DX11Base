@@ -155,6 +155,8 @@ void CPlayerController::_UpdateActionIntent()
 void CPlayerController::_UpdateHotbarIntent()
 {
 	CKeyboardDevice& keyboard = CInputManager::Get().Keyboard();
+	const short wheel = CInputManager::Get().Mouse().GetWheelCnt();
+	const short dir = CInputManager::Get().Mouse().GetWheelDir();
 
 	if (keyboard.GetKeyDown('1')) m_pInventory->SetSelectedSlotIndex(0);
 	if (keyboard.GetKeyDown('2')) m_pInventory->SetSelectedSlotIndex(1);
@@ -165,6 +167,14 @@ void CPlayerController::_UpdateHotbarIntent()
 	if (keyboard.GetKeyDown('7')) m_pInventory->SetSelectedSlotIndex(6);
 	if (keyboard.GetKeyDown('8')) m_pInventory->SetSelectedSlotIndex(7);
 	if (keyboard.GetKeyDown('9')) m_pInventory->SetSelectedSlotIndex(8);
+
+	if (wheel != 0)
+	{
+		int iIndex = m_pInventory->GetSelectedSlotIndex();
+		dir > 0 ? ++iIndex : --iIndex;
+		iIndex += 9;
+		m_pInventory->SetSelectedSlotIndex(iIndex % 9);
+	}
 }
 
 void CPlayerController::_UpdateHeadBobAndStep(float fDelta)

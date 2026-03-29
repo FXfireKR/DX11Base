@@ -223,7 +223,7 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 			// 여기서는 무시(기본값 0 유지). 디버그 로그는 선택.
 #ifdef _DEBUG
 			// std::cerr << "EncodeStateIndex: unknown valueHash for propHash\n";
-#endif
+#endif // _DEBUG
 			continue;
 		}
 

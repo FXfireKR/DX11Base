@@ -53,6 +53,10 @@ private:
 		, const XMFLOAT3& camUp, float width, float height);
 	void _CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const;
 
+#ifdef IMGUI_ACTIVATE
+	void _RenderHotbarOverlay();
+	bool _TryGetBlockIconUV(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1) const;
+#endif // IMGUI_ACTIVATE
 
 	void _UpdateAudioListener(float fDelta);
 

@@ -29,8 +29,14 @@ public:
 	const InventorySlot* GetSelectedSlot() const;
 	InventorySlot* GetSelectedSlotMutable();
 
+	const InventorySlot* GetSlot(int index) const;
+	InventorySlot* GetSlotMutable(int index);
+
 	BlockCell GetSelectedPlaceBlock() const;
+	bool TrySetSlot(int index, string blockName);
 	bool TryConsumeSelectedOne();
+
+
 
 private:
 	array<InventorySlot, HOTBAR_SIZE> m_arrayHotBar;
