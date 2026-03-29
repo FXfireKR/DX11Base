@@ -8,6 +8,7 @@ enum class SCENE_TYPE : unsigned char
 {
 	BOOT_SCENE = 0,
 	INIT_SCENE,
+	GAME_SCENE,
 	TEST_SCENE,
 
 

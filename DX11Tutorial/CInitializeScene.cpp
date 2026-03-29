@@ -35,7 +35,7 @@ void CInitializeScene::Update(float fDelta)
 		}
 
 		m_bChangeSceneReq = true;
-		m_eNextSceneReq = SCENE_TYPE::TEST_SCENE;
+		m_eNextSceneReq = SCENE_TYPE::GAME_SCENE;
 	}
 }
 

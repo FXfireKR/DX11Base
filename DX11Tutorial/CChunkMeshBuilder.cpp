@@ -370,8 +370,6 @@ bool CChunkMeshBuilder::_TryAppendFastOpaqueCube(const CChunkWorld& world,
 
         _AppendFastCubeFace(world, faceCache, wx, wy, wz, lx, ly, lz, mesh);
     }
-
-    dbg.AddDrawCallTranslucent();
     return true;
 }
 

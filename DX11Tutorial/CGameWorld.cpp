@@ -87,5 +87,6 @@ void CGameWorld::_RegisterScenes()
 {
 	m_sceneManager.Register(SCENE_TYPE::BOOT_SCENE, []() { return make_unique<CBootScene>(); });
 	m_sceneManager.Register(SCENE_TYPE::INIT_SCENE, []() { return make_unique<CInitializeScene>(); });
+	m_sceneManager.Register(SCENE_TYPE::GAME_SCENE, []() { return make_unique<CGameScene>(); });
 	m_sceneManager.Register(SCENE_TYPE::TEST_SCENE, []() { return make_unique<CTestScene>(); });
 }
