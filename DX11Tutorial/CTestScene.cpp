@@ -100,6 +100,9 @@ void CTestScene::Awake()
 	_CreateCrosshairUI();
 
 	ctrl->SetCameraTransform(pivotTransform);
+	ctrl->SetWorld(&m_VoxelWorld);
+	ctrl->SetAudioSystem(&GetAudioSystem());
+
 	interactor->SetCameraTransform(pivotTransform);
 	interactor->SetHighlightObject(m_pHighlightObject);
 

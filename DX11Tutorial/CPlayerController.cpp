@@ -5,6 +5,9 @@
 #include "CInventoryComponent.h"
 #include "CObject.h"
 #include "CTransform.h"
+#include "CWorld.h"
+#include "CAudioSystem.h"
+
 #include "ChunkMath.h"
 
 void CPlayerController::Init()
@@ -15,6 +18,21 @@ void CPlayerController::Init()
 	m_fPitch = 0.f;
 	m_fMouseSensitivity = 0.001f;
 	m_fPitchLimitRad = XM_PIDIV2 - 0.05f;
+
+	m_fCameraBaseHeight = 1.5f;
+
+	m_fHeadBobBlend = 0.f;
+	m_fHeadBobPhase = 0.f;
+	m_fHeadBobAmplitude = 0.045f;
+	m_fHeadBobSideAmplitude = 0.012f;
+	m_fHeadBobBlendInSpeed = 10.f;
+	m_fHeadBobBlendOutSpeed = 14.f;
+
+	m_fStepStrideMeters = 1.75f;
+	m_fStepDistanceAccum = 0.f;
+
+	m_prevFootPos = {};
+	m_bHasPrevFootPos = false;
 }
 
 void CPlayerController::Start()
@@ -32,6 +50,7 @@ void CPlayerController::Update(float fDelta)
 	_UpdateMouseLockToggle();
 	_UpdateLook();
 	_UpdateMoveIntent();
+	_UpdateHeadBobAndStep(fDelta);
 	_UpdateActionIntent();
 	_UpdateHotbarIntent();
 
@@ -43,66 +62,6 @@ void CPlayerController::Update(float fDelta)
 	chunkCoord.y = ChunkMath::FloorDiv16((int)std::floor(pos.y));
 	chunkCoord.z = ChunkMath::FloorDiv16((int)std::floor(pos.z));
 	dbg.SetCurrentChunkCoord(chunkCoord);
-
-	/*if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) return;
-
-	ImGui::DragFloat("speed", &m_fMoveSpeed, 0.0f, 25.f);
-	ImGui::DragFloat("sens", &m_fMouseSensitivity, 0.0f, 0.1f);
-
-	CMouseDevice& mouse = CInputManager::Get().Mouse();
-	CKeyboardDevice& key = CInputManager::Get().Keyboard();
-
-	const POINT& delta = mouse.GetDelta();
-
-	m_fYaw += delta.x * m_fMouseSensitivity;
-	m_fPitch += delta.y * m_fMouseSensitivity;
-
-	m_fPitch = std::clamp(m_fPitch, -m_fPitchLimitRad, +m_fPitchLimitRad);
-
-	m_pOwnTransform->SetLocalRotateEulerRad({ 0.f, m_fYaw, 0.f });
-
-	m_pCamTransform->SetLocalTrans({ 0.f, 0.5f, 0.f });
-	m_pCamTransform->SetLocalRotateEulerRad({ m_fPitch, 0.f, 0.f });
-
- 	float fSpeed = m_fMoveSpeed;
-
-	XMVECTOR foward = XMVectorSet(0, 0, 1, 0);
-	XMVECTOR right = XMVectorSet(1, 0, 0, 0);
-	XMMATRIX yawRot = XMMatrixRotationY(m_fYaw);
-
-	foward = XMVector3TransformNormal(foward, yawRot);
-	right = XMVector3TransformNormal(right, yawRot);
-
-	XMVECTOR moveDir = XMVectorSet(0, 0, 0, 0);
-	if (key.GetKey('W')) moveDir += foward;
-	if (key.GetKey('A')) moveDir -= right;
-	if (key.GetKey('S')) moveDir -= foward;
-	if (key.GetKey('D')) moveDir += right;
-
-	if (key.GetKeyUp(VK_TAB)) {
-		if (mouse.GetMoveLock())
-			mouse.EnalbleMove();
-		else
-			mouse.DisalbleMove();
-	}
-
-	moveDir = XMVector3Normalize(moveDir);
-
-	if (!XMVector3Equal(moveDir, XMVectorZero()))
-	{
-		XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
-		XMVECTOR vPos = XMLoadFloat3(&pos);
-
-		vPos += moveDir * (fSpeed * fDelta);
-
-		XMStoreFloat3(&pos, vPos);
-		m_pOwnTransform->SetLocalTrans(pos);
-	}*/
-}
-
-void CPlayerController::SetCameraTransform(CTransform* pTransform)
-{ 
-	m_pCamTransform = pTransform; 
 }
 
 void CPlayerController::_UpdateMouseLockToggle()
@@ -133,8 +92,6 @@ void CPlayerController::_UpdateLook()
 	m_fPitch = std::clamp(m_fPitch, -m_fPitchLimitRad, m_fPitchLimitRad);
 
 	m_pOwnTransform->SetLocalRotateEulerRad({ 0.f, m_fYaw, 0.f });
-
-	m_pCamTransform->SetLocalTrans({ 0.f, 1.5f, 0.f });
 	m_pCamTransform->SetLocalRotateEulerRad({ m_fPitch, 0.f, 0.f });
 
 	m_pMotor->SetYaw(m_fYaw);
@@ -181,4 +138,134 @@ void CPlayerController::_UpdateHotbarIntent()
 	if (keyboard.GetKeyDown('7')) m_pInventory->SetSelectedSlotIndex(6);
 	if (keyboard.GetKeyDown('8')) m_pInventory->SetSelectedSlotIndex(7);
 	if (keyboard.GetKeyDown('9')) m_pInventory->SetSelectedSlotIndex(8);
+}
+
+void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
+{
+	if (!m_pMotor || !m_pCamTransform)
+		return;
+
+	const XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
+
+	if (!m_bHasPrevFootPos)
+	{
+		m_prevFootPos = footPos;
+		m_bHasPrevFootPos = true;
+	}
+
+	float dx = footPos.x - m_prevFootPos.x;
+	float dz = footPos.z - m_prevFootPos.z;
+	float movedDistXZ = std::sqrt(dx * dx + dz * dz);
+
+	// 순간이동/스폰 보정
+	if (movedDistXZ > 2.0f)
+	{
+		m_prevFootPos = footPos;
+		movedDistXZ = 0.0f;
+		m_fStepDistanceAccum = 0.0f;
+	}
+
+	m_prevFootPos = footPos;
+
+	const XMFLOAT3 vel = m_pMotor->GetVelocity();
+	const float planarSpeed = std::sqrt(vel.x * vel.x + vel.z * vel.z);
+	const bool bGrounded = m_pMotor->IsGrounded();
+	const bool bMoving = (bGrounded && planarSpeed > 0.1f && movedDistXZ > 0.0001f);
+
+	const float blendTarget = bMoving ? 1.0f : 0.0f;
+	const float blendSpeed = bMoving ? m_fHeadBobBlendInSpeed : m_fHeadBobBlendOutSpeed;
+	m_fHeadBobBlend = _Approach(m_fHeadBobBlend, blendTarget, blendSpeed * fDelta);
+
+	if (bMoving)
+	{
+		const float phaseAdvance = movedDistXZ * (XM_2PI / m_fStepStrideMeters);
+		m_fHeadBobPhase += phaseAdvance;
+		m_fStepDistanceAccum += movedDistXZ;
+
+		while (m_fStepDistanceAccum >= m_fStepStrideMeters)
+		{
+			m_fStepDistanceAccum -= m_fStepStrideMeters;
+
+			BlockCell footCell{};
+			if (_ResolveFootstepBlock(footPos, footCell))
+			{
+				_PlayFootstep(footPos, footCell);
+			}
+		}
+	}
+
+	const float bobPulse = 0.5f - 0.5f * std::cos(m_fHeadBobPhase); // 0 ~ 1
+	const float bobSide = std::sin(m_fHeadBobPhase);
+
+	const float offsetY = -(bobPulse * m_fHeadBobAmplitude * m_fHeadBobBlend);
+	const float offsetX = (bobSide * m_fHeadBobSideAmplitude * m_fHeadBobBlend);
+
+	m_pCamTransform->SetLocalTrans({
+		offsetX,
+		m_fCameraBaseHeight + offsetY,
+		0.0f
+	});
+}
+
+bool CPlayerController::_ResolveFootstepBlock(const XMFLOAT3& footPos, BlockCell& outCell) const
+{
+	outCell = {};
+
+	if (!m_pWorld)
+		return false;
+
+	const int wx = static_cast<int>(std::floor(footPos.x));
+	const int wz = static_cast<int>(std::floor(footPos.z));
+
+	// 발 바로 아래
+	int wy = static_cast<int>(std::floor(footPos.y - 0.05f));
+	outCell = m_pWorld->GetBlockCell(wx, wy, wz);
+	if (!outCell.IsAir())
+		return true;
+
+	// 혹시 skin/보정 때문에 비면 한 칸 더 아래 fallback
+	outCell = m_pWorld->GetBlockCell(wx, wy - 1, wz);
+	if (!outCell.IsAir())
+		return true;
+
+	return false;
+}
+
+void CPlayerController::_PlayFootstep(const XMFLOAT3& footPos, const BlockCell& cell)
+{
+	if (!m_pAudio)
+		return;
+
+	if (cell.IsAir())
+		return;
+
+	ResolvedSound resolved{};
+	if (!BlockResDB.ResolveBlock(cell.blockID, EBlockSoundUsage::STEP, resolved))
+		return;
+
+	const float t = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+	const float pitchMul = 0.98f + (0.04f * t); // 0.98 ~ 1.02
+
+	const XMFLOAT3 soundPos =
+	{
+		footPos.x,
+		footPos.y - 0.8f,
+		footPos.z
+	};
+
+	m_pAudio->Submit3D(
+		resolved.soundID,
+		soundPos,
+		resolved.playDesc.bus,
+		resolved.playDesc.volume * 0.35f,
+		resolved.playDesc.pitch * pitchMul,
+		resolved.playDesc.minDistance,
+		resolved.playDesc.maxDistance
+	);
+}
+
+float CPlayerController::_Approach(float cur, float target, float delta)
+{
+	if (cur < target) return std::min(cur + delta, target);
+	return std::max(cur - delta, target);
 }

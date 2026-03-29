@@ -188,7 +188,7 @@ void CBlockInteractor::_ResetMining()
 
 	m_fBreakAccum = 0.f;
 	m_fBreakRequired = 0.f;
-	m_fHitFxCoolDown = 0.f;
+	m_fHitFxCoolDown = 0.1f;
 }
 
 bool CBlockInteractor::_IsSameMiningTarget(const BlockHitResult& hit) const

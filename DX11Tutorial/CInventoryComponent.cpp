@@ -53,6 +53,42 @@ void CInventoryComponent::Init()
 		m_arrayHotBar[3].block.stateIndex = sidx;
 		m_arrayHotBar[3].count = 999;
 	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:dirt");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[4].block.blockID = blockID;
+		m_arrayHotBar[4].block.stateIndex = sidx;
+		m_arrayHotBar[4].count = 999;
+	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:oak_log");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[5].block.blockID = blockID;
+		m_arrayHotBar[5].block.stateIndex = sidx;
+		m_arrayHotBar[5].count = 999;
+	}
+
+	{
+		BlockPropHashMap props;
+		BLOCK_ID blockID = BlockDB.FindBlockID("minecraft:crafting_table");
+		STATE_INDEX sidx;
+		bool ok = BlockDB.EncodeStateIndex(blockID, props, sidx);
+		assert(ok);
+
+		m_arrayHotBar[6].block.blockID = blockID;
+		m_arrayHotBar[6].block.stateIndex = sidx;
+		m_arrayHotBar[6].count = 999;
+	}
 }
 
 void CInventoryComponent::Start()

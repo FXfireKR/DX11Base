@@ -7,6 +7,8 @@ class CCharacterMotor;
 class CBlockInteractor;
 class CInventoryComponent;
 class CTransform;
+class CWorld;
+class CAudioSystem;
 
 class CPlayerController : public CComponentBase<CPlayerController, COMPONENT_TYPE::PLAYERCONTROLLER>
 {
@@ -19,7 +21,9 @@ public:
 	void Update(float fDelta) override;
 
 public:
-	void SetCameraTransform(CTransform* pTransform);
+	inline void SetCameraTransform(CTransform* pTransform) { m_pCamTransform = pTransform; }
+	inline void SetWorld(CWorld* pWorld) { m_pWorld = pWorld; }
+	inline void SetAudioSystem(CAudioSystem* pAudio) { m_pAudio = pAudio; }
 
 private:
 	void _UpdateMouseLockToggle();
@@ -28,6 +32,11 @@ private:
 	void _UpdateActionIntent();
 	void _UpdateHotbarIntent();
 
+	void _UpdateHeadBobAndStep(float fDelta);
+	bool _ResolveFootstepBlock(const XMFLOAT3& footPos, BlockCell& outCell) const;
+	void _PlayFootstep(const XMFLOAT3& footPos, const BlockCell& cell);
+	float _Approach(float cur, float target, float delta);
+
 private:
 	CTransform* m_pOwnTransform = nullptr;
 	CTransform* m_pCamTransform = nullptr;
@@ -35,6 +44,8 @@ private:
 	CCharacterMotor* m_pMotor = nullptr;
 	CBlockInteractor* m_pBlockInteractor = nullptr;
 	CInventoryComponent* m_pInventory = nullptr;
+	CWorld* m_pWorld = nullptr;
+	CAudioSystem* m_pAudio = nullptr;
 
 	float m_fYaw = 0.f;
 	float m_fPitch = 0.f;
@@ -42,11 +53,19 @@ private:
 	float m_fMouseSensitivity = 0.01f;
 	float m_fPitchLimitRad = XM_PIDIV2 - 0.05f;
 
-	/*float m_fYaw = 0.f;
-	float m_fPitch = 0.f;
+	// presentation
+	float m_fCameraBaseHeight = 1.5f;
 
-	float m_fMoveSpeed = 0.f;
-	float m_fSprintSpeed = 0.f;
-	float m_fMouseSensitivity = 0.0025f;
-	float m_fPitchLimitRad = XM_PIDIV2 * 0.95f;*/
+	float m_fHeadBobBlend = 0.f;
+	float m_fHeadBobPhase = 0.f;
+	float m_fHeadBobAmplitude = 0.045f;
+	float m_fHeadBobSideAmplitude = 0.012f;
+	float m_fHeadBobBlendInSpeed = 10.f;
+	float m_fHeadBobBlendOutSpeed = 14.f;
+
+	float m_fStepStrideMeters = 1.75f;
+	float m_fStepDistanceAccum = 0.f;
+
+	XMFLOAT3 m_prevFootPos{};
+	bool m_bHasPrevFootPos = false;
 };
