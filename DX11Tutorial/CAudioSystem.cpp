@@ -130,6 +130,11 @@ bool CAudioSystem::LoadSound(SoundID id, const char* path, bool b3D, bool bLoop/
 	return true;
 }
 
+bool CAudioSystem::LoadSound(SoundID id, const char* path, const AudioLoadDesc& desc)
+{
+	return LoadSound(id, path, desc.b3D, desc.bLoop, desc.bStream);
+}
+
 void CAudioSystem::SetListener(const AudioListenerState& state)
 {
 	if (!m_pSystem)

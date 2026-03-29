@@ -18,6 +18,7 @@ public:
 
 public:
 	bool LoadSound(SoundID id, const char* path, bool b3D, bool bLoop = false, bool bStream = false);
+	bool LoadSound(SoundID id, const char* path, const AudioLoadDesc& desc);
 
 	void SetListener(const AudioListenerState& state);
 

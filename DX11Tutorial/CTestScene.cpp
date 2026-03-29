@@ -56,6 +56,7 @@ void CTestScene::Awake()
 	);
 
 	m_blockBreakParticleSystem.Initialize(GetRenderWorld());
+	m_blockBreakParticleSystem.SetWorld(&m_VoxelWorld);
 
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
@@ -111,13 +112,20 @@ void CTestScene::Awake()
 	m_bSpawnStreamingReady = false;
 
 
-	auto* a = BlockResDB.FindEvent("music.overworld.cherry_grove");
-	if (nullptr != a)
+	ResolvedSound reSound{};
+	if (BlockResDB.ResolveEvent("music.overworld.cherry_grove", reSound))
 	{
-		const auto& def = a->clips.begin() + 7;
-		GetAudioSystem().Submit2D(def->soundID, EAudioBus::BGM, def->volumeMul, def->pitchMul);
+		auto* a = BlockResDB.FindEvent("music.overworld.cherry_grove");
+		if (a)
+		{
+			const auto it = a->clips.begin() + 7;
+			GetAudioSystem().LoadSound(reSound.soundID, it->objectPath.c_str(), a->playDesc.b3D, reSound.playDesc.bLoop, it->bStream);
+			GetAudioSystem().Submit2D(reSound.soundID, EAudioBus::BGM, it->volumeMul, it->pitchMul);
+		}
+
 	}
 
+	GetAudioSystem().SetVolume(EAudioBus::BGM, 0.2f);
 	GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
 }
 

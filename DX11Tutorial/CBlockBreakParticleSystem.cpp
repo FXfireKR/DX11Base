@@ -13,6 +13,8 @@
 #include "CMesh.h"
 #include "CPipeline.h"
 #include "CMaterial.h"
+#include "CWorld.h"
+
 #include "ChunkTypes.h"
 #include "ModelUtil.h"
 
@@ -78,6 +80,8 @@ void CBlockBreakParticleSystem::SpawnHitChip(const XMINT3& blockPos, const Block
 	const XMFLOAT2 uvMin = { region.u0, region.v0 };
 	const XMFLOAT2 uvMax = { region.u1, region.v1 };
 
+	const XMFLOAT4 particleColor = _ResolveParticleColor(*picked, blockPos);
+
 	const XMFLOAT3 spawnPos =
 	{
 		blockPos.x + 0.5f + hitNormal.x * 0.45f,
@@ -112,7 +116,7 @@ void CBlockBreakParticleSystem::SpawnHitChip(const XMINT3& blockPos, const Block
 		const float size = _RandomRange(0.04f, 0.07f);
 		const float life = _RandomRange(0.12f, 0.22f);
 
-		_EmitOne(spawnPos, vel, size, life, uvMin, uvMax);
+		_EmitOne(spawnPos, vel, size, life, uvMin, uvMax, particleColor);
 	}
 }
 
@@ -164,6 +168,7 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 		static_cast<float>(hitNormal.z)
 	};
 
+	const XMFLOAT4 particleColor = _ResolveParticleColor(*picked, blockPos);
 
 	int iTargetParticle = 3 + (rand() % 3);
 	for (int i = 0; i < iTargetParticle; ++i)
@@ -185,7 +190,7 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 		const float size = _RandomRange(0.08f, 0.14f);
 		const float life = _RandomRange(0.35f, 0.55f);
 
-		_EmitOne(center, vel, size, life, { startU, startV }, { startU + uSize, startV + vSize });
+		_EmitOne(center, vel, size, life, { startU, startV }, { startU + uSize, startV + vSize }, particleColor);
 	}
 }
 
@@ -218,14 +223,11 @@ void CBlockBreakParticleSystem::_CreateRenderResource(CRenderWorld& rw)
 	auto& samplerManager = rw.GetSamplerManager();
 	auto& meshManager = rw.GetMeshManager();
 
-	const uint64_t shaderID = fnv1a_64("Billboard");
+	const uint64_t shaderID = fnv1a_64("BlockParticleBillboard");
 	auto* shader = shaderManager.CreateShader(shaderID, 0);
 	shaderManager.Compile();
 
-	const uint64_t layoutID = ilManager.Create(
-		VERTEX_POSITION_UV::GetLayout(),
-		{ shaderID, 0 },
-		shader->GetVertexBlob());
+	const uint64_t layoutID = ilManager.Create(VERTEX_POSITION_UV_COLOR::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
 
 	const uint64_t pipeID = pipelineManager.Create(fnv1a_64("BlockBreakParticlePipeline"));
 	m_pPipeline = pipelineManager.Get(pipeID);
@@ -283,10 +285,10 @@ void CBlockBreakParticleSystem::_BuildDynamicMesh(CRenderWorld& rw, const CCamer
 		XMStoreFloat3(&p2, v2);
 		XMStoreFloat3(&p3, v3);
 
-		m_vecVertices.push_back({ p0, { p.uvMin.x, p.uvMin.y } });
-		m_vecVertices.push_back({ p1, { p.uvMax.x, p.uvMin.y } });
-		m_vecVertices.push_back({ p2, { p.uvMin.x, p.uvMax.y } });
-		m_vecVertices.push_back({ p3, { p.uvMax.x, p.uvMax.y } });
+		m_vecVertices.push_back({ p0, { p.uvMin.x, p.uvMin.y }, p.color });
+		m_vecVertices.push_back({ p1, { p.uvMax.x, p.uvMin.y }, p.color });
+		m_vecVertices.push_back({ p2, { p.uvMin.x, p.uvMax.y }, p.color });
+		m_vecVertices.push_back({ p3, { p.uvMax.x, p.uvMax.y }, p.color });
 
 		m_vecIndices.push_back(baseIndex + 0);
 		m_vecIndices.push_back(baseIndex + 1);
@@ -306,14 +308,14 @@ void CBlockBreakParticleSystem::_BuildDynamicMesh(CRenderWorld& rw, const CCamer
 		rw.GetContext(),
 		m_uMeshKey,
 		m_vecVertices.data(),
-		sizeof(VERTEX_POSITION_UV),
+		sizeof(VERTEX_POSITION_UV_COLOR),
 		static_cast<uint32_t>(m_vecVertices.size()),
 		m_vecIndices.data(),
 		static_cast<uint32_t>(m_vecIndices.size())
 	);
 }
 
-void CBlockBreakParticleSystem::_EmitOne(const XMFLOAT3& pos, const XMFLOAT3& vel, float size, float life, const XMFLOAT2& uvMin, const XMFLOAT2& uvMax)
+void CBlockBreakParticleSystem::_EmitOne(const XMFLOAT3& pos, const XMFLOAT3& vel, float size, float life, const XMFLOAT2& uvMin, const XMFLOAT2& uvMax, const XMFLOAT4& color)
 {
 	for (BlockBreakParticle& p : m_vecParticles)
 	{
@@ -328,6 +330,7 @@ void CBlockBreakParticleSystem::_EmitOne(const XMFLOAT3& pos, const XMFLOAT3& ve
 		p.fMaxLife = life;
 		p.uvMin = uvMin;
 		p.uvMax = uvMax;
+		p.color = color;
 		return;
 	}
 }
@@ -336,4 +339,45 @@ float CBlockBreakParticleSystem::_RandomRange(float minV, float maxV) const
 {
 	const float t = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	return minV + (maxV - minV) * t;
+}
+
+uint8_t CBlockBreakParticleSystem::_ResolveQuadBlockLight(const BakedQuad& quad, const XMINT3& blockPos) const
+{
+	if (!m_pWorld)
+		return 15;
+
+	const CChunkWorld& world = m_pWorld->GetChunkWorld();
+
+	if (quad.bHasCullFace)
+	{
+		const XMINT3 n = FaceToNormalInt3(static_cast<FACE_DIR>(quad.cullFaceDir));
+		return world.GetBlockLight(blockPos.x + n.x, blockPos.y + n.y, blockPos.z + n.z);
+	}
+
+	return world.GetBlockLight(blockPos.x, blockPos.y, blockPos.z);
+}
+
+XMFLOAT4 CBlockBreakParticleSystem::_ResolveBlockTint(const BakedQuad& quad) const
+{
+	if (quad.tintIndex < 0)
+		return { 1.f, 1.f, 1.f, 1.f };
+
+	// 현재 chunk mesh builder와 동일 기준
+	return { 0.55f, 0.74f, 0.32f, 1.f };
+}
+
+XMFLOAT4 CBlockBreakParticleSystem::_ResolveParticleColor(const BakedQuad& quad, const XMINT3& blockPos) const
+{
+	const uint8_t light = _ResolveQuadBlockLight(quad, blockPos);
+	const float blockLight = static_cast<float>(light) / 15.0f;
+	const float brightness = 0.1f + (0.9f * blockLight);
+
+	const XMFLOAT4 tint = _ResolveBlockTint(quad);
+
+	return {
+		tint.x * brightness,
+		tint.y * brightness,
+		tint.z * brightness,
+		tint.w
+	};
 }

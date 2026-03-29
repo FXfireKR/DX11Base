@@ -27,7 +27,7 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 	CChunkMeshBuilder builder;
 	SectionCoord sectionCoord{};
 
-	constexpr int MIN_BUDGET = 3;
+	constexpr int MIN_BUDGET = 4;
 	//int iCurrentBudget = std::max(MIN_BUDGET, static_cast<int>(world.GetDirtyQueueSize() / 100));
 
 	int iCurrentBudget = MIN_BUDGET;

@@ -112,6 +112,20 @@
       }
   },
 
+  "BlockParticleBillboard": {
+      "VS": {
+        "path": "BlockParticleBillboard.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "BlockParticleBillboard.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  },
+
   "UIInvertMask": {
       "VS": {
         "path": "UIInvertMask.hlsl",
