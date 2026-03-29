@@ -48,14 +48,6 @@ public:
 	void Submit(const RenderItem& renderItem);
 	void EndBuildFrame();
 
-private:
-	void _CreateConstFrameBuffer();
-	void _CreateConstObjectBuffer();
-	void _CreateRenderTargetView();
-	void _CreateDepthStencilView();
-	void _CreateShadowResources();
-	void _UnloadFrameConstants(XMMATRIX view, XMMATRIX proj);
-
 public:
 	inline void SetBackColor(float r, float g, float b, float a) {
 		m_fBackColor[0] = r;
@@ -76,8 +68,10 @@ public:
 	inline void SetLightViewProj(XMMATRIX lightViewProj) { m_matLightViewProj = lightViewProj; }
 	inline void SetShadowParams(float bias, float shadowMinLight) { m_vShadowParams = { bias, shadowMinLight, 0.0f, 0.0f }; }
 
-	inline ID3D11ShaderResourceView* GetShadowMapSRV() const { return m_pShadowSRV.Get(); }
+	inline bool GetVerticalSync() const { return m_dxAdapter.IsVerticalSync(); }
+	inline void SetVerticalSync(bool bEnable) { m_dxAdapter.SetVerticalSync(bEnable); }
 
+	inline ID3D11ShaderResourceView* GetShadowMapSRV() const { return m_pShadowSRV.Get(); }
 
 public:
 	inline ID3D11Device* GetDevice() const { return m_dxAdapter.GetDevice(); }
@@ -91,6 +85,14 @@ public:
 	inline CTextureManager& GetTextureManager() { return m_textureManager; }
 	inline CSamplerManager& GetSamplerManager() { return m_samplerManager; }
 	inline CRuntimeAtlas& GetRuntimeAtlas() { return m_runtimeAtlas; }
+
+private:
+	void _CreateConstFrameBuffer();
+	void _CreateConstObjectBuffer();
+	void _CreateRenderTargetView();
+	void _CreateDepthStencilView();
+	void _CreateShadowResources();
+	void _UnloadFrameConstants(XMMATRIX view, XMMATRIX proj);
 
 private:
 	CDirectX11Adapter m_dxAdapter;

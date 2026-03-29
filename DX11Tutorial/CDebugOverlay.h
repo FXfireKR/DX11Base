@@ -6,5 +6,8 @@ public:
 	void Render();
 
 private:
-	bool m_bOpen = true;
+	void _RenderMenuBar();
+
+private:
+	bool m_bOpen = false;
 };

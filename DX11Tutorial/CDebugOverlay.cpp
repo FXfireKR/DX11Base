@@ -3,6 +3,8 @@
 
 void CDebugOverlay::Render()
 {
+    _RenderMenuBar();
+
 #ifdef IMGUI_ACTIVATE
     if (!m_bOpen)
         return;
@@ -15,7 +17,6 @@ void CDebugOverlay::Render()
 
     if (ImGui::CollapsingHeader("Frame", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Text("FPS           : %.1f", s.frame.fps);
         ImGui::Text("Frame ms      : %.3f", s.frame.frameMs);
         ImGui::Text("Update ms     : %.3f", s.frame.updateMs);
         ImGui::Text("LateUpdate ms : %.3f", s.frame.lateUpdateMs);
@@ -42,8 +43,8 @@ void CDebugOverlay::Render()
         ImGui::Text("Chunk Unload This Frm : %d", s.world.chunkUnloadCountThisFrame);
         ImGui::Text("Block Edit This Frame : %d", s.world.blockEditCountThisFrame);
 
-        ImGui::PlotLines("Visible Sections", h.visibleSections, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 512.f, ImVec2(320, 80));
-        ImGui::PlotLines("Rebuild Queue", h.rebuildQueue, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 128.f, ImVec2(320, 80));
+        ImGui::PlotLines("Visible Sections", h.visibleSections, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 1024.f, ImVec2(320, 80));
+        ImGui::PlotLines("Rebuild Queue", h.rebuildQueue, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 9000.f, ImVec2(320, 80));
     }
 
     if (ImGui::CollapsingHeader("Render", ImGuiTreeNodeFlags_DefaultOpen))
@@ -61,7 +62,7 @@ void CDebugOverlay::Render()
         ImGui::Text("Material Bind Count   : %d", s.render.materialBindCount);
         ImGui::Text("Mesh Bind Count       : %d", s.render.meshBindCount);
 
-        ImGui::PlotLines("Draw Calls", h.drawCalls, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 2048.f, ImVec2(320, 80));
+        ImGui::PlotLines("Draw Calls", h.drawCalls, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 12000.f, ImVec2(320, 80));
     }
 
     if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
@@ -81,5 +82,24 @@ void CDebugOverlay::Render()
     }
 
     ImGui::End();
+#endif // IMGUI_ACTIVATE
+}
+
+void CDebugOverlay::_RenderMenuBar()
+{
+#ifdef IMGUI_ACTIVATE
+    const DebugStatsSnapshot& s = dbg.GetSnapshot();
+
+    if (!ImGui::BeginMainMenuBar())
+        return;
+
+    ImGui::Text("FPS %.1f", s.frame.fps); ImGui::SameLine();
+    ImGui::Text("| (F2) chunk bound"); ImGui::SameLine();
+    ImGui::Text("| (F3) section bound"); ImGui::SameLine();
+    ImGui::Text("| (F4) Cruise"); ImGui::SameLine();
+    ImGui::Text("| (F5) Rebuild"); ImGui::SameLine();
+    ImGui::Text("| (F9) Option"); ImGui::SameLine();
+
+    ImGui::EndMainMenuBar();
 #endif // IMGUI_ACTIVATE
 }

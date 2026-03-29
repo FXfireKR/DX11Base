@@ -75,4 +75,6 @@ private:
 
 	float m_fLandingMinFallSpeed = 3.0f;
 	float m_fLandingVolumeScale = 0.45f;
+
+	bool m_bUIMode = false;
 };

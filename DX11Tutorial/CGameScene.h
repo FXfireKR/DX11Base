@@ -44,8 +44,6 @@ private:
 
 	void _TrySpawnStreaming(CTransform* pPlayerTransform);
 
-	void _MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir);
-
 	XMFLOAT3 _LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t);
 	void _ApplySkyClearColor();
 

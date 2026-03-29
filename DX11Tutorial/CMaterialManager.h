@@ -8,6 +8,7 @@ public:
 	~CMaterialManager() = default;
 
 	uint64_t Create(uint64_t id);
+	CMaterial* Ensure(uint64_t id);
 	CMaterial* Get(uint64_t id);
 	const CMaterial* Get(uint64_t id) const;
 

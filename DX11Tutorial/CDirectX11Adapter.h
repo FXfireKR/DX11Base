@@ -27,6 +27,7 @@ public:
 
 	inline IDXGISwapChain* GetSwapChain() const { return m_pSwapChain.Get(); }
 
+	inline void SetVerticalSync(bool bEnable) { m_bVerticalSync = bEnable; }
 	inline const bool IsVerticalSync() const { return m_bVerticalSync; }
 
 private:

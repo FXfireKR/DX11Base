@@ -15,7 +15,7 @@
 #include <tchar.h>
 #include <stdio.h>
 
-#define DEBUG_LOG
+//#define DEBUG_LOG
 #ifdef DEBUG_LOG
 #include <iostream>
 #endif // DEBUG_LOG

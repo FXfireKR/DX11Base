@@ -49,6 +49,11 @@ void Application::Tick()
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
+#ifdef IMGUI_ACTIVATE
+	if (ImGui_ImplWin32_WndProcHandler(hWnd_, uMessage_, wParam_, lParam_))
+		return true;
+#endif // IMGUI_ACTIVATE
+
 	switch (uMessage_)
 	{
 		case WM_MOVE:

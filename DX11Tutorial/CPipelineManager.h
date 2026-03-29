@@ -8,6 +8,7 @@ public:
 	~CPipelineManager() = default;
 
 	uint64_t Create(uint64_t id);
+	CPipeline* Ensure(uint64_t id);
 	CPipeline* Get(uint64_t id);
 	const CPipeline* Get(uint64_t id) const;
 

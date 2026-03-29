@@ -51,14 +51,38 @@ void CPlayerController::Start()
 
 void CPlayerController::Update(float fDelta)
 {
-	if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) return;
+	if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) 
+		return;
 
 	_UpdateMouseLockToggle();
-	_UpdateLook();
-	_UpdateMoveIntent();
-	_UpdateHeadBobAndStep(fDelta);
-	_UpdateActionIntent();
-	_UpdateHotbarIntent();
+
+#ifdef IMGUI_ACTIVATE
+	ImGuiIO& io = ImGui::GetIO();
+	const bool blockMouse = m_bUIMode || io.WantCaptureMouse;
+	const bool blockKeyboard = m_bUIMode || io.WantCaptureKeyboard;
+#else // IMGUI_ACTIVATE
+	const bool blockMouse = m_bUIMode;
+	const bool blockKeyboard = m_bUIMode;
+#endif // IMGUI_ACTIVATE
+
+	if (!blockMouse)
+		_UpdateLook();
+
+	if (!blockKeyboard)
+	{ 
+		_UpdateMoveIntent();
+		_UpdateHeadBobAndStep(fDelta);
+	}
+	else
+		m_pMotor->SetMoveInput({ 0.f, 0.f });
+
+	if (!blockMouse && !blockKeyboard)
+		_UpdateActionIntent();
+	else if (m_pBlockInteractor)
+		m_pBlockInteractor->SetBreakHeld(false);
+
+	if (!blockKeyboard)
+		_UpdateHotbarIntent();
 
 	XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
 	dbg.SetPlayerPosition(pos);
@@ -72,19 +96,16 @@ void CPlayerController::Update(float fDelta)
 
 void CPlayerController::_UpdateMouseLockToggle()
 {
-	CMouseDevice& mouse = CInputManager::Get().Mouse();
+	if (!CInputManager::Get().Keyboard().GetKeyUp(VK_TAB))
+		return;
 
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_TAB))
-	{
-		if (mouse.GetMoveLock())
-		{
-			mouse.EnalbleMove();
-		}
-		else
-		{
-			mouse.DisalbleMove();
-		}
-	}
+	m_bUIMode = !m_bUIMode;
+
+	CMouseDevice& mouse = CInputManager::Get().Mouse();
+	if (m_bUIMode)
+		mouse.EnalbleMove();
+	else
+		mouse.DisalbleMove();
 }
 
 void CPlayerController::_UpdateLook()

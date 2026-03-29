@@ -98,6 +98,10 @@ void CGameScene::Update(float fDelta)
 	if (nullptr == pPlayerTransform)
 		return;
 
+	bool bVertical = GetRenderWorld().GetVerticalSync();
+	ImGui::Checkbox("VerticalSync", &bVertical);
+	GetRenderWorld().SetVerticalSync(bVertical);
+
 	if (m_bSkyCruiseTest)
 	{
 		XMFLOAT3 pos = pPlayerTransform->GetLocalTrans();
@@ -796,16 +800,6 @@ void CGameScene::_TrySpawnStreaming(CTransform* pPlayerTransform)
 	}
 }
 
-void CGameScene::_MakeCenterRay(IN const CCamera& cam, OUT XMFLOAT3& orig, OUT XMFLOAT3& dir)
-{
-	orig = cam.GetTransform()->GetWorldTrans();
-	dir = cam.GetTransform()->GetLook();
-
-	XMVECTOR d = XMLoadFloat3(&dir);
-	d = XMVector3Normalize(d);
-	XMStoreFloat3(&dir, d);
-}
-
 XMFLOAT3 CGameScene::_LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t)
 {
 	t = saturate(t);
@@ -960,7 +954,6 @@ void CGameScene::_UpdateAudioListener(float fDelta)
 
 	GetAudioSystem().SetListener(state);
 }
-
 
 /*
 #ifdef IMGUI_ACTIVATE
