@@ -33,6 +33,12 @@ void CPlayerController::Init()
 
 	m_prevFootPos = {};
 	m_bHasPrevFootPos = false;
+
+	m_bPrevGrounded = false;
+	m_fPrevVelocityY = 0.f;
+
+	m_fLandingMinFallSpeed = 3.0f;
+	m_fLandingVolumeScale = 0.45f;
 }
 
 void CPlayerController::Start()
@@ -171,10 +177,51 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 	const float planarSpeed = std::sqrt(vel.x * vel.x + vel.z * vel.z);
 	const bool bGrounded = m_pMotor->IsGrounded();
 	const bool bMoving = (bGrounded && planarSpeed > 0.1f && movedDistXZ > 0.0001f);
+	const bool bJustLanded = (!m_bPrevGrounded && bGrounded && m_fPrevVelocityY < -m_fLandingMinFallSpeed);
+
+	if (bJustLanded)
+	{
+		BlockCell footCell{};
+		if (_ResolveFootstepBlock(footPos, footCell))
+		{
+			if (!footCell.IsAir() && m_pAudio)
+			{
+				ResolvedSound resolved{};
+				if (BlockResDB.ResolveBlock(footCell.blockID, EBlockSoundUsage::FALL, resolved))
+				{
+					const float fallSpeed = std::min(-m_fPrevVelocityY, 12.0f);
+					const float t = (fallSpeed - m_fLandingMinFallSpeed) / (12.0f - m_fLandingMinFallSpeed);
+					const float volumeMul = std::clamp(t, 0.0f, 1.0f);
+
+					const XMFLOAT3 soundPos =
+					{
+						footPos.x,
+						footPos.y - 0.8f,
+						footPos.z
+					};
+
+					m_pAudio->Submit3D(
+						resolved.soundID,
+						soundPos,
+						resolved.playDesc.bus,
+						resolved.playDesc.volume * m_fLandingVolumeScale * (0.6f + 0.4f * volumeMul),
+						resolved.playDesc.pitch,
+						resolved.playDesc.minDistance,
+						resolved.playDesc.maxDistance
+					);
+				}
+			}
+		}
+	}
 
 	const float blendTarget = bMoving ? 1.0f : 0.0f;
 	const float blendSpeed = bMoving ? m_fHeadBobBlendInSpeed : m_fHeadBobBlendOutSpeed;
 	m_fHeadBobBlend = _Approach(m_fHeadBobBlend, blendTarget, blendSpeed * fDelta);
+
+	if (bJustLanded)
+	{
+		m_fHeadBobBlend = std::min(m_fHeadBobBlend, 0.35f);
+	}
 
 	if (bMoving)
 	{
@@ -194,17 +241,20 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 		}
 	}
 
-	const float bobPulse = 0.5f - 0.5f * std::cos(m_fHeadBobPhase); // 0 ~ 1
+	const float bobPulse = 0.5f - std::cos(m_fHeadBobPhase);
 	const float bobSide = std::sin(m_fHeadBobPhase);
 
-	const float offsetY = -(bobPulse * m_fHeadBobAmplitude * m_fHeadBobBlend);
-	const float offsetX = (bobSide * m_fHeadBobSideAmplitude * m_fHeadBobBlend);
+	const float offsetY = -(bobPulse * m_fHeadBobAmplitude * m_fHeadBobBlend * m_fHeadBobIntensity);
+	const float offsetX = (bobSide * m_fHeadBobSideAmplitude * m_fHeadBobBlend * m_fHeadBobIntensity);
 
 	m_pCamTransform->SetLocalTrans({
 		offsetX,
 		m_fCameraBaseHeight + offsetY,
 		0.0f
 	});
+
+	m_bPrevGrounded = bGrounded;
+	m_fPrevVelocityY = vel.y;
 }
 
 bool CPlayerController::_ResolveFootstepBlock(const XMFLOAT3& footPos, BlockCell& outCell) const

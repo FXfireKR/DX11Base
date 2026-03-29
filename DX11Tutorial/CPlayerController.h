@@ -62,10 +62,17 @@ private:
 	float m_fHeadBobSideAmplitude = 0.012f;
 	float m_fHeadBobBlendInSpeed = 10.f;
 	float m_fHeadBobBlendOutSpeed = 14.f;
+	float m_fHeadBobIntensity = 1.f;
 
 	float m_fStepStrideMeters = 1.75f;
 	float m_fStepDistanceAccum = 0.f;
 
 	XMFLOAT3 m_prevFootPos{};
 	bool m_bHasPrevFootPos = false;
+
+	bool m_bPrevGrounded = false;
+	float m_fPrevVelocityY = 0.f;
+
+	float m_fLandingMinFallSpeed = 3.0f;
+	float m_fLandingVolumeScale = 0.45f;
 };
