@@ -67,6 +67,8 @@ void CGameWorld::BuildRenderFrame()
 	{
 		CScopedCpuTimer timer(renderBuildMs);
 
+		m_sceneManager.Build();
+
 		m_pRenderWorld->BeginBuildFrame();
 		{
 			m_sceneManager.BuildRenderFrame();

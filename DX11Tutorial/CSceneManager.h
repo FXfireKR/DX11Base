@@ -28,14 +28,11 @@ public:
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
+	void Build();
 	void CommitFrameFence();
 	void BuildRenderFrame();
 
 private:
-	void _FixedUpdate(float fDelta);
-	void _Update(float fDelta);
-	void _LateUpdate(float fDelta);
-
 	void _UnloadCurrentScene();
 	void _LoadNextScene();
 	void _ActivatingCurrentScene();

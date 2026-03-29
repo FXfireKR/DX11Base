@@ -12,9 +12,11 @@ public:
 
 	void Init();
 	void Start();
+	void CommitStart();
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
+	void Build();
 	void Render();
 
 	void Destroy();
@@ -30,6 +32,7 @@ public:
 			this->m_arrComponents[uType].get()->SetOwner(this);
 			this->m_arrComponents[uType].get()->SetAlive(true);
 			this->m_arrComponents[uType].get()->SetEnable(true);
+			this->m_arrComponents[uType].get()->SetStarted(false);
 			this->m_arrComponents[uType].get()->Init();
 		}
 		return static_cast<T*>(this->m_arrComponents[uType].get());

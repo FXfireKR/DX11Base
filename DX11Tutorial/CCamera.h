@@ -33,7 +33,7 @@ public:
 
 	void Init() override;
 	void Start() override;
-	void LateUpdate(float fDelta) override;
+	void Build() override;
 
 	void UpdateCameraMatrix();
 

@@ -9,8 +9,7 @@ public:
 
 	void Init() override;
 	void Start() override;
-	void Update(float fDelta) override;
-	void LateUpdate(float fDelta) override;
+	void Build() override;
 
 	void BuildWorldMatrix();
 

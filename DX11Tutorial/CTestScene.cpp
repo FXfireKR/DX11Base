@@ -60,22 +60,15 @@ void CTestScene::Awake()
 
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
-	tr->Init();
 	tr->SetLocalTrans({ 0, 5.f, 0 });
 	
 	auto* ctrl = m_pPlayer->AddComponent<CPlayerController>();
-	ctrl->Init();
-
 	auto* motor = m_pPlayer->AddComponent<CCharacterMotor>();
-	motor->Init();
 	motor->SetWorld(&m_VoxelWorld);
 	motor->SetFrozen(true);
 
 	auto* inventory = m_pPlayer->AddComponent<CInventoryComponent>();
-	inventory->Init();
-
 	auto* interactor = m_pPlayer->AddComponent<CBlockInteractor>();
-	interactor->Init();
 	interactor->SetWorld(&m_VoxelWorld);
 	interactor->SetParticleSystem(&m_blockBreakParticleSystem);
 	interactor->SetAudioSystem(&GetAudioSystem());
@@ -85,10 +78,8 @@ void CTestScene::Awake()
 	pivot->SetParentID(m_pPlayer->GetID());
 
 	auto* pivotTransform = pivot->AddComponent<CTransform>();
-	pivotTransform->Init();
-
 	auto* cam = pivot->AddComponent<CCamera>();
-	cam->Init();
+
 	float newAspect = static_cast<float>(INIT_SCREEN_SIZE_X) / static_cast<float>(INIT_SCREEN_SIZE_Y);
 	cam->SetAspectRatio(newAspect);
 
@@ -445,10 +436,6 @@ void CTestScene::BuildRenderFrame()
 		uiItem.pMaterial = m_pCrosshairMaterial;
 		XMStoreFloat4x4(&uiItem.world, XMMatrixTranspose(matWorld));
 		rw.Submit(uiItem);
-	}
-
-	{
-		GetObjectManager().ProcessPeddingDestroy();
 	}
 }
 

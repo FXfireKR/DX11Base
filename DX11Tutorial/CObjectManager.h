@@ -15,6 +15,7 @@ public:
 	void Destroy(const string& strName_);
 	void Destroy(OBJECT_ID uObjectID_);
 
+	void CommitPendingStart();
 	void ProcessPeddingDestroy();
 
 	CObject* Get(const string& strName_);

@@ -73,9 +73,18 @@ void CObjectManager::Destroy(OBJECT_ID uObjectID_)
 	pObject->Destroy();
 }
 
+void CObjectManager::CommitPendingStart()
+{
+	PROFILE_SCOPE();
+
+	ForEachAliveEnabled([&](CObject& obj) {
+		obj.CommitStart();
+	});
+}
+
 void CObjectManager::ProcessPeddingDestroy()
 {
-	PROFILE_SCOPE("ProcessPeddingDestroy");
+	PROFILE_SCOPE();
 
 	size_t count = 0;
 	for (int i = static_cast<int>(m_vecObjects.size() - 1); i >= 0; --i) 
@@ -83,10 +92,6 @@ void CObjectManager::ProcessPeddingDestroy()
 		if (true == m_vecObjects[i]->GetPeddingDestroy()) 
 		{
 			_RemoveObjectAtIndex(i);
-			//++count;
-
-			//if (m_uDestroyBudget < count)
-			//	return;
 		}
 	}
 }

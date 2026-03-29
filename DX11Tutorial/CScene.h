@@ -31,9 +31,10 @@ public: // Object 라이프 사이클
 	virtual void FixedUpdate(float fDelta);
 	virtual void Update(float fDelta);
 	virtual void LateUpdate(float fDelta);
+	virtual void Build();
 
 	// Building Frame
-	virtual void CommitFrameFence() {};
+	virtual void CommitFrameFence();
 	virtual void BuildRenderFrame() {};
 
 public: // Object API

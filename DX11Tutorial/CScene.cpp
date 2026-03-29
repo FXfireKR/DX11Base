@@ -49,6 +49,19 @@ void CScene::LateUpdate(float fDelta)
 	});
 }
 
+void CScene::Build()
+{
+	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
+		obj.Build();
+	});
+}
+
+void CScene::CommitFrameFence()
+{
+	m_objectManager.CommitPendingStart();
+	m_objectManager.ProcessPeddingDestroy();
+}
+
 OBJECT_ID CScene::AddObject(const string& strName_)
 {
 	return m_objectManager.Add(strName_, this);

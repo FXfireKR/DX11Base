@@ -21,7 +21,6 @@ enum class COMPONENT_TYPE : BYTE
 
 	END,
 };
-
 const int COMPONENT_TYPE_MAX = static_cast<int>(COMPONENT_TYPE::END);
 
 class CComponent
@@ -38,22 +37,28 @@ public:
 	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
+	virtual void Build() {}
 	virtual void Render() {}
 
 	virtual COMPONENT_TYPE GetType() const PURE;
 
 public:
 	inline void SetAlive(bool bAlive_) { m_bAlive = bAlive_; }
-	inline bool GetAlive() { return m_bAlive; }
+	inline bool GetAlive() const { return m_bAlive; }
 
 	inline void SetEnable(bool bEnable_) { m_bEnable = bEnable_; }
-	inline bool GetEnable() { return m_bEnable; }
+	inline bool GetEnable() const { return m_bEnable; }
+
+	inline void SetStarted(bool bStarted_) { m_bStarted = bStarted_; }
+	inline bool GetStarted() const { return m_bStarted; }
 
 	inline void SetOwner(CObject* pOwner_) { m_pOwner = pOwner_; }
 	inline CObject* GetOwner() const { return m_pOwner; }
 
 protected:
+	CObject* m_pOwner = nullptr;
+
 	bool m_bAlive = false;
 	bool m_bEnable = false;
-	CObject* m_pOwner = nullptr;
+	bool m_bStarted = false;
 };

@@ -20,10 +20,9 @@ void CCamera::Init()
 void CCamera::Start()
 {
 	m_pOwnTransform = m_pOwner->GetComponent<CTransform>();
-	//m_pOwnTransform->SetLocalTrans({ 0.f, 0.f, -5.f });
 }
 
-void CCamera::LateUpdate(float fDelta)
+void CCamera::Build()
 {
 	UpdateCameraMatrix();
 }

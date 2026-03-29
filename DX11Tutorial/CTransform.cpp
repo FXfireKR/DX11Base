@@ -24,14 +24,9 @@ void CTransform::Start()
 		m_uParentID = m_pOwner->GetParentID();
 }
 
-void CTransform::Update(float fDelta)
+void CTransform::Build()
 {
 	BuildWorldMatrix();
-}
-
-void CTransform::LateUpdate(float fDelta)
-{
-	
 }
 
 void CTransform::BuildWorldMatrix()

@@ -22,7 +22,7 @@ static uint64_t MakeChunkMeshKey(int cx, int cy, int cz, EChunkSectionRenderSlot
 
 void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 {
-	PROFILE_SCOPE("RebuildDirtyChunks");
+	PROFILE_SCOPE();
 
 	CChunkMeshBuilder builder;
 	SectionCoord sectionCoord{};
@@ -78,7 +78,7 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 void CChunkMesherSystem::UploadSectionMesh(CScene& scene, CChunkWorld& world, const SectionCoord& sectionCoord
 	, EChunkSectionRenderSlot slot, const ChunkMeshData& meshData)
 {
-	PROFILE_SCOPE("UploadSectionMesh");
+	PROFILE_SCOPE();
 
 	CObject* pRenderObject = world.FindRenderObject(sectionCoord.x, sectionCoord.y, sectionCoord.z, slot);
 	if (nullptr == pRenderObject)

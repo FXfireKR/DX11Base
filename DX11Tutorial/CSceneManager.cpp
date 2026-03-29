@@ -46,17 +46,50 @@ void CSceneManager::ChangeScene(SCENE_TYPE eNext_)
 
 void CSceneManager::FixedUpdate(float fDelta)
 {
-	_FixedUpdate(fDelta);
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->FixedUpdate(fDelta);
+	}
 }
 
 void CSceneManager::Update(float fDelta)
 {
-	_Update(fDelta);
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->Update(fDelta);
+	}
 }
 
 void CSceneManager::LateUpdate(float fDelta)
 {
-	_LateUpdate(fDelta);
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->LateUpdate(fDelta);
+	}
+}
+
+void CSceneManager::Build()
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->Build();
+	}
 }
 
 void CSceneManager::CommitFrameFence()
@@ -117,42 +150,6 @@ void CSceneManager::BuildRenderFrame()
 	if (pCurrent)
 	{
 		pCurrent->BuildRenderFrame();
-	}
-}
-
-void CSceneManager::_FixedUpdate(float fDelta)
-{
-	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
-		return;
-
-	CScene* pCurrent = _GetCurrent();
-	if (pCurrent)
-	{
-		pCurrent->FixedUpdate(fDelta);
-	}
-}
-
-void CSceneManager::_Update(float fDelta)
-{
-	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
-		return;
-
-	CScene* pCurrent = _GetCurrent();
-	if (pCurrent)
-	{
-		pCurrent->Update(fDelta);
-	}
-}
-
-void CSceneManager::_LateUpdate(float fDelta)
-{
-	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
-		return;
-
-	CScene* pCurrent = _GetCurrent();
-	if (pCurrent)
-	{
-		pCurrent->LateUpdate(fDelta);
 	}
 }
 
