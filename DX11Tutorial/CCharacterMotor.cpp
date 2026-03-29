@@ -214,8 +214,8 @@ void CCharacterMotor::_RefreshGrounded()
 
 	XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
 
-	//const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.02f, 0.05f, m_fHalfWidth - 0.02f };
-	const XMFLOAT3 probeHalf = { m_fHalfWidth * 0.45f, 0.05f, m_fHalfWidth * 0.45f };
+	const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.025f, 0.05f, m_fHalfWidth - 0.025f };
+	//const XMFLOAT3 probeHalf = { m_fHalfWidth * 0.45f, 0.05f, m_fHalfWidth * 0.45f };
 	const XMFLOAT3 probeCenter = { footPos.x, footPos.y - 0.05f, footPos.z };
 
 	const bool wasGrounded = m_bGrounded;

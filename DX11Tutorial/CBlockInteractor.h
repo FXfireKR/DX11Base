@@ -44,6 +44,8 @@ private:
 
 	bool _TryPlaceBlock();
 	bool _TryBreakBlock();
+	bool _OverlapAABBForPlacement(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf
+		, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf);
 	bool _OverlapAABB(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf
 		, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf);
 
@@ -73,6 +75,7 @@ private:
 	float m_fBreakAccum = 0.f;
 	float m_fBreakRequired = 0.25f;
 
+	const float HIT_FX_COOL = 0.225f;
 	float m_fHitFxCoolDown = 0.f;
 	
 	bool m_bPlaceRequested = false;

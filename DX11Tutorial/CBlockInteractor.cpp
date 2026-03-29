@@ -17,7 +17,7 @@ void CBlockInteractor::Init()
 	m_miningCell = m_hitResult.cell;
 	m_fBreakAccum = 0.f;
 	m_fBreakRequired = 0.25f;
-	m_fHitFxCoolDown = 0.f;
+	m_fHitFxCoolDown = HIT_FX_COOL;
 
 	m_bPlaceRequested = false;
 	m_bBreakRequested = false;
@@ -155,7 +155,7 @@ void CBlockInteractor::_UpdateMining(float fDelta)
 			m_pParticle->SpawnBreakBurst(m_miningBlock, m_miningCell, m_miningNormal);
 
 		_PlayBlockSound(m_miningCell, EBlockSoundUsage::HIT, m_miningBlock, 0.03f);
-		m_fHitFxCoolDown = 0.25f;
+		m_fHitFxCoolDown = HIT_FX_COOL;
 	}
 
 	if (m_fBreakAccum < m_fBreakRequired)
@@ -187,7 +187,7 @@ void CBlockInteractor::_ResetMining()
 	m_miningCell = {};
 
 	m_fBreakAccum = 0.f;
-	m_fBreakRequired = 0.0f;
+	m_fBreakRequired = 0.f;
 	m_fHitFxCoolDown = 0.f;
 }
 
@@ -205,12 +205,7 @@ float CBlockInteractor::_CalcBreakRequired(const BlockCell& cell) const
 		return 0.0f;
 
 	const float fHardness = BlockDB.GetHardness(cell.blockID);
-
-	// 임시
-	if (fHardness <= 0.f)
-		return 0.05f;
-
-	return std::max(0.1f, fHardness * 0.75f);
+	return std::max(0.001f, fHardness);
 }
 
 bool CBlockInteractor::_TryPlaceBlock()
@@ -229,20 +224,14 @@ bool CBlockInteractor::_TryPlaceBlock()
 		XMFLOAT3 playerCenter{}, playerHalf{};
 		m_pMotor->GetCollisionAABB(playerCenter, playerHalf);
 
-		playerHalf.x += 0.12f;
-		playerHalf.y += 0.12f;
-		playerHalf.z += 0.12f;
+		playerHalf.x += 0.02f;
+		//playerHalf.y += 0.02f;
+		playerHalf.z += 0.02f;
 
-		const XMFLOAT3 blockCenter =
-		{
-			placePos.x + 0.5f,
-			placePos.y + 0.5f,
-			placePos.z + 0.5f
-		};
-
+		const XMFLOAT3 blockCenter = { placePos.x + 0.5f, placePos.y + 0.5f, placePos.z + 0.5f };
 		const XMFLOAT3 blockHalf = { 0.5f, 0.5f, 0.5f };
 
-		if (_OverlapAABB(playerCenter, playerHalf, blockCenter, blockHalf))
+		if (_OverlapAABBForPlacement(playerCenter, playerHalf, blockCenter, blockHalf))
 			return false;
 	}
 
@@ -261,6 +250,15 @@ bool CBlockInteractor::_TryBreakBlock()
 
 	const XMINT3 placePos = m_hitResult.block;
 	return m_pWorld->TryBreakBlock(placePos.x, placePos.y, placePos.z);
+}
+
+bool CBlockInteractor::_OverlapAABBForPlacement(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf)
+{
+	constexpr float eps = 0.001f;
+	return
+		std::fabs(aCenter.x - bCenter.x) <= (aHalf.x + bHalf.x - eps) &&
+		std::fabs(aCenter.y - bCenter.y) <= (aHalf.y + bHalf.y - eps) &&
+		std::fabs(aCenter.z - bCenter.z) <= (aHalf.z + bHalf.z - eps);
 }
 
 bool CBlockInteractor::_OverlapAABB(const XMFLOAT3& aCenter, const XMFLOAT3& aHalf, const XMFLOAT3& bCenter, const XMFLOAT3& bHalf)

@@ -114,6 +114,8 @@ void CTestScene::Awake()
 		const auto& def = a->clips.begin() + 7;
 		GetAudioSystem().Submit2D(def->soundID, EAudioBus::BGM, def->volumeMul, def->pitchMul);
 	}
+
+	GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
 }
 
 void CTestScene::Start()

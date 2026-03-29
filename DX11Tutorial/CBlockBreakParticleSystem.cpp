@@ -165,7 +165,7 @@ void CBlockBreakParticleSystem::SpawnBreakBurst(const XMINT3& blockPos, const Bl
 	};
 
 
-	int iTargetParticle = 5 + (rand() % 12);
+	int iTargetParticle = 3 + (rand() % 3);
 	for (int i = 0; i < iTargetParticle; ++i)
 	{
 		const XMFLOAT3 randDir =
