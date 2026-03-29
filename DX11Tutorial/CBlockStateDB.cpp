@@ -308,9 +308,9 @@ bool CBlockStateDB::_Pass1_CollectDomains(const filesystem::path& file)
 	BLOCK_ID blockID = m_pBlockDefDB->FindBlockID(blockKey.c_str());
 	if (blockID == INVALID_BLOCK_ID)
 	{
-#ifdef _DEBUG 
+#ifdef DEBUG_LOG 
 		cout << "[BlockStateDB] Unknown block key in registry : " << blockKey << "\n";
-#endif // _DEBUG 
+#endif // DEBUG_LOG 
 		return true; // skip
 	}
 
@@ -396,9 +396,9 @@ bool CBlockStateDB::_Pass2_CompileRules(const filesystem::path& file)
 	BLOCK_ID blockID = m_pBlockDefDB->FindBlockID(blockKey.c_str());
 	if (blockID == INVALID_BLOCK_ID)
 	{
-#ifdef _DEBUG 
+#ifdef DEBUG_LOG 
 		cout << "[BlockStateDB] Unknown block key in registry : " << blockKey << "\n";
-#endif // _DEBUG 
+#endif // DEBUG_LOG 
 		return true; // skip
 	}
 
@@ -443,9 +443,9 @@ bool CBlockStateDB::_ReadVariants_Pass1(BLOCK_ID blockID, const rapidjson::Value
 		vector<pair<string, string>> terms;
 		if (!BlockStateParseUtil::ParsePredicate(keyStr, terms))
 		{
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			cerr << "Malformed variant key: " << keyStr << "\n";
-#endif
+#endif // DEBUG_LOG
 			continue;
 		}
 
@@ -482,9 +482,9 @@ bool CBlockStateDB::_ReadVariants_Pass2(BLOCK_ID blockID, const rapidjson::Value
 		// keyStr -> terms (propID,valueIndex)
 		if (!_CompileKeyTerms_ToTerms(*typeDef, keyStr, rule.vecAndTerms))
 		{
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			std::cerr << "Compile terms failed: " << keyStr << "\n";
-#endif
+#endif // DEBUG_LOG
 			continue;
 		}
 
@@ -572,9 +572,9 @@ int CBlockStateDB::_NormalizeRot(int val)
 	int ret = (((val % 360) + 360) % 360);
 	if (ret % 90 != 0)
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 		std::cout << ret << " Normalize rotation not multiple of 90\n";
-#endif
+#endif // DEBUG_LOG
 		return 0;
 	}
 	return ret;

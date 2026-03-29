@@ -27,7 +27,7 @@ public:
 
 private:
 	void _UpdateMouseLockToggle();
-	void _UpdateLook();
+	void _UpdateLook(float fDelta);
 	void _UpdateMoveIntent();
 	void _UpdateActionIntent();
 	void _UpdateHotbarIntent();

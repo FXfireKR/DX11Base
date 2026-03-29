@@ -28,6 +28,6 @@ private:
 	CGamePadHub m_gamePad;
 
 	queue<RAWINPUT> m_queueRawInput;
-	bool m_bGamePadMode = false;
+	bool m_bGamePadMode = true;
 };
 

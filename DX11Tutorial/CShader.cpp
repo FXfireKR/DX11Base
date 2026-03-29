@@ -63,9 +63,9 @@ HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 
 		if (FAILED(hr)) {
 			if (nullptr != errorBlob) {
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 				cout << (char*)errorBlob->GetBufferPointer() << endl;
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			}
 			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;
@@ -108,9 +108,9 @@ HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 
 		if (FAILED(hr)) {
 			if (nullptr != errorBlob) {
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 				cout << (char*)errorBlob->GetBufferPointer() << endl;
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			}
 			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;

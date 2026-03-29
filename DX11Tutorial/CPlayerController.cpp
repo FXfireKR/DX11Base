@@ -66,7 +66,7 @@ void CPlayerController::Update(float fDelta)
 #endif // IMGUI_ACTIVATE
 
 	if (!blockMouse)
-		_UpdateLook();
+		_UpdateLook(fDelta);
 
 	if (!blockKeyboard)
 	{ 
@@ -108,13 +108,23 @@ void CPlayerController::_UpdateMouseLockToggle()
 		mouse.DisalbleMove();
 }
 
-void CPlayerController::_UpdateLook()
+void CPlayerController::_UpdateLook(float fDelta)
 {
 	CMouseDevice& mouse = CInputManager::Get().Mouse();
 	const POINT& delta = mouse.GetDelta();
 
-	m_fYaw += delta.x * m_fMouseSensitivity;
-	m_fPitch += delta.y * m_fMouseSensitivity;
+	float lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
+	float lookY = static_cast<float>(delta.y) * m_fMouseSensitivity;
+
+	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
+	{
+		const float padLookSpeed = 2.4f; // 나중에 조절
+		lookX += pPad->GetRX() * padLookSpeed * fDelta;
+		lookY += pPad->GetRY() * padLookSpeed * fDelta;
+	}
+
+	m_fYaw += lookX;
+	m_fPitch += lookY;
 
 	m_fPitch = std::clamp(m_fPitch, -m_fPitchLimitRad, m_fPitchLimitRad);
 
@@ -134,12 +144,24 @@ void CPlayerController::_UpdateMoveIntent()
 	if (keyboard.GetKey('D')) moveAxis.x += 1.f;
 	if (keyboard.GetKey('A')) moveAxis.x -= 1.f;
 
+	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
+	{
+		moveAxis.x += pPad->GetLX();
+		moveAxis.y += -pPad->GetLY();
+	}
+
+	moveAxis.x = std::clamp(moveAxis.x, -1.f, 1.f);
+	moveAxis.y = std::clamp(moveAxis.y, -1.f, 1.f);
+
 	m_pMotor->SetMoveInput(moveAxis);
 
-	if (keyboard.GetKey(VK_SPACE))
+	bool bJump = keyboard.GetKey(VK_SPACE);
+	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
 	{
-		m_pMotor->RequestJump();
+		bJump = bJump || pPad->GetButtonDown(DUALSENSE_BUTTON::CROSS);
 	}
+	if (bJump)
+		m_pMotor->RequestJump();
 }
 
 void CPlayerController::_UpdateActionIntent()

@@ -125,9 +125,9 @@ bool CBlockResourceDB::_BuildAtlasInputs(vector<AtlasBuildInput>& outInputs) con
 
 		if (!filesystem::exists(filePath))
 		{
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			cout << "CBlockResourceDB::_BuildAtlasInputs] " << filePath << " was not valid file!" << endl;
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			return false;
 		}
 

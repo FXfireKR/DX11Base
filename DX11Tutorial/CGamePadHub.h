@@ -11,6 +11,8 @@ public:
 	void EndFrame();
 	void OnRawInput(const RAWINPUT& raw);
 
+	const CDualSenseDevice* GetActivateDualSense() const;
+
 private:
 	bool _CreatePadDevice(const RAWINPUT& raw);
 	bool _GetDeviceName(HANDLE device, wstring& outName);

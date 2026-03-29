@@ -117,7 +117,7 @@ using namespace rapidjson;
 #endif // _DEBUG
 #endif // OPTICK_PROFILING
 
-#if defined(_DEBUG) || defined(OPTICK_PROFILING)
+#if defined(OPTICK_PROFILING)
 #define PROFILE_FRAME() OPTICK_FRAME("Main")
 #define PROFILE_SCOPE() OPTICK_EVENT()
 #else

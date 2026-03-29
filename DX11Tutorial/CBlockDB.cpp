@@ -276,9 +276,9 @@ bool CBlockDB::_ValidateLinks() const
 		if (def.properties.bAir) continue;
 		if (def.stateSource.empty())
 		{
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			cout << "[BlockDB] stateSource empty : " << def.name << "\n";
-#endif // _DEBUG
+#endif // DEBUG_LOG
 		}
 	}
 

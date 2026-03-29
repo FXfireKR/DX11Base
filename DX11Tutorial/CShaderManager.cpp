@@ -24,11 +24,11 @@ void CShaderManager::Compile()
 			{
 				assert(SHADER_COMPILE_STATE::NOT_READY == pShader->GetCompileState());
 				HRESULT hr = pShader->Compile(m_pDevice);
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 				if (FAILED(hr)) {
 					cout << "[Shader Compile Error] ID : " << shaderKey.uBaseShaderID << ", Flags : " << shaderKey.uMacroFlags << endl;
 				}
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			}
 		}
 		m_queCompileWait.pop();
@@ -169,9 +169,9 @@ void CShaderManager::_LoadShaderDescs()
 
 	 if (docs.HasParseError()) {
 		 ParseErrorCode ecode = docs.GetParseError();
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 		 cout << "Shaders.json parsing error!";
-#endif // _DEBUG
+#endif // DEBUG_LOG
 		 return;
 	 }
 
@@ -183,17 +183,17 @@ void CShaderManager::_LoadShaderDescs()
 		 const Value& shaderObject = shaderMember.value;
 
 		 if (!shaderObject.IsObject()) {
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			 cout << strShaderName.c_str() << " is not JSON Object!" << endl;
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			 continue;
 		 }
 
 		 uint64_t uShaderID = fnv1a_64(strShaderName);
 		 if (m_mapShaderNameToID.contains(strShaderName)) {
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
 			 cout << strShaderName.c_str() << " is already Exist in Shader-map!" << endl;
-#endif // _DEBUG
+#endif // DEBUG_LOG
 			 continue;
 		 }
 

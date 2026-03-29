@@ -3,21 +3,55 @@
 
 void CGamePadHub::BeginFrame()
 {
-
+	for (auto& kv : m_mapDevices)
+	{
+		if (kv.second)
+			kv.second->BeginFrame();
+	}
 }
 
 void CGamePadHub::EndFrame()
 {
-
+	for (auto& kv : m_mapDevices)
+	{
+		if (kv.second)
+			kv.second->BeginFrame();
+	}
 }
 
 void CGamePadHub::OnRawInput(const RAWINPUT& raw)
 {
 	HANDLE hDevice = raw.header.hDevice;
-	if (false == m_mapDevices.contains(hDevice)) {
-		if (false == _CreatePadDevice(raw)) return;
+	if (false == m_mapDevices.contains(hDevice)) 
+	{
+		if (false == _CreatePadDevice(raw)) 
+			return;
 	}
 	m_mapDevices[hDevice]->OnRawInput(raw);
+}
+
+const CDualSenseDevice* CGamePadHub::GetActivateDualSense() const
+{
+	const CDualSenseDevice* pBest = nullptr;
+	uint64_t bestTime = 0;
+
+	for (const auto& kv : m_mapDevices)
+	{
+		if (!kv.second)
+			continue;
+
+		if (kv.second->GetGamePadType() != GAMEPAD_TYPE::DUALSENSE)
+			continue;
+
+		const CDualSenseDevice* pDS = static_cast<const CDualSenseDevice*>(kv.second.get());
+		if (!pBest || pDS->GetLastInputTime() > bestTime)
+		{
+			pBest = pDS;
+			bestTime = pDS->GetLastInputTime();
+		}
+	}
+
+	return pBest;
 }
 
 bool CGamePadHub::_CreatePadDevice(const RAWINPUT& raw)

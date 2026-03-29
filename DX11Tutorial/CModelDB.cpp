@@ -129,9 +129,9 @@ bool CModelDB::_LoadRawModelJSON(IN const char* modelKey, OUT ModelRaw& modelRaw
     if (docs.HasParseError() || !docs.IsObject()) 
     {
         ParseErrorCode ecode = docs.GetParseError();
-#ifdef _DEBUG
+#ifdef DEBUG_LOG
         cout << "Shaders.json parsing error!";
-#endif // _DEBUG
+#endif // DEBUG_LOG
         return false;
     }
 

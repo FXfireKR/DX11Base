@@ -7,14 +7,24 @@ void CInputManager::Initialize()
 
 void CInputManager::BeginFrame()
 {
-	m_pMouse->BeginFrame();
-	m_pKeyboard->BeginFrame();
-	m_pGamePad->BeginFrame();
+	if (m_pMouse)
+		m_pMouse->BeginFrame();
+
+	if (m_pGamePad)
+		m_pKeyboard->BeginFrame();
+
+	if (m_pGamePad)
+		m_pGamePad->BeginFrame();
 }
 
 void CInputManager::EndFrame()
 {
-	m_pMouse->EndFrame();
-	m_pKeyboard->EndFrame();
-	m_pGamePad->EndFrame();
+	if (m_pMouse)
+		m_pMouse->EndFrame();
+
+	if (m_pKeyboard)
+		m_pKeyboard->EndFrame();
+
+	if (m_pGamePad)
+		m_pGamePad->EndFrame();
 }
