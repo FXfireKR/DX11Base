@@ -12,6 +12,21 @@ class CAudioSystem;
 
 class CPlayerController : public CComponentBase<CPlayerController, COMPONENT_TYPE::PLAYERCONTROLLER>
 {
+private:
+	struct PlayerInputCommand
+	{
+		float moveX = 0.f;
+		float moveY = 0.f;
+		float lookX = 0.f;
+		float lookY = 0.f;
+
+		bool jumpPressed = false;
+		bool breakHeld = false;
+		bool placePressed = false;
+		bool hotbarPrev = false;
+		bool hotbarNext = false;
+	};
+
 public:
 	CPlayerController() = default;
 	~CPlayerController() override = default;
@@ -27,10 +42,8 @@ public:
 
 private:
 	void _UpdateMouseLockToggle();
-	void _UpdateLook(float fDelta);
-	void _UpdateMoveIntent();
-	void _UpdateActionIntent();
-	void _UpdateHotbarIntent();
+	void _BuildInputCommand(float fDelta, PlayerInputCommand& outCommand) const;
+	void _ApplyInputCommand(const PlayerInputCommand& command);
 
 	void _UpdateHeadBobAndStep(float fDelta);
 	bool _ResolveFootstepBlock(const XMFLOAT3& footPos, BlockCell& outCell) const;
@@ -52,6 +65,7 @@ private:
 
 	float m_fMouseSensitivity = 0.01f;
 	float m_fPitchLimitRad = XM_PIDIV2 - 0.05f;
+	float m_fPadLookSpeed = 2.4f;
 
 	// presentation
 	float m_fCameraBaseHeight = 1.5f;

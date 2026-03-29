@@ -65,24 +65,20 @@ void CPlayerController::Update(float fDelta)
 	const bool blockKeyboard = m_bUIMode;
 #endif // IMGUI_ACTIVATE
 
-	if (!blockMouse)
-		_UpdateLook(fDelta);
-
-	if (!blockKeyboard)
-	{ 
-		_UpdateMoveIntent();
+	if (!(blockMouse || blockKeyboard))
+	{
+		PlayerInputCommand command{};
+		_BuildInputCommand(fDelta, command);
+		_ApplyInputCommand(command);
 		_UpdateHeadBobAndStep(fDelta);
 	}
 	else
+	{
 		m_pMotor->SetMoveInput({ 0.f, 0.f });
 
-	if (!blockMouse && !blockKeyboard)
-		_UpdateActionIntent();
-	else if (m_pBlockInteractor)
-		m_pBlockInteractor->SetBreakHeld(false);
-
-	if (!blockKeyboard)
-		_UpdateHotbarIntent();
+		if (m_pBlockInteractor)
+			m_pBlockInteractor->SetBreakHeld(false);
+	}
 
 	XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
 	dbg.SetPlayerPosition(pos);
@@ -108,94 +104,90 @@ void CPlayerController::_UpdateMouseLockToggle()
 		mouse.DisalbleMove();
 }
 
-void CPlayerController::_UpdateLook(float fDelta)
+void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& outCmd) const
 {
-	CMouseDevice& mouse = CInputManager::Get().Mouse();
-	const POINT& delta = mouse.GetDelta();
+	CInputManager& input = CInputManager::Get();
+	const bool bUseGamePad = input.IsGamePadMode();
 
-	float lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
-	float lookY = static_cast<float>(delta.y) * m_fMouseSensitivity;
-
-	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
+	if (bUseGamePad)
 	{
-		const float padLookSpeed = 2.4f; // 나중에 조절
-		lookX += pPad->GetRX() * padLookSpeed * fDelta;
-		lookY += pPad->GetRY() * padLookSpeed * fDelta;
+		const CDualSenseDevice* pPad = input.GamePad().GetActivateDualSense();
+		if (pPad)
+		{
+			outCmd.moveX = pPad->GetLX();
+			outCmd.moveY = -pPad->GetLY();
+
+			outCmd.lookX = pPad->GetRX() * m_fPadLookSpeed * fDelta;
+			outCmd.lookY = pPad->GetRY() * m_fPadLookSpeed * fDelta;
+
+			outCmd.jumpPressed = pPad->GetButtonDown(DUALSENSE_BUTTON::CROSS);
+			outCmd.breakHeld = pPad->GetButton(DUALSENSE_BUTTON::L2) || (pPad->GetL2Axis() > 0.35f);
+			outCmd.placePressed = pPad->GetButtonDown(DUALSENSE_BUTTON::R2) || (pPad->GetR2Axis() > 0.5f);
+
+			outCmd.hotbarPrev = pPad->GetButtonDown(DUALSENSE_BUTTON::L1);
+			outCmd.hotbarNext = pPad->GetButtonDown(DUALSENSE_BUTTON::R1);
+		}
+		return;
 	}
 
-	m_fYaw += lookX;
-	m_fPitch += lookY;
+	const POINT& delta = input.Mouse().GetDelta();
+	outCmd.lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
+	outCmd.lookY = static_cast<float>(delta.y) * m_fMouseSensitivity;
 
+	if (input.Keyboard().GetKey('W')) outCmd.moveY += 1.f;
+	if (input.Keyboard().GetKey('S')) outCmd.moveY -= 1.f;
+	if (input.Keyboard().GetKey('D')) outCmd.moveX += 1.f;
+	if (input.Keyboard().GetKey('A')) outCmd.moveX -= 1.f;
+
+	outCmd.jumpPressed = input.Keyboard().GetKey(VK_SPACE);
+	outCmd.breakHeld = input.Mouse().GetKey(VK_LBUTTON);
+	outCmd.placePressed = input.Mouse().GetKey(VK_RBUTTON);
+
+	const short wheel = input.Mouse().GetWheelCnt();
+	const short dir = input.Mouse().GetWheelDir();
+	if (wheel != 0)
+	{
+		if (dir > 0)
+			outCmd.hotbarNext = true;
+		else
+			outCmd.hotbarPrev = true;
+	}
+}
+
+void CPlayerController::_ApplyInputCommand(const PlayerInputCommand& cmd)
+{
+	m_fYaw += cmd.lookX;
+	m_fPitch += cmd.lookY;
 	m_fPitch = std::clamp(m_fPitch, -m_fPitchLimitRad, m_fPitchLimitRad);
 
 	m_pOwnTransform->SetLocalRotateEulerRad({ 0.f, m_fYaw, 0.f });
 	m_pCamTransform->SetLocalRotateEulerRad({ m_fPitch, 0.f, 0.f });
-
 	m_pMotor->SetYaw(m_fYaw);
-}
 
-void CPlayerController::_UpdateMoveIntent()
-{
-	CKeyboardDevice& keyboard = CInputManager::Get().Keyboard();
-	XMFLOAT2 moveAxis{ 0.f, 0.f };
-
-	if (keyboard.GetKey('W')) moveAxis.y += 1.f;
-	if (keyboard.GetKey('S')) moveAxis.y -= 1.f;
-	if (keyboard.GetKey('D')) moveAxis.x += 1.f;
-	if (keyboard.GetKey('A')) moveAxis.x -= 1.f;
-
-	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
-	{
-		moveAxis.x += pPad->GetLX();
-		moveAxis.y += -pPad->GetLY();
-	}
-
+	XMFLOAT2 moveAxis{ cmd.moveX, cmd.moveY };
 	moveAxis.x = std::clamp(moveAxis.x, -1.f, 1.f);
 	moveAxis.y = std::clamp(moveAxis.y, -1.f, 1.f);
-
 	m_pMotor->SetMoveInput(moveAxis);
 
-	bool bJump = keyboard.GetKey(VK_SPACE);
-	if (const CDualSenseDevice* pPad = CInputManager::Get().GamePad().GetActivateDualSense())
-	{
-		bJump = bJump || pPad->GetButtonDown(DUALSENSE_BUTTON::CROSS);
-	}
-	if (bJump)
+	if (cmd.jumpPressed)
 		m_pMotor->RequestJump();
-}
 
-void CPlayerController::_UpdateActionIntent()
-{
-	CMouseDevice& mouse = CInputManager::Get().Mouse();
-
-	m_pBlockInteractor->SetBreakHeld(mouse.GetKey(VK_LBUTTON));
-
-	if (mouse.GetKey(VK_RBUTTON))
+	m_pBlockInteractor->SetBreakHeld(cmd.breakHeld);
+	if (cmd.placePressed)
 		m_pBlockInteractor->RequestPlace();
-}
 
-void CPlayerController::_UpdateHotbarIntent()
-{
-	CKeyboardDevice& keyboard = CInputManager::Get().Keyboard();
-	const short wheel = CInputManager::Get().Mouse().GetWheelCnt();
-	const short dir = CInputManager::Get().Mouse().GetWheelDir();
+	int step = 0;
+	if (cmd.hotbarPrev) --step;
+	if (cmd.hotbarNext) ++step;
 
-	if (keyboard.GetKeyDown('1')) m_pInventory->SetSelectedSlotIndex(0);
-	if (keyboard.GetKeyDown('2')) m_pInventory->SetSelectedSlotIndex(1);
-	if (keyboard.GetKeyDown('3')) m_pInventory->SetSelectedSlotIndex(2);
-	if (keyboard.GetKeyDown('4')) m_pInventory->SetSelectedSlotIndex(3);
-	if (keyboard.GetKeyDown('5')) m_pInventory->SetSelectedSlotIndex(4);
-	if (keyboard.GetKeyDown('6')) m_pInventory->SetSelectedSlotIndex(5);
-	if (keyboard.GetKeyDown('7')) m_pInventory->SetSelectedSlotIndex(6);
-	if (keyboard.GetKeyDown('8')) m_pInventory->SetSelectedSlotIndex(7);
-	if (keyboard.GetKeyDown('9')) m_pInventory->SetSelectedSlotIndex(8);
-
-	if (wheel != 0)
+	if (step != 0)
 	{
-		int iIndex = m_pInventory->GetSelectedSlotIndex();
-		dir > 0 ? ++iIndex : --iIndex;
-		iIndex += 9;
-		m_pInventory->SetSelectedSlotIndex(iIndex % 9);
+		int idx = m_pInventory->GetSelectedSlotIndex();
+		idx += step;
+		idx %= 9;
+		if (idx < 0) 
+			idx += 9;
+		m_pInventory->SetSelectedSlotIndex(idx);
 	}
 }
 

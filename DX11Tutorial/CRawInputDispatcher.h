@@ -14,6 +14,7 @@ public:
 
 private:
 	void _OnRawInput(const RAWINPUT& raw);
+	void _UpdateActiveInputDevice(const RAWINPUT& raw);
 
 public:
 	inline CMouseDevice& GetMouse() { return m_mouse; }
@@ -21,6 +22,7 @@ public:
 	inline CGamePadHub& GetGamePad() { return m_gamePad; }
 
 	inline const bool& IsGamePadMode() const { return m_bGamePadMode; }
+	inline EActiveInputDevice GetActiveInputDevice() const { return m_eActiveInputDevice; }
 
 private:
 	CMouseDevice m_mouse;
@@ -28,6 +30,7 @@ private:
 	CGamePadHub m_gamePad;
 
 	queue<RAWINPUT> m_queueRawInput;
-	bool m_bGamePadMode = true;
-};
 
+	bool m_bGamePadMode = true;
+	EActiveInputDevice m_eActiveInputDevice = EActiveInputDevice::KEYBOARD_MOUSE;
+};

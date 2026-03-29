@@ -16,6 +16,12 @@ struct ButtonState
 	bool isHeld = false;
 };
 
+enum class EActiveInputDevice : uint8_t
+{
+	KEYBOARD_MOUSE = 0,
+	GAMEPAD,
+};
+
 class IInputDevice
 {
 public:
