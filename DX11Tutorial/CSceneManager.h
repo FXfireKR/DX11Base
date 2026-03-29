@@ -28,9 +28,8 @@ public:
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
-
+	void CommitFrameFence();
 	void BuildRenderFrame();
-	void CheckChangeScene();
 
 private:
 	void _FixedUpdate(float fDelta);

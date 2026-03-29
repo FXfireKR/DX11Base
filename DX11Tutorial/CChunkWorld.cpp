@@ -48,8 +48,7 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMateria
 
 void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 {
-	OPTICK_EVENT();
-
+	PROFILE_SCOPE();
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
 	const int centerCz = FloorDiv16((int)std::floor(playerWorldPos.z));
 
@@ -68,7 +67,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	int coldUnloadBudget = m_iColdUnloadBudgetPerFrame;
 
 	{
-		OPTICK_EVENT("BuildWantedSet");
+		PROFILE_SCOPE("BuildWantedSet");
 
 		for (int dz = -warmRadius; dz <= warmRadius; ++dz)
 		{
@@ -107,7 +106,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	}
 
 	{
-		OPTICK_EVENT("UnloadFarColumns");
+		PROFILE_SCOPE("UnloadFarColumns");
 
 		for (auto& kv : m_columns)
 		{
@@ -141,8 +140,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	}
 
 	{
-		OPTICK_EVENT("RebuildAndUpdateDebug");
-
+		PROFILE_SCOPE("RebuildAndUpdateDebug");
 		if (bStreamChanged)
 		{
 			m_bPendingFullRelight = true;
@@ -155,7 +153,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 		}
 
 		{
-			OPTICK_EVENT("_UpdateDebugStats");
+			PROFILE_SCOPE("_UpdateDebugStats");
 			_UpdateDebugStats();
 		}
 	}
@@ -166,7 +164,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	size_t newCap = static_cast<size_t>((m_iStreamRadius * 2 + 1) * (m_iStreamRadius * 2 + 1));
 
 	{
-		OPTICK_EVENT("BuildWantedSet");
+		PROFILE_SCOPE("BuildWantedSet");
 		for (int dz = -m_iStreamRadius; dz <= m_iStreamRadius; ++dz)
 		{
 			for (int dx = -m_iStreamRadius; dx <= m_iStreamRadius; ++dx)
@@ -188,7 +186,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 	}
 
 	{
-		OPTICK_EVENT("UnloadFarColumns");
+		PROFILE_SCOPE("UnloadFarColumns");
 		for (auto& kv : m_columns)
 		{
 			CChunkColumn& column = kv.second;
@@ -1204,11 +1202,11 @@ void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz)
 
 void CChunkWorld::_RebuildActiveBlockLightCache()
 {
-	OPTICK_EVENT();
+	PROFILE_SCOPE();
 
 	// 1) active 컬럼 light cache clear
 	{
-		OPTICK_EVENT("LightCacheClear");
+		PROFILE_SCOPE("LightCacheClear");
 
 		for (auto& kv : m_columns)
 		{
@@ -1234,7 +1232,7 @@ void CChunkWorld::_RebuildActiveBlockLightCache()
 
 	// 2) emissive source scan + flood
 	{
-		OPTICK_EVENT("EmissiveSourceScan");
+		PROFILE_SCOPE("EmissiveSourceScan");
 
 		for (auto& kv : m_columns)
 		{
@@ -1613,5 +1611,3 @@ void CChunkWorld::_UpdateDebugStats()
 	dbg.SetModifiedColumnCount(modifiedColumns);
 	dbg.SetModifiedCellCount(modifiedCells);
 }
-
-

@@ -83,7 +83,7 @@ void CBlockStateDB::Load()
 
 bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT vector<AppliedModel>& vecAppliedModels) const
 {
-	OPTICK_EVENT();
+	PROFILE_SCOPE();
 
 	vecAppliedModels.clear();
 
@@ -133,7 +133,7 @@ bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex
 
 bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex, OUT const vector<AppliedModel>*& vecAppliedModels) const
 {
-	OPTICK_EVENT();
+	PROFILE_SCOPE();
 
 	//vecAppliedModels.clear();
 
@@ -654,7 +654,7 @@ const BlockStateDef* CBlockStateDB::_FindBlockState(BLOCK_ID blockID) const
 
 void CBlockStateDB::_DecodeStateIndex(const BlockTypeDef& typeDef, STATE_INDEX sidx, std::vector<VALUE_INDEX>& outValueIndexPerProp) const
 {
-	OPTICK_EVENT();
+	PROFILE_SCOPE();
 
 	outValueIndexPerProp.assign(typeDef.vecProps.size(), 0);
 

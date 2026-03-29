@@ -115,6 +115,15 @@
     <Filter Include="Code\04_Game\BlockState/Model\Facade">
       <UniqueIdentifier>{8c5faed9-a7b0-4149-9ee6-127f77f19a9f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\04_Game\System">
+      <UniqueIdentifier>{3c1432e7-f61d-48f8-8e66-d9a36bb3692a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\04_Game\Debug">
+      <UniqueIdentifier>{882131ae-9c45-4386-9aa1-c9863c368ea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\04_Game\Chunk\Generator">
+      <UniqueIdentifier>{b16b333a-b646-4cf1-93c3-aadebea9b841}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -152,9 +161,6 @@
     </ClInclude>
     <ClInclude Include="CRenderManager.h">
       <Filter>Code\03_Render</Filter>
-    </ClInclude>
-    <ClInclude Include="CDummyThread.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\backend\imgui_impl_dx11.h">
       <Filter>__ImGui__</Filter>
@@ -447,53 +453,56 @@
     <ClInclude Include="AtlasTypes.h">
       <Filter>헤더 파일\Util\Minecraft</Filter>
     </ClInclude>
-    <ClInclude Include="CWorldTime.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MathUtil.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CDebugCollector.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugTypes.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CDebugOverlay.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugUtil.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderPassTypes.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="AudioType.h">
+      <Filter>헤더 파일\Util\Core</Filter>
     </ClInclude>
     <ClInclude Include="CBlockBreakParticleSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IChunkGenerator.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CFlatChunkGenerator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CHeightmapChunkGenerator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CWorldLight.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
     </ClInclude>
     <ClInclude Include="CAudioSystem.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
     </ClInclude>
-    <ClInclude Include="GameWorldHeader.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="CDebugOverlay.h">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="CDebugCollector.h">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugUtil.h">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugTypes.h">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPassTypes.h">
+      <Filter>헤더 파일\Util\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtil.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorldTime.h">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorldLight.h">
+      <Filter>Code\04_Game\Chunk</Filter>
     </ClInclude>
     <ClInclude Include="CSoundDataBase.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
     </ClInclude>
-    <ClInclude Include="AudioType.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="GameWorldHeader.h">
+      <Filter>헤더 파일\Util\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CHeightmapChunkGenerator.h">
+      <Filter>Code\04_Game\Chunk\Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="CFlatChunkGenerator.h">
+      <Filter>Code\04_Game\Chunk\Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="IChunkGenerator.h">
+      <Filter>Code\04_Game\Chunk\Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameScene.h">
+      <Filter>Code\99_Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -526,9 +535,6 @@
     </ClCompile>
     <ClCompile Include="CRenderManager.cpp">
       <Filter>Code\03_Render</Filter>
-    </ClCompile>
-    <ClCompile Include="CDummyThread.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\backend\imgui_impl_dx11.cpp">
       <Filter>__ImGui__</Filter>
@@ -613,9 +619,6 @@
     </ClCompile>
     <ClCompile Include="CPipelineManager.cpp">
       <Filter>Code\03_Render\Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="sparse_set.hpp">
-      <Filter>헤더 파일</Filter>
     </ClCompile>
     <ClCompile Include="CKeyboardDevice.cpp">
       <Filter>Code\01_Manager\RawInput</Filter>
@@ -722,32 +725,38 @@
     <ClCompile Include="CInventoryComponent.cpp">
       <Filter>Code\02_Object\Component</Filter>
     </ClCompile>
-    <ClCompile Include="CWorldTime.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CDebugCollector.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CDebugOverlay.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CBlockBreakParticleSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CFlatChunkGenerator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CHeightmapChunkGenerator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CWorldLight.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
     </ClCompile>
     <ClCompile Include="CAudioSystem.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="CDebugOverlay.cpp">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="CDebugCollector.cpp">
+      <Filter>Code\04_Game\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="sparse_set.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorldLight.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorldTime.cpp">
+      <Filter>Code\04_Game\Chunk</Filter>
     </ClCompile>
     <ClCompile Include="CSoundDataBase.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Code\04_Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="CFlatChunkGenerator.cpp">
+      <Filter>Code\04_Game\Chunk\Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="CHeightmapChunkGenerator.cpp">
+      <Filter>Code\04_Game\Chunk\Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameScene.cpp">
+      <Filter>Code\99_Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

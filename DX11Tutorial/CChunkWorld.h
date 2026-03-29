@@ -38,6 +38,7 @@ struct BlockLightNode
 {
 	XMINT3 w { 0, 0, 0 };
 	uint8_t light = 0;
+	uint8_t inDir = 0xFF;
 };
 
 const XMINT3 g_BlockLightDirs[6] =

@@ -24,6 +24,7 @@ void CGameWorld::Initialize(CRenderWorld& renderWorld_, CAudioSystem& audioSyste
 void CGameWorld::Tick()
 {
 	m_gameTimeManager.Tick();
+
 	float fDelta = m_gameTimeManager.GetDeltaTime();
 
 	dbg.SetFPS(static_cast<float>(m_gameTimeManager.GetFps()));
@@ -33,7 +34,7 @@ void CGameWorld::Tick()
 	m_iFixedUpdateProcCnt = 0;
 
 	// fixed-update logic
-	while (m_fAccumulatedTime >= FIXED_DELTA && m_iFixedUpdateProcCnt < MAX_FIXED_STEP) 
+	while (m_fAccumulatedTime >= FIXED_DELTA && m_iFixedUpdateProcCnt < MAX_FIXED_STEP)
 	{
 		m_sceneManager.FixedUpdate(FIXED_DELTA);
 		m_fAccumulatedTime -= FIXED_DELTA;
@@ -53,8 +54,11 @@ void CGameWorld::Tick()
 		m_sceneManager.LateUpdate(fDelta);
 	}
 	dbg.SetLateUpdateMs(lasUpdateMs);
+}
 
-	m_sceneManager.CheckChangeScene();
+void CGameWorld::CommitFrameFence()
+{
+	m_sceneManager.CommitFrameFence();
 }
 
 void CGameWorld::BuildRenderFrame()

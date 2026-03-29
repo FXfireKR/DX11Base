@@ -188,9 +188,9 @@
     <ClInclude Include="CDebugOverlay.h" />
     <ClInclude Include="CDeltaTimeManager.h" />
     <ClInclude Include="CDualSenseDevice.h" />
-    <ClInclude Include="CDummyThread.h" />
     <ClInclude Include="CFlatChunkGenerator.h" />
     <ClInclude Include="CGamePadHub.h" />
+    <ClInclude Include="CGameScene.h" />
     <ClInclude Include="CGameWorld.h" />
     <ClInclude Include="CHeightmapChunkGenerator.h" />
     <ClInclude Include="ChunkMath.h" />
@@ -308,6 +308,7 @@
     <ClCompile Include="CDualSenseDevice.cpp" />
     <ClCompile Include="CFlatChunkGenerator.cpp" />
     <ClCompile Include="CGamePadHub.cpp" />
+    <ClCompile Include="CGameScene.cpp" />
     <ClCompile Include="CHeightmapChunkGenerator.cpp" />
     <ClCompile Include="CInitializeScene.cpp" />
     <ClCompile Include="CInputManager.cpp" />
@@ -351,7 +352,6 @@
     <ClCompile Include="CComponent.cpp" />
     <ClCompile Include="CComponentBase.cpp" />
     <ClCompile Include="CDeltaTimeManager.cpp" />
-    <ClCompile Include="CDummyThread.cpp" />
     <ClCompile Include="CGameWorld.cpp" />
     <ClCompile Include="CInputLayer.cpp" />
     <ClCompile Include="CInputLayerManager.cpp" />

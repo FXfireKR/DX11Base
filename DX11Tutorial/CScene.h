@@ -18,14 +18,12 @@ constexpr uint32_t SCENE_MAX_SIZE = static_cast<uint32_t>(SCENE_TYPE::END_SCENE)
 class CScene
 {
 public:
-	CScene() {}
-	virtual ~CScene() {}
+	CScene() = default;
+	virtual ~CScene() = default;
 
-	// Scene 관련 동작
 	virtual void OnCreate(CGameWorld& gameWorld);
 
 public: // Object 라이프 사이클
-	// Initialization
 	virtual void Awake() {} // next Load 단계
 	virtual void Start(); // current 활성화 단계
 
@@ -35,10 +33,10 @@ public: // Object 라이프 사이클
 	virtual void LateUpdate(float fDelta);
 
 	// Building Frame
-	virtual void BuildRenderFrame();
+	virtual void CommitFrameFence() {};
+	virtual void BuildRenderFrame() {};
 
-public:
-	// Object 중계
+public: // Object API
 	OBJECT_ID AddObject(const string& strName_);
 	CObject* AddAndGetObject(const string& strName_);
 
@@ -61,12 +59,12 @@ public:
 
 	inline const bool& IsRequestForChange() { return m_bChangeSceneReq; }
 	inline const SCENE_TYPE& GetNextScene() { return m_eNextSceneReq; }
+	inline void ResetChangeSceneRequest() { m_bChangeSceneReq = false; m_eNextSceneReq = SCENE_TYPE::END_SCENE; }
 
 protected:
 	CObjectManager m_objectManager;
 	CCamera* m_pCurrentCamera = nullptr;
 
-	// not-own
 	CRenderWorld* m_pRenderWorld = nullptr; 
 	CAudioSystem* m_pAudioSystem = nullptr;
 

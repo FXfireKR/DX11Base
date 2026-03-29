@@ -103,9 +103,11 @@ using namespace Microsoft::WRL;
 #include <rapidjson\stringbuffer.h>
 using namespace rapidjson;
 
-// Optick Profiler
-#define OPTICK_PROFILING
 
+// OPTICK 활성
+//#define OPTICK_PROFILING
+
+// Optick Profiler
 #ifdef OPTICK_PROFILING
 #include <Optick\optick.h>
 #include <Optick\optick.config.h>
@@ -114,14 +116,15 @@ using namespace rapidjson;
 #else // _DEBUG
 #pragma comment(lib, "Optick\\release\\OptickCore.lib")
 #endif // _DEBUG
+#endif // OPTICK_PROFILING
 
 #if defined(_DEBUG) || defined(OPTICK_PROFILING)
+#define PROFILE_FRAME() OPTICK_FRAME("Main")
 #define PROFILE_SCOPE() OPTICK_EVENT()
 #else
+#define PROFILE_FRAME() ((void)0)
 #define PROFILE_SCOPE() ((void)0)
 #endif
-
-#endif // OPTICK_PROFILING
 
 
 // ImGuI
@@ -164,17 +167,16 @@ struct UVRect
 #define BlockDB CBlockDB::Get()
 #define BlockResDB CBlockResourceDB::Get()
 
+
+// 
+
+
 ////////////////////////////////////////////////////////////////////////////
 // 
 // AppliedModel vector 복사가 아닌 주소 받아오도록 변경.
 // BakeQuad 복사는 필요하지 않으면 하지 않고 source 그대로 쓰도록 변경.
 // 
 #define OPTIMIZATION_1
-////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////
-// 
-// 
 // UpdateStream load/unload 단계를 상세히 나눠서 cpu 사용율 분산.
 // 
 #define OPTIMIZATION_2

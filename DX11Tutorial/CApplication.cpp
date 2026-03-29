@@ -2,14 +2,6 @@
 #include "CApplication.h"
 #include "CDeltaTimeManager.h"
 
-Application::Application()
-{
-}
-
-Application::~Application()
-{
-}
-
 bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 {
 	m_renderWorld.Initialize(hWnd_, iScreenWidth_, iScreenHeight_);
@@ -22,14 +14,13 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 	_ImGuiInitialize(hWnd_);
 	_RegisterRawInput(hWnd_);
 
-	//m_rawInputDispatcher.init();
 	m_rawInputDispatcher.GetMouse().SetWindowTarget(m_window);
 
-	CInputManager::Get().Initialize();
-	CInputManager::Get().SetMouseDevice(m_rawInputDispatcher.GetMouse());
-	CInputManager::Get().SetKeyboardDevice(m_rawInputDispatcher.GetKeyboard());
-	CInputManager::Get().SetGamePadDevice(m_rawInputDispatcher.GetGamePad());
-
+	CInputManager& inputManager = CInputManager::Get();
+	inputManager.Initialize();
+	inputManager.SetMouseDevice(m_rawInputDispatcher.GetMouse());
+	inputManager.SetKeyboardDevice(m_rawInputDispatcher.GetKeyboard());
+	inputManager.SetGamePadDevice(m_rawInputDispatcher.GetGamePad());
 
 	return true;
 }
@@ -45,75 +36,24 @@ void Application::Release()
 
 void Application::Tick()
 {
-	OPTICK_FRAME("MainThread");
-	OPTICK_EVENT();
+	PROFILE_FRAME();
+	PROFILE_SCOPE();
 
-	m_window.CalcWindowSize();
-
-	dbg.BeginFrame();
-	CInputManager::Get().BeginFrame();
-	{
-		// Input Dispatch
-		m_rawInputDispatcher.DispatchRawQueue();
-
-		// ImGui
-#ifdef IMGUI_ACTIVATE
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-#endif // IMGUI_ACTIVATE
-
-		// Logic
-		{
-			m_gameWorld.Tick();
-		}
-
-		// Frame Fence
-		{
-			m_audio.Tick();
-			m_gameWorld.BuildRenderFrame();
-			m_gameWorld.RenderDebugOverlay();
-		}
-
-		// Render
-		{
-			float renderExecuteMs = 0.f;
-			{
-				CScopedCpuTimer timer(renderExecuteMs);
-
-				m_renderWorld.BeginFrame();
-				m_renderWorld.DrawFrame();
-
-#ifdef IMGUI_ACTIVATE
-				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#endif // IMGUI_ACTIVATE
-			}
-			dbg.SetRenderExecuteMs(renderExecuteMs);
-
-			float presentMs = 0.f;
-			{
-				CScopedCpuTimer timer(presentMs);
-				m_renderWorld.EndFrame();
-			}
-			dbg.SetPresentMs(presentMs);
-		}
-	}
-	CInputManager::Get().EndFrame();
-	dbg.EndFrame();
+	_BeginFrame();
+	_RunGameFrame();
+	_CommitFrameFence();
+	_BuildRenderFrame();
+	_ExecuteRenderFrame();
+	_EndFrame();
 }
 
 LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
-	//return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
-
 	switch (uMessage_)
 	{
 		case WM_MOVE:
 		case WM_SIZE:
-		{
-			
-		} break;
+			break;
 
 		case WM_INPUT :
 		{
@@ -121,9 +61,11 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 			GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
 
 			static BYTE buffer[1024];
-			if (size > sizeof(buffer)) break;
+			if (size > sizeof(buffer)) 
+				break;
 
-			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer, &size, sizeof(RAWINPUTHEADER)) != size) break;
+			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer, &size, sizeof(RAWINPUTHEADER)) != size) 
+				break;
 
 			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(buffer);
 			m_rawInputDispatcher.Push(*raw);
@@ -137,6 +79,69 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 	}
 
 	return DefWindowProc(hWnd_, uMessage_, wParam_, lParam_);
+}
+
+void Application::_BeginFrame()
+{
+	m_window.CalcWindowSize();
+
+	dbg.BeginFrame();
+	CInputManager::Get().BeginFrame();
+
+	m_rawInputDispatcher.DispatchRawQueue();
+
+#ifdef IMGUI_ACTIVATE
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+#endif // IMGUI_ACTIVATE
+}
+
+void Application::_RunGameFrame()
+{
+	m_gameWorld.Tick();
+}
+
+void Application::_CommitFrameFence()
+{
+	m_gameWorld.CommitFrameFence();
+	m_audio.Tick();
+}
+
+void Application::_BuildRenderFrame()
+{
+	m_gameWorld.BuildRenderFrame();
+	m_gameWorld.RenderDebugOverlay();
+}
+
+void Application::_ExecuteRenderFrame()
+{
+	float renderExecuteMs = 0.f;
+	{
+		CScopedCpuTimer timer(renderExecuteMs);
+
+		m_renderWorld.BeginFrame();
+		m_renderWorld.DrawFrame();
+
+#ifdef IMGUI_ACTIVATE
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif // IMGUI_ACTIVATE
+	}
+	dbg.SetRenderExecuteMs(renderExecuteMs);
+
+	float presentMs = 0.f;
+	{
+		CScopedCpuTimer timer(presentMs);
+		m_renderWorld.EndFrame();
+	}
+	dbg.SetPresentMs(presentMs);
+}
+
+void Application::_EndFrame()
+{
+	CInputManager::Get().EndFrame();
+	dbg.EndFrame();
 }
 
 bool Application::_ImGuiInitialize(HWND hWnd_)

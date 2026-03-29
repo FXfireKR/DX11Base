@@ -13,15 +13,16 @@ public:
 
 	void Initialize(CRenderWorld& renderWorld_, CAudioSystem& audioSystem);
 	void Tick();
+	void CommitFrameFence();
 	void BuildRenderFrame();
 	void RenderDebugOverlay();
-
-private:
-	void _RegisterScenes();
 
 public:
 	inline CRenderWorld* GetRenderWorld() const { return m_pRenderWorld; }
 	inline CAudioSystem* GetAudioSystem() const { return m_pAudioSystem; }
+
+private:
+	void _RegisterScenes();
 
 private:
 	CDebugOverlay m_debugOverlay;

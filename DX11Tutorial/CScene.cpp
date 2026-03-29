@@ -9,7 +9,8 @@ void CScene::OnCreate(CGameWorld& gameWorld)
 	m_pAudioSystem = gameWorld.GetAudioSystem();
 
 	// 카메라가 존재하지 않으므로, 오브젝트를 만들어서 넣어준다.
-	if (nullptr == m_pCurrentCamera) {
+	if (nullptr == m_pCurrentCamera) 
+	{
 		OBJECT_ID cameraID = m_objectManager.Add("MainCamera", this);
 
 		CObject* pObject = m_objectManager.Get(cameraID);
@@ -46,11 +47,6 @@ void CScene::LateUpdate(float fDelta)
 	m_objectManager.ForEachAliveEnabled([&](CObject& obj) {
 		obj.LateUpdate(fDelta);
 	});
-}
-
-void CScene::BuildRenderFrame()
-{
-
 }
 
 OBJECT_ID CScene::AddObject(const string& strName_)

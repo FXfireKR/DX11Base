@@ -7,7 +7,7 @@
 bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int sy, int cz
     , const CChunkSection& section, ChunkSectionMeshSet& outMeshes) const
 {
-    OPTICK_EVENT();
+    PROFILE_SCOPE();
 
     outMeshes.Clear();
 
@@ -43,7 +43,7 @@ bool CChunkMeshBuilder::BuildSectionMeshes(const CChunkWorld& world, int cx, int
 bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int wy, int wz, int lx, int ly, int lz
     , const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
 {
-    OPTICK_EVENT("_AppendBlockQuads");
+    PROFILE_SCOPE();
 
     // 패스트트랙
     if (_TryAppendFastOpaqueCube(world, wx, wy, wz, lx, ly, lz, cell, outMeshes))
@@ -75,14 +75,15 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels) || !vecModels)
         return false;
 
-    OPTICK_EVENT("ModelAppend");
+    PROFILE_SCOPE("ModelAppend");
+
     const AppliedModel& applied = *(vecModels->begin());
 
     const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
     if (!pBakedModel)
         return false;
 
-    OPTICK_EVENT("AppendModelQuads");
+    PROFILE_SCOPE("AppendModelQuads");
     if (applied.rotate)
     {
         for (const BakedQuad& srcQuad : pBakedModel->quads)
@@ -114,14 +115,14 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
     if (!BlockDB.GetAppliedModels(cell.blockID, cell.stateIndex, vecModels))
         return false;
 
-    OPTICK_EVENT("ModelAppend");
+    PROFILE_SCOPE("ModelAppend");
     for (const AppliedModel& applied : vecModels)
     {
         const BakedModel* pBakedModel = BlockDB.FindBakedModel(applied.modelHash);
         if (!pBakedModel)
             continue;
 
-        OPTICK_EVENT("AppendModelQuads");
+        PROFILE_SCOPE("AppendModelQuads");
         for (const BakedQuad& srcQuad : pBakedModel->quads)
         {
             BakedQuad quad = srcQuad;
@@ -142,7 +143,7 @@ bool CChunkMeshBuilder::_AppendBlockQuads(const CChunkWorld& world, int wx, int 
 
 bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy, int wz, const BlockCell& cell, FACE_DIR dir) const
 {
-    OPTICK_EVENT();
+    PROFILE_SCOPE();
 
     XMINT3 n{};
     switch (dir)
@@ -184,8 +185,7 @@ bool CChunkMeshBuilder::_ShouldCullFace(const CChunkWorld& world, int wx, int wy
 bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& quad
     , int wx, int wy, int wz, int lx, int ly, int lz, ChunkMeshData& outMesh) const
 {
-    OPTICK_EVENT();
-
+    PROFILE_SCOPE();
     AtlasRegion region{};
 
     // TODO: #1 Change String key to Hash key
@@ -307,7 +307,7 @@ FACE_DIR CChunkMeshBuilder::_RotateFaceDirY(FACE_DIR dir, int rotYDeg) const
 
 void CChunkMeshBuilder::_ApplyModelRotation(BakedQuad& quad, int rotXDeg, int rotYDeg) const
 {
-    OPTICK_EVENT();
+    PROFILE_SCOPE();
     const int fixedY = static_cast<int>((360 - rotYDeg) % 360);
 
     for (int i = 0; i < 4; ++i)
@@ -347,8 +347,7 @@ bool CChunkMeshBuilder::_TryAppendFastOpaqueCube(const CChunkWorld& world,
     int wx, int wy, int wz, int lx, int ly, int lz,
     const BlockCell& cell, ChunkSectionMeshSet& outMeshes) const
 {
-    OPTICK_EVENT();
-
+    PROFILE_SCOPE();
     if (BlockDB.GetRenderLayer(cell.blockID) != BLOCK_RENDER_LAYER::OPAQUE_LAYER)
         return false;
 

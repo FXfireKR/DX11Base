@@ -31,12 +31,14 @@ void CSceneManager::Create(SCENE_TYPE eType_)
 
 void CSceneManager::Remove(SCENE_TYPE eType_)
 {
+	UNREFERENCED_PARAMETER(eType_);
 }
 
 void CSceneManager::ChangeScene(SCENE_TYPE eNext_)
 {
 	if (m_eSceneChangeState != SCENE_CHANGE_STATE::NONE) return;
 	if (eNext_ == SCENE_TYPE::END_SCENE) return;
+	if (eNext_ == m_eCurrentSceneType) return;
 
 	m_eNextSceneType = eNext_;
 	m_eSceneChangeState = SCENE_CHANGE_STATE::UNLOADING;
@@ -57,45 +59,36 @@ void CSceneManager::LateUpdate(float fDelta)
 	_LateUpdate(fDelta);
 }
 
-void CSceneManager::BuildRenderFrame()
+void CSceneManager::CommitFrameFence()
 {
-	_GetCurrent()->BuildRenderFrame();
-}
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
 
-void CSceneManager::CheckChangeScene()
-{
-	if (true == _GetCurrent()->IsRequestForChange())
+	CScene* pCurrent = _GetCurrent();
+	if (nullptr == pCurrent)
+		return;
+
+	if (pCurrent->IsRequestForChange())
 	{
-		ChangeScene(_GetCurrent()->GetNextScene());
+		const SCENE_TYPE nextScene = pCurrent->GetNextScene();
+		pCurrent->ResetChangeSceneRequest();
+		ChangeScene(nextScene);
 	}
-}
 
-void CSceneManager::_FixedUpdate(float fDelta)
-{
-	_GetCurrent()->FixedUpdate(fDelta);
-}
-
-void CSceneManager::_Update(float fDelta)
-{
-	_GetCurrent()->Update(fDelta);
-}
-
-void CSceneManager::_LateUpdate(float fDelta)
-{
 	switch (m_eSceneChangeState)
 	{
 		case SCENE_CHANGE_STATE::NONE:
 		{
-			_GetCurrent()->LateUpdate(fDelta);
+			pCurrent->CommitFrameFence();
 		} break;
 
-		case SCENE_CHANGE_STATE::UNLOADING: 
+		case SCENE_CHANGE_STATE::UNLOADING:
 		{
 			_UnloadCurrentScene();
 			m_eSceneChangeState = SCENE_CHANGE_STATE::LOADING;
 		} break;
 
-		case SCENE_CHANGE_STATE::LOADING: 
+		case SCENE_CHANGE_STATE::LOADING:
 		{
 			_LoadNextScene();
 			m_eSceneChangeState = SCENE_CHANGE_STATE::ACTIVATING;
@@ -105,23 +98,93 @@ void CSceneManager::_LateUpdate(float fDelta)
 		{
 			_ActivatingCurrentScene();
 			m_eSceneChangeState = SCENE_CHANGE_STATE::NONE;
+
+			CScene* pActivated = _GetCurrent();
+			if (pActivated)
+			{
+				pActivated->CommitFrameFence();
+			}
 		} break;
+	}
+}
+
+void CSceneManager::BuildRenderFrame()
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->BuildRenderFrame();
+	}
+}
+
+void CSceneManager::_FixedUpdate(float fDelta)
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->FixedUpdate(fDelta);
+	}
+}
+
+void CSceneManager::_Update(float fDelta)
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->Update(fDelta);
+	}
+}
+
+void CSceneManager::_LateUpdate(float fDelta)
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->LateUpdate(fDelta);
 	}
 }
 
 void CSceneManager::_UnloadCurrentScene()
 {
-	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE) return;
-
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE) 
+		return;
 }
 
 void CSceneManager::_LoadNextScene()
 {
-	_GetNext()->Awake();
+	if (m_eNextSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pNext = _GetNext();
+	if (pNext)
+	{
+		pNext->Awake();
+	}
 }
 
 void CSceneManager::_ActivatingCurrentScene()
 {
-	_GetNext()->Start();
-	m_eCurrentSceneType = m_eNextSceneType;
+	if (m_eNextSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pNext = _GetNext();
+	if (pNext)
+	{
+		pNext->Start();
+
+		m_eCurrentSceneType = m_eNextSceneType;
+		m_eNextSceneType = SCENE_TYPE::END_SCENE;
+	}
 }

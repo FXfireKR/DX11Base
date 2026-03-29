@@ -13,8 +13,8 @@ const int SCREENY = 1024;
 class Application
 {
 public:
-	Application();
-	~Application();
+	Application() = default;
+	~Application() = default;
 
 	bool Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_);
 	void Release();
@@ -25,13 +25,21 @@ public:
 	inline CAudioSystem& GetAudioSystem() { return m_audio; }
 
 private:
+	void _BeginFrame();
+	void _RunGameFrame();
+	void _CommitFrameFence();
+	void _BuildRenderFrame();
+	void _ExecuteRenderFrame();
+	void _EndFrame();
+
+private:
 	bool _ImGuiInitialize(HWND hWnd_);
 	void _RegisterRawInput(HWND hWnd_);
 
 private:
+	CWindow m_window;
 	CGameWorld m_gameWorld;
 	CRenderWorld m_renderWorld;
-	CWindow m_window;
 	CAudioSystem m_audio;
 
 	CRawInputDispatcher m_rawInputDispatcher;
