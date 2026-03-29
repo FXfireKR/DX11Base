@@ -27,11 +27,15 @@ bool CSoundDataBase::Load(const char* assetIndexPath, const char* objectsRoot)
 	if (!_LoadSoundsJson())
 		return false;
 
+	unordered_set<SoundID> duplicateChecker;
 	for (auto event : m_mapEvents)
 	{
 		for (const SoundClipDef& clip : event.second.clips)
 		{
 			if (clip.bStream)
+				continue;
+
+			if (duplicateChecker.count(clip.soundID))
 				continue;
 
 			AudioLoadElemDesc desc{};
@@ -42,6 +46,7 @@ bool CSoundDataBase::Load(const char* assetIndexPath, const char* objectsRoot)
 			desc.desc.bStream = false;
 
 			m_queuePreLoad.push(desc);
+			duplicateChecker.emplace(desc.id);
 		}
 	}
 
