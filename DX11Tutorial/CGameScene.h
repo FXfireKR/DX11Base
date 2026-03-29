@@ -55,7 +55,7 @@ private:
 
 #ifdef IMGUI_ACTIVATE
 	void _RenderHotbarOverlay();
-	bool _TryGetBlockIconUV(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1) const;
+	bool _TryGetBlockIconDrawInfo(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1, ImU32& outTint) const;
 #endif // IMGUI_ACTIVATE
 
 	void _UpdateAudioListener(float fDelta);

@@ -934,38 +934,6 @@ void CGameScene::_CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir
 }
 
 #ifdef IMGUI_ACTIVATE
-bool CGameScene::_TryGetBlockIconUV(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1) const
-{
-	outUV0 = ImVec2(0.f, 0.f);
-	outUV1 = ImVec2(1.f, 1.f);
-
-	if (block.IsAir())
-		return false;
-
-	const BakedModel* pModel = BlockDB.GetBakedModel(block.blockID, block.stateIndex);
-	if (!pModel || pModel->quads.empty())
-		return false;
-
-	const AtlasRegion* pRegion = nullptr;
-
-	for (const BakedQuad& quad : pModel->quads)
-	{
-		if (quad.debugTextureKey.empty())
-			continue;
-
-		pRegion = BlockResDB.FindAtlasRegion(quad.debugTextureKey.c_str());
-		if (pRegion)
-			break;
-	}
-
-	if (!pRegion)
-		return false;
-
-	outUV0 = ImVec2(pRegion->u0, pRegion->v0);
-	outUV1 = ImVec2(pRegion->u1, pRegion->v1);
-	return true;
-}
-
 void CGameScene::_RenderHotbarOverlay()
 {
 	if (!m_pPlayer)
@@ -1030,28 +998,67 @@ void CGameScene::_RenderHotbarOverlay()
 		if (!pSlot->IsEmpty())
 		{
 			ImVec2 uv0, uv1;
-			if (_TryGetBlockIconUV(pSlot->block, uv0, uv1))
+			ImU32 iconTint = IM_COL32(255, 255, 255, 255);
+
+			if (_TryGetBlockIconDrawInfo(pSlot->block, uv0, uv1, iconTint))
 			{
 				const ImVec2 iconMin(slotMin.x + iconPad, slotMin.y + iconPad);
 				const ImVec2 iconMax(slotMax.x - iconPad, slotMax.y - iconPad);
 
-				pDraw->AddImage(
-					(ImTextureID)pAtlasSRV,
-					iconMin,
-					iconMax,
-					uv0,
-					uv1,
-					IM_COL32(255, 255, 255, 255));
+				pDraw->AddImage((ImTextureID)pAtlasSRV, iconMin, iconMax, uv0, uv1, iconTint);
 			}
 		}
 
 		char slotNum[8];
 		sprintf_s(slotNum, "%d", i + 1);
-		pDraw->AddText(
-			ImVec2(slotMin.x + 4.f, slotMin.y + 2.f),
-			IM_COL32(255, 255, 255, 160),
-			slotNum);
+		pDraw->AddText( ImVec2(slotMin.x + 4.f, slotMin.y + 2.f), IM_COL32(255, 255, 255, 160), slotNum);
 	}
+}
+
+bool CGameScene::_TryGetBlockIconDrawInfo(const BlockCell& block, ImVec2& outUV0, ImVec2& outUV1, ImU32& outTint) const
+{
+	outUV0 = ImVec2(0.f, 0.f);
+	outUV1 = ImVec2(1.f, 1.f);
+	outTint = IM_COL32(255, 255, 255, 255);
+
+	if (block.IsAir())
+		return false;
+
+	const BakedModel* pModel = BlockDB.GetBakedModel(block.blockID, block.stateIndex);
+	if (!pModel || pModel->quads.empty())
+		return false;
+
+	const AtlasRegion* pRegion = nullptr;
+	int tintIndex = -1;
+
+	for (const BakedQuad& quad : pModel->quads)
+	{
+		if (quad.debugTextureKey.empty())
+			continue;
+
+		pRegion = BlockResDB.FindAtlasRegion(quad.debugTextureKey.c_str());
+		if (pRegion)
+		{
+			tintIndex = quad.tintIndex;
+			break;
+		}
+	}
+
+	if (!pRegion)
+		return false;
+
+	outUV0 = ImVec2(pRegion->u0, pRegion->v0);
+	outUV1 = ImVec2(pRegion->u1, pRegion->v1);
+
+	// 현재 월드 메시와 동일한 임시 tint 규칙
+	if (tintIndex >= 0)
+	{
+		const int r = static_cast<int>(0.55f * 255.0f);
+		const int g = static_cast<int>(0.74f * 255.0f);
+		const int b = static_cast<int>(0.32f * 255.0f);
+		outTint = IM_COL32(r, g, b, 255);
+	}
+	return true;
 }
 #endif // IMGUI_ACTIVATE
 
