@@ -69,7 +69,6 @@ private:
 
 	float m_fHitFxCoolDown = 0.f;
 	
-
 	bool m_bPlaceRequested = false;
 	float m_fPlaceCoolDown = 0.f;
 

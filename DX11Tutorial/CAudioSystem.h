@@ -1,55 +1,5 @@
 ﻿#pragma once
-
-enum class EAudioBus
-{
-	MASTER = 0,
-	BGM,
-	SFX,
-	AMBIENT,
-
-	COUNT,
-};
-constexpr size_t AUDIO_BUS_COUNT = static_cast<size_t>(EAudioBus::COUNT);
-
-using SoundID = uint64_t;
-
-struct AudioListenerState
-{
-	XMFLOAT3 pos{};
-	XMFLOAT3 vel{};
-	XMFLOAT3 forward{ 0.f, 0.f, 1.f };
-	XMFLOAT3 up{ 0.f, 1.f, 0.f };
-};
-
-struct AudioPlayDesc
-{
-	bool bLoop = false;
-	bool b3D = false;
-	float volumn = 1.f;
-	float minDistance = 1.f;
-	float maxDistance = 32.f;
-	EAudioBus bus = EAudioBus::SFX;
-};
-
-struct AudioLoadDesc
-{
-	bool bLoop = false;
-	bool b3D = false;
-};
-
-struct AudioRequest
-{
-	bool b3D = false;
-	SoundID id = 0;
-
-	XMFLOAT3 pos{};
-
-	float volume = 1.f;
-	float minDistance = 1.f;
-	float maxDistance = 24.f;
-
-	EAudioBus bus = EAudioBus::SFX;
-};
+#include "AudioType.h"
 
 class CAudioSystem
 {
@@ -62,12 +12,13 @@ public:
 	void Tick();
 
 public:
-	void Submit2D(SoundID soundID, float volume = 1.f, EAudioBus bus = EAudioBus::SFX);
-	void Submit3D(SoundID soundID, const XMFLOAT3& pos, float volume = 1.f
-		, float minDistance = 1.f, float maxDistance = 24.f, EAudioBus bus = EAudioBus::SFX);
+	void Submit2D(SoundID soundID, EAudioBus bus = EAudioBus::SFX, float volume = 1.f, float pitch = 1.f);
+	void Submit3D(SoundID soundID, const XMFLOAT3& pos, EAudioBus bus = EAudioBus::SFX, float volume = 1.f
+		, float pitch = 1.f, float minDistance = 1.f, float maxDistance = 24.f);
 
 public:
-	bool LoadSound(SoundID id, const char* path, bool b3D, bool bLoop = false);
+	bool LoadSound(SoundID id, const char* path, bool b3D, bool bLoop = false, bool bStream = false);
+
 	void SetListener(const AudioListenerState& state);
 
 	void SetVolume(EAudioBus bus, float volume);

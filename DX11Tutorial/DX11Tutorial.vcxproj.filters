@@ -489,6 +489,12 @@
     <ClInclude Include="GameWorldHeader.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CSoundDataBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -738,6 +744,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CAudioSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSoundDataBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -106,7 +106,9 @@ void CTestScene::Awake()
 
 	m_bSpawnStreamingReady = false;
 
-	GetAudioSystem().LoadSound(fnv1a_64("LMCinst"), "../Resource/assets/minecraft/LMCinst.wav", false);
+	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
+	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
+	GetAudioSystem().LoadSound(m_sndBGM, "../Resource/assets/minecraft/LMCinst.wav", false);
 }
 
 void CTestScene::Start()

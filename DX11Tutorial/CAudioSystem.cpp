@@ -71,7 +71,7 @@ void CAudioSystem::Tick()
 	m_pSystem->update();
 }
 
-void CAudioSystem::Submit2D(SoundID soundID, float volume, EAudioBus bus)
+void CAudioSystem::Submit2D(SoundID soundID, EAudioBus bus/*= EAudioBus::SFX*/, float volume/*= 1.f*/, float pitch/*= 1.f*/)
 {
 	AudioRequest req;
 	req.b3D = false;
@@ -82,13 +82,15 @@ void CAudioSystem::Submit2D(SoundID soundID, float volume, EAudioBus bus)
 	m_pendingRequests.push(req);
 }
 
-void CAudioSystem::Submit3D(SoundID soundID, const XMFLOAT3& pos, float volume, float minDistance, float maxDistance, EAudioBus bus)
+void CAudioSystem::Submit3D(SoundID soundID, const XMFLOAT3& pos, EAudioBus bus/*= EAudioBus::SFX*/, float volume/*= 1.f*/
+	, float pitch/*= 1.f*/, float minDistance/*= 1.f*/, float maxDistance/*= 24.f*/)
 {
 	AudioRequest req;
 	req.b3D = true;
 	req.id = soundID;
 	req.pos = pos;
 	req.volume = volume;
+	req.pitch = pitch;
 	req.minDistance = minDistance;
 	req.maxDistance = maxDistance;
 	req.bus = bus;
@@ -96,7 +98,7 @@ void CAudioSystem::Submit3D(SoundID soundID, const XMFLOAT3& pos, float volume, 
 	m_pendingRequests.push(req);
 }
 
-bool CAudioSystem::LoadSound(SoundID id, const char* path, bool b3D, bool bLoop)
+bool CAudioSystem::LoadSound(SoundID id, const char* path, bool b3D, bool bLoop/*=false*/, bool bStream/*=false*/)
 {
 	if (!m_pSystem || !path || !path[0])
 		return false;
@@ -108,6 +110,8 @@ bool CAudioSystem::LoadSound(SoundID id, const char* path, bool b3D, bool bLoop)
 	AudioLoadDesc newDesc;
 	newDesc.b3D = b3D;
 	newDesc.bLoop = bLoop;
+	newDesc.bStream = bStream;
+
 	FMOD_MODE mode = _MakeModeFlags(newDesc);
 
 	FMOD::Sound* pSound = nullptr;

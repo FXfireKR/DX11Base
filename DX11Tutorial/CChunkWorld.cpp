@@ -156,7 +156,7 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 
 		{
 			OPTICK_EVENT("_UpdateDebugStats");
-			//_UpdateDebugStats();
+			_UpdateDebugStats();
 		}
 	}
 

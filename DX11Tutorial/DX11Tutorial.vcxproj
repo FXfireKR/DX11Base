@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AtlasTypes.h" />
+    <ClInclude Include="AudioType.h" />
     <ClInclude Include="BlockDefTypes.h" />
     <ClInclude Include="BlockMiningTypes.h" />
     <ClInclude Include="BlockRaycastTypes.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="CSceneManager.h" />
     <ClInclude Include="CShader.h" />
     <ClInclude Include="CShaderManager.h" />
+    <ClInclude Include="CSoundDataBase.h" />
     <ClInclude Include="CTestScene.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CTextureManager.h" />
@@ -320,6 +322,7 @@
     <ClCompile Include="CRuntimeAtlasBuilder.cpp" />
     <ClCompile Include="CSamplerManager.cpp" />
     <ClCompile Include="CSamplerState.cpp" />
+    <ClCompile Include="CSoundDataBase.cpp" />
     <ClCompile Include="CTextureManager.cpp" />
     <ClCompile Include="CWindow.cpp" />
     <ClCompile Include="CWorld.cpp" />

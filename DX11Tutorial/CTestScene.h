@@ -112,4 +112,11 @@ private:
 
 	bool m_bSkyCruiseTest = false;
 	float m_fSkyCruiseY = 75.f;
+
+	bool m_bBGMStarted = false;
+	bool m_bShadowEnabled = true;
+
+	SoundID m_sndBGM = fnv1a_64("LMCinst");
+	SoundID m_sndPlace = fnv1a_64("block_place");
+	SoundID m_sndBreak = fnv1a_64("block_break");
 };

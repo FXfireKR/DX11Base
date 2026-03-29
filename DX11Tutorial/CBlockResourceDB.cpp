@@ -12,6 +12,8 @@ void CBlockResourceDB::Initialize(const char* resourceRoot, ID3D11Device* pDevic
 	m_runtimeAtlasBuilder.Clear();
 	m_runtimeAtlasBuilder.SetPadding(1);
 	m_runtimeAtlasBuilder.SetDefaultTileSize(16);
+
+	m_soundDatabase.Initialize(resourceRoot);	
 }
 
 bool CBlockResourceDB::Load()
@@ -24,6 +26,9 @@ bool CBlockResourceDB::Load()
 
 		m_runtimeAtlasBuilder.AddInputs(inputs);
 		if (!m_runtimeAtlasBuilder.Build(m_pDevice, m_runtimeAtlas))
+			return false;
+
+		if (!m_soundDatabase.Load("assets/minecraft/indexes/29.json", "assets/minecraft/objects"))
 			return false;
 
 		m_bLoadComplete = true;

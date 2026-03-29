@@ -3,6 +3,7 @@
 
 #include "CRuntimeAtlas.h"
 #include "CRuntimeAtlasBuilder.h"
+#include "CSoundDataBase.h"
 
 struct BlockCell;
 
@@ -13,6 +14,8 @@ public:
 	bool Load();
 	void Clear();
 
+public: // RuntimeAtlas
+
 	bool RegisterTextureKey(const char* textureKey);
 	bool RegisterTextureKeys(const vector<string>& keys);
 	bool RegisterTextureKeys(const unordered_set<string>& keys);
@@ -22,6 +25,9 @@ public:
 	bool TryGetBlockParticleRegion(const char* textureKey, XMFLOAT2& outMinUV, XMFLOAT2& outMaxUV) const;
 
 	inline ID3D11ShaderResourceView* GetAtlasTextureView() const { return m_runtimeAtlas.GetShaderResourceView(); }
+
+public: // SoundDataBase
+
 
 private:
 	bool _ResolveTextureFilePath(const char* textureKey, string& outPath) const;
@@ -37,6 +43,7 @@ private:
 
 	CRuntimeAtlasBuilder m_runtimeAtlasBuilder;
 	CRuntimeAtlas m_runtimeAtlas;
+	CSoundDataBase m_soundDatabase;
 
 	unordered_set<string> m_setTextureKeys;
 };
