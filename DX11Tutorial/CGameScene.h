@@ -2,6 +2,7 @@
 #include "CScene.h"
 #include "CWorld.h"
 #include "CFrustumCuller.h"
+#include "CCloudLayerRenderer.h"
 
 class CGameScene : public CScene
 {
@@ -36,8 +37,10 @@ private:
 	void _CreateUICamera();
 	void _CreateCrosshairUI();
 	void _CreateSkyBillboardResources();
+	void _BuildSkyDecorPresets();
 
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);
+	void _SubmitCloudBillboards(CRenderWorld& r);
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
 
@@ -52,6 +55,8 @@ private:
 	XMMATRIX _BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight
 		, const XMFLOAT3& camUp, float width, float height);
 	void _CalcSunMoonDirection(XMFLOAT3& outSunDir, XMFLOAT3& outMoonDir) const;
+
+	XMFLOAT3 _MakeDirFromAngles(float yawDeg, float pitchDeg) const;
 
 #ifdef IMGUI_ACTIVATE
 	void _RenderHotbarOverlay();
@@ -79,6 +84,8 @@ private: // Chunk
 
 private: // ChunkWorld & Player
 	CWorld m_VoxelWorld;
+	CCloudLayerRenderer m_cloudLayer;
+
 	WorldTimeParams timeParams{};
 
 	CBlockBreakParticleSystem m_blockBreakParticleSystem;
@@ -105,6 +112,14 @@ private: // sky billboard
 	CPipeline* m_pSkyBillboardPipeline = nullptr;
 	CMaterial* m_pSunBillboardMaterial = nullptr;
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
+
+	CPipeline* m_pCloudBillboardPipeline = nullptr;
+	CMaterial* m_pCloudBillboardMaterial = nullptr;
+
+	vector<XMFLOAT3> m_vecCloudDirs;
+	vector<float> m_vecCloudSizes;
+
+	float m_fCloudScroll = 0.f;
 
 private: // optional
 	float m_fSkyBillboardRadius = 400.f;

@@ -82,6 +82,8 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 	const uint64_t highlightShaderID = fnv1a_64("Highlight");
 	const uint64_t uiShaderID = fnv1a_64("UIInvertMask");
 	const uint64_t skyShaderID = fnv1a_64("SkyBillboard");
+	const uint64_t skyCloudShaderID = fnv1a_64("SkyCloud");
+	const uint64_t skyStarShaderID = fnv1a_64("SkyStar");
 
 	// 1) shader queue 등록
 	shaderManager.CreateShader(normalShaderID, 0);
@@ -90,6 +92,8 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 	shaderManager.CreateShader(highlightShaderID, 0);
 	shaderManager.CreateShader(uiShaderID, 0);
 	shaderManager.CreateShader(skyShaderID, 0);
+	shaderManager.CreateShader(skyCloudShaderID, 0);
+	shaderManager.CreateShader(skyStarShaderID, 0);
 
 	// 2) 큐를 여기서 다 소모
 	shaderManager.SetMaxShaderCompileCount(64);
@@ -123,10 +127,19 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 		VERTEX_POSITION_UV::GetLayout(), { skyShaderID, 0 },
 		shaderManager.Get(skyShaderID, 0)->GetVertexBlob());
 
+	const uint32_t skyCloudLayoutID = ilManager.Create(
+		VERTEX_POSITION_UV::GetLayout(), { skyCloudShaderID, 0 },
+		shaderManager.Get(skyCloudShaderID, 0)->GetVertexBlob());
+
+	const uint32_t skyStarLayoutID = ilManager.Create(
+		VERTEX_POSITION_UV::GetLayout(), { skyStarShaderID, 0 },
+		shaderManager.Get(skyStarShaderID, 0)->GetVertexBlob());
+
 	// 4) sampler
 	const uint64_t pointWrapSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
 	const uint64_t shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::SHADOWCOMPARISON);
 	const uint64_t linearWarpSamplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_WARP);
+	const uint64_t linearClampSamplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_CLAMP);
 
 	// 5) chunk pipelines
 	{
@@ -230,10 +243,8 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 
 		meshManager.CreateQuad(fnv1a_64("SkyBillboardQuad"));
 
-		auto sunMatID = materialManager.Create(fnv1a_64("SunBillboardMaterial"));
-		auto moonMatID = materialManager.Create(fnv1a_64("MoonBillboardMaterial"));
-		auto* sunMat = materialManager.Get(sunMatID);
-		auto* moonMat = materialManager.Get(moonMatID);
+		auto* sunMat = materialManager.Ensure(fnv1a_64("SunBillboardMaterial"));
+		auto* moonMat = materialManager.Ensure(fnv1a_64("MoonBillboardMaterial"));
 
 		const uint64_t sunTexID = textureManager.LoadTexture2D(
 			fnv1a_64("sun"),
@@ -250,6 +261,26 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 
 		moonMat->SetSampler(0, samplerManager.Get(pointWrapSamplerID)->Get());
 		moonMat->SetTexture(0, textureManager.GetTexture(moonTexID)->GetShaderResourceView());
+	}
+
+	// 10) cloud billboard
+	{
+		auto pipeID = pipelineManager.Create(fnv1a_64("SkyCloudPipeline"));
+		auto* pipeline = pipelineManager.Get(pipeID);
+		pipeline->SetShader(shaderManager.Get(skyCloudShaderID, 0));
+		pipeline->SetInputLayout(ilManager.Get(skyCloudShaderID));
+		pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pipeline->CreateSkyAlphaState(rw.GetDevice(), true);
+
+		auto* cloudMat = materialManager.Ensure(fnv1a_64("CloudBillboardMaterial"));
+
+		const uint64_t cloudTextureID = textureManager.LoadTexture2D(
+			fnv1a_64("sky_cloud"),
+			"../Resource/assets/minecraft/textures/environment/clouds.png",
+			TEXTURE_USAGE::StaticColor);
+
+		cloudMat->SetSampler(0, samplerManager.Get(linearClampSamplerID)->Get());
+		cloudMat->SetTexture(0, textureManager.GetTexture(cloudTextureID)->GetShaderResourceView());
 	}
 
 	return true;

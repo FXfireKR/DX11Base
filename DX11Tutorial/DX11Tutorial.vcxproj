@@ -182,6 +182,7 @@
     <ClInclude Include="CChunkMesherSystem.h" />
     <ClInclude Include="CChunkSection.h" />
     <ClInclude Include="CChunkWorld.h" />
+    <ClInclude Include="CCloudLayerRenderer.h" />
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComponentBase.h" />
     <ClInclude Include="CDebugCollector.h" />
@@ -304,6 +305,7 @@
     <ClCompile Include="CChunkMesherSystem.cpp" />
     <ClCompile Include="CChunkSection.cpp" />
     <ClCompile Include="CChunkWorld.cpp" />
+    <ClCompile Include="CCloudLayerRenderer.cpp" />
     <ClCompile Include="CDebugCollector.cpp" />
     <ClCompile Include="CDebugOverlay.cpp" />
     <ClCompile Include="CDualSenseDevice.cpp" />

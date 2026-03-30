@@ -62,8 +62,6 @@ void CRenderWorld::BeginFrame()
 
 void CRenderWorld::DrawFrame()
 {
-	//m_renderManager.Draw(m_pContext);
-
     // 1) shadow map을 DSV로 쓰기 전에, 이전 프레임에 PS에 물려 있던 shadow SRV 해제
     ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
     m_pContext->PSSetShaderResources(1, 1, nullSRV);
@@ -80,6 +78,7 @@ void CRenderWorld::DrawFrame()
     m_pContext->RSSetViewports(1, &m_kViewPort);
 
     m_renderManager.DrawPass(m_pContext, ERenderPass::SKY_PASS);
+	m_renderManager.DrawPass(m_pContext, ERenderPass::CLOUD_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::OPAQUE_PASS);
 	m_renderManager.DrawPass(m_pContext, ERenderPass::CUTOUT_PASS);
     m_renderManager.DrawPass(m_pContext, ERenderPass::TRANSPARENT_PASS);

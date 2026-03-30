@@ -196,7 +196,10 @@ void CPlayerController::_ApplyInputCommand(const PlayerInputCommand& cmd)
 	if (cmd.switchControl)
 	{
 		if (EActiveInputDevice::KEYBOARD_MOUSE == CInputManager::Get().GetActiveInputDevice())
-			CInputManager::Get().SetActiveInputDevice(EActiveInputDevice::GAMEPAD);
+		{
+			if (nullptr != CInputManager::Get().GamePad().GetActivateDualSense())
+				CInputManager::Get().SetActiveInputDevice(EActiveInputDevice::GAMEPAD);
+		}
 		else if (EActiveInputDevice::GAMEPAD == CInputManager::Get().GetActiveInputDevice())
 			CInputManager::Get().SetActiveInputDevice(EActiveInputDevice::KEYBOARD_MOUSE);
 	}

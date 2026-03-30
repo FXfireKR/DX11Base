@@ -507,6 +507,9 @@
     <ClInclude Include="CFrustumCuller.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CCloudLayerRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -762,6 +765,9 @@
       <Filter>Code\99_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CFrustumCuller.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CCloudLayerRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

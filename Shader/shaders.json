@@ -126,6 +126,34 @@
       }
   },
 
+  "SkyCloud": {
+      "VS": {
+        "path": "SkyCloud.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "SkyCloud.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  },
+
+  "SkyStar": {
+      "VS": {
+        "path": "SkyStar.hlsl",
+        "entry": "VS",
+        "version": "vs_5_0"
+      },
+
+      "PS": {
+        "path": "SkyStar.hlsl",
+        "entry": "PS",
+        "version": "ps_5_0"
+      }
+  },
+
   "UIInvertMask": {
       "VS": {
         "path": "UIInvertMask.hlsl",
