@@ -24,7 +24,7 @@ void CDualSenseDevice::OnRawInput(const RAWINPUT& raw)
 
 	m_uLastInputTime = GetTickCount64();
 
-	// Debuging
+	// Input Debuging
 	//for (int i = 0; i < hid.dwSizeHid; ++i)
 	//{
 	//	printf("%02X ", hid.bRawData[i]);

@@ -25,6 +25,8 @@ private:
 		bool placePressed = false;
 		bool hotbarPrev = false;
 		bool hotbarNext = false;
+
+		bool switchControl = false;
 	};
 
 public:

@@ -94,7 +94,6 @@ void Application::_BeginFrame()
 	CInputManager::Get().BeginFrame();
 
 	m_rawInputDispatcher.DispatchRawQueue();
-	CInputManager::Get().SetActiveInputDevice(m_rawInputDispatcher.GetActiveInputDevice());
 
 #ifdef IMGUI_ACTIVATE
 	ImGui_ImplDX11_NewFrame();

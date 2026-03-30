@@ -12,8 +12,6 @@ void CRawInputDispatcher::DispatchRawQueue()
 
 void CRawInputDispatcher::_OnRawInput(const RAWINPUT& raw)
 {
-    _UpdateActiveInputDevice(raw);
-
 	switch (raw.header.dwType)
 	{
 	case RIM_TYPEMOUSE:
@@ -28,39 +26,6 @@ void CRawInputDispatcher::_OnRawInput(const RAWINPUT& raw)
 		m_gamePad.OnRawInput(raw);
 		break;
 	}
-}
-
-void CRawInputDispatcher::_UpdateActiveInputDevice(const RAWINPUT& raw)
-{
-    switch (raw.header.dwType)
-    {
-        case RIM_TYPEMOUSE:
-        {
-            const RAWMOUSE& mouse = raw.data.mouse;
-            const bool bMeaningfulMouse =
-                (mouse.lLastX != 0) ||
-                (mouse.lLastY != 0) ||
-                (mouse.usButtonFlags != 0);
-
-            if (bMeaningfulMouse)
-            {
-                m_eActiveInputDevice = EActiveInputDevice::KEYBOARD_MOUSE;
-                m_bGamePadMode = false;
-            }
-        } break;
-
-        case RIM_TYPEKEYBOARD:
-        {
-            m_eActiveInputDevice = EActiveInputDevice::KEYBOARD_MOUSE;
-            m_bGamePadMode = false;
-        } break;
-
-        case RIM_TYPEHID:
-        {
-            m_eActiveInputDevice = EActiveInputDevice::GAMEPAD;
-            m_bGamePadMode = true;
-        } break;
-    }
 }
 
 void CRawInputDispatcher::Push(const RAWINPUT& raw)

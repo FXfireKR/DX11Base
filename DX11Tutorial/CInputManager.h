@@ -24,8 +24,8 @@ public:
 	inline CKeyboardDevice& Keyboard() { return *m_pKeyboard; }
 	inline CGamePadHub& GamePad() { return *m_pGamePad; }
 
-	inline void SetActiveInputDevice(EActiveInputDevice eDevice) { m_eActiveInputDevice = eDevice; }
 	inline EActiveInputDevice GetActiveInputDevice() const { return m_eActiveInputDevice; }
+	inline void SetActiveInputDevice(EActiveInputDevice eDevice) { m_eActiveInputDevice = eDevice; }
 	inline bool IsGamePadMode() const { return m_eActiveInputDevice == EActiveInputDevice::GAMEPAD; }
 
 private:

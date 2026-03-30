@@ -126,31 +126,34 @@ void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& out
 
 			outCmd.hotbarPrev = pPad->GetButtonDown(DUALSENSE_BUTTON::L1);
 			outCmd.hotbarNext = pPad->GetButtonDown(DUALSENSE_BUTTON::R1);
+			outCmd.switchControl = pPad->GetButtonDown(DUALSENSE_BUTTON::SHARE);
 		}
-		return;
 	}
-
-	const POINT& delta = input.Mouse().GetDelta();
-	outCmd.lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
-	outCmd.lookY = static_cast<float>(delta.y) * m_fMouseSensitivity;
-
-	if (input.Keyboard().GetKey('W')) outCmd.moveY += 1.f;
-	if (input.Keyboard().GetKey('S')) outCmd.moveY -= 1.f;
-	if (input.Keyboard().GetKey('D')) outCmd.moveX += 1.f;
-	if (input.Keyboard().GetKey('A')) outCmd.moveX -= 1.f;
-
-	outCmd.jumpPressed = input.Keyboard().GetKey(VK_SPACE);
-	outCmd.breakHeld = input.Mouse().GetKey(VK_LBUTTON);
-	outCmd.placePressed = input.Mouse().GetKey(VK_RBUTTON);
-
-	const short wheel = input.Mouse().GetWheelCnt();
-	const short dir = input.Mouse().GetWheelDir();
-	if (wheel != 0)
+	else // (!bUseGamePad)
 	{
-		if (dir > 0)
-			outCmd.hotbarNext = true;
-		else
-			outCmd.hotbarPrev = true;
+		const POINT& delta = input.Mouse().GetDelta();
+		outCmd.lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
+		outCmd.lookY = static_cast<float>(delta.y) * m_fMouseSensitivity;
+
+		if (input.Keyboard().GetKey('W')) outCmd.moveY += 1.f;
+		if (input.Keyboard().GetKey('S')) outCmd.moveY -= 1.f;
+		if (input.Keyboard().GetKey('D')) outCmd.moveX += 1.f;
+		if (input.Keyboard().GetKey('A')) outCmd.moveX -= 1.f;
+
+		outCmd.jumpPressed = input.Keyboard().GetKey(VK_SPACE);
+		outCmd.breakHeld = input.Mouse().GetKey(VK_LBUTTON);
+		outCmd.placePressed = input.Mouse().GetKey(VK_RBUTTON);
+		outCmd.switchControl = input.Keyboard().GetKeyUp(VK_HOME);
+
+		const short wheel = input.Mouse().GetWheelCnt();
+		const short dir = input.Mouse().GetWheelDir();
+		if (wheel != 0)
+		{
+			if (dir > 0)
+				outCmd.hotbarNext = true;
+			else
+				outCmd.hotbarPrev = true;
+		}
 	}
 }
 
@@ -188,6 +191,14 @@ void CPlayerController::_ApplyInputCommand(const PlayerInputCommand& cmd)
 		if (idx < 0) 
 			idx += 9;
 		m_pInventory->SetSelectedSlotIndex(idx);
+	}
+
+	if (cmd.switchControl)
+	{
+		if (EActiveInputDevice::KEYBOARD_MOUSE == CInputManager::Get().GetActiveInputDevice())
+			CInputManager::Get().SetActiveInputDevice(EActiveInputDevice::GAMEPAD);
+		else if (EActiveInputDevice::GAMEPAD == CInputManager::Get().GetActiveInputDevice())
+			CInputManager::Get().SetActiveInputDevice(EActiveInputDevice::KEYBOARD_MOUSE);
 	}
 }
 
