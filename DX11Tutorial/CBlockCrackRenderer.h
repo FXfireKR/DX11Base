@@ -18,7 +18,11 @@ public:
     void Submit(CRenderWorld& rw);
 
 private:
-    CMesh* m_pCubeMesh = nullptr;
+    void _BuildCrackCubeMesh(vector<VERTEX_POSITION_NORMAL_UV_COLOR>& outVerts, vector<uint32_t>& outIndices);
+
+private:
+    CMesh* m_pMesh = nullptr;
+    uint64_t m_uMeshKey = fnv1a_64("BlockCrackDynamicMesh");
     CPipeline* m_pPipeline = nullptr;
     std::array<CMaterial*, 10> m_arrStageMaterials{};
 
