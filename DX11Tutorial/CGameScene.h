@@ -3,6 +3,7 @@
 #include "CWorld.h"
 #include "CFrustumCuller.h"
 #include "CCloudLayerRenderer.h"
+#include "CBgmController.h"
 
 class CGameScene : public CScene
 {
@@ -44,7 +45,6 @@ private:
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
 
-
 	void _TrySpawnStreaming(CTransform* pPlayerTransform);
 
 	XMFLOAT3 _LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t);
@@ -85,6 +85,7 @@ private: // Chunk
 private: // ChunkWorld & Player
 	CWorld m_VoxelWorld;
 	CCloudLayerRenderer m_cloudLayer;
+	CBgmController m_bgmController;
 
 	WorldTimeParams timeParams{};
 
@@ -112,14 +113,6 @@ private: // sky billboard
 	CPipeline* m_pSkyBillboardPipeline = nullptr;
 	CMaterial* m_pSunBillboardMaterial = nullptr;
 	CMaterial* m_pMoonBillboardMaterial = nullptr;
-
-	CPipeline* m_pCloudBillboardPipeline = nullptr;
-	CMaterial* m_pCloudBillboardMaterial = nullptr;
-
-	vector<XMFLOAT3> m_vecCloudDirs;
-	vector<float> m_vecCloudSizes;
-
-	float m_fCloudScroll = 0.f;
 
 private: // optional
 	float m_fSkyBillboardRadius = 400.f;

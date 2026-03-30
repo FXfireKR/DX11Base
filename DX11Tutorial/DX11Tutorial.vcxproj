@@ -166,6 +166,7 @@
     <ClInclude Include="BlockTagTypes.h" />
     <ClInclude Include="CApplication.h" />
     <ClInclude Include="CAudioSystem.h" />
+    <ClInclude Include="CBgmController.h" />
     <ClInclude Include="CBlockBreakParticleSystem.h" />
     <ClInclude Include="CBlockDB.h" />
     <ClInclude Include="CBlockDefDB.h" />
@@ -291,6 +292,7 @@
     <ClInclude Include="SceneHeader.h" />
     <ClCompile Include="BlockStateTypes.cpp" />
     <ClCompile Include="CAudioSystem.cpp" />
+    <ClCompile Include="CBgmController.cpp" />
     <ClCompile Include="CBlockBreakParticleSystem.cpp" />
     <ClCompile Include="CBlockDB.cpp" />
     <ClCompile Include="CBlockDefDB.cpp" />

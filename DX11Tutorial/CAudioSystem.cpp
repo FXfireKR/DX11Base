@@ -135,6 +135,61 @@ bool CAudioSystem::LoadSound(SoundID id, const char* path, const AudioLoadDesc& 
 	return LoadSound(id, path, desc.b3D, desc.bLoop, desc.bStream);
 }
 
+FMOD::Channel* CAudioSystem::PlayBGMNow(SoundID id, const char* path, float volume, bool bLoop)
+{
+	if (!m_pSystem)
+		return nullptr;
+
+	auto iter = m_mapSounds.find(id);
+	if (iter == m_mapSounds.end())
+	{
+		if (!LoadSound(id, path, false, false, true))
+			return nullptr;
+
+		iter = m_mapSounds.find(id);
+	}
+
+	FMOD::Sound* pSound = iter->second;
+	if (!pSound)
+		return nullptr;
+
+	if (bLoop)
+		pSound->setMode(FMOD_LOOP_NORMAL);
+	else
+		pSound->setMode(FMOD_LOOP_OFF);
+
+	FMOD::Channel* pChannel = nullptr;
+	FMOD_RESULT fr = m_pSystem->playSound(pSound, _GetBusGroup(EAudioBus::BGM), true, &pChannel);
+	if (fr != FMOD_OK || !pChannel)
+		return nullptr;
+
+	pChannel->setVolume(volume);
+	pChannel->setPaused(false);
+	return pChannel;
+}
+
+void CAudioSystem::StopChannel(FMOD::Channel* pChannel, bool bFadeOut)
+{
+	UNREFERENCED_PARAMETER(bFadeOut);
+
+	if (!pChannel)
+		return;
+
+	pChannel->stop();
+}
+
+bool CAudioSystem::IsChannelPlaying(FMOD::Channel* pChannel) const
+{
+	if (!pChannel)
+		return false;
+
+	bool bPlaying = false;
+	if (pChannel->isPlaying(&bPlaying) != FMOD_OK)
+		return false;
+
+	return bPlaying;
+}
+
 void CAudioSystem::SetListener(const AudioListenerState& state)
 {
 	if (!m_pSystem)

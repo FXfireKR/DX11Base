@@ -62,5 +62,5 @@ private:
     float m_fCloudCellSize = 12.f;
     float m_fScrollSpeedCellPerSec = 0.20f;
 
-    int m_iHalfWindow = 40; // 48x48 cells
+    int m_iHalfWindow = 96; // 48x48 cells
 };

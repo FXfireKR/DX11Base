@@ -60,22 +60,11 @@ void CGameScene::Awake()
 
 	m_bSpawnStreamingReady = false;
 
+	m_bgmController.Initialize(&GetAudioSystem());
+	m_bgmController.AddBgmTracks();
 
-	ResolvedSound reSound{};
-	if (BlockResDB.ResolveEvent("music.overworld.cherry_grove", reSound))
-	{
-		auto* a = BlockResDB.FindEvent("music.overworld.cherry_grove");
-		if (a)
-		{
-			const auto it = a->clips.begin() + 7;
-			GetAudioSystem().LoadSound(reSound.soundID, it->objectPath.c_str(), a->playDesc.b3D, reSound.playDesc.bLoop, it->bStream);
-			GetAudioSystem().Submit2D(reSound.soundID, EAudioBus::BGM, it->volumeMul, it->pitchMul);
-		}
-
-	}
-
-	GetAudioSystem().SetVolume(EAudioBus::BGM, 0.2f);
-	GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
+	//m_bgmController.SetUserVolume(0.5f);
+	//GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
 }
 
 void CGameScene::Start()
@@ -95,7 +84,6 @@ void CGameScene::Update(float fDelta)
 #ifdef IMGUI_ACTIVATE
 	_RenderHotbarOverlay();
 #endif // IMGUI_ACTIVATE
-
 
 	// World Time 계산 구조체 가져오기
 	timeParams = m_VoxelWorld.GetWorldTime().Evaluate();
@@ -126,6 +114,8 @@ void CGameScene::Update(float fDelta)
 
 	_TrySpawnStreaming(pPlayerTransform);
 	_UpdateAudioListener(fDelta);
+
+	m_bgmController.Update(fDelta);
 }
 
 void CGameScene::LateUpdate(float fDelta)
@@ -622,39 +612,6 @@ void CGameScene::_CreateSkyBillboardResources()
 		m_pMoonBillboardMaterial->SetSampler(0, samplerManager.Get(samplerID)->Get());
 		m_pMoonBillboardMaterial->SetTexture(0, textureManager.GetTexture(moonTextureID)->GetShaderResourceView());
 	}
-
-	// cloud
-	{
-		const uint64_t pipeID = pipelineManager.Create(fnv1a_64("SkyCloudPipeline"));
-		auto* pipeline = pipelineManager.Get(pipeID);
-		pipeline->SetShader(shaderManager.Get(cloudShaderID, 0));
-		pipeline->SetInputLayout(ilManager.Get(cloudLayoutID));
-		pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		pipeline->CreateSkyAlphaState(rw.GetDevice(), true);
-		m_pCloudBillboardPipeline = pipeline;
-
-		m_pCloudBillboardMaterial = materialManager.Get(materialManager.Create(fnv1a_64("CloudBillboardMaterial")));
-
-		uint64_t moonTextureID = textureManager.LoadTexture2D(fnv1a_64("sky_cloud"), "../Resource/assets/minecraft/textures/environment/clouds.png"
-			, TEXTURE_USAGE::StaticColor);
-
-		const uint64_t samplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_CLAMP);
-
-		m_pCloudBillboardMaterial->SetSampler(0, samplerManager.Get(samplerID)->Get());
-		m_pCloudBillboardMaterial->SetTexture(0, textureManager.GetTexture(moonTextureID)->GetShaderResourceView());
-	}
-}
-
-void CGameScene::_BuildSkyDecorPresets()
-{
-	m_vecCloudDirs.clear();
-	m_vecCloudSizes.clear();
-
-	// cloud: 적은 수, 큰 크기
-	m_vecCloudDirs.push_back(_MakeDirFromAngles(-50.f, 32.f)); m_vecCloudSizes.push_back(260.f);
-	m_vecCloudDirs.push_back(_MakeDirFromAngles(10.f, 28.f));  m_vecCloudSizes.push_back(320.f);
-	m_vecCloudDirs.push_back(_MakeDirFromAngles(70.f, 36.f));  m_vecCloudSizes.push_back(240.f);
-	m_vecCloudDirs.push_back(_MakeDirFromAngles(140.f, 24.f)); m_vecCloudSizes.push_back(300.f);
 }
 
 void CGameScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
@@ -722,54 +679,6 @@ void CGameScene::_SubmitSunMoonBillboards(CRenderWorld& rw)
 		rw.Submit(item);
 	}
 
-}
-
-void CGameScene::_SubmitCloudBillboards(CRenderWorld& rw)
-{
-	if (!m_pSkyBillboardMesh || !m_pCloudBillboardPipeline || !m_pCloudBillboardMaterial)
-		return;
-
-	const CCamera* pCam = GetCurrentCamera();
-	if (!pCam || !pCam->GetTransform())
-		return;
-
-	const XMFLOAT3 camPos = pCam->GetTransform()->GetWorldTrans();
-
-	for (size_t i = 0; i < m_vecCloudDirs.size(); ++i)
-	{
-		XMVECTOR vDir = XMVector3Normalize(XMLoadFloat3(&m_vecCloudDirs[i]));
-		XMVECTOR vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-
-		XMVECTOR vTangent = XMVector3Cross(vUp, vDir);
-		if (XMVectorGetX(XMVector3LengthSq(vTangent)) < 0.0001f)
-			vTangent = XMVectorSet(1.f, 0.f, 0.f, 0.f);
-
-		vTangent = XMVector3Normalize(vTangent);
-
-		const float drift = sinf(m_fCloudScroll + static_cast<float>(i) * 1.37f) * 0.12f;
-		vDir = XMVector3Normalize(vDir + vTangent * drift);
-
-		XMFLOAT3 dir{};
-		XMStoreFloat3(&dir, vDir);
-
-		const float size = m_vecCloudSizes[i];
-		const XMFLOAT3 center =
-		{
-			camPos.x + dir.x * (m_fSkyBillboardRadius - 22.f),
-			camPos.y + dir.y * (m_fSkyBillboardRadius - 22.f),
-			camPos.z + dir.z * (m_fSkyBillboardRadius - 22.f),
-		};
-
-		const XMMATRIX matWorld = _BuildSkyLockedQuadWorld(center, dir, size, size * 0.52f);
-
-		RenderItem item{};
-		item.eRenderPass = ERenderPass::SKY_PASS;
-		item.pMesh = m_pSkyBillboardMesh;
-		item.pPipeline = m_pCloudBillboardPipeline;
-		item.pMaterial = m_pCloudBillboardMaterial;
-		XMStoreFloat4x4(&item.world, XMMatrixTranspose(matWorld));
-		rw.Submit(item);
-	}
 }
 
 void CGameScene::_SubmitChunkBoundsDebug(CRenderWorld& rw) const

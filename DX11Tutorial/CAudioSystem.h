@@ -11,7 +11,7 @@ public:
 	void Shutdown();
 	void Tick();
 
-public:
+public: // queue-budget
 	void Submit2D(SoundID soundID, EAudioBus bus = EAudioBus::SFX, float volume = 1.f, float pitch = 1.f);
 	void Submit3D(SoundID soundID, const XMFLOAT3& pos, EAudioBus bus = EAudioBus::SFX, float volume = 1.f
 		, float pitch = 1.f, float minDistance = 1.f, float maxDistance = 24.f);
@@ -19,6 +19,10 @@ public:
 public:
 	bool LoadSound(SoundID id, const char* path, bool b3D, bool bLoop = false, bool bStream = false);
 	bool LoadSound(SoundID id, const char* path, const AudioLoadDesc& desc);
+
+	FMOD::Channel* PlayBGMNow(SoundID id, const char* path, float volume = 1.f, bool bLoop = false);
+	void StopChannel(FMOD::Channel* pChannel, bool bFadeOut = false);
+	bool IsChannelPlaying(FMOD::Channel* pChannel) const;
 
 	void SetListener(const AudioListenerState& state);
 
