@@ -9,5 +9,5 @@ private:
 	void _RenderMenuBar();
 
 private:
-	bool m_bOpen = false;
+	bool m_bOpen = true;
 };

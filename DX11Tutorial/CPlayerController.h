@@ -9,6 +9,7 @@ class CInventoryComponent;
 class CTransform;
 class CWorld;
 class CAudioSystem;
+class CCamera;
 
 class CPlayerController : public CComponentBase<CPlayerController, COMPONENT_TYPE::PLAYERCONTROLLER>
 {
@@ -39,6 +40,7 @@ public:
 	void Update(float fDelta) override;
 
 public:
+	inline void SetCamera(CCamera* pCamera) { m_pCamera = pCamera; }
 	inline void SetCameraTransform(CTransform* pTransform) { m_pCamTransform = pTransform; }
 	inline void SetWorld(CWorld* pWorld) { m_pWorld = pWorld; }
 	inline void SetAudioSystem(CAudioSystem* pAudio) { m_pAudio = pAudio; }
@@ -53,7 +55,10 @@ private:
 	void _PlayFootstep(const XMFLOAT3& footPos, const BlockCell& cell);
 	float _Approach(float cur, float target, float delta);
 
+	void _UpdateMoveFov(float fDelta);
+
 private:
+	CCamera* m_pCamera = nullptr;
 	CTransform* m_pOwnTransform = nullptr;
 	CTransform* m_pCamTransform = nullptr;
 
@@ -94,4 +99,12 @@ private:
 	float m_fLandingVolumeScale = 0.45f;
 
 	bool m_bUIMode = false;
+
+	// Fov maker
+	float m_fBaseFov = XM_PI / 2.0f;
+	float m_fCurrentFov = XM_PI / 2.0f;
+
+	float m_fSprintFovAddRad = XMConvertToRadians(6.0f);
+	float m_fCruiseFovAddRad = XMConvertToRadians(10.0f);
+	float m_fFovApproachSpeedRad = XMConvertToRadians(90.0f);
 };

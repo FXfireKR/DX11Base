@@ -135,15 +135,15 @@ void CDebugCollector::_ResetPerFrameCounters()
 
     // 상태값(state)은 유지할 수도 있지만,
     // loaded/visible/dirty 같은 값은 보통 매 프레임 재설정하는 편이 안전
-    m_snapshot.world.visibleSectionCount = 0;
-    m_snapshot.world.dirtySectionCount = 0;
-    m_snapshot.world.rebuildQueuedCount = 0;
+    //m_snapshot.world.visibleSectionCount = 0;
+    //m_snapshot.world.dirtySectionCount = 0;
+    //m_snapshot.world.rebuildQueuedCount = 0;
     m_snapshot.world.rebuiltThisFrameCount = 0;
     m_snapshot.world.chunkLoadCountThisFrame = 0;
     m_snapshot.world.chunkUnloadCountThisFrame = 0;
     m_snapshot.world.blockEditCountThisFrame = 0;
-    m_snapshot.world.hiddenSectionCount = 0;
-    m_snapshot.world.culledSectionCount = 0;
+    //m_snapshot.world.hiddenSectionCount = 0;
+    //m_snapshot.world.culledSectionCount = 0;
 
     m_snapshot.render.submittedRenderItemCount = 0;
     m_snapshot.render.drawCallCount = 0;

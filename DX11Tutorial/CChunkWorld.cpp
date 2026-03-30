@@ -46,7 +46,7 @@ void CChunkWorld::Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMateria
 	m_vecDirtyQueue.reserve(10000);
 }
 
-void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
+void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 {
 	PROFILE_SCOPE();
 	const int centerCx = FloorDiv16((int)std::floor(playerWorldPos.x));
@@ -153,8 +153,14 @@ void CChunkWorld::UpdateStreaming(const XMFLOAT3& playerWorldPos)
 		}
 
 		{
-			PROFILE_SCOPE("_UpdateDebugStats");
-			_UpdateDebugStats();
+			m_fDebugStatsAccum += fDelta;
+			if (m_fDebugStatsAccum > 2.5f) 
+			{
+				PROFILE_SCOPE("_UpdateDebugStats");
+				_UpdateDebugStats();
+
+				m_fDebugStatsAccum = 0.f;
+			}
 		}
 	}
 

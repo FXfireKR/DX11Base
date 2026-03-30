@@ -5,10 +5,9 @@ void CDebugOverlay::Render()
 {
     _RenderMenuBar();
 
-#ifdef IMGUI_ACTIVATE
-    if (!m_bOpen)
+    if (!dbg.IsVisible())
         return;
-
+#ifdef IMGUI_ACTIVATE
     const DebugStatsSnapshot& s = dbg.GetSnapshot();
     const DebugHistory& h = dbg.GetHistory();
 
@@ -97,8 +96,7 @@ void CDebugOverlay::_RenderMenuBar()
     ImGui::Text("| (F2) chunk bound"); ImGui::SameLine();
     ImGui::Text("| (F3) section bound"); ImGui::SameLine();
     ImGui::Text("| (F4) Cruise"); ImGui::SameLine();
-    ImGui::Text("| (F5) Rebuild"); ImGui::SameLine();
-    ImGui::Text("| (F9) Option"); ImGui::SameLine();
+    //ImGui::Text("| (F9) Option"); ImGui::SameLine();
 
     ImGui::EndMainMenuBar();
 #endif // IMGUI_ACTIVATE

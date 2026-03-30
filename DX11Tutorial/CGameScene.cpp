@@ -49,6 +49,7 @@ void CGameScene::Awake()
 	_CreateUICamera();
 	_CreateCrosshairUI();
 
+	ctrl->SetCamera(cam);
 	ctrl->SetCameraTransform(pivotTransform);
 	ctrl->SetWorld(&m_VoxelWorld);
 	ctrl->SetAudioSystem(&GetAudioSystem());
@@ -95,6 +96,7 @@ void CGameScene::Update(float fDelta)
 
 #ifdef IMGUI_ACTIVATE
 	ImGui::Checkbox("Frustum Culling", &m_bFrustumculling);
+
 	ImGui::Text("Frustum Test      : %u", m_dbgFrustumTestCount);
 	ImGui::Text("Frustum Culled    : %u", m_dbgFrustumCulledCount);
 
@@ -119,16 +121,13 @@ void CGameScene::Update(float fDelta)
 	{
 		m_bSkyCruiseTest = !m_bSkyCruiseTest;
 
+		dbg.FlipDebugOverlay();
+
 		CCharacterMotor* pPlayerMotor = m_pPlayer ? m_pPlayer->GetComponent<CCharacterMotor>() : nullptr;
 		if (pPlayerMotor)
 		{
 			pPlayerMotor->SetCruiseMoveSpeedScale(m_bSkyCruiseTest ? m_fSkyCruiseMoveSpeedScale : 1.0f);
 		}
-	}
-
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
-	{
-		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
 	}
 
 	if (m_bSkyCruiseTest)
@@ -839,7 +838,14 @@ void CGameScene::_TrySpawnStreaming(CTransform* pPlayerTransform)
 
 	if (m_VoxelWorld.FindSpawnFootY(spawnWx, spawnWz, { kPlayerHalfWidth, kPlayerHalfHeight, kPlayerHalfWidth }, spawnFootY))
 	{
-		pPlayerTransform->SetLocalTrans({ spawnWx, spawnFootY, spawnWz });
+		pPlayerTransform->SetLocalTrans(
+		{
+			static_cast<float>(spawnWx) + 0.5f,
+			spawnFootY,
+			static_cast<float>(spawnWz) + 0.5f
+		});
+
+		m_bSpawnStreamingReady = true;
 	}
 
 	if (auto* motor = m_pPlayer->GetComponent<CCharacterMotor>())

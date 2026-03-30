@@ -73,6 +73,10 @@ public:
     void SetBlockHit(const XMINT3& block, const XMINT3& normal
         , uint16_t blockId, uint16_t stateIndex);
 
+public:
+    inline void FlipDebugOverlay() { m_bShowOverlay = !m_bShowOverlay; }
+    inline bool IsVisible() const { return m_bShowOverlay; }
+
 private:
     void _ResetPerFrameCounters();
     void _PushHistory();
@@ -81,4 +85,6 @@ private:
     DebugStatsSnapshot m_snapshot; // collect snapshot
     DebugStatsSnapshot m_displayShot; // N-1 Frame SnapShot
     DebugHistory m_history;
+
+    bool m_bShowOverlay = false;
 };

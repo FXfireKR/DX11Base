@@ -28,7 +28,7 @@ void CWorld::Update(float fDelta, XMFLOAT3 pos)
 	m_worldTime.Update(fDelta);
 
 	m_pChunkWorld->DebugProcessReloadRequest();
-	m_pChunkWorld->UpdateStreaming(pos);
+	m_pChunkWorld->UpdateStreaming(fDelta, pos);
 }
 
 void CWorld::LateUpdate(CScene& scene)

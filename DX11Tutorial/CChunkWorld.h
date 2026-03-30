@@ -60,7 +60,7 @@ public:
 	void Initialize(CScene& scene, CPipeline* pOpaquePipeline, CMaterial* pOpaqueMaterial
 		, CPipeline* pCutoutPipeline, CMaterial* pCutoutMaterial
 		, CPipeline* pTranslucentPipeline, CMaterial* pTranslucentMaterial);
-	void UpdateStreaming(const XMFLOAT3& playerWorldPos);
+	void UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos);
 	bool PopDirty(SectionCoord& outSectionCoord);
 
 	// IBlockAccessor

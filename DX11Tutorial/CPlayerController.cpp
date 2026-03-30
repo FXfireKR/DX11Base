@@ -47,6 +47,12 @@ void CPlayerController::Start()
 	m_pMotor = m_pOwner->GetComponent<CCharacterMotor>();
 	m_pBlockInteractor = m_pOwner->GetComponent<CBlockInteractor>();
 	m_pInventory = m_pOwner->GetComponent<CInventoryComponent>();
+
+	if (m_pCamera)
+	{
+		m_fBaseFov = m_pCamera->GetPerspectiveParams().fFieldOfView;
+		m_fCurrentFov = m_fBaseFov;
+	}
 }
 
 void CPlayerController::Update(float fDelta)
@@ -75,10 +81,13 @@ void CPlayerController::Update(float fDelta)
 	else
 	{
 		m_pMotor->SetMoveInput({ 0.f, 0.f });
+		m_pMotor->SetInputMoveSpeedScale(1.0f);
 
 		if (m_pBlockInteractor)
 			m_pBlockInteractor->SetBreakHeld(false);
 	}
+
+	_UpdateMoveFov(fDelta);
 
 	XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
 	dbg.SetPlayerPosition(pos);
@@ -382,4 +391,36 @@ float CPlayerController::_Approach(float cur, float target, float delta)
 {
 	if (cur < target) return std::min(cur + delta, target);
 	return std::max(cur - delta, target);
+}
+
+void CPlayerController::_UpdateMoveFov(float fDelta)
+{
+	if (!m_pCamera || !m_pMotor)
+		return;
+
+	const XMFLOAT3 vel = m_pMotor->GetVelocity();
+	const float planarSpeed = std::sqrt(vel.x * vel.x + vel.z * vel.z);
+
+	float targetFov = m_fBaseFov;
+
+	// base 4.5, sprint 약 7.8, cruise는 그보다 훨씬 큼
+	if (!m_bUIMode && m_pMotor->IsGrounded())
+	{
+		if (planarSpeed > 12.0f)
+		{
+			targetFov += m_fCruiseFovAddRad;
+		}
+		else if (planarSpeed > 5.2f)
+		{
+			targetFov += m_fSprintFovAddRad;
+		}
+	}
+
+	m_fCurrentFov = _Approach(m_fCurrentFov, targetFov, m_fFovApproachSpeedRad * fDelta);
+
+	const float curCameraFov = m_pCamera->GetPerspectiveParams().fFieldOfView;
+	if (std::fabs(curCameraFov - m_fCurrentFov) > 0.0001f)
+	{
+		m_pCamera->SetFov(m_fCurrentFov);
+	}
 }

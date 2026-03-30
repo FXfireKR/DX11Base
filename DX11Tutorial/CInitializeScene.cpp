@@ -263,25 +263,5 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 		moonMat->SetTexture(0, textureManager.GetTexture(moonTexID)->GetShaderResourceView());
 	}
 
-	// 10) cloud billboard
-	{
-		auto pipeID = pipelineManager.Create(fnv1a_64("SkyCloudPipeline"));
-		auto* pipeline = pipelineManager.Get(pipeID);
-		pipeline->SetShader(shaderManager.Get(skyCloudShaderID, 0));
-		pipeline->SetInputLayout(ilManager.Get(skyCloudShaderID));
-		pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		pipeline->CreateSkyAlphaState(rw.GetDevice(), true);
-
-		auto* cloudMat = materialManager.Ensure(fnv1a_64("CloudBillboardMaterial"));
-
-		const uint64_t cloudTextureID = textureManager.LoadTexture2D(
-			fnv1a_64("sky_cloud"),
-			"../Resource/assets/minecraft/textures/environment/clouds.png",
-			TEXTURE_USAGE::StaticColor);
-
-		cloudMat->SetSampler(0, samplerManager.Get(linearClampSamplerID)->Get());
-		cloudMat->SetTexture(0, textureManager.GetTexture(cloudTextureID)->GetShaderResourceView());
-	}
-
 	return true;
 }

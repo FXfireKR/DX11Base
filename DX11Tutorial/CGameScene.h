@@ -39,10 +39,8 @@ private:
 	void _CreateUICamera();
 	void _CreateCrosshairUI();
 	void _CreateSkyBillboardResources();
-	void _BuildSkyDecorPresets();
 
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);
-	void _SubmitCloudBillboards(CRenderWorld& r);
 	void _SubmitChunkBoundsDebug(CRenderWorld& rw) const;
 	void _SubmitSectionBoundsDebug(CRenderWorld& rw) const;
 
