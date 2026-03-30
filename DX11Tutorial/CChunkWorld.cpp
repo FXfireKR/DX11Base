@@ -154,7 +154,7 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 
 		{
 			m_fDebugStatsAccum += fDelta;
-			if (m_fDebugStatsAccum > 2.5f) 
+			if (m_fDebugStatsAccum > 0.5f) 
 			{
 				PROFILE_SCOPE("_UpdateDebugStats");
 				_UpdateDebugStats();

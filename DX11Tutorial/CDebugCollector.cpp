@@ -133,7 +133,7 @@ void CDebugCollector::_ResetPerFrameCounters()
     m_snapshot.frame.renderExecuteMs = 0.f;
     m_snapshot.frame.presentMs = 0.f;
 
-    // 상태값(state)은 유지할 수도 있지만,
+    // 상태값(state)은 유지할 수 있는건 유지함
     // loaded/visible/dirty 같은 값은 보통 매 프레임 재설정하는 편이 안전
     //m_snapshot.world.visibleSectionCount = 0;
     //m_snapshot.world.dirtySectionCount = 0;
