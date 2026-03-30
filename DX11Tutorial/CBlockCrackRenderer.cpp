@@ -55,6 +55,7 @@ bool CBlockCrackRenderer::Initialize(CRenderWorld& rw)
             texPath,
             TEXTURE_USAGE::StaticColor);
 
+        pMaterial->SetTexture(0, textureManager.GetTexture(textureID)->GetShaderResourceView());
         pMaterial->SetSampler(0, samplerManager.Get(crackSamplerID)->Get());
         pMaterial->SetTexture(1, rw.GetShadowMapSRV());
         pMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
@@ -118,14 +119,13 @@ void CBlockCrackRenderer::Submit(CRenderWorld& rw)
     if (!m_pMesh)
         return;
 
-    const float eps = 0.001f;
-    const float scale = 1.002f;
+    const float scale = 1.006f;
 
     const XMMATRIX matS = XMMatrixScaling(scale, scale, scale);
     const XMMATRIX matT = XMMatrixTranslation(
-        static_cast<float>(m_block.x) + 0.5f - eps,
-        static_cast<float>(m_block.y) + 0.5f - eps,
-        static_cast<float>(m_block.z) + 0.5f - eps);
+        static_cast<float>(m_block.x) + 0.5f,
+        static_cast<float>(m_block.y) + 0.5f,
+        static_cast<float>(m_block.z) + 0.5f);
 
     RenderItem item{};
     item.eRenderPass = ERenderPass::TRANSPARENT_PASS;
