@@ -65,7 +65,7 @@ void CGameScene::Awake()
 	m_bgmController.Initialize(&GetAudioSystem());
 	m_bgmController.AddBgmTracks();
 
-	//m_bgmController.SetUserVolume(0.5f);
+	m_bgmController.SetUserVolume(0.5f);
 	//GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
 }
 
