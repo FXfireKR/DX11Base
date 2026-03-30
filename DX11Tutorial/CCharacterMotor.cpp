@@ -15,10 +15,12 @@ void CCharacterMotor::Init()
 	m_fYaw = 0.f;
 
 	m_fMoveSpeed = 4.5f;
-	//m_fMoveSpeed = 4.5f * 10.f;
 	m_fJumpSpeed = 7.f;
 	m_fGravity = 20.f;
 	m_fMaxFallSpeed = 40.f;
+
+	m_fInputMoveSpeedScale = 1.0f;
+	m_fCruiseMoveSpeedScale = 1.0f;
 
 	m_fHalfWidth = 0.3f;
 	m_fHalfHeight = 0.9f;
@@ -39,6 +41,7 @@ void CCharacterMotor::Update(float fDelta)
 		m_velocity = { 0.f, 0.f, 0.f };
 		m_moveAxis = { 0.f, 0.f };
 		m_bJumpRequested = false;
+		m_fInputMoveSpeedScale = 1.0f;
 		return;
 	}
 
@@ -107,8 +110,10 @@ void CCharacterMotor::_AppluHorizontalMove(float fDelta)
 	XMFLOAT3 moveDir{};
 	XMStoreFloat3(&moveDir, move);
 
-	m_velocity.x = moveDir.x * m_fMoveSpeed;
-	m_velocity.z = moveDir.z * m_fMoveSpeed;
+	const float finalMoveSpeed = m_fMoveSpeed * m_fInputMoveSpeedScale * m_fCruiseMoveSpeedScale;
+
+	m_velocity.x = moveDir.x * finalMoveSpeed;
+	m_velocity.z = moveDir.z * finalMoveSpeed;
 }
 
 void CCharacterMotor::_ApplyJump()

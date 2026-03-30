@@ -93,9 +93,43 @@ void CGameScene::Update(float fDelta)
 	if (nullptr == pPlayerTransform)
 		return;
 
+#ifdef IMGUI_ACTIVATE
+	ImGui::Checkbox("Frustum Culling", &m_bFrustumculling);
+	ImGui::Text("Frustum Test      : %u", m_dbgFrustumTestCount);
+	ImGui::Text("Frustum Culled    : %u", m_dbgFrustumCulledCount);
+
+	ImGui::DragFloat("Shadow Bias : %.6f", &m_debugBias, 0.00001f, 0.0f, 0.002f, "%.6f");
+
 	bool bVertical = GetRenderWorld().GetVerticalSync();
 	ImGui::Checkbox("VerticalSync", &bVertical);
 	GetRenderWorld().SetVerticalSync(bVertical);
+#endif // IMGUI_ACTIVATE
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
+	{
+		m_bShowChunkBounds = !m_bShowChunkBounds;
+	}
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F3))
+	{
+		m_eSectionDebugMode = static_cast<ESectionDebugMode>((static_cast<int>(m_eSectionDebugMode) + 1) % static_cast<int>(ESectionDebugMode::COUNT));
+	}
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F4))
+	{
+		m_bSkyCruiseTest = !m_bSkyCruiseTest;
+
+		CCharacterMotor* pPlayerMotor = m_pPlayer ? m_pPlayer->GetComponent<CCharacterMotor>() : nullptr;
+		if (pPlayerMotor)
+		{
+			pPlayerMotor->SetCruiseMoveSpeedScale(m_bSkyCruiseTest ? m_fSkyCruiseMoveSpeedScale : 1.0f);
+		}
+	}
+
+	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
+	{
+		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
+	}
 
 	if (m_bSkyCruiseTest)
 	{
@@ -1114,54 +1148,3 @@ void CGameScene::_UpdateAudioListener(float fDelta)
 
 	GetAudioSystem().SetListener(state);
 }
-
-/*
-#ifdef IMGUI_ACTIVATE
-	ImGui::Text("Chunk Bounds (F2) : %s", m_bShowChunkBounds ? "ON" : "OFF");
-	ImGui::Text("Force Active Chunks Reload! (F5)");
-
-	ImGui::Text("Day01			: %.4f", timeParams.day01);
-	ImGui::Text("TickOfDay		: %.1f", timeParams.tickOfDay);
-	ImGui::Text("Daylight		: %.3f", timeParams.daylight);
-	ImGui::Text("Night			: %.3f", timeParams.night);
-	ImGui::Text("SunAngle		: %.3f", timeParams.sunAngleRad);
-	ImGui::Text("MoonAngle		: %.3f", timeParams.moonAngleRad);
-
-	ImGui::DragFloat("Sun size : %.3f", &m_fSunBillboardSize);
-	ImGui::DragFloat("Moon size : %.3f", &m_fMoonBillboardSize);
-
-	ImGui::Checkbox("Frustum Culling", &m_bFrustumculling);
-	ImGui::Text("Frustum Test      : %u", m_dbgFrustumTestCount);
-	ImGui::Text("Frustum Culled    : %u", m_dbgFrustumCulledCount);
-
-	ImGui::DragFloat("Shadow Bias : %.6f", &m_debugBias, 0.00001f, 0.0f, 0.002f, "%.6f");
-
-	float fMaster = GetAudioSystem().GetVolume(EAudioBus::MASTER);
-	ImGui::DragFloat("Master Volume : %.3f", &fMaster, 0.01f, 0.f, 1.0f);
-	GetAudioSystem().SetVolume(EAudioBus::MASTER, fMaster);
-
-	float fBGM = GetAudioSystem().GetVolume(EAudioBus::BGM);
-	ImGui::DragFloat("BGM Volume : %.3f", &fBGM, 0.01f, 0.f, 1.0f);
-	GetAudioSystem().SetVolume(EAudioBus::BGM, fBGM);
-
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
-	{
-		m_bShowChunkBounds = !m_bShowChunkBounds;
-	}
-
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F3))
-	{
-		m_eSectionDebugMode = static_cast<ESectionDebugMode>((static_cast<int>(m_eSectionDebugMode) + 1) % static_cast<int>(ESectionDebugMode::COUNT));
-	}
-
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F5))
-	{
-		m_VoxelWorld.GetChunkWorld().DebugRequestReloadActiveColumns();
-	}
-
-	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F6))
-	{
-		m_bSkyCruiseTest = !m_bSkyCruiseTest;
-	}
-#endif // IMGUI_ACTIVATE
-*/

@@ -25,6 +25,9 @@ public:
 	inline void SetFrozen(bool bFrozen) { m_bFrozen = bFrozen; }
 	inline bool IsFrozen() const { return m_bFrozen; }
 
+	inline void SetInputMoveSpeedScale(float scale) { m_fInputMoveSpeedScale = std::max(0.0f, scale); }
+	inline void SetCruiseMoveSpeedScale(float scale) { m_fCruiseMoveSpeedScale = std::max(0.0f, scale); }
+
 private:
 	void _AppluHorizontalMove(float fDelta);
 	void _ApplyJump();
@@ -48,7 +51,6 @@ private:
 
 	float m_fYaw = 0.f;
 
-	//float m_fMoveSpeed = 15.f;
 	float m_fMoveSpeed = 60.f;
 	float m_fJumpSpeed = 7.f;
 	float m_fGravity = 20.f;
@@ -56,4 +58,7 @@ private:
 
 	float m_fHalfWidth = 0.3f;
 	float m_fHalfHeight = 0.9f;
+	
+	float m_fInputMoveSpeedScale = 1.0f;
+	float m_fCruiseMoveSpeedScale = 1.0f;
 };

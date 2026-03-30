@@ -126,6 +126,7 @@ void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& out
 
 			outCmd.hotbarPrev = pPad->GetButtonDown(DUALSENSE_BUTTON::L1);
 			outCmd.hotbarNext = pPad->GetButtonDown(DUALSENSE_BUTTON::R1);
+			outCmd.sprintHeld = pPad->GetButton(DUALSENSE_BUTTON::LSTICK);
 			outCmd.switchControl = pPad->GetButtonDown(DUALSENSE_BUTTON::SHARE);
 		}
 	}
@@ -143,6 +144,7 @@ void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& out
 		outCmd.jumpPressed = input.Keyboard().GetKey(VK_SPACE);
 		outCmd.breakHeld = input.Mouse().GetKey(VK_LBUTTON);
 		outCmd.placePressed = input.Mouse().GetKey(VK_RBUTTON);
+		outCmd.sprintHeld = input.Keyboard().GetKey(VK_SHIFT);
 		outCmd.switchControl = input.Keyboard().GetKeyUp(VK_HOME);
 
 		const short wheel = input.Mouse().GetWheelCnt();
@@ -166,6 +168,9 @@ void CPlayerController::_ApplyInputCommand(const PlayerInputCommand& cmd)
 	m_pOwnTransform->SetLocalRotateEulerRad({ 0.f, m_fYaw, 0.f });
 	m_pCamTransform->SetLocalRotateEulerRad({ m_fPitch, 0.f, 0.f });
 	m_pMotor->SetYaw(m_fYaw);
+
+	const float sprintScale = cmd.sprintHeld ? 1.75f : 1.0f;
+	m_pMotor->SetInputMoveSpeedScale(sprintScale);
 
 	XMFLOAT2 moveAxis{ cmd.moveX, cmd.moveY };
 	moveAxis.x = std::clamp(moveAxis.x, -1.f, 1.f);

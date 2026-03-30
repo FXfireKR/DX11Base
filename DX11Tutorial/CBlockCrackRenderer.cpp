@@ -33,7 +33,7 @@ bool CBlockCrackRenderer::Initialize(CRenderWorld& rw)
     m_pPipeline->SetShader(shaderManager.Get(shaderID, 0));
     m_pPipeline->SetInputLayout(ilManager.Get(layoutID));
     m_pPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pPipeline->CreateTransparentAlphaState(rw.GetDevice(), true);
+    m_pPipeline->CreateTransparentAlphaState(rw.GetDevice(), false);
 
     const uint64_t crackSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_CLAMP);
     const uint64_t shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::SHADOWCOMPARISON);

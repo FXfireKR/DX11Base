@@ -26,6 +26,7 @@ private:
 		bool hotbarPrev = false;
 		bool hotbarNext = false;
 
+		bool sprintHeld = false;
 		bool switchControl = false;
 	};
 
