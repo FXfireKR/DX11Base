@@ -32,6 +32,18 @@ public:
 
 	inline const BlockHitResult& GetBlockHit() const { return m_hitResult; }
 
+	inline bool IsMining() const { return m_bMining; }
+	inline const XMINT3& GetMiningBlock() const { return m_miningBlock; }
+	inline const BlockCell& GetMiningCell() const { return m_miningCell; }
+
+	inline float GetBreakProgress01() const
+	{
+		if (!m_bMining || m_fBreakRequired <= 0.f)
+			return 0.f;
+
+		return std::clamp(m_fBreakAccum / m_fBreakRequired, 0.f, 1.f);
+	}
+
 private:
 	void _UpdateRaycast();
 	void _UpdateHighlight();

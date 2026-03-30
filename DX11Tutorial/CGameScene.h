@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CScene.h"
 #include "CWorld.h"
+#include "CBlockCrackRenderer.h"
 #include "CFrustumCuller.h"
 #include "CCloudLayerRenderer.h"
 #include "CBgmController.h"
@@ -84,6 +85,7 @@ private: // Chunk
 
 private: // ChunkWorld & Player
 	CWorld m_VoxelWorld;
+	CBlockCrackRenderer m_blockCrackRenderer;
 	CCloudLayerRenderer m_cloudLayer;
 	CBgmController m_bgmController;
 

@@ -168,6 +168,7 @@
     <ClInclude Include="CAudioSystem.h" />
     <ClInclude Include="CBgmController.h" />
     <ClInclude Include="CBlockBreakParticleSystem.h" />
+    <ClInclude Include="CBlockCrackRenderer.h" />
     <ClInclude Include="CBlockDB.h" />
     <ClInclude Include="CBlockDefDB.h" />
     <ClInclude Include="CBlockInteractor.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="CAudioSystem.cpp" />
     <ClCompile Include="CBgmController.cpp" />
     <ClCompile Include="CBlockBreakParticleSystem.cpp" />
+    <ClCompile Include="CBlockCrackRenderer.cpp" />
     <ClCompile Include="CBlockDB.cpp" />
     <ClCompile Include="CBlockDefDB.cpp" />
     <ClCompile Include="CBlockInteractor.cpp" />

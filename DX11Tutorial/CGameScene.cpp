@@ -44,6 +44,7 @@ void CGameScene::Awake()
 	m_pListenerTransform = pivotTransform;
 
 	_CreateHighlight();
+	m_blockCrackRenderer.Initialize(GetRenderWorld());
 
 	_CreateUICamera();
 	_CreateCrosshairUI();
@@ -113,8 +114,13 @@ void CGameScene::Update(float fDelta)
 	m_cloudLayer.Update(fDelta, playerWorldPos);
 
 	_TrySpawnStreaming(pPlayerTransform);
-	_UpdateAudioListener(fDelta);
 
+	if (auto* interactor = m_pPlayer ? m_pPlayer->GetComponent<CBlockInteractor>() : nullptr)
+	{
+		m_blockCrackRenderer.Update(*interactor);
+	}
+
+	_UpdateAudioListener(fDelta);
 	m_bgmController.Update(fDelta);
 }
 
@@ -316,9 +322,10 @@ void CGameScene::BuildRenderFrame()
 	_SubmitSunMoonBillboards(rw);
 	m_cloudLayer.Submit(rw);
 	_ApplySkyClearColor();
+
+	m_blockCrackRenderer.Submit(rw);
 	
 	m_blockBreakParticleSystem.SubmitRender(rw, *pCurrentCamera);
-
 
 	_SubmitChunkBoundsDebug(rw);
 	_SubmitSectionBoundsDebug(rw);
