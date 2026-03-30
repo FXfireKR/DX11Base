@@ -45,8 +45,16 @@ void CCloudLayerRenderer::Update(float fDelta, const XMFLOAT3& cameraPos)
     {
         m_iAnchorCellX = snappedAnchorX;
         m_iAnchorCellZ = snappedAnchorZ;
+        m_iCenterCellX = centerCellX;   // 추가
+        m_iCenterCellZ = centerCellZ;   // 추가
         m_iScrollCellX = newScrollCellX;
         m_bDirty = true;
+    }
+    else
+    {
+        // anchor 안 바뀌어도 center는 최신값 유지
+        m_iCenterCellX = centerCellX;
+        m_iCenterCellZ = centerCellZ;
     }
 }
 
