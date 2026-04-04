@@ -29,7 +29,7 @@ Unity / Unreal architecture.
 - ObjectManager using ID‑based management
 - Transform build step separated from Update
 - GameWorld / RenderWorld structural separation
-- Render submission → RenderFrame → RenderThread flow
+- Render submission → RenderFrame → Swap call flow
 - Pipeline‑based rendering pass grouping
 
 ### Rendering System
@@ -86,16 +86,15 @@ Unity / Unreal architecture.
 
 ## Project Structure (Simplified)
 
-DX11Tutorial  
+Window API  
 ├─ Application  
 ├─ GameWorld  
 │  ├─ Scene  
 │  ├─ Object  
 │  └─ Component  
 ├─ RenderWorld  
-│  ├─ RenderFrame  
-│  ├─ RenderItem  
-│  └─ RenderThread  
+│  ├─ RenderFrame
+│  └─ RenderItem
 ├─ Managers  
 │  ├─ MeshManager  
 │  ├─ ShaderManager  
@@ -133,7 +132,7 @@ This project explores:
 
 - Efficient draw call batching strategies
 - Resource lifetime & ownership design
-- ECS‑style runtime object control
+- OCS runtime object-component controll
 - Real‑time voxel mesh streaming
 - Rendering pass extensibility (shadow / post process ready)
 - Engine architecture comparable to commercial engines
