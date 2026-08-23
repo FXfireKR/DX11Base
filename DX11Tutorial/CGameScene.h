@@ -49,6 +49,10 @@ private:
 	XMFLOAT3 _LerpColor(const XMFLOAT3& a, const XMFLOAT3& b, float t);
 	void _ApplySkyClearColor();
 
+	void _BindWorldRenderResources();
+	void _BindCrosshairResources();
+	void _BindSkyBillboardResources();
+
 	XMMATRIX _BuildSkyLockedQuadWorld(const XMFLOAT3& center, const XMFLOAT3& dirFromCam
 		, float width, float height);
 	XMMATRIX _BuildScreenAlignedBillboardWorld(const XMFLOAT3& center, const XMFLOAT3& camRight

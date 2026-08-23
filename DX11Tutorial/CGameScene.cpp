@@ -4,6 +4,23 @@
 
 void CGameScene::Awake()
 {
+	_BindWorldRenderResources();
+
+	m_VoxelWorld.Initialize(*this
+		, m_pChunkPipeline, m_pChunkMaterial
+		, m_pChunkCutoutPipeline, m_pChunkCutoutMaterial
+		, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial
+	);
+
+	_CreateHighlight();
+	m_blockCrackRenderer.Initialize(GetRenderWorld());
+	_CreateUICamera();
+	_BindCrosshairResources();
+	_BindSkyBillboardResources();
+
+
+
+
 	_CreateWorldRender();
 
 	m_VoxelWorld.Initialize(*this
@@ -384,50 +401,53 @@ void CGameScene::_CreateHighlight()
 {
 	CRenderWorld& rw = GetRenderWorld();
 
-	// shader
-	auto& shaderManager = rw.GetShaderManager();
-	auto shaderID = fnv1a_64("Highlight");
-	auto shader = shaderManager.CreateShader(shaderID, 0);
+	auto& pipelineManager =
+		rw.GetPipelineManager();
 
-	shaderManager.Compile();
+	auto& meshManager =
+		rw.GetMeshManager();
 
-	// input layout
-	auto& ilManager = rw.GetIALayoutManager();
-	auto layoutID = ilManager.Create(VERTEX_POSITION::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
+	auto& materialManager =
+		rw.GetMaterialManager();
 
-	// pipeline
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto pipeID = pipelineManager.Create(fnv1a_64("HighlightPipeline"));
+	CPipeline* pipeline =
+		pipelineManager.Get(
+			fnv1a_64("HighlightPipeline"));
 
-	auto pipeline = pipelineManager.Get(pipeID);
+	CMesh* mesh =
+		meshManager.Get(
+			fnv1a_64("AABBHighlight"));
 
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	CMaterial* material =
+		materialManager.Get(
+			fnv1a_64("HighlightMaterial"));
 
-	// dummy
-	pipeline->CreateOpaqueState(rw.GetDevice());
+	assert(pipeline);
+	assert(mesh);
+	assert(material);
 
-	// mesh
-	auto& meshManager = rw.GetMeshManager();
-	auto highlightMeshID = meshManager.CreateAABBLine(fnv1a_64("AABBHighlight"));
-
-	auto& materialManager = rw.GetMaterialManager();
-	auto materialID = materialManager.Create(fnv1a_64("HighlightMaterial"));
-
-	// debug chunk bounds 용으로도 같이 보관
-	m_pChunkBoundsDebugMesh = meshManager.Get(highlightMeshID);
+	// Chunk / Section Bounds에서도 공유
+	m_pChunkBoundsDebugMesh = mesh;
 	m_pChunkBoundsDebugPipeline = pipeline;
-	m_pChunkBoundsDebugMaterial = materialManager.Get(materialID);
+	m_pChunkBoundsDebugMaterial = material;
 
-	m_pHighlightObject = AddAndGetObject("BlockHighlight");
-	auto* tr = m_pHighlightObject->AddComponent<CTransform>();
-	auto* mr = m_pHighlightObject->AddComponent<CMeshRenderer>();
+	// Scene Object만 GameScene에서 생성
+	m_pHighlightObject =
+		AddAndGetObject("BlockHighlight");
 
-	mr->SetMesh(meshManager.Get(highlightMeshID));
+	auto* tr =
+		m_pHighlightObject
+		->AddComponent<CTransform>();
+
+	auto* mr =
+		m_pHighlightObject
+		->AddComponent<CMeshRenderer>();
+
+	mr->SetMesh(mesh);
 	mr->SetPipeline(pipeline);
-	mr->SetMaterial(materialManager.Get(materialID));
-	mr->SetRenderPass(ERenderPass::DEBUG_PASS);
+	mr->SetMaterial(material);
+	mr->SetRenderPass(
+		ERenderPass::DEBUG_PASS);
 
 	m_pHighlightObject->SetEnable(false);
 }
@@ -627,7 +647,7 @@ void CGameScene::_CreateSkyBillboardResources()
 
 	// sun / moon
 	{
-		const uint64_t pipeID = pipelineManager.Create(fnv1a_64("BillbaordPipeline"));
+		const uint64_t pipeID = pipelineManager.Create(fnv1a_64("SkyBillboardPipeline"));
 		auto* pipeline = pipelineManager.Get(pipeID);
 		pipeline->SetShader(shaderManager.Get(sunMoonShaderID, 0));
 		pipeline->SetInputLayout(ilManager.Get(sunMoonLayoutID));
@@ -897,6 +917,103 @@ void CGameScene::_ApplySkyClearColor()
 
 	GetRenderWorld().SetSkyColor(sky);
 	GetRenderWorld().SetBackColor(sky.x, sky.y, sky.z, 1.0f);
+}
+
+void CGameScene::_BindWorldRenderResources()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	auto& pipelineManager =
+		rw.GetPipelineManager();
+
+	auto& materialManager =
+		rw.GetMaterialManager();
+
+	m_pChunkPipeline =
+		pipelineManager.Get(
+			fnv1a_64("ChunkPipeline"));
+
+	m_pChunkMaterial =
+		materialManager.Get(
+			fnv1a_64("ChunkMaterial"));
+
+	m_pChunkCutoutPipeline =
+		pipelineManager.Get(
+			fnv1a_64("ChunkCutoutPipeline"));
+
+	m_pChunkCutoutMaterial =
+		materialManager.Get(
+			fnv1a_64("ChunkCutoutMaterial"));
+
+	m_pChunkTransparentPipeline =
+		pipelineManager.Get(
+			fnv1a_64("ChunkTransparentPipeline"));
+
+	m_pChunkTransparentMaterial =
+		materialManager.Get(
+			fnv1a_64("ChunkTransparentMaterial"));
+
+	m_pChunkShadowPipeline =
+		pipelineManager.Get(
+			fnv1a_64("ChunkShadowPipeline"));
+
+	assert(m_pChunkPipeline);
+	assert(m_pChunkMaterial);
+
+	assert(m_pChunkCutoutPipeline);
+	assert(m_pChunkCutoutMaterial);
+
+	assert(m_pChunkTransparentPipeline);
+	assert(m_pChunkTransparentMaterial);
+
+	assert(m_pChunkShadowPipeline);
+}
+
+void CGameScene::_BindCrosshairResources()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	m_pCrosshairMesh =
+		rw.GetMeshManager().Get(
+			fnv1a_64("UICrosshairQuad"));
+
+	m_pCrosshairPipeline =
+		rw.GetPipelineManager().Get(
+			fnv1a_64("UICrosshairPipeline"));
+
+	m_pCrosshairMaterial =
+		rw.GetMaterialManager().Get(
+			fnv1a_64("UICrosshairMaterial"));
+
+	assert(m_pCrosshairMesh);
+	assert(m_pCrosshairPipeline);
+	assert(m_pCrosshairMaterial);
+}
+
+void CGameScene::_BindSkyBillboardResources()
+{
+	CRenderWorld& rw = GetRenderWorld();
+
+	m_pSkyBillboardMesh =
+		rw.GetMeshManager().Get(
+			fnv1a_64("SkyBillboardQuad"));
+
+	m_pSkyBillboardPipeline =
+		rw.GetPipelineManager().Get(
+			fnv1a_64("SkyBillboardPipeline"));
+
+	m_pSunBillboardMaterial =
+		rw.GetMaterialManager().Get(
+			fnv1a_64("SunBillboardMaterial"));
+
+	m_pMoonBillboardMaterial =
+		rw.GetMaterialManager().Get(
+			fnv1a_64("MoonBillboardMaterial"));
+
+	assert(m_pSkyBillboardMesh);
+	assert(m_pSkyBillboardPipeline);
+	assert(m_pSunBillboardMaterial);
+	assert(m_pMoonBillboardMaterial);
 }
 
 XMMATRIX CGameScene::_BuildSkyLockedQuadWorld(
