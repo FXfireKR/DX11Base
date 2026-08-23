@@ -61,6 +61,9 @@ void CWindowSystem::Run()
 			DispatchMessage(&kMessage);
 		}
 
+		if (!m_bRunning)
+			break;
+
 		_Tick();
 	}
 }
