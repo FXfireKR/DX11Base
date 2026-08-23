@@ -120,51 +120,46 @@ float ComputeShadowFactor(float4 shadowPos, float3 N, float3 L)
 float4 PS(VS_OUTPUT input) : SV_Target
 {
     float4 tex0Color = texture0.Sample(sampler0, input.uv);
-
     float3 tint = input.color.rgb;
-    float blockLight01 = saturate(input.light.x);
-    float skyLight01 = saturate(input.light.y);
 
     // alpha는 텍스처 alpha 그대로 사용
     float3 albedo = tex0Color.rgb * tint;
     float alpha = tex0Color.a;
 
+    float blockLight01 = saturate(input.light.x);
+    float skyLight01 = saturate(input.light.y);
+
     float3 N = normalize(input.normalWS);
     float3 L = normalize(lightDirWs.xyz);
-
     float NdotL = saturate(dot(N, L));
 
-    // 동굴에서도 완전한 0은 남기지 않음.
-    const float caveAmbientFloor = 0.15f;
-
-    // 0 = 깊은 지하
-    // 1 = 완전 하늘 노출
+    // -------------------------
+    // Sky / Ambient
+    // -------------------------
+    const float caveAmbientFloor = 0.05f;
     float skyAmbientFactor = lerp(caveAmbientFloor, 1.0f, skyLight01);
-
     float3 skyAmbient = ambientColor.rgb * skyAmbientFactor;
 
-    float3 ambient = ambientColor.rgb;
+
+    // -------------------------
+    // Directional Sun
+    // -------------------------
     float3 direct = lightColorIntensity.rgb * (NdotL * lightColorIntensity.a);
-
     float shadowFactor = ComputeShadowFactor(input.shadowPos, N, L);
-    float3 shadowedDirect = direct * shadowFactor;
-
-    // Sky 노출이 없으면
-    // 대낮이어도 태양 직사광을 받지 않는다.
     float3 sunDirect = direct * shadowFactor;
 
-    // torch / block light
-    // 곡선을 살짝 세워서 중간 레벨도 체감되게
-    float localL = saturate(pow(blockLight01, 0.80f));
 
-    // 따뜻한 계열 local light
+    // -------------------------
+    // Block / Torch Light
+    // -------------------------
+    float localL = saturate(pow(blockLight01, 0.80f));
     float3 localLight = float3(1.00f, 0.92f, 0.82f) * (localL * 1.20f);
 
-    // 우선 기존 스타일 유지.
-    // Sky/Block 구현 확인 후 Additive 조정.
+
+    // -------------------------
+    // Final
+    // -------------------------
     float3 lighting = skyAmbient + max(sunDirect, localLight);
-
-
     return float4(albedo * lighting, alpha);
 }
 

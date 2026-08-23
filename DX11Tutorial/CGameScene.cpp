@@ -133,6 +133,9 @@ void CGameScene::Update(float fDelta)
 	bool bVertical = GetRenderWorld().GetVerticalSync();
 	ImGui::Checkbox("VerticalSync", &bVertical);
 	GetRenderWorld().SetVerticalSync(bVertical);
+
+	ImGui::DragFloat("Shadow Floor", &m_debugShadowFloor, 0.005f, 0.0f, 0.30f, "%.3f");
+
 #endif // IMGUI_ACTIVATE
 
 	if (CInputManager::Get().Keyboard().GetKeyUp(VK_F2))
@@ -301,7 +304,7 @@ void CGameScene::BuildRenderFrame()
 		);
 
 		rw.SetLightViewProj(matLightView * matLightProj);
-		rw.SetShadowParams(m_debugBias, bShadowEnabled ? 0.35f : 1.0f);
+		rw.SetShadowParams(m_debugBias, bShadowEnabled ? m_debugShadowFloor : 1.0f);
 	}
 
 	const CTransform* pCamTr = pCurrentCamera->GetTransform();

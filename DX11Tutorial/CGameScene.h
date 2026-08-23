@@ -133,5 +133,7 @@ private: // optional
 	bool m_bSkyCruiseTest = false;
 	float m_fSkyCruiseY = 75.f;
 	float m_fSkyCruiseMoveSpeedScale = 10.0f;
+
+	float m_debugShadowFloor = 0.02f;
 };
 
