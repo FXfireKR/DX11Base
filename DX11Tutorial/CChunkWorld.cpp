@@ -69,6 +69,51 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 	{
 		PROFILE_SCOPE("BuildWantedSet");
 
+#ifdef STREAMING_BOUND_FIX
+		for (int dist = 0; dist <= warmRadius && (preloadBudget > 0 || hotloadBudget > 0); ++dist)
+		{
+			for (int dz = -dist; dz <= dist; ++dz)
+			{
+				for (int dx = -dist; dx <= dist; ++dx)
+				{
+					// 현재 ring의 테두리만 처리
+					if (std::max(std::abs(dx), std::abs(dz)) != dist)
+						continue;
+
+					const int cx = centerCx + dx;
+					const int cz = centerCz + dz;
+
+					CChunkColumn* pColumn = _FindColumn(cx, cz);
+
+					if ((!pColumn || !pColumn->IsGenerated()) &&
+						preloadBudget > 0)
+					{
+						_PreloadColumn(cx, cz);
+						--preloadBudget;
+						bStreamChanged = true;
+
+						pColumn = _FindColumn(cx, cz);
+					}
+
+					if (dist <= hotRadius &&
+						pColumn &&
+						!pColumn->IsActive() &&
+						hotloadBudget > 0)
+					{
+						_HotloadColumn(cx, cz);
+						--hotloadBudget;
+						bStreamChanged = true;
+					}
+
+					if (preloadBudget <= 0 && hotloadBudget <= 0)
+						break;
+				}
+
+				if (preloadBudget <= 0 && hotloadBudget <= 0)
+					break;
+			}
+		}
+#else // STREAMING_BOUND_FIX
 		for (int dz = -warmRadius; dz <= warmRadius; ++dz)
 		{
 			for (int dx = -warmRadius; dx <= warmRadius; ++dx)
@@ -103,6 +148,8 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 				}
 			}
 		}
+#endif // STREAMING_BOUND_FIX
+
 	}
 
 	{

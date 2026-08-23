@@ -140,11 +140,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #define RELEASE(p) if (nullptr != p) { p->Release(); p = nullptr; }
 
-//constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
-//constexpr unsigned long INIT_SCREEN_SIZE_Y = 1024;
-
+#ifdef _DEBUG
+constexpr unsigned long INIT_SCREEN_SIZE_X = 1440;
+constexpr unsigned long INIT_SCREEN_SIZE_Y = 1080;
+#else // _DEBUG
 constexpr unsigned long INIT_SCREEN_SIZE_X = 2560;
 constexpr unsigned long INIT_SCREEN_SIZE_Y = 1440;
+#endif // _DEBUG
 
 extern unsigned long g_ScreenSizeX;
 extern unsigned long g_ScreenSizeY;
@@ -167,16 +169,21 @@ struct UVRect
 #define BlockResDB CBlockResourceDB::Get()
 
 
-// 
-
-
 ////////////////////////////////////////////////////////////////////////////
 // 
 // AppliedModel vector 복사가 아닌 주소 받아오도록 변경.
 // BakeQuad 복사는 필요하지 않으면 하지 않고 source 그대로 쓰도록 변경.
-// 
 #define OPTIMIZATION_1
-// UpdateStream load/unload 단계를 상세히 나눠서 cpu 사용율 분산.
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
 // 
+// UpdateStream load/unload 단계를 상세히 나눠서 cpu 사용율 분산.
 #define OPTIMIZATION_2
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+// 
+// 스트리밍이 시작되는 위치를 재수정
+#define STREAMING_BOUND_FIX
 ////////////////////////////////////////////////////////////////////////////
