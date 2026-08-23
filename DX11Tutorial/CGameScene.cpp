@@ -455,8 +455,8 @@ void CGameScene::_CreateWorldRender()
 	shaderManager.Compile();
 
 	// input layout	
-	auto layoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { normalShaderID, 0 }, normalShader->GetVertexBlob());
-	auto cutoutLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { cutoutShaderID, 0 }, cutoutShader->GetVertexBlob());
+	auto layoutID = ilManager.Create(VERTEX_CHUNK::GetLayout(), { normalShaderID, 0 }, normalShader->GetVertexBlob());
+	auto cutoutLayoutID = ilManager.Create(VERTEX_CHUNK::GetLayout(), { cutoutShaderID, 0 }, cutoutShader->GetVertexBlob());
 	auto shadowLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shadowShaderID, 0 }, shadowShader->GetVertexBlob());
 
 	// opaque chunk pipeline

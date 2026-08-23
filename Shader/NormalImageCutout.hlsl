@@ -3,17 +3,19 @@ struct VS_INPUT
 {
     float3 position : POSITION;
     float3 normal   : NORMAL;
-    float2 uv       : TEXCOORD;
-    float4 color    : COLOR;
+    float2 uv       : TEXCOORD0;
+    float4 color    : COLOR0;
+    float2 light    : TEXCOORD1;
 };
 
 struct VS_OUTPUT
 {
-    float4 position : SV_POSITION;
-    float3 normalWS : TEXCOORD1;
-    float2 uv       : TEXCOORD0;
-    float4 color    : COLOR;
-    float4 shadowPos: TEXCOORD2;
+    float4 position  : SV_POSITION;
+    float3 normalWS  : TEXCOORD1;
+    float2 uv        : TEXCOORD0;
+    float4 color     : COLOR0;
+    float4 shadowPos : TEXCOORD2;
+    float2 light     : TEXCOORD3;
 };
 
 cbuffer CBFrame : register(b0)
@@ -48,6 +50,7 @@ VS_OUTPUT VS(VS_INPUT input)
     output.position = projPos;
     output.uv = input.uv;
     output.color = input.color;
+    output.light = input.light;
 
     float3 normalWS = mul(input.normal, (float3x3)worldMatrix);
     output.normalWS = normalize(normalWS);
@@ -115,7 +118,8 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float4 tex0Color = texture0.Sample(sampler0, input.uv);
 
     float3 tint = input.color.rgb;
-    float blockLight01 = saturate(input.color.a);
+    float blockLight01 = saturate(input.light.x);
+    float skyLight01   = saturate(input.light.y);
 
     float3 albedo = tex0Color.rgb * tint;
     float alpha = tex0Color.a;

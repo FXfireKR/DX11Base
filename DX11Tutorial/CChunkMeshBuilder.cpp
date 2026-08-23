@@ -527,6 +527,13 @@ void CChunkMeshBuilder::_ResolveVertexLights(
     int wz,
     XMFLOAT2 outLights[4]) const
 {
+    for (int i = 0; i < 4; ++i)
+    {
+        outLights[i] = { 0.0f, 1.0f };
+    }
+
+    return;
+
     if (!quad.bHasCullFace)
     {
         const VoxelLightSample s = world.GetLightSample(wx, wy, wz);

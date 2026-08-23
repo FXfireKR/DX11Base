@@ -151,7 +151,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
 
     // Sky 노출이 없으면
     // 대낮이어도 태양 직사광을 받지 않는다.
-    float3 sunDirect = direct * shadowFactor * skyLight01;
+    float3 sunDirect = direct * shadowFactor;
 
     // torch / block light
     // 곡선을 살짝 세워서 중간 레벨도 체감되게
@@ -165,7 +165,13 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float3 lighting = skyAmbient + max(sunDirect, localLight);
 
 
-    return float4(albedo * lighting, alpha);
+    //return float4(albedo * lighting, alpha);
+
+    return float4(
+    input.light.y,   // R = SkyLight
+    input.light.x,   // G = BlockLight
+    0.0f,
+    1.0f);
 }
 
 // debug out
