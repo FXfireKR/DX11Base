@@ -21,7 +21,14 @@ uint32_t CInputLayerManager::Create(const VertexLayoutDesc& layoutDesc_, const S
     newData.shaderKey = shaderKey_;
     newData.data = make_unique<CInputLayer>();
 
-    newData.data->Create(m_pDevice, layoutDesc_, pVertexBlob->GetBufferPointer(), pVertexBlob->GetBufferSize());
+    
+
+    const HRESULT hr = newData.data->Create(m_pDevice, layoutDesc_, pVertexBlob->GetBufferPointer(), pVertexBlob->GetBufferSize());
+    if (FAILED(hr))
+    {
+        assert(false && "CreateInputLayout failed");
+        return UINT32_MAX;
+    }
 
     m_vecInputLayoutData.push_back(std::move(newData));
     return static_cast<uint32_t>(m_vecInputLayoutData.size() - 1);

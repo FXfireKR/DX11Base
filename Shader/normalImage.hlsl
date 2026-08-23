@@ -165,13 +165,7 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float3 lighting = skyAmbient + max(sunDirect, localLight);
 
 
-    //return float4(albedo * lighting, alpha);
-
-    return float4(
-    input.light.y,   // R = SkyLight
-    input.light.x,   // G = BlockLight
-    0.0f,
-    1.0f);
+    return float4(albedo * lighting, alpha);
 }
 
 // debug out

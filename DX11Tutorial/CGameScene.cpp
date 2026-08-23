@@ -4,34 +4,24 @@
 
 void CGameScene::Awake()
 {
+	// InitializeScene에서 생성한 Render Resource 참조
 	_BindWorldRenderResources();
 
-	m_VoxelWorld.Initialize(*this
-		, m_pChunkPipeline, m_pChunkMaterial
-		, m_pChunkCutoutPipeline, m_pChunkCutoutMaterial
-		, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial
-	);
+	// World 초기화는 1회
+	m_VoxelWorld.Initialize(
+		*this,
+		m_pChunkPipeline,
+		m_pChunkMaterial,
+		m_pChunkCutoutPipeline,
+		m_pChunkCutoutMaterial,
+		m_pChunkTransparentPipeline,
+		m_pChunkTransparentMaterial);
 
-	_CreateHighlight();
-	m_blockCrackRenderer.Initialize(GetRenderWorld());
-	_CreateUICamera();
-	_BindCrosshairResources();
-	_BindSkyBillboardResources();
-
-
-
-
-	_CreateWorldRender();
-
-	m_VoxelWorld.Initialize(*this
-		, m_pChunkPipeline, m_pChunkMaterial
-		, m_pChunkCutoutPipeline, m_pChunkCutoutMaterial
-		, m_pChunkTransparentPipeline, m_pChunkTransparentMaterial
-	);
-
+	// Particle
 	m_blockBreakParticleSystem.Initialize(GetRenderWorld());
 	m_blockBreakParticleSystem.SetWorld(&m_VoxelWorld);
 
+	// Player
 	m_pPlayer = AddAndGetObject("Player");
 	auto* tr = m_pPlayer->AddComponent<CTransform>();
 	tr->SetLocalTrans({ 0, 5.f, 0 });
@@ -41,49 +31,70 @@ void CGameScene::Awake()
 	motor->SetWorld(&m_VoxelWorld);
 	motor->SetFrozen(true);
 
-	auto* inventory = m_pPlayer->AddComponent<CInventoryComponent>();
-	auto* interactor = m_pPlayer->AddComponent<CBlockInteractor>();
-	interactor->SetWorld(&m_VoxelWorld);
-	interactor->SetParticleSystem(&m_blockBreakParticleSystem);
-	interactor->SetAudioSystem(&GetAudioSystem());
+	auto* inventory =
+		m_pPlayer->AddComponent<CInventoryComponent>();
 
-	// 카메라 피벗(자식 오브젝트)
-	auto* pivot = AddAndGetObject("PlayerCameraPivot");
+	auto* interactor =
+		m_pPlayer->AddComponent<CBlockInteractor>();
+
+	interactor->SetWorld(&m_VoxelWorld);
+	interactor->SetParticleSystem(
+		&m_blockBreakParticleSystem);
+	interactor->SetAudioSystem(
+		&GetAudioSystem());
+
+	// Camera
+	auto* pivot =
+		AddAndGetObject("PlayerCameraPivot");
+
 	pivot->SetParentID(m_pPlayer->GetID());
 
-	auto* pivotTransform = pivot->AddComponent<CTransform>();
-	auto* cam = pivot->AddComponent<CCamera>();
+	auto* pivotTransform =
+		pivot->AddComponent<CTransform>();
 
-	float newAspect = static_cast<float>(INIT_SCREEN_SIZE_X) / static_cast<float>(INIT_SCREEN_SIZE_Y);
-	cam->SetAspectRatio(newAspect);
+	auto* cam =
+		pivot->AddComponent<CCamera>();
+
+	const float aspect =
+		static_cast<float>(INIT_SCREEN_SIZE_X) /
+		static_cast<float>(INIT_SCREEN_SIZE_Y);
+
+	cam->SetAspectRatio(aspect);
 
 	m_pCurrentCamera = cam;
 	m_pListenerTransform = pivotTransform;
 
+	// Scene Object는 여기서 생성
 	_CreateHighlight();
-	m_blockCrackRenderer.Initialize(GetRenderWorld());
+	m_blockCrackRenderer.Initialize(
+		GetRenderWorld());
 
 	_CreateUICamera();
-	_CreateCrosshairUI();
+
+	// Render Resource는 참조만
+	_BindCrosshairResources();
+	_BindSkyBillboardResources();
 
 	ctrl->SetCamera(cam);
 	ctrl->SetCameraTransform(pivotTransform);
 	ctrl->SetWorld(&m_VoxelWorld);
 	ctrl->SetAudioSystem(&GetAudioSystem());
 
-	interactor->SetCameraTransform(pivotTransform);
-	interactor->SetHighlightObject(m_pHighlightObject);
+	interactor->SetCameraTransform(
+		pivotTransform);
+	interactor->SetHighlightObject(
+		m_pHighlightObject);
 
-	_CreateSkyBillboardResources();
-	m_cloudLayer.Initialize(GetRenderWorld(), L"../Resource/assets/minecraft/textures/environment/clouds.png");
+	m_cloudLayer.Initialize(
+		GetRenderWorld(),
+		L"../Resource/assets/minecraft/textures/environment/clouds.png");
 
 	m_bSpawnStreamingReady = false;
 
-	m_bgmController.Initialize(&GetAudioSystem());
+	m_bgmController.Initialize(
+		&GetAudioSystem());
 	m_bgmController.AddBgmTracks();
-
 	m_bgmController.SetUserVolume(0.5f);
-	//GetAudioSystem().SetVolume(EAudioBus::SFX, 0.4f);
 }
 
 void CGameScene::Start()
@@ -452,103 +463,6 @@ void CGameScene::_CreateHighlight()
 	m_pHighlightObject->SetEnable(false);
 }
 
-void CGameScene::_CreateWorldRender()
-{
-	CRenderWorld& rw = GetRenderWorld();
-
-	auto& shaderManager = rw.GetShaderManager();
-	auto& ilManager = rw.GetIALayoutManager();
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto& samplerManager = rw.GetSamplerManager();
-	auto& materialManager = rw.GetMaterialManager();
-
-	// shader
-	auto normalShaderID = fnv1a_64("NormalImageForward");
-	auto normalShader = shaderManager.CreateShader(normalShaderID, 0);
-
-	auto cutoutShaderID = fnv1a_64("NormalImageCutout");
-	auto cutoutShader = shaderManager.CreateShader(cutoutShaderID, 0);
-
-	auto shadowShaderID = fnv1a_64("ShadowDepth");
-	auto shadowShader = shaderManager.CreateShader(shadowShaderID, 0);
-
-	shaderManager.Compile();
-
-	// input layout	
-	auto layoutID = ilManager.Create(VERTEX_CHUNK::GetLayout(), { normalShaderID, 0 }, normalShader->GetVertexBlob());
-	auto cutoutLayoutID = ilManager.Create(VERTEX_CHUNK::GetLayout(), { cutoutShaderID, 0 }, cutoutShader->GetVertexBlob());
-	auto shadowLayoutID = ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shadowShaderID, 0 }, shadowShader->GetVertexBlob());
-
-	// opaque chunk pipeline
-	auto opaquePipeID = pipelineManager.Create(fnv1a_64("ChunkPipeline"));
-	auto opaquePipeline = pipelineManager.Get(opaquePipeID);
-	opaquePipeline->SetShader(shaderManager.Get(normalShaderID, 0));
-	opaquePipeline->SetInputLayout(ilManager.Get(layoutID));
-	opaquePipeline->CreateOpaqueState(rw.GetDevice());
-	opaquePipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// transparent chunk pipeline
-	auto cutoutPipeID = pipelineManager.Create(fnv1a_64("ChunkCutoutPipeline"));
-	auto cutoutPipeline = pipelineManager.Get(cutoutPipeID);
-	cutoutPipeline->SetShader(shaderManager.Get(cutoutShaderID, 0));
-	cutoutPipeline->SetInputLayout(ilManager.Get(cutoutLayoutID));
-	cutoutPipeline->CreateCutoutAlphaTestState(rw.GetDevice(), false);
-	cutoutPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// transparent chunk pipeline
-	auto transPipeID = pipelineManager.Create(fnv1a_64("ChunkTransparentPipeline"));
-	auto transPipeline = pipelineManager.Get(transPipeID);
-	transPipeline->SetShader(shaderManager.Get(normalShaderID, 0));
-	transPipeline->SetInputLayout(ilManager.Get(layoutID));
-	transPipeline->CreateTransparentAlphaState(rw.GetDevice(), false);
-	transPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// shadow chunk pipeline
-	auto shadowPipeID = pipelineManager.Create(fnv1a_64("ChunkShadowPipeline"));
-	auto shadowPipeline = pipelineManager.Get(shadowPipeID);
-	shadowPipeline->SetShader(shaderManager.Get(shadowShaderID, 0));
-	shadowPipeline->SetInputLayout(ilManager.Get(shadowLayoutID));
-	shadowPipeline->CreateOpaqueState(rw.GetDevice());
-	shadowPipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// sampler	
-	auto albedoSamplerID = samplerManager.Create(SAMPLER_TYPE::POINT_WRAP);
-	auto shadowSamplerID = samplerManager.Create(SAMPLER_TYPE::SHADOWCOMPARISON);
-
-	// material	
-	auto opauqMaterialID = materialManager.Create(fnv1a_64("ChunkMaterial"));
-	auto* opaqueMaterial = materialManager.Get(opauqMaterialID);
-	opaqueMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
-	opaqueMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
-	opaqueMaterial->SetTexture(1, rw.GetShadowMapSRV());
-	opaqueMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
-
-	auto cutoutMaterialID = materialManager.Create(fnv1a_64("ChunkCutoutMaterial"));
-	auto* cutoutMaterial = materialManager.Get(cutoutMaterialID);
-	cutoutMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
-	cutoutMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
-	cutoutMaterial->SetTexture(1, rw.GetShadowMapSRV());
-	cutoutMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
-
-	auto transMaterialID = materialManager.Create(fnv1a_64("ChunkTransparentMaterial"));
-	auto* transMaterial = materialManager.Get(transMaterialID);
-	transMaterial->SetTexture(0, BlockResDB.GetAtlasTextureView());
-	transMaterial->SetSampler(0, samplerManager.Get(albedoSamplerID)->Get());
-	transMaterial->SetTexture(1, rw.GetShadowMapSRV());
-	transMaterial->SetSampler(1, samplerManager.Get(shadowSamplerID)->Get());
-
-	m_pChunkPipeline = opaquePipeline;
-	m_pChunkMaterial = opaqueMaterial;
-
-	m_pChunkCutoutPipeline = cutoutPipeline;
-	m_pChunkCutoutMaterial = cutoutMaterial;
-
-	m_pChunkTransparentPipeline = transPipeline;
-	m_pChunkTransparentMaterial = transMaterial;
-
-	m_pChunkShadowPipeline = shadowPipeline;
-}
-
 void CGameScene::_CreateUICamera()
 {
 	auto* uiCamObj = AddAndGetObject("UICamera");
@@ -563,60 +477,6 @@ void CGameScene::_CreateUICamera()
 	cam->UpdateCameraMatrix();
 
 	m_pUICamera = cam;
-}
-
-void CGameScene::_CreateCrosshairUI()
-{
-	CRenderWorld& rw = GetRenderWorld();
-
-	auto& shaderManager = rw.GetShaderManager();
-	auto& ilManager = rw.GetIALayoutManager();
-	auto& pipelineManager = rw.GetPipelineManager();
-	auto& meshManager = rw.GetMeshManager();
-	auto& materialManager = rw.GetMaterialManager();
-	auto& textureManager = rw.GetTextureManager();
-	auto& samplerManager = rw.GetSamplerManager();
-
-	// shader
-	const uint64_t shaderID = fnv1a_64("UIInvertMask");
-	auto* shader = shaderManager.CreateShader(shaderID, 0);
-	shaderManager.Compile();
-
-	// input layout
-	const uint64_t layoutID =
-		ilManager.Create(VERTEX_POSITION_UV::GetLayout(), { shaderID, 0 }, shader->GetVertexBlob());
-
-	// pipeline
-	const uint64_t pipeID = pipelineManager.Create(fnv1a_64("UICrosshairPipeline"));
-	auto* pipeline = pipelineManager.Get(pipeID);
-	pipeline->SetShader(shaderManager.Get(shaderID, 0));
-	pipeline->SetInputLayout(ilManager.Get(layoutID));
-	pipeline->SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pipeline->CreateUIInvertState(rw.GetDevice(), true);
-
-	// mesh
-	const uint64_t meshID = meshManager.CreateQuad(fnv1a_64("UICrosshairQuad"));
-
-	// material
-	const uint64_t materialID = materialManager.Create(fnv1a_64("UICrosshairMaterial"));
-	auto* material = materialManager.Get(materialID);
-
-	// texture
-	const uint64_t textureID = textureManager.LoadTexture2D(
-		fnv1a_64("ui/crosshair"),
-		"../Resource/assets/minecraft/textures/gui/sprites/hud/crosshair.png",
-		TEXTURE_USAGE::StaticColor
-	);
-
-	// sampler
-	const uint64_t samplerID = samplerManager.Create(SAMPLER_TYPE::LINEAR_WARP);
-
-	material->SetSampler(0, samplerManager.Get(samplerID)->Get());
-	material->SetTexture(0, textureManager.GetTexture(textureID)->GetShaderResourceView());
-
-	m_pCrosshairMesh = meshManager.Get(meshID);
-	m_pCrosshairPipeline = pipeline;
-	m_pCrosshairMaterial = material;
 }
 
 void CGameScene::_CreateSkyBillboardResources()

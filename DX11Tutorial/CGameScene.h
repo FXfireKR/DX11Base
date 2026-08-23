@@ -35,9 +35,7 @@ public:
 
 private:
 	void _CreateHighlight();
-	void _CreateWorldRender();
 	void _CreateUICamera();
-	void _CreateCrosshairUI();
 	void _CreateSkyBillboardResources();
 
 	void _SubmitSunMoonBillboards(CRenderWorld& rw);

@@ -143,8 +143,16 @@ float4 PS(VS_OUTPUT input) : SV_Target
     // 따뜻한 계열 local light
     float3 localLight = float3(1.00f, 0.92f, 0.82f) * (localL * 1.20f);
 
+    const float caveAmbientFloor = 0.15f;
+    float skyAmbientFactor = lerp(caveAmbientFloor, 1.0f, skyLight01);
+
+    float3 skyAmbient = ambientColor.rgb * skyAmbientFactor;
+    float3 sunDirect = direct * shadowFactor;
+    
     // 낮에는 태양광이 우세, 밤에는 local light가 우세
-    float3 lighting = ambient + max(shadowedDirect, localLight);
+    float3 lighting = skyAmbient + max(sunDirect, localLight);
+
+    //float3 lighting = ambient + max(shadowedDirect, localLight);
 
     return float4(albedo * lighting, alpha);
 }

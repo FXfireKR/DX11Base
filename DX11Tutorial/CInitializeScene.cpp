@@ -81,7 +81,7 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 	const uint64_t shadowShaderID = fnv1a_64("ShadowDepth");
 	const uint64_t highlightShaderID = fnv1a_64("Highlight");
 	const uint64_t uiShaderID = fnv1a_64("UIInvertMask");
-	const uint64_t skyShaderID = fnv1a_64("SkyBillboardPipeline");
+	const uint64_t skyShaderID = fnv1a_64("SkyBillboard");
 	const uint64_t skyCloudShaderID = fnv1a_64("SkyCloud");
 	const uint64_t skyStarShaderID = fnv1a_64("SkyStar");
 
@@ -234,7 +234,7 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 
 	// 9) sky billboard
 	{
-		auto pipeID = pipelineManager.Create(fnv1a_64("BillbaordPipeline"));
+		auto pipeID = pipelineManager.Create(fnv1a_64("SkyBillboardPipeline"));
 		auto* pipeline = pipelineManager.Get(pipeID);
 		pipeline->SetShader(shaderManager.Get(skyShaderID, 0));
 		pipeline->SetInputLayout(ilManager.Get(skyLayoutID));
