@@ -51,6 +51,34 @@ void CHeightmapChunkGenerator::GenerateColumn(CChunkColumn& column) const
 			const int h = _SampleTerrainHeight(wx, wz);
 			const int clampedTop = std::min(h, CHUNK_SIZE_Y - 1);
 
+#ifdef OPTIMIZATION_CHUNK_BUILD_SYSTEM
+			for (int wy = 0; wy <= clampedTop; ++wy)
+			{
+				BlockCell cell = m_stone;
+
+				if (wy == 0)
+				{
+					cell = m_bedrock;
+				}
+				else if (wy == h)
+				{
+					cell = m_grass;
+				}
+				else if (wy >= h - 2)
+				{
+					cell = m_dirt;
+				}
+
+				const int sy = wy / CHUNK_SECTION_SIZE;
+				const int ly = wy % CHUNK_SECTION_SIZE;
+
+				CChunkSection* pSection = column.EnsureSection(sy);
+				if (!pSection)
+					continue;
+
+				pSection->SetBlock(lx, ly, lz, cell);
+			}
+#else // OPTIMIZATION_CHUNK_BUILD_SYSTEM
 			for (int wy = 0; wy <= clampedTop; ++wy)
 			{
 				const BlockCell cell = SampleBlock(wx, wy, wz);
@@ -66,6 +94,7 @@ void CHeightmapChunkGenerator::GenerateColumn(CChunkColumn& column) const
 
 				pSection->SetBlock(lx, ly, lz, cell);
 			}
+#endif // OPTIMIZATION_CHUNK_BUILD_SYSTEM
 		}
 	}
 }

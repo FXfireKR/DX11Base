@@ -360,6 +360,46 @@ bool CChunkWorld::CanRaycastHit(const BlockCell& cell) const
 
 BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
 {
+#ifdef OPTIMIZATION_CHUNK_BUILD_SYSTEM
+	if (wy < 0 || wy >= CHUNK_SIZE_Y)
+		return { 0, 0 };
+
+	// 1. 수정 데이터가 최우선
+	BlockCell modified{};
+	if (_TryGetModifiedBlock(wx, wy, wz, modified))
+		return modified;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (_WorldToSectionLocal(
+		wx, wy, wz,
+		cx, sy, cz,
+		lx, ly, lz))
+	{
+		const CChunkColumn* pColumn =
+			_FindColumn(cx, cz);
+
+		// 이미 생성된 Column이면
+		// procedural generator를 다시 호출하지 않고
+		// resident cache에서 읽는다.
+		if (pColumn && pColumn->IsGenerated())
+		{
+			const CChunkSection* pSection =
+				pColumn->GetSection(sy);
+
+			// 생성된 Column에 Section 자체가 없다는 것은
+			// 해당 공간이 전부 Air라는 의미.
+			if (nullptr == pSection)
+				return { 0, 0 };
+
+			return pSection->GetBlock(lx, ly, lz);
+		}
+	}
+
+	// 아직 생성되지 않은 외부 Chunk만 procedural fallback
+	return _GetBaseBlock(wx, wy, wz);
+#else // OPTIMIZATION_CHUNK_BUILD_SYSTEM
 	if (wy < 0 || wy >= CHUNK_SIZE_Y)
 		return { 0, 0 };
 
@@ -368,6 +408,7 @@ BlockCell CChunkWorld::GetBlock(int wx, int wy, int wz) const
 		return modified;
 
 	return _GetBaseBlock(wx, wy, wz);
+#endif // OPTIMIZATION_CHUNK_BUILD_SYSTEM
 }
 
 bool CChunkWorld::IsSolid(const BlockCell& cell) const
