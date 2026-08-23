@@ -513,7 +513,9 @@ bool CChunkWorld::SetBlock(int wx, int wy, int wz, const BlockCell& newCell)
 		_MarkLightDirty(cx, sy, cz + 1);
 	}
 
+	_UpdateSkyExposureOnBlockChanged(wx, wy, wz, oldFinal, newCell);
 	_UpdateBlockLightOnBlockChanged(wx, wy, wz, oldFinal, newCell);
+
 	_ValidateAttachmentAround(wx, wy, wz);
 
 	dbg.AddBlockEdit();
