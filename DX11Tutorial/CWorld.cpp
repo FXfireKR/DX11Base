@@ -28,12 +28,25 @@ void CWorld::Update(float fDelta, XMFLOAT3 pos)
 	m_worldTime.Update(fDelta);
 
 	m_pChunkWorld->DebugProcessReloadRequest();
-	m_pChunkWorld->UpdateStreaming(fDelta, pos);
+
+	float streamingMs = 0.f;
+	{
+		CScopedCpuTimer timer(streamingMs);
+		m_pChunkWorld->UpdateStreaming(fDelta, pos);
+	}
+
+	dbg.SetStreamingMs(streamingMs);
 }
 
 void CWorld::LateUpdate(CScene& scene)
 {
-	CChunkMesherSystem::RebuildDirtyChunks(scene, *m_pChunkWorld);
+	float meshingMs = 0.f;
+	{
+		CScopedCpuTimer timer(meshingMs);
+		CChunkMesherSystem::RebuildDirtyChunks(scene, *m_pChunkWorld);
+	}
+
+	dbg.SetMeshingMs(meshingMs);
 }
 
 bool CWorld::RaycastBlock(IN const XMFLOAT3& origin, const XMFLOAT3& dirNorm, float maxDist, OUT BlockHitResult& outHitResult) const

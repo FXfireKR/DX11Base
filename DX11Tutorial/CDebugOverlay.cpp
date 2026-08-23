@@ -26,6 +26,80 @@ void CDebugOverlay::Render()
         ImGui::PlotLines("Frame ms", h.frameMs, DebugHistory::kMaxSamples, h.head, nullptr, 0.f, 60.f, ImVec2(320, 80));
     }
 
+    if (ImGui::CollapsingHeader(
+        "Streaming / Meshing",
+        ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text(
+            "Streaming Total : %.3f ms",
+            s.world.streamingMs);
+
+        ImGui::Separator();
+
+        ImGui::Text(
+            "Preload         : %.3f ms (%d)",
+            s.world.preloadMs,
+            s.world.preloadCountThisFrame);
+
+        ImGui::Text(
+            "Hotload         : %.3f ms (%d)",
+            s.world.hotloadMs,
+            s.world.hotloadCountThisFrame);
+
+        ImGui::Text(
+            "Full Relight    : %.3f ms (%d)",
+            s.world.fullRelightMs,
+            s.world.fullRelightCountThisFrame);
+
+        ImGui::Separator();
+
+        ImGui::Text(
+            "Meshing Total   : %.3f ms",
+            s.world.meshingMs);
+
+        ImGui::Text(
+            "Mesh Build      : %.3f ms",
+            s.world.meshBuildMs);
+
+        ImGui::Text(
+            "Mesh Upload     : %.3f ms",
+            s.world.meshUploadMs);
+
+        ImGui::Text(
+            "Rebuilt Sections: %d",
+            s.world.rebuiltThisFrameCount);
+
+        ImGui::PlotLines(
+            "Streaming ms",
+            h.streamingMs,
+            DebugHistory::kMaxSamples,
+            h.head,
+            nullptr,
+            0.f,
+            40.f,
+            ImVec2(320, 60));
+
+        ImGui::PlotLines(
+            "Meshing ms",
+            h.meshingMs,
+            DebugHistory::kMaxSamples,
+            h.head,
+            nullptr,
+            0.f,
+            40.f,
+            ImVec2(320, 60));
+
+        ImGui::PlotLines(
+            "Full Relight ms",
+            h.fullRelightMs,
+            DebugHistory::kMaxSamples,
+            h.head,
+            nullptr,
+            0.f,
+            40.f,
+            ImVec2(320, 60));
+    }
+
     if (ImGui::CollapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Text("Loaded Columns        : %d", s.world.loadedColumnCount);

@@ -25,6 +25,10 @@ struct DebugHistory
     float visibleSections[kMaxSamples] = {};
     float rebuildQueue[kMaxSamples] = {};
 
+    float streamingMs[kMaxSamples] = {};
+    float meshingMs[kMaxSamples] = {};
+    float fullRelightMs[kMaxSamples] = {};
+
     int head = 0;
 };
 
@@ -47,6 +51,24 @@ struct WorldDebugStats
     int chunkLoadCountThisFrame = 0;
     int chunkUnloadCountThisFrame = 0;
     int blockEditCountThisFrame = 0;
+
+    // -------------------------------------------------
+    // Streaming / Background Work
+    // -------------------------------------------------
+
+    float streamingMs = 0.f;
+
+    float preloadMs = 0.f;
+    float hotloadMs = 0.f;
+    float fullRelightMs = 0.f;
+
+    int preloadCountThisFrame = 0;
+    int hotloadCountThisFrame = 0;
+    int fullRelightCountThisFrame = 0;
+
+    float meshingMs = 0.f;
+    float meshBuildMs = 0.f;
+    float meshUploadMs = 0.f;
 };
 
 struct RenderDebugStats

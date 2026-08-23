@@ -56,6 +56,15 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 
 	bool bStreamChanged = false;
 
+	// 계측용 변수들
+	float preloadMs = 0.f;
+	float hotloadMs = 0.f;
+	float fullRelightMs = 0.f;
+
+	int preloadCount = 0;
+	int hotloadCount = 0;
+	int fullRelightCount = 0;
+
 #ifdef OPTIMIZATION_2
 	const int hotRadius = m_iStreamRadius;
 	const int warmRadius = m_iStreamRadius + m_iWarmRadiusOffset;
@@ -88,7 +97,16 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 					if ((!pColumn || !pColumn->IsGenerated()) &&
 						preloadBudget > 0)
 					{
-						_PreloadColumn(cx, cz);
+						float onePreloadMs = 0.f;
+						{
+							CScopedCpuTimer timer(onePreloadMs);
+
+							_PreloadColumn(cx, cz);
+						}
+
+						preloadMs += onePreloadMs;
+						++preloadCount;
+
 						--preloadBudget;
 						bStreamChanged = true;
 
@@ -100,7 +118,16 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 						!pColumn->IsActive() &&
 						hotloadBudget > 0)
 					{
-						_HotloadColumn(cx, cz);
+						float oneHotloadMs = 0.f;
+						{
+							CScopedCpuTimer timer(oneHotloadMs);
+
+							_HotloadColumn(cx, cz);
+						}
+
+						hotloadMs += oneHotloadMs;
+						++hotloadCount;
+
 						--hotloadBudget;
 						bStreamChanged = true;
 					}
@@ -195,7 +222,13 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 
 		if (m_bPendingFullRelight && !bStreamChanged)
 		{
-			_RebuildActiveBlockLightCache();
+			{
+				CScopedCpuTimer timer(fullRelightMs);
+				_RebuildActiveBlockLightCache();
+			}
+
+			++fullRelightCount;
+
 			m_bPendingFullRelight = false;
 		}
 
@@ -263,6 +296,14 @@ void CChunkWorld::UpdateStreaming(float fDelta, const XMFLOAT3& playerWorldPos)
 
 	_UpdateDebugStats();
 #endif // OPTIMIZATION_2
+
+	dbg.SetPreloadMs(preloadMs);
+	dbg.SetHotloadMs(hotloadMs);
+	dbg.SetFullRelightMs(fullRelightMs);
+
+	dbg.SetPreloadCount(preloadCount);
+	dbg.SetHotloadCount(hotloadCount);
+	dbg.SetFullRelightCount(fullRelightCount);
 }
 
 bool CChunkWorld::PopDirty(SectionCoord& outSectionCoord)

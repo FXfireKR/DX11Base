@@ -35,6 +35,18 @@ public:
     inline void SetModifiedColumnCount(int count) { m_snapshot.world.modifiedColumnCount = count; }
     inline void SetModifiedCellCount(int count) { m_snapshot.world.modifiedCellCount = count; }
 
+    inline void SetStreamingMs(float ms) { m_snapshot.world.streamingMs = ms; }
+    inline void SetPreloadMs(float ms) { m_snapshot.world.preloadMs = ms; }
+    inline void SetHotloadMs(float ms) { m_snapshot.world.hotloadMs = ms; }
+    inline void SetFullRelightMs(float ms) { m_snapshot.world.fullRelightMs = ms; }
+
+    inline void SetMeshingMs(float ms) { m_snapshot.world.meshingMs = ms; }
+    inline void SetMeshBuildMs(float ms) { m_snapshot.world.meshBuildMs = ms; }
+    inline void SetMeshUploadMs(float ms) { m_snapshot.world.meshUploadMs = ms; }
+    inline void SetPreloadCount(int count) { m_snapshot.world.preloadCountThisFrame = count; }
+    inline void SetHotloadCount(int count) { m_snapshot.world.hotloadCountThisFrame = count; }
+    inline void SetFullRelightCount(int count) { m_snapshot.world.fullRelightCountThisFrame = count; }
+
     void AddChunkLoad(int count = 1);
     void AddChunkUnload(int count = 1);
     void AddBlockEdit(int count = 1);

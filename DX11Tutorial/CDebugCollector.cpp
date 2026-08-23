@@ -145,6 +145,20 @@ void CDebugCollector::_ResetPerFrameCounters()
     //m_snapshot.world.hiddenSectionCount = 0;
     //m_snapshot.world.culledSectionCount = 0;
 
+    m_snapshot.world.streamingMs = 0.f;
+
+    m_snapshot.world.preloadMs = 0.f;
+    m_snapshot.world.hotloadMs = 0.f;
+    m_snapshot.world.fullRelightMs = 0.f;
+
+    m_snapshot.world.preloadCountThisFrame = 0;
+    m_snapshot.world.hotloadCountThisFrame = 0;
+    m_snapshot.world.fullRelightCountThisFrame = 0;
+
+    m_snapshot.world.meshingMs = 0.f;
+    m_snapshot.world.meshBuildMs = 0.f;
+    m_snapshot.world.meshUploadMs = 0.f;
+
     m_snapshot.render.submittedRenderItemCount = 0;
     m_snapshot.render.drawCallCount = 0;
     m_snapshot.render.drawCallCountOpaque = 0;
@@ -173,6 +187,9 @@ void CDebugCollector::_PushHistory()
     m_history.drawCalls[idx] = static_cast<float>(m_displayShot.render.drawCallCount);
     m_history.visibleSections[idx] = static_cast<float>(m_displayShot.world.visibleSectionCount);
     m_history.rebuildQueue[idx] = static_cast<float>(m_displayShot.world.rebuildQueuedCount);
+    m_history.streamingMs[idx] = m_displayShot.world.streamingMs;
+    m_history.meshingMs[idx] = m_displayShot.world.meshingMs;
+    m_history.fullRelightMs[idx] = m_displayShot.world.fullRelightMs;
 
     m_history.head = (m_history.head + 1) % DebugHistory::kMaxSamples;
 }
