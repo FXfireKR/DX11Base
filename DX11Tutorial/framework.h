@@ -151,6 +151,14 @@ constexpr unsigned long INIT_SCREEN_SIZE_Y = 1440;
 extern unsigned long g_ScreenSizeX;
 extern unsigned long g_ScreenSizeY;
 
+//#define _DEBUG_INNER_TEST_BUILD
+
+#ifdef _DEBUG_INNER_TEST_BUILD 
+#define ROOT_RESOURCE_PATH "../Resource/"
+#else // _DEBUG_INNER_TEST_BUILD
+#define ROOT_RESOURCE_PATH "Resource/"
+#endif // _DEBUG_INNER_TEST_BUILD
+
 #include "util.h"
 
 struct UVRect

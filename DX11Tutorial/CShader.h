@@ -1,7 +1,11 @@
 ﻿#pragma once
 #include "ShaderTypes.h"
 
+#ifdef _DEBUG_INNER_TEST_BUILD
 constexpr const char* SHADER_BASE_PATH = "../Shader/";
+#else // _DEBUG_INNER_TEST_BUILD
+constexpr const char* SHADER_BASE_PATH = "Shader/";
+#endif // _DEBUG_INNER_TEST_BUILD
 
 enum class SHADER_COMPILE_STATE
 {

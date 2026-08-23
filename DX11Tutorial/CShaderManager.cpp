@@ -151,7 +151,11 @@ void CShaderManager::IsCompileDone() const
 void CShaderManager::_LoadShaderDescs()
  {
 	 // 하드 경로는 나중에 ini로 빼자
+#ifdef _DEBUG_INNER_TEST_BUILD
 	 filesystem::path shaderDataPath = std::filesystem::current_path().parent_path();
+#else // _DEBUG_INNER_TEST_BUILD
+	filesystem::path shaderDataPath = std::filesystem::current_path();
+#endif // _DEBUG_INNER_TEST_BUILD
 	 shaderDataPath = shaderDataPath / "Shader/shaders.json";
 
 	 ifstream jsonFile(shaderDataPath.string(), std::ios::binary);

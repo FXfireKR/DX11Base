@@ -87,7 +87,11 @@ void CGameScene::Awake()
 
 	m_cloudLayer.Initialize(
 		GetRenderWorld(),
+#ifdef _DEBUG_INNER_TEST_BUILD
 		L"../Resource/assets/minecraft/textures/environment/clouds.png");
+#else // _DEBUG_INNER_TEST_BUILD
+		L"Resource/assets/minecraft/textures/environment/clouds.png");
+#endif // _DEBUG_INNER_TEST_BUILD
 
 	m_bSpawnStreamingReady = false;
 
@@ -521,11 +525,8 @@ void CGameScene::_CreateSkyBillboardResources()
 		m_pSunBillboardMaterial = materialManager.Get(materialManager.Create(fnv1a_64("SunBillboardMaterial")));
 		m_pMoonBillboardMaterial = materialManager.Get(materialManager.Create(fnv1a_64("MoonBillboardMaterial")));
 
-		uint64_t sunTextureID = textureManager.LoadTexture2D(fnv1a_64("sun"), "../Resource/assets/minecraft/textures/environment/celestial/sun.png"
-			, TEXTURE_USAGE::StaticColor);
-
-		uint64_t moonTextureID = textureManager.LoadTexture2D(fnv1a_64("moon"), "../Resource/assets/minecraft/textures/environment/celestial/moon/full_moon.png"
-			, TEXTURE_USAGE::StaticColor);
+		uint64_t sunTextureID = fnv1a_64("sun");
+		uint64_t moonTextureID = fnv1a_64("moon");
 
 		const uint64_t samplerID = samplerManager.Create(SAMPLER_TYPE::POINT_CLAMP);
 

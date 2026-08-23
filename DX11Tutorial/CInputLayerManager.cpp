@@ -21,8 +21,6 @@ uint32_t CInputLayerManager::Create(const VertexLayoutDesc& layoutDesc_, const S
     newData.shaderKey = shaderKey_;
     newData.data = make_unique<CInputLayer>();
 
-    
-
     const HRESULT hr = newData.data->Create(m_pDevice, layoutDesc_, pVertexBlob->GetBufferPointer(), pVertexBlob->GetBufferSize());
     if (FAILED(hr))
     {

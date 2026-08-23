@@ -39,6 +39,10 @@ HRESULT CInputLayer::Create(ID3D11Device* const pDevice_, const VertexLayoutDesc
 		layout[i].InstanceDataStepRate = elem.uInstanceDataStepRate;
 	}
 
-	return pDevice_->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_
+	HRESULT hr = pDevice_->CreateInputLayout(layout.data(), uElemSize, pShaderByteCode_
 		, pShaderBufferSize_, m_pInputLayout.GetAddressOf());
+
+	assert(SUCCEEDED(hr));
+
+	return hr;
 }

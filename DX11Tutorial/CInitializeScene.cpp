@@ -4,8 +4,8 @@
 
 void CInitializeScene::Awake()
 {
-	BlockDB.Initialize("../Resource/");
-	BlockResDB.Initialize("../Resource/", GetRenderWorld().GetDevice());
+	BlockDB.Initialize(ROOT_RESOURCE_PATH);
+	BlockResDB.Initialize(ROOT_RESOURCE_PATH, GetRenderWorld().GetDevice());
 }
 
 void CInitializeScene::Update(float fDelta)
@@ -223,9 +223,12 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 		auto matID = materialManager.Create(fnv1a_64("UICrosshairMaterial"));
 		auto* mat = materialManager.Get(matID);
 
+		std::string strCrossHairPath = ROOT_RESOURCE_PATH;
+		strCrossHairPath += "assets/minecraft/textures/gui/sprites/hud/crosshair.png";
+
 		const uint64_t texID = textureManager.LoadTexture2D(
 			fnv1a_64("ui/crosshair"),
-			"../Resource/assets/minecraft/textures/gui/sprites/hud/crosshair.png",
+			strCrossHairPath.c_str(),
 			TEXTURE_USAGE::StaticColor);
 
 		mat->SetSampler(0, samplerManager.Get(linearWarpSamplerID)->Get());
@@ -246,14 +249,19 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 		auto* sunMat = materialManager.Ensure(fnv1a_64("SunBillboardMaterial"));
 		auto* moonMat = materialManager.Ensure(fnv1a_64("MoonBillboardMaterial"));
 
+		std::string strSkyBillboardPath = ROOT_RESOURCE_PATH;
+		strSkyBillboardPath += "assets/minecraft/textures/environment/celestial/sun.png";
+
 		const uint64_t sunTexID = textureManager.LoadTexture2D(
 			fnv1a_64("sun"),
-			"../Resource/assets/minecraft/textures/environment/celestial/sun.png",
+			strSkyBillboardPath.c_str(),
 			TEXTURE_USAGE::StaticColor);
 
+		strSkyBillboardPath = ROOT_RESOURCE_PATH;
+		strSkyBillboardPath += "assets/minecraft/textures/environment/celestial/moon/full_moon.png";
 		const uint64_t moonTexID = textureManager.LoadTexture2D(
 			fnv1a_64("moon"),
-			"../Resource/assets/minecraft/textures/environment/celestial/moon/full_moon.png",
+			strSkyBillboardPath.c_str(),
 			TEXTURE_USAGE::StaticColor);
 
 		sunMat->SetSampler(0, samplerManager.Get(pointWrapSamplerID)->Get());

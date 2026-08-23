@@ -26,7 +26,7 @@ bool CBlockCrackRenderer::Initialize(CRenderWorld& rw)
     shaderManager.Compile();
 
     const uint64_t layoutID =
-        ilManager.Create(VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { shaderID, 0 }, pShader->GetVertexBlob());
+        ilManager.Create(VERTEX_CHUNK::GetLayout(), { shaderID, 0 }, pShader->GetVertexBlob());
 
     const uint64_t pipeID = pipelineManager.Create(fnv1a_64("BlockCrackPipeline"));
     m_pPipeline = pipelineManager.Get(pipeID);
@@ -46,7 +46,11 @@ bool CBlockCrackRenderer::Initialize(CRenderWorld& rw)
         CMaterial* pMaterial = materialManager.Get(materialID);
 
         char texPath[256];
+#ifdef _DEBUG_INNER_TEST_BUILD
         sprintf_s(texPath, "../Resource/assets/minecraft/textures/block/destroy_stage_%d.png", i);
+#else // _DEBUG_INNER_TEST_BUILD
+        sprintf_s(texPath, "Resource/assets/minecraft/textures/block/destroy_stage_%d.png", i);
+#endif // _DEBUG_INNER_TEST_BUILD
 
         char texName[64];
         sprintf_s(texName, "destroy_stage_%d", i);
