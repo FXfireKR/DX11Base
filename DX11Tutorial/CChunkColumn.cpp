@@ -8,6 +8,7 @@ void CChunkColumn::Initialize(int cx, int cz)
 	m_bGenerated = false;
 	m_bModified = false;
 	m_uLastAccessTick = 0;
+	m_skyOccluderY.fill(-1);
 }
 
 void CChunkColumn::ResetSection(int sy)

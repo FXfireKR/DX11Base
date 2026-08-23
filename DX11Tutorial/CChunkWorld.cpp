@@ -657,6 +657,79 @@ bool CChunkWorld::IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const
 	return true;
 }
 
+uint8_t CChunkWorld::GetSkyLight(int wx, int wy, int wz) const
+{
+	if (wy < 0)
+		return 0;
+
+	if (wy >= CHUNK_SIZE_Y)
+		return 15;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+	{
+		return 0;
+	}
+
+	const CChunkColumn* pColumn = _FindColumn(cx, cz);
+
+	if (pColumn && pColumn->IsGenerated())
+	{
+		const int occluderY = pColumn->GetSkyOccluderY(lx, lz);
+
+		return (wy > occluderY) ? 15 : 0;
+	}
+
+	// 아직 Streaming되지 않은 Heightmap 영역. 현재 Generator는 Overhang이 없으므로 해당 높이가 Air라면 하늘에 노출된 것으로 간주 가능.
+	const BlockCell baseCell = _GetBaseBlock(wx, wy, wz);
+
+	return baseCell.IsAir() ? 15 : 0;
+}
+
+VoxelLightSample CChunkWorld::GetLightSample(int wx, int wy, int wz) const
+{
+	if (wy < 0)
+		return { 0, 0 };
+
+	if (wy >= CHUNK_SIZE_Y)
+		return { 0, 15 };
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(
+		wx, wy, wz,
+		cx, sy, cz,
+		lx, ly, lz))
+	{
+		return {};
+	}
+
+	const CChunkColumn* column = _FindColumn(cx, cz);
+
+	if (column && column->IsGenerated())
+	{
+		uint8_t block = 0;
+		const CChunkLightSection* lightSection = column->GetBlockLightSection(sy);
+
+		if (lightSection)
+		{
+			block = lightSection->GetBlockLight(lx, ly, lz);
+		}
+
+		const int topY = column->GetSkyOccluderY(lx, lz);
+		const uint8_t sky = (wy > topY) ? 15 : 0;
+
+		return { block, sky };
+	}
+
+	// Procedural fallback
+	const BlockCell base = _GetBaseBlock(wx, wy, wz);
+	return { 0, static_cast<uint8_t>(base.IsAir() ? 15 : 0) };
+}
+
 void CChunkWorld::DebugRequestReloadActiveColumns()
 {
 	if (m_debugReloadPhase != EDebugReloadPhase::NONE)
@@ -1498,25 +1571,33 @@ void CChunkWorld::_TouchLightDirtyByWorld(LightDirtyTouchSet& touched, int wx, i
 	int cx, sy, cz;
 	int lx, ly, lz;
 
-	if (!_WorldToSectionLocal(wx, wy, wz, cx, sy, cz, lx, ly, lz))
+	if (!_WorldToSectionLocal(
+		wx, wy, wz,
+		cx, sy, cz,
+		lx, ly, lz))
+	{
 		return;
+	}
 
-	touched.insert(_MakeLightDirtySectionKey(cx, sy, cz));
+	const int dxMin = (lx == 0) ? -1 : 0;
+	const int dxMax = (lx == CHUNK_SIZE_X - 1) ? 1 : 0;
 
-	if (lx == 0)
-		touched.insert(_MakeLightDirtySectionKey(cx - 1, sy, cz));
-	else if (lx == CHUNK_SIZE_X - 1)
-		touched.insert(_MakeLightDirtySectionKey(cx + 1, sy, cz));
+	const int dyMin = (ly == 0 && sy > 0) ? -1 : 0;
+	const int dyMax = (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1) ? 1 : 0;
 
-	if (ly == 0 && sy > 0)
-		touched.insert(_MakeLightDirtySectionKey(cx, sy - 1, cz));
-	else if (ly == CHUNK_SECTION_SIZE - 1 && sy < CHUNK_SECTION_COUNT - 1)
-		touched.insert(_MakeLightDirtySectionKey(cx, sy + 1, cz));
+	const int dzMin = (lz == 0) ? -1 : 0;
+	const int dzMax = (lz == CHUNK_SIZE_Z - 1) ? 1 : 0;
 
-	if (lz == 0)
-		touched.insert(_MakeLightDirtySectionKey(cx, sy, cz - 1));
-	else if (lz == CHUNK_SIZE_Z - 1)
-		touched.insert(_MakeLightDirtySectionKey(cx, sy, cz + 1));
+	for (int dz = dzMin; dz <= dzMax; ++dz)
+	{
+		for (int dy = dyMin; dy <= dyMax; ++dy)
+		{
+			for (int dx = dxMin; dx <= dxMax; ++dx)
+			{
+				touched.insert(_MakeLightDirtySectionKey(cx + dx, sy + dy, cz + dz));
+			}
+		}
+	}
 }
 
 void CChunkWorld::_FlushTouchedLightDirty(const LightDirtyTouchSet& touched)
@@ -1702,6 +1783,113 @@ void CChunkWorld::_RelightBlockLightAround(int wx, int wy, int wz, LightDirtyTou
 			_PropagateBlockLightAdd(nx, ny, nz, neighborLight, touched);
 		}
 	}
+}
+
+bool CChunkWorld::_CanSkyLightPassThrough(const BlockCell& cell) const
+{
+	if (cell.IsAir())
+		return true;
+
+	return !BlockDB.IsFaceOccluder(cell.blockID);
+}
+
+int CChunkWorld::_FindTopSkyOccluderY(const CChunkColumn& column, int lx, int lz) const
+{
+	for (int wy = CHUNK_SIZE_Y - 1;
+		wy >= 0;
+		--wy)
+	{
+		const int sy =
+			wy / CHUNK_SECTION_SIZE;
+
+		const int ly =
+			wy % CHUNK_SECTION_SIZE;
+
+		const CChunkSection* section =
+			column.GetSection(sy);
+
+		if (!section)
+			continue;
+
+		const BlockCell cell =
+			section->GetBlock(
+				lx, ly, lz);
+
+		if (!_CanSkyLightPassThrough(cell))
+			return wy;
+	}
+
+	return -1;
+}
+
+void CChunkWorld::_UpdateSkyExposureOnBlockChanged(int wx, int wy, int wz, const BlockCell& oldCell, const BlockCell& newCell)
+{
+	const bool oldPass = _CanSkyLightPassThrough(oldCell);
+	const bool newPass = _CanSkyLightPassThrough(newCell);
+
+	// stone -> dirt 같은 변경은
+	// Sky Exposure에 영향 없음.
+	if (oldPass == newPass)
+		return;
+
+	int cx, sy, cz;
+	int lx, ly, lz;
+
+	if (!_WorldToSectionLocal(
+		wx, wy, wz,
+		cx, sy, cz,
+		lx, ly, lz))
+	{
+		return;
+	}
+
+	CChunkColumn* column =
+		_FindColumn(cx, cz);
+
+	if (!column ||
+		!column->IsGenerated())
+	{
+		return;
+	}
+
+	const int oldTop =
+		column->GetSkyOccluderY(lx, lz);
+
+	const int newTop =
+		_FindTopSkyOccluderY(
+			*column,
+			lx,
+			lz);
+
+	if (oldTop == newTop)
+		return;
+
+	column->SetSkyOccluderY(
+		lx,
+		lz,
+		newTop);
+
+	// 이 영역의 Vertex Lighting이 바뀜.
+	LightDirtyTouchSet touched;
+
+	const int beginY =
+		std::min(oldTop, newTop) + 1;
+
+	const int endY =
+		std::max(oldTop, newTop);
+
+	for (int y = beginY;
+		y <= endY;
+		++y)
+	{
+		_TouchLightDirtyByWorld(
+			touched,
+			wx,
+			y,
+			wz);
+	}
+
+	_FlushTouchedLightDirty(touched);
 }
 
 void CChunkWorld::_UpdateDebugStats()

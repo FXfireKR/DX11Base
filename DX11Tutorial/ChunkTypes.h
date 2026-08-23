@@ -61,7 +61,9 @@ struct ChunkRenderEntry
 	bool bIsVisible = false;
 };
 
-using ChunkMeshVertex = VERTEX_POSITION_NORMAL_UV_COLOR;
+//using ChunkMeshVertex = VERTEX_POSITION_NORMAL_UV_COLOR;
+using ChunkMeshVertex = VERTEX_CHUNK;
+
 
 struct ChunkMeshData
 {

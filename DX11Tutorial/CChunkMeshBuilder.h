@@ -89,4 +89,12 @@ private:
 		const FastCubeFaceCache& faceCache,
 		int wx, int wy, int wz, int lx, int ly, int lz,
 		ChunkMeshData& outMesh) const;
+
+    void _ResolveVertexLights(
+        const CChunkWorld& world,
+        const BakedQuad& quad,
+        int wx,
+        int wy,
+        int wz,
+        XMFLOAT2 outLights[4]) const;
 };

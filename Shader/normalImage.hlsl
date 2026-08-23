@@ -3,17 +3,23 @@ struct VS_INPUT
 {
     float3 position : POSITION;
     float3 normal   : NORMAL;
-    float2 uv       : TEXCOORD;
-    float4 color    : COLOR;
+    float2 uv       : TEXCOORD0;
+    float4 color    : COLOR0;
+
+    // x = block light
+    // y = sky light
+    float2 light    : TEXCOORD1;
 };
 
 struct VS_OUTPUT
 {
-    float4 position : SV_POSITION;
-    float3 normalWS : TEXCOORD1;
-    float2 uv       : TEXCOORD0;
-    float4 color    : COLOR;
-    float4 shadowPos: TEXCOORD2;
+    float4 position  : SV_POSITION;
+    float3 normalWS  : TEXCOORD1;
+    float2 uv        : TEXCOORD0;
+    float4 color     : COLOR0;
+    float4 shadowPos : TEXCOORD2;
+
+    float2 light     : TEXCOORD3;
 };
 
 cbuffer CBFrame : register(b0)
@@ -48,10 +54,11 @@ VS_OUTPUT VS(VS_INPUT input)
     output.position = projPos;
     output.uv = input.uv;
     output.color = input.color;
+    output.light = input.light;
 
     float3 normalWS = mul(input.normal, (float3x3)worldMatrix);
     output.normalWS = normalize(normalWS);
-
+    
     output.shadowPos = mul(worldPos, lightViewProj);
 
     return output;
@@ -115,7 +122,8 @@ float4 PS(VS_OUTPUT input) : SV_Target
     float4 tex0Color = texture0.Sample(sampler0, input.uv);
 
     float3 tint = input.color.rgb;
-    float blockLight01 = saturate(input.color.a);
+    float blockLight01 = saturate(input.light.x);
+    float skyLight01 = saturate(input.light.y);
 
     // alpha는 텍스처 alpha 그대로 사용
     float3 albedo = tex0Color.rgb * tint;
@@ -126,11 +134,24 @@ float4 PS(VS_OUTPUT input) : SV_Target
 
     float NdotL = saturate(dot(N, L));
 
+    // 동굴에서도 완전한 0은 남기지 않음.
+    const float caveAmbientFloor = 0.15f;
+
+    // 0 = 깊은 지하
+    // 1 = 완전 하늘 노출
+    float skyAmbientFactor = lerp(caveAmbientFloor, 1.0f, skyLight01);
+
+    float3 skyAmbient = ambientColor.rgb * skyAmbientFactor;
+
     float3 ambient = ambientColor.rgb;
     float3 direct = lightColorIntensity.rgb * (NdotL * lightColorIntensity.a);
 
     float shadowFactor = ComputeShadowFactor(input.shadowPos, N, L);
     float3 shadowedDirect = direct * shadowFactor;
+
+    // Sky 노출이 없으면
+    // 대낮이어도 태양 직사광을 받지 않는다.
+    float3 sunDirect = direct * shadowFactor * skyLight01;
 
     // torch / block light
     // 곡선을 살짝 세워서 중간 레벨도 체감되게
@@ -139,8 +160,10 @@ float4 PS(VS_OUTPUT input) : SV_Target
     // 따뜻한 계열 local light
     float3 localLight = float3(1.00f, 0.92f, 0.82f) * (localL * 1.20f);
 
-    // 낮에는 태양광이 우세, 밤에는 local light가 우세
-    float3 lighting = ambient + max(shadowedDirect, localLight);
+    // 우선 기존 스타일 유지.
+    // Sky/Block 구현 확인 후 Additive 조정.
+    float3 lighting = skyAmbient + max(sunDirect, localLight);
+
 
     return float4(albedo * lighting, alpha);
 }

@@ -51,6 +51,12 @@ const XMINT3 g_BlockLightDirs[6] =
 	{  0,  0, -1 },
 };
 
+struct VoxelLightSample
+{
+	uint8_t block = 0;
+	uint8_t sky = 0;
+};
+
 class CChunkWorld : public IBlockAccessor
 {
 public:
@@ -82,6 +88,9 @@ public:
 	CObject* FindRenderObject(int cx, int sy, int cz, EChunkSectionRenderSlot slot);
 
 	bool IsSpawnAreaReady(const XMFLOAT3& playerWorldPos) const;
+
+	uint8_t GetSkyLight(int wx, int wy, int wz) const;
+	VoxelLightSample GetLightSample(int wx, int wy, int wz) const;
 
 	void DebugRequestReloadActiveColumns();
 	void DebugProcessReloadRequest();
@@ -162,6 +171,10 @@ private:
 	void _PropagateBlockLightAdd(int wx, int wy, int wz, uint8_t emission, LightDirtyTouchSet& touched);
 	void _PropagateBlockLightRemove(int wx, int wy, int wz, LightDirtyTouchSet& touched);
 	void _RelightBlockLightAround(int wx, int wy, int wz, LightDirtyTouchSet& touched);
+
+	bool _CanSkyLightPassThrough(const BlockCell& cell) const;
+	int _FindTopSkyOccluderY(const CChunkColumn& column, int lx, int lz) const;
+	void _UpdateSkyExposureOnBlockChanged(int wx, int wy, int wz, const BlockCell& oldCell, const BlockCell& newCell);
 
 	void _UpdateDebugStats();
 

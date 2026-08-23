@@ -51,6 +51,8 @@ void CHeightmapChunkGenerator::GenerateColumn(CChunkColumn& column) const
 			const int h = _SampleTerrainHeight(wx, wz);
 			const int clampedTop = std::min(h, CHUNK_SIZE_Y - 1);
 
+			column.SetSkyOccluderY(lx, lz, clampedTop);
+
 #ifdef OPTIMIZATION_CHUNK_BUILD_SYSTEM
 			for (int wy = 0; wy <= clampedTop; ++wy)
 			{

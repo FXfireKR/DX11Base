@@ -193,7 +193,12 @@ bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& q
         return false;
 
     const uint32_t baseIndex = static_cast<uint32_t>(outMesh.vertices.size());
-    const XMFLOAT4 color = _ResolveQuadColor_DebugBlockLight(world, quad, wx, wy, wz);
+
+    //const XMFLOAT4 color = _ResolveQuadColor_DebugBlockLight(world, quad, wx, wy, wz);
+    const XMFLOAT4 tint = ResolveBlockTint(quad);
+
+    XMFLOAT2 vertexLights[4]{};
+    _ResolveVertexLights(world, quad, wx, wy, wz, vertexLights);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -202,7 +207,8 @@ bool CChunkMeshBuilder::_AppendQuad(const CChunkWorld& world, const BakedQuad& q
         v.position.y = quad.verts[i].pos.y + static_cast<float>(ly);
         v.position.z = quad.verts[i].pos.z + static_cast<float>(lz);
         v.normal = quad.verts[i].normal;
-        v.color = color;
+        v.color = tint;
+        v.light = vertexLights[i];
         v.uv = _RemapAtlasUV(region, quad.verts[i].uv);
         
         outMesh.vertices.push_back(v);
@@ -474,17 +480,22 @@ void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
     const uint8_t light = _ResolveQuadBlockLight(world, faceCache.quad, wx, wy, wz);
     const float blockLight01 = static_cast<float>(light) / 15.0f;
 
-    XMFLOAT4 tint = { 1.f, 1.f, 1.f, 1.f };
-    if (faceCache.tintIndex >= 0)
-        tint = { 0.55f, 0.74f, 0.32f, 1.f };
+    //XMFLOAT4 tint = { 1.f, 1.f, 1.f, 1.f };
+    //if (faceCache.tintIndex >= 0)
+    //    tint = { 0.55f, 0.74f, 0.32f, 1.f };
 
-    const XMFLOAT4 color =
-    {
-        tint.x,
-        tint.y,
-        tint.z,
-        blockLight01
-    };
+    //const XMFLOAT4 color =
+    //{
+    //    tint.x,
+    //    tint.y,
+    //    tint.z,
+    //    blockLight01
+    //};
+
+    const XMFLOAT4 tint = ResolveBlockTint(faceCache.quad);
+  
+    XMFLOAT2 vertexLights[4]{};
+    _ResolveVertexLights(world, faceCache.quad, wx, wy, wz, vertexLights);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -493,7 +504,9 @@ void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
         v.position.y = faceCache.quad.verts[i].pos.y + static_cast<float>(ly);
         v.position.z = faceCache.quad.verts[i].pos.z + static_cast<float>(lz);
         v.normal = faceCache.quad.verts[i].normal;
-        v.color = color;
+        //v.color = color;
+        v.color = tint;
+        v.light = vertexLights[i];
         v.uv = _RemapAtlasUV(faceCache.region, faceCache.quad.verts[i].uv);
         outMesh.vertices.push_back(v);
     }
@@ -504,4 +517,143 @@ void CChunkMeshBuilder::_AppendFastCubeFace(const CChunkWorld& world,
     outMesh.indices.push_back(baseIndex + 0);
     outMesh.indices.push_back(baseIndex + 2);
     outMesh.indices.push_back(baseIndex + 3);
+}
+
+void CChunkMeshBuilder::_ResolveVertexLights(
+    const CChunkWorld& world,
+    const BakedQuad& quad,
+    int wx,
+    int wy,
+    int wz,
+    XMFLOAT2 outLights[4]) const
+{
+    if (!quad.bHasCullFace)
+    {
+        const VoxelLightSample s = world.GetLightSample(wx, wy, wz);
+
+        const XMFLOAT2 light =
+        {
+            s.block / 15.0f,
+            s.sky / 15.0f
+        };
+
+        for (int i = 0; i < 4; ++i)
+            outLights[i] = light;
+
+        return;
+    }
+
+    const FACE_DIR face = static_cast<FACE_DIR>(quad.cullFaceDir);
+
+    XMINT3 n{};
+    XMINT3 u{};
+    XMINT3 v{};
+
+    switch (face)
+    {
+        case FACE_DIR::PX:
+        case FACE_DIR::NX:
+        {
+            n = FaceToNormalInt3(face);
+            u = { 0, 1, 0 };
+            v = { 0, 0, 1 };
+        } break;
+
+        case FACE_DIR::PY:
+        case FACE_DIR::NY:
+        {
+            n = FaceToNormalInt3(face);
+            u = { 1, 0, 0 };
+            v = { 0, 0, 1 };
+        } break;
+
+        case FACE_DIR::PZ:
+        case FACE_DIR::NZ:
+        {
+            n = FaceToNormalInt3(face);
+            u = { 1, 0, 0 };
+            v = { 0, 1, 0 };
+        } break;
+    }
+
+    VoxelLightSample grid[3][3]{};
+
+    // -1, 0, +1
+    for (int j = -1; j <= 1; ++j)
+    {
+        for (int i = -1; i <= 1; ++i)
+        {
+            grid[j + 1][i + 1] =
+                world.GetLightSample(
+                    wx + n.x
+                    + u.x * i
+                    + v.x * j,
+
+                    wy + n.y
+                    + u.y * i
+                    + v.y * j,
+
+                    wz + n.z
+                    + u.z * i
+                    + v.z * j);
+        }
+    }
+
+    for (int vertexIndex = 0; vertexIndex < 4; ++vertexIndex)
+    {
+        const XMFLOAT3& p = quad.verts[vertexIndex].pos;
+
+        float uCoord = 0.f;
+        float vCoord = 0.f;
+
+        switch (face)
+        {
+            case FACE_DIR::PX:
+            case FACE_DIR::NX:
+            {
+                uCoord = p.y;
+                vCoord = p.z;
+            } break;
+
+            case FACE_DIR::PY:
+            case FACE_DIR::NY:
+            {
+                uCoord = p.x;
+                vCoord = p.z;
+            } break;
+
+            case FACE_DIR::PZ:
+            case FACE_DIR::NZ:
+            {
+                uCoord = p.x;
+                vCoord = p.y;
+            } break;
+        }
+
+        const int ui = (uCoord < 0.5f) ? 0 : 2;
+        const int vi = (vCoord < 0.5f) ? 0 : 2;
+
+        const VoxelLightSample samples[4] =
+        {
+            grid[1][1],
+            grid[1][ui],
+            grid[vi][1],
+            grid[vi][ui]
+        };
+
+        float block = 0.f;
+        float sky = 0.f;
+
+        for (const auto& s : samples)
+        {
+            block += s.block;
+            sky += s.sky;
+        }
+
+        outLights[vertexIndex] =
+        {
+            block / (15.f * 4.f),
+            sky / (15.f * 4.f)
+        };
+    }
 }

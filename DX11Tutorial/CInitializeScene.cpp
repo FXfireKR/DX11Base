@@ -104,11 +104,11 @@ bool CInitializeScene::_WarmupGameSceneRenderResources()
 
 	// 3) input layout
 	const uint32_t normalLayoutID = ilManager.Create(
-		VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { normalShaderID, 0 },
+		VERTEX_CHUNK::GetLayout(), { normalShaderID, 0 },
 		shaderManager.Get(normalShaderID, 0)->GetVertexBlob());
 
 	const uint32_t cutoutLayoutID = ilManager.Create(
-		VERTEX_POSITION_NORMAL_UV_COLOR::GetLayout(), { cutoutShaderID, 0 },
+		VERTEX_CHUNK::GetLayout(), { cutoutShaderID, 0 },
 		shaderManager.Get(cutoutShaderID, 0)->GetVertexBlob());
 
 	const uint32_t shadowLayoutID = ilManager.Create(

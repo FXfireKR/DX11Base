@@ -1,13 +1,10 @@
 ﻿#pragma once
 #include "CChunkSection.h"
-// Ensure = Get or Create
-
 
 enum class EChunkResidency : uint8_t
 {
 	ACTIVE = 0,
 	RESIDENT,
-
 };
 
 class CChunkColumn
@@ -47,9 +44,15 @@ public:
 	inline uint64_t GetLastAccessTick() const { return m_uLastAccessTick; }
 	inline void SetLastAccessTick(uint64_t tick) { m_uLastAccessTick = tick; }
 
+	inline int GetSkyOccluderY(int lx, int lz) const { return m_skyOccluderY[lz * CHUNK_SIZE_X + lx]; }
+	inline void SetSkyOccluderY(int lx, int lz, int y) { m_skyOccluderY[lz * CHUNK_SIZE_X + lx] = static_cast<int16_t>(y); }
+
+
 private:
 	array<unique_ptr<CChunkSection>, CHUNK_SECTION_COUNT> m_sections;
 	array<unique_ptr<CChunkLightSection>, CHUNK_SECTION_COUNT> m_blockLightSections;
+	array<int16_t, CHUNK_SIZE_X* CHUNK_SIZE_Z> m_skyOccluderY{};
+
 
 	ChunkCoord m_coord{};
 	EChunkResidency m_eResidency = EChunkResidency::RESIDENT;
