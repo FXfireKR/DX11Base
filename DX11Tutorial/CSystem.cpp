@@ -51,6 +51,12 @@ void CWindowSystem::Run()
 	{
 		while (PeekMessage(&kMessage, NULL, 0, 0, PM_REMOVE))
 		{
+			if (kMessage.message == WM_QUIT)
+			{
+				m_bRunning = false;
+				break;
+			}
+
 			TranslateMessage(&kMessage);
 			DispatchMessage(&kMessage);
 		}
@@ -62,10 +68,6 @@ void CWindowSystem::Run()
 LRESULT CALLBACK CWindowSystem::WndHandler(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lParam_)
 {
 	return m_pApplication->WndProc(hWnd_, uMessage_, wParam_, lParam_);
-	/*switch (uMessage_)
-	{
-		default: return m_pApplication->WndProc(hWnd_, uMessage_, wParam_, lParam_);
-	}*/
 }
 
 void CWindowSystem::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
@@ -75,7 +77,7 @@ void CWindowSystem::_InitializeWindow(int& iScreenWidth_, int& iScreenHeight_)
 
 	g_pSystem = this;
 	m_hInstance = GetModuleHandle(NULL);
-	m_lpcWstrApkName = L"Minecraft like voxel v1";
+	m_lpcWstrApkName = L"DirectX11 3D Voxel Streaming chunk world";
 
 	WNDCLASSEXW wcex;
 	wcex.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -146,6 +148,11 @@ LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lPar
 	switch (uMessage_)
 	{
 		case WM_CLOSE:
+		{
+			DestroyWindow(hWnd_);
+			return 0;
+		}
+
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
@@ -153,8 +160,6 @@ LRESULT CALLBACK WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM lPar
 		}
 		
 		default:
-		{
 			return g_pSystem->WndHandler(hWnd_, uMessage_, wParam_, lParam_);
-		}
 	}
 }

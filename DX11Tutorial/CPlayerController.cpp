@@ -12,7 +12,7 @@
 
 void CPlayerController::Init()
 {
-	CInputManager::Get().Mouse().DisalbleMove();
+	CInputManager::Get().Mouse().DisableMove();
 	
 	m_fYaw = 0.f;
 	m_fPitch = 0.f;
@@ -110,7 +110,7 @@ void CPlayerController::_UpdateMouseLockToggle()
 	if (m_bUIMode)
 		mouse.EnalbleMove();
 	else
-		mouse.DisalbleMove();
+		mouse.DisableMove();
 }
 
 void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& outCmd) const

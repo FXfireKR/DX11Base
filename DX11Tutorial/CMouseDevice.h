@@ -20,6 +20,8 @@ public:
 	void OnRawInput(const RAWINPUT& raw) override;
 	void EndFrame() override;
 
+	void ReleaseCursor();
+
 	const bool GetKey(uint16_t vk) const;
 	const bool GetKeyDown(uint16_t vk) const;
 	const bool GetKeyUp(uint16_t vk) const;
@@ -37,7 +39,7 @@ public:
 		}
 		m_bMouseMoveLock = false;
 	}
-	inline const void DisalbleMove() { 
+	inline const void DisableMove() { 
 		if (m_bMouseMoveLock != true) {
 			m_bMouseCursorDirty = true;
 		}

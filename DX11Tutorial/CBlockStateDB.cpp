@@ -187,7 +187,8 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 	stateIndex = 0;
 
 	const BlockTypeDef* typeDef = _FindBlockType(blockID);
-	if (!typeDef) return false;
+	if (!typeDef) 
+		return false;
 
 	// 기본값은 전부 0 (즉, 각 property domain의 0번 값) props에 들어온 것만 덮어쓴다.
 	uint32_t state = 0;
@@ -234,7 +235,8 @@ bool CBlockStateDB::EncodeStateIndex(IN BLOCK_ID blockID, const BlockPropHashMap
 	}
 
 	// clamp (STATE_INDEX가 uint16_t 가정)
-	if (state > 65535u) state = 65535u;
+	if (state > 65535u) 
+		state = 65535u;
 
 	stateIndex = (STATE_INDEX)state;
 	return true;

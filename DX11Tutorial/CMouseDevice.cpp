@@ -62,6 +62,17 @@ void CMouseDevice::EndFrame()
 	}
 }
 
+void CMouseDevice::ReleaseCursor()
+{
+	m_bMouseMoveLock = false;
+	m_bMouseCursorDirty = false;
+
+	ClipCursor(nullptr);
+
+	// recover visible cnt
+	while (ShowCursor(TRUE) < 0) {}
+}
+
 const bool CMouseDevice::GetKey(uint16_t vk) const
 {
 	switch (vk)

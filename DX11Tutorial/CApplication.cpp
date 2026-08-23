@@ -27,6 +27,8 @@ bool Application::Initialize(HWND hWnd_, int iScreenWidth_, int iScreenHeight_)
 
 void Application::Release()
 {
+	CInputManager::Get().Mouse().ReleaseCursor();
+
 #ifdef IMGUI_ACTIVATE
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
