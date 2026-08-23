@@ -51,20 +51,34 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 	float fTotalBuildMs = 0.f;
 	float fTotalUploadMs = 0.f;
 
-	while (iRebuiltCount < MAX_SECTION_PER_FRAME && world.PopDirty(sectionCoord))
+	while (iRebuiltCount < MAX_SECTION_PER_FRAME)
 	{
+		// 최소 1개는 반드시 처리.
+		// 그 이후부터 time budget 확인.
 		if (iRebuiltCount >= MIN_SECTION_PER_FRAME)
 		{
 			LARGE_INTEGER now{};
 			QueryPerformanceCounter(&now);
 
-			const double elapsedMs = static_cast<double>(now.QuadPart - begin.QuadPart) * 1000.0 / static_cast<double>(freq.QuadPart);
+			const double elapsedMs =
+				static_cast<double>(now.QuadPart - begin.QuadPart)
+				* 1000.0
+				/ static_cast<double>(freq.QuadPart);
 
 			if (elapsedMs >= MESH_TIME_BUDGET_MS)
 				break;
 		}
 
-		CChunkSection* pSection = world.FindSectionDataMutable(sectionCoord.x, sectionCoord.y, sectionCoord.z);
+		// Budget이 남아 있을 때만 Queue에서 가져온다.
+		if (!world.PopDirty(sectionCoord))
+			break;
+
+		CChunkSection* pSection =
+			world.FindSectionDataMutable(
+				sectionCoord.x,
+				sectionCoord.y,
+				sectionCoord.z);
+
 		if (nullptr == pSection)
 			continue;
 
@@ -73,6 +87,7 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 		const bool bLightDirty = pSection->IsLightDirty();
 #endif // OPTIMIZATION_2
 
+		// 여기까지 왔으면 queue에서 정상 소비한 작업.
 		pSection->SetBuildQueued(false);
 
 #ifdef OPTIMIZATION_2
@@ -105,23 +120,17 @@ void CChunkMesherSystem::RebuildDirtyChunks(CScene& scene, CChunkWorld& world)
 			CScopedCpuTimer timer(uploadMs);
 
 			UploadSectionMesh(
-				scene,
-				world,
-				sectionCoord,
+				scene, world, sectionCoord,
 				EChunkSectionRenderSlot::OPAQUE_SLOT,
 				meshSet.opaque);
 
 			UploadSectionMesh(
-				scene,
-				world,
-				sectionCoord,
+				scene, world, sectionCoord,
 				EChunkSectionRenderSlot::CUTOUT_SLOT,
 				meshSet.cutout);
 
 			UploadSectionMesh(
-				scene,
-				world,
-				sectionCoord,
+				scene, world, sectionCoord,
 				EChunkSectionRenderSlot::TRANSLUCENT_SLOT,
 				meshSet.translucent);
 		}
