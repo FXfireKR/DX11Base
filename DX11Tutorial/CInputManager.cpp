@@ -10,7 +10,7 @@ void CInputManager::BeginFrame()
 	if (m_pMouse)
 		m_pMouse->BeginFrame();
 
-	if (m_pGamePad)
+	if (m_pKeyboard)
 		m_pKeyboard->BeginFrame();
 
 	if (m_pGamePad)
