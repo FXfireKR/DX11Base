@@ -65,22 +65,20 @@ LRESULT Application::WndProc(HWND hWnd_, UINT uMessage_, WPARAM wParam_, LPARAM 
 		case WM_INPUT :
 		{
 			UINT size = 0;
-			GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
-
-			static BYTE buffer[1024];
-			if (size > sizeof(buffer)) 
+			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == static_cast<UINT>(-1))
 				break;
 
-			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer, &size, sizeof(RAWINPUTHEADER)) != size) 
+			vector<BYTE> buffer(size);
+			if (GetRawInputData((HRAWINPUT)lParam_, RID_INPUT, buffer.data(), &size, sizeof(RAWINPUTHEADER)) != size)
 				break;
 
-			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(buffer);
-			m_rawInputDispatcher.Push(*raw);
+			buffer.resize(size);
+			m_rawInputDispatcher.Push(std::move(buffer));
 			return 0;
 		} break;
 
 		case WM_KEYUP: {
-			if (wParam_ == VK_ESCAPE) 
+			if (wParam_ == VK_ESCAPE)
 				DestroyWindow(hWnd_);
 		} break;
 	}
