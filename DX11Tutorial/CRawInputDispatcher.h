@@ -10,7 +10,7 @@ public:
 	~CRawInputDispatcher() = default;
 
 	void DispatchRawQueue();
-	void Push(const RAWINPUT& raw);
+	void Push(vector<BYTE>&& rawPacket);
 
 private:
 	void _OnRawInput(const RAWINPUT& raw);
@@ -25,5 +25,5 @@ private:
 	CKeyboardDevice m_keyBoard;
 	CGamePadHub m_gamePad;
 
-	queue<RAWINPUT> m_queueRawInput;
+	queue<vector<BYTE>> m_queueRawInput;
 };
