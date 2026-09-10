@@ -105,7 +105,9 @@ bool CGamePadHub::_CheckBTDeviceName(HANDLE device)
 bool CGamePadHub::_CheckDualSenseBt(const RAWINPUT& raw)
 {
 	const RAWHID& hid = raw.data.hid;
-	if (hid.dwSizeHid < 70) return false;
+	//if (hid.dwSizeHid < 70) 
+	//	return false;
+
 	const uint8_t* data = reinterpret_cast<const uint8_t*>(hid.bRawData);
 	return data[0] == 0x31;
 }
