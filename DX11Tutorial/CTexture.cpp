@@ -66,6 +66,8 @@ TextureCreateInfo CTexture::_GetCreateInfo(TEXTURE_USAGE eUsage_)
 
 bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext* const pContext_, const char* path_, TEXTURE_USAGE eUsage_)
 {
+	m_eUsage = eUsage_;
+
 	ComPtr<ID3D11Resource> pResource = nullptr;
 	TextureCreateInfo info = _GetCreateInfo(eUsage_);
 	wstring path = UTF8ToWstring(path_);
@@ -132,7 +134,7 @@ bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext*
 	if (FAILED(hr)) return false;
 	if (nullptr == m_pTexture) return false;
 
-	D3D11_TEXTURE2D_DESC desc;
+	D3D11_TEXTURE2D_DESC desc{};
 	m_pTexture->GetDesc(&desc);
 	
 	m_kDesc.format = desc.Format;
@@ -144,6 +146,8 @@ bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext*
 
 void CTexture2D::_CheckTextureSource(const char* path_)
 {
+	m_eTextureSource = TEXTURE_SOURCE::WIC;
+
 	filesystem::path texturePath(path_);
 	if (true == texturePath.has_extension()) {
 		string ext(texturePath.extension().string());
@@ -151,9 +155,6 @@ void CTexture2D::_CheckTextureSource(const char* path_)
 		
 		if (ext == ".dds") {
 			m_eTextureSource = TEXTURE_SOURCE::DDS;
-		}
-		else {
-			m_eTextureSource = TEXTURE_SOURCE::WIC;
 		}
 	}
 }

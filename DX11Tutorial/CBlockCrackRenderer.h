@@ -18,7 +18,7 @@ public:
     void Submit(CRenderWorld& rw);
 
 private:
-    void _BuildCrackCubeMesh(vector<VERTEX_POSITION_NORMAL_UV_COLOR>& outVerts, vector<uint32_t>& outIndices);
+    void _BuildCrackCubeMesh(vector<VERTEX_CHUNK>& outVerts, vector<uint32_t>& outIndices);
 
 private:
     CMesh* m_pMesh = nullptr;

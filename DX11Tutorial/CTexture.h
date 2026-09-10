@@ -63,8 +63,8 @@ protected:
 	ComPtr<ID3D11Texture2D> m_pTexture;
 	ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView;
 
-	TextureDesc m_kDesc;
-	TEXTURE_USAGE m_eUsage;
+	TextureDesc m_kDesc{};
+	TEXTURE_USAGE m_eUsage = TEXTURE_USAGE::StaticColor;
 };
 
 //class CTextureCube
@@ -79,7 +79,7 @@ private:
 	void _CheckTextureSource(const char* path_);
 
 private:
-	TEXTURE_SOURCE m_eTextureSource;
+	TEXTURE_SOURCE m_eTextureSource = TEXTURE_SOURCE::WIC;
 };
 
 class CRenderTexture : public CTexture

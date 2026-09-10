@@ -15,7 +15,7 @@ void CGamePadHub::EndFrame()
 	for (auto& kv : m_mapDevices)
 	{
 		if (kv.second)
-			kv.second->BeginFrame();
+			kv.second->EndFrame();
 	}
 }
 

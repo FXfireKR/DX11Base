@@ -106,7 +106,7 @@ void CBlockCrackRenderer::Submit(CRenderWorld& rw)
 
     if (!m_pMesh)
     {
-        vector<VERTEX_POSITION_NORMAL_UV_COLOR> verts;
+        vector<VERTEX_CHUNK> verts;
         vector<uint32_t> indices;
         _BuildCrackCubeMesh(verts, indices);
 
@@ -114,7 +114,7 @@ void CBlockCrackRenderer::Submit(CRenderWorld& rw)
             rw.GetContext(),
             m_uMeshKey,
             verts.data(),
-            sizeof(VERTEX_POSITION_NORMAL_UV_COLOR),
+            sizeof(VERTEX_CHUNK),
             static_cast<uint32_t>(verts.size()),
             indices.data(),
             static_cast<uint32_t>(indices.size()));
@@ -140,21 +140,22 @@ void CBlockCrackRenderer::Submit(CRenderWorld& rw)
     rw.Submit(item);
 }
 
-void CBlockCrackRenderer::_BuildCrackCubeMesh(vector<VERTEX_POSITION_NORMAL_UV_COLOR>& outVerts, vector<uint32_t>& outIndices)
+void CBlockCrackRenderer::_BuildCrackCubeMesh(vector<VERTEX_CHUNK>& outVerts, vector<uint32_t>& outIndices)
 {
     outVerts.clear();
     outIndices.clear();
 
     const XMFLOAT4 col = { 1.f, 1.f, 1.f, 1.f };
+    const XMFLOAT2 light = { 1.f, 1.f };
 
     auto AppendFace = [&](const XMFLOAT3& p0, const XMFLOAT3& p1, const XMFLOAT3& p2, const XMFLOAT3& p3, const XMFLOAT3& n)
         {
             const uint32_t base = static_cast<uint32_t>(outVerts.size());
 
-            outVerts.push_back({ p0, n, {0.f, 0.f}, col });
-            outVerts.push_back({ p1, n, {1.f, 0.f}, col });
-            outVerts.push_back({ p2, n, {0.f, 1.f}, col });
-            outVerts.push_back({ p3, n, {1.f, 1.f}, col });
+            outVerts.push_back({ p0, n, {0.f, 0.f}, col, light });
+            outVerts.push_back({ p1, n, {1.f, 0.f}, col, light });
+            outVerts.push_back({ p2, n, {0.f, 1.f}, col, light });
+            outVerts.push_back({ p3, n, {1.f, 1.f}, col, light });
 
             outIndices.push_back(base + 0);
             outIndices.push_back(base + 1);
