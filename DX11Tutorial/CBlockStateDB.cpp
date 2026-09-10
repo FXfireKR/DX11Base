@@ -135,7 +135,8 @@ bool CBlockStateDB::GetAppliedModels(IN BLOCK_ID blockID, STATE_INDEX stateIndex
 {
 	PROFILE_SCOPE();
 
-	//vecAppliedModels.clear();
+	// Do not trust caller when parameter is _OUT_
+	vecAppliedModels = nullptr;
 
 	const BlockTypeDef* typeDef = _FindBlockType(blockID);
 	const BlockStateDef* stateDef = _FindBlockState(blockID);
