@@ -134,7 +134,7 @@ bool CTexture2D::LoadFromFile(ID3D11Device* const pDevice_, ID3D11DeviceContext*
 	if (FAILED(hr)) return false;
 	if (nullptr == m_pTexture) return false;
 
-	D3D11_TEXTURE2D_DESC desc;
+	D3D11_TEXTURE2D_DESC desc{};
 	m_pTexture->GetDesc(&desc);
 	
 	m_kDesc.format = desc.Format;
@@ -223,6 +223,10 @@ bool CDepthTexture::Create(ID3D11Device* pDevice, uint32_t width, uint32_t heigh
 
 	HRESULT hr = pDevice->CreateTexture2D(&texDesc, nullptr, m_pTexture.GetAddressOf());
 	if (FAILED(hr)) return false;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
 	// Depth Stencil View
 	hr = pDevice->CreateDepthStencilView(m_pTexture.Get(), &dsvDesc, m_pDepthStencilView.GetAddressOf());
