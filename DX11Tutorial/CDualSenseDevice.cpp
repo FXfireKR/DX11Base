@@ -20,9 +20,6 @@ void CDualSenseDevice::OnRawInput(const RAWINPUT& raw)
 {
 	const RAWHID& hid = raw.data.hid;
 
-	//if (hid.dwSizeHid < 64) 
-	//	return;
-
 	m_uLastInputTime = GetTickCount64();
 
 	// Input Debuging

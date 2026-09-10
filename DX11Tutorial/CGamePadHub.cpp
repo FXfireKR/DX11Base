@@ -105,8 +105,10 @@ bool CGamePadHub::_CheckBTDeviceName(HANDLE device)
 bool CGamePadHub::_CheckDualSenseBt(const RAWINPUT& raw)
 {
 	const RAWHID& hid = raw.data.hid;
-	//if (hid.dwSizeHid < 70) 
-	//	return false;
+
+	// dwSizeHid * dwCount 로 데이터 사이즈가 정해진다.
+	if (hid.dwSizeHid < 1 || hid.dwCount == 0)
+		return false;
 
 	const uint8_t* data = reinterpret_cast<const uint8_t*>(hid.bRawData);
 	return data[0] == 0x31;
