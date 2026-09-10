@@ -51,8 +51,10 @@ namespace BlockRaycastUtil
 			(dirNorm.z > 0.f) ? 1 : ((dirNorm.z < 0.f) ? -1 : 0)
 		};
 
+		// !! not inverse direction !! / !! yes reciprocal !!
 		const DirectX::XMFLOAT3 invDiv =
 		{
+			// Inv -> 1 / dirNorm
 			SafeInv(dirNorm.x),
 			SafeInv(dirNorm.y),
 			SafeInv(dirNorm.z)
@@ -126,7 +128,7 @@ namespace BlockRaycastUtil
 				outResult.bHit = true;
 				outResult.block = coord;
 				outResult.prev = prevCell;
-				outResult.t = 0.f;
+				outResult.t = t;
 				outResult.cell = cell;
 
 				return true;
