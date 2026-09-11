@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "ObjectTypes.h"
 #include "Components.h"
 
@@ -13,6 +13,7 @@ public:
 	void Init();
 	void Start();
 	void CommitStart();
+	void InputUpdate(float fDelta);
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
@@ -58,7 +59,6 @@ public:
 		return nullptr;
 	}
 
-
 	void AddChild(OBJECT_ID uChildID_);
 
 public:
@@ -82,9 +82,9 @@ public:
 	inline const CScene* GetOwnScene() const { return m_pOwnScene; }
 
 private:
-	bool m_bAlive = true; // 이 오브젝트는 사용 안함 이라는 뜻
-	bool m_bEnable = true; // 활성/비활성 처리
-	bool m_bPeddingDestroy = false; // 이 오브젝트는 Update 이후 제거된다는 의미
+	bool m_bAlive = true;
+	bool m_bEnable = true;
+	bool m_bPeddingDestroy = false;
 
 	string m_strName = "";
 	OBJECT_ID m_uID = INVALID_OBJECT_ID;

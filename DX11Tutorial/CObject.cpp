@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CObject.h"
 
 void CObject::Init()
@@ -32,6 +32,20 @@ void CObject::CommitStart()
 
 		iter->Start();
 		iter->SetStarted(true);
+	}
+}
+
+void CObject::InputUpdate(float fDelta)
+{
+	for (const auto& iter : m_arrComponents)
+	{
+		if (!iter)
+			continue;
+
+		if (iter->GetAlive() && iter->GetEnable())
+		{
+			iter->InputUpdate(fDelta);
+		}
 	}
 }
 

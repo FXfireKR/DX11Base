@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CSceneManager.h"
 
 void CSceneManager::Initialize(CGameWorld& gameWorld)
@@ -42,6 +42,18 @@ void CSceneManager::ChangeScene(SCENE_TYPE eNext_)
 
 	m_eNextSceneType = eNext_;
 	m_eSceneChangeState = SCENE_CHANGE_STATE::UNLOADING;
+}
+
+void CSceneManager::InputUpdate(float fDelta)
+{
+	if (m_eCurrentSceneType == SCENE_TYPE::END_SCENE)
+		return;
+
+	CScene* pCurrent = _GetCurrent();
+	if (pCurrent)
+	{
+		pCurrent->InputUpdate(fDelta);
+	}
 }
 
 void CSceneManager::FixedUpdate(float fDelta)

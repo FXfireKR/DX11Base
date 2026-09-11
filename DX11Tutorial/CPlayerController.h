@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CComponentBase.h"
 #include "CBlockInteractor.h"
 #include "CInventoryComponent.h"
@@ -37,6 +37,7 @@ public:
 
 	void Init() override;
 	void Start() override;
+	void InputUpdate(float fDelta) override;
 	void Update(float fDelta) override;
 
 public:
@@ -75,7 +76,6 @@ private:
 	float m_fPitchLimitRad = XM_PIDIV2 - 0.05f;
 	float m_fPadLookSpeed = 2.4f;
 
-	// presentation
 	float m_fCameraBaseHeight = 1.5f;
 
 	float m_fHeadBobBlend = 0.f;
@@ -100,7 +100,6 @@ private:
 
 	bool m_bUIMode = false;
 
-	// Fov maker
 	float m_fBaseFov = XM_PI / 2.0f;
 	float m_fCurrentFov = XM_PI / 2.0f;
 

@@ -1,12 +1,12 @@
-﻿#pragma once
+#pragma once
 #include "SceneHeader.h"
 
 enum class SCENE_CHANGE_STATE : uint32_t
 {
 	NONE = 0,
-	UNLOADING,	// prev scene unload
-	LOADING,	// next scene load
-	ACTIVATING,	// current scene activate
+	UNLOADING,
+	LOADING,
+	ACTIVATING,
 };
 
 using SceneFactory = std::function<unique_ptr<CScene>()>;
@@ -25,6 +25,7 @@ public:
 
 	void ChangeScene(SCENE_TYPE eNext_);
 
+	void InputUpdate(float fDelta);
 	void FixedUpdate(float fDelta);
 	void Update(float fDelta);
 	void LateUpdate(float fDelta);
@@ -46,7 +47,7 @@ private:
 
 private:
 	unordered_map<SCENE_TYPE, SceneFactory> m_mapFactories;
-	array<unique_ptr<CScene>, SCENE_MAX_SIZE> m_arrayScene; // CScene의 own은 여기
+	array<unique_ptr<CScene>, SCENE_MAX_SIZE> m_arrayScene;
 
 	SCENE_CHANGE_STATE m_eSceneChangeState = SCENE_CHANGE_STATE::NONE;
 	SCENE_TYPE m_eCurrentSceneType = SCENE_TYPE::END_SCENE;

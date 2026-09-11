@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CCharacterMotor.h"
 #include "CWorld.h"
 #include "CBlockInteractor.h"
@@ -31,7 +31,7 @@ void CCharacterMotor::Start()
 	m_pOwnTransform = m_pOwner->GetComponent<CTransform>();
 }
 
-void CCharacterMotor::Update(float fDelta)
+void CCharacterMotor::FixedUpdate(float fDelta)
 {
 	if (nullptr == m_pOwnTransform || nullptr == m_pWorld) 
 		return;
@@ -93,6 +93,8 @@ void CCharacterMotor::GetCollisionAABB(XMFLOAT3& outCenter, XMFLOAT3& outHalfExt
 
 void CCharacterMotor::_AppluHorizontalMove(float fDelta)
 {
+	UNREFERENCED_PARAMETER(fDelta);
+
 	XMVECTOR forward = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 	XMVECTOR right = XMVectorSet(1.f, 0.f, 0.f, 0.f);
 	XMMATRIX yawRot = XMMatrixRotationY(m_fYaw);
@@ -153,7 +155,6 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 		m_velocity.z * fDelta,
 	};
 
-	// X
 	{
 		XMFLOAT3 testFoot = footPos;
 		testFoot.x += delta.x;
@@ -169,7 +170,6 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 		}
 	}
 
-	// Y
 	{
 		XMFLOAT3 testFoot = footPos;	
 		testFoot.y += delta.y;
@@ -190,7 +190,6 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 		}
 	}
 
-	// Z
 	{
 		XMFLOAT3 testFoot = footPos;
 		testFoot.z += delta.z;
@@ -211,16 +210,9 @@ void CCharacterMotor::_MoveWithCollision(float fDelta)
 
 void CCharacterMotor::_RefreshGrounded()
 {
-	/*if (m_velocity.y > 0.f)
-	{
-		m_bGrounded = false;
-		return;
-	}*/
-
 	XMFLOAT3 footPos = m_pOwnTransform->GetWorldTrans();
 
 	const XMFLOAT3 probeHalf = { m_fHalfWidth - 0.025f, 0.05f, m_fHalfWidth - 0.025f };
-	//const XMFLOAT3 probeHalf = { m_fHalfWidth * 0.45f, 0.05f, m_fHalfWidth * 0.45f };
 	const XMFLOAT3 probeCenter = { footPos.x, footPos.y - 0.05f, footPos.z };
 
 	const bool wasGrounded = m_bGrounded;

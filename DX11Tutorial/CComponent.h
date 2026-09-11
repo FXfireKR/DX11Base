@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "ObjectTypes.h"
 
 class CObject;
@@ -34,6 +34,7 @@ public:
 
 	virtual void Init() {}
 	virtual void Start() {}
+	virtual void InputUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void FixedUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void Update(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
 	virtual void LateUpdate(float fDelta) { UNREFERENCED_PARAMETER(fDelta); }
