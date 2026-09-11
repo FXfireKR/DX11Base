@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CShader.h"
 
 CShader::CShader(SHADER_DESC shaderDesc_,  vector<D3D_SHADER_MACRO>&& vecMacros_)
@@ -33,8 +33,12 @@ HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 		return E_FAIL;
 	}
 
-	// duplicate compile protection
-	if (m_eCompileState != SHADER_COMPILE_STATE::NOT_READY) return S_OK;
+	// READY is already complete. FAIL/COMPILING are not successful compile states.
+	if (m_eCompileState == SHADER_COMPILE_STATE::READY)
+		return S_OK;
+	if (m_eCompileState != SHADER_COMPILE_STATE::NOT_READY)
+		return E_FAIL;
+
 	m_eCompileState = SHADER_COMPILE_STATE::COMPILING;
 
 	HRESULT hr = S_OK;
@@ -80,10 +84,10 @@ HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 		);
 
 		if (FAILED(hr)) {
+			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;
 		}
 	}
-
 
 	if (false == m_shaderDesc.strPixelShaderPath.empty())
 	{
@@ -125,6 +129,7 @@ HRESULT CShader::Compile(ID3D11Device* const pDevice_)
 		);
 
 		if (FAILED(hr)) {
+			m_eCompileState = SHADER_COMPILE_STATE::FAIL;
 			return hr;
 		}
 	}
