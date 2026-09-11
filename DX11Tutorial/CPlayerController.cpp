@@ -257,7 +257,7 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 	const XMFLOAT3 vel = m_pMotor->GetVelocity();
 	const float planarSpeed = std::sqrt(vel.x * vel.x + vel.z * vel.z);
 	const bool bGrounded = m_pMotor->IsGrounded();
-	const bool bMoving = (bGrounded && planarSpeed > 0.1f && movedDistXZ > 0.0001f);
+	const bool bMoving = (bGrounded && planarSpeed > 0.1f);
 	const bool bJustLanded = (!m_bPrevGrounded && bGrounded && m_fPrevVelocityY < -m_fLandingMinFallSpeed);
 
 	if (bJustLanded)
@@ -306,8 +306,13 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 
 	if (bMoving)
 	{
-		const float phaseAdvance = movedDistXZ * (XM_2PI / m_fStepStrideMeters);
+		const float visualTravel = planarSpeed * fDelta;
+		const float phaseAdvance = visualTravel * (XM_2PI / m_fStepStrideMeters);
 		m_fHeadBobPhase += phaseAdvance;
+	}
+
+	if (movedDistXZ > 0.0001f)
+	{
 		m_fStepDistanceAccum += movedDistXZ;
 
 		while (m_fStepDistanceAccum >= m_fStepStrideMeters)
