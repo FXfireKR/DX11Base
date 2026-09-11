@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CComponentBase.h"
 
 class CTransform;
@@ -9,7 +9,7 @@ class CCharacterMotor : public CComponentBase<CCharacterMotor, COMPONENT_TYPE::C
 public:
 	void Init() override;
 	void Start() override;
-	void Update(float fDelta) override;
+	void FixedUpdate(float fDelta) override;
 
 public:
 	void SetWorld(CWorld* pWorld);

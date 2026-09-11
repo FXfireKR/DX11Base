@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CPlayerController.h"
 #include "CCharacterMotor.h"
 #include "CBlockInteractor.h"
@@ -55,9 +55,9 @@ void CPlayerController::Start()
 	}
 }
 
-void CPlayerController::Update(float fDelta)
+void CPlayerController::InputUpdate(float fDelta)
 {
-	if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform) 
+	if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform || nullptr == m_pMotor)
 		return;
 
 	_UpdateMouseLockToggle();
@@ -66,17 +66,16 @@ void CPlayerController::Update(float fDelta)
 	ImGuiIO& io = ImGui::GetIO();
 	const bool blockMouse = m_bUIMode || io.WantCaptureMouse;
 	const bool blockKeyboard = m_bUIMode || io.WantCaptureKeyboard;
-#else // IMGUI_ACTIVATE
+#else
 	const bool blockMouse = m_bUIMode;
 	const bool blockKeyboard = m_bUIMode;
-#endif // IMGUI_ACTIVATE
+#endif
 
 	if (!(blockMouse || blockKeyboard))
 	{
 		PlayerInputCommand command{};
 		_BuildInputCommand(fDelta, command);
 		_ApplyInputCommand(command);
-		_UpdateHeadBobAndStep(fDelta);
 	}
 	else
 	{
@@ -86,7 +85,14 @@ void CPlayerController::Update(float fDelta)
 		if (m_pBlockInteractor)
 			m_pBlockInteractor->SetBreakHeld(false);
 	}
+}
 
+void CPlayerController::Update(float fDelta)
+{
+	if (nullptr == m_pOwnTransform || nullptr == m_pCamTransform)
+		return;
+
+	_UpdateHeadBobAndStep(fDelta);
 	_UpdateMoveFov(fDelta);
 
 	XMFLOAT3 pos = m_pOwnTransform->GetWorldTrans();
@@ -139,7 +145,7 @@ void CPlayerController::_BuildInputCommand(float fDelta, PlayerInputCommand& out
 			outCmd.switchControl = pPad->GetButtonDown(DUALSENSE_BUTTON::SHARE);
 		}
 	}
-	else // (!bUseGamePad)
+	else
 	{
 		const POINT& delta = input.Mouse().GetDelta();
 		outCmd.lookX = static_cast<float>(delta.x) * m_fMouseSensitivity;
@@ -189,20 +195,23 @@ void CPlayerController::_ApplyInputCommand(const PlayerInputCommand& cmd)
 	if (cmd.jumpPressed)
 		m_pMotor->RequestJump();
 
-	m_pBlockInteractor->SetBreakHeld(cmd.breakHeld);
-	if (cmd.placePressed)
-		m_pBlockInteractor->RequestPlace();
+	if (m_pBlockInteractor)
+	{
+		m_pBlockInteractor->SetBreakHeld(cmd.breakHeld);
+		if (cmd.placePressed)
+			m_pBlockInteractor->RequestPlace();
+	}
 
 	int step = 0;
 	if (cmd.hotbarPrev) --step;
 	if (cmd.hotbarNext) ++step;
 
-	if (step != 0)
+	if (step != 0 && m_pInventory)
 	{
 		int idx = m_pInventory->GetSelectedSlotIndex();
 		idx += step;
 		idx %= 9;
-		if (idx < 0) 
+		if (idx < 0)
 			idx += 9;
 		m_pInventory->SetSelectedSlotIndex(idx);
 	}
@@ -236,7 +245,6 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 	float dz = footPos.z - m_prevFootPos.z;
 	float movedDistXZ = std::sqrt(dx * dx + dz * dz);
 
-	// 순간이동/스폰 보정
 	if (movedDistXZ > 2.0f)
 	{
 		m_prevFootPos = footPos;
@@ -249,7 +257,7 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 	const XMFLOAT3 vel = m_pMotor->GetVelocity();
 	const float planarSpeed = std::sqrt(vel.x * vel.x + vel.z * vel.z);
 	const bool bGrounded = m_pMotor->IsGrounded();
-	const bool bMoving = (bGrounded && planarSpeed > 0.1f && movedDistXZ > 0.0001f);
+	const bool bMoving = (bGrounded && planarSpeed > 0.1f);
 	const bool bJustLanded = (!m_bPrevGrounded && bGrounded && m_fPrevVelocityY < -m_fLandingMinFallSpeed);
 
 	if (bJustLanded)
@@ -298,8 +306,13 @@ void CPlayerController::_UpdateHeadBobAndStep(float fDelta)
 
 	if (bMoving)
 	{
-		const float phaseAdvance = movedDistXZ * (XM_2PI / m_fStepStrideMeters);
+		const float visualTravel = planarSpeed * fDelta;
+		const float phaseAdvance = visualTravel * (XM_2PI / m_fStepStrideMeters);
 		m_fHeadBobPhase += phaseAdvance;
+	}
+
+	if (movedDistXZ > 0.0001f)
+	{
 		m_fStepDistanceAccum += movedDistXZ;
 
 		while (m_fStepDistanceAccum >= m_fStepStrideMeters)
@@ -340,13 +353,11 @@ bool CPlayerController::_ResolveFootstepBlock(const XMFLOAT3& footPos, BlockCell
 	const int wx = static_cast<int>(std::floor(footPos.x));
 	const int wz = static_cast<int>(std::floor(footPos.z));
 
-	// 발 바로 아래
 	int wy = static_cast<int>(std::floor(footPos.y - 0.05f));
 	outCell = m_pWorld->GetBlockCell(wx, wy, wz);
 	if (!outCell.IsAir())
 		return true;
 
-	// 혹시 skin/보정 때문에 비면 한 칸 더 아래 fallback
 	outCell = m_pWorld->GetBlockCell(wx, wy - 1, wz);
 	if (!outCell.IsAir())
 		return true;
@@ -367,7 +378,7 @@ void CPlayerController::_PlayFootstep(const XMFLOAT3& footPos, const BlockCell& 
 		return;
 
 	const float t = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-	const float pitchMul = 0.98f + (0.04f * t); // 0.98 ~ 1.02
+	const float pitchMul = 0.98f + (0.04f * t);
 
 	const XMFLOAT3 soundPos =
 	{
@@ -403,7 +414,6 @@ void CPlayerController::_UpdateMoveFov(float fDelta)
 
 	float targetFov = m_fBaseFov;
 
-	// base 4.5, sprint 약 7.8, cruise는 그보다 훨씬 큼
 	if (!m_bUIMode && m_pMotor->IsGrounded())
 	{
 		if (planarSpeed > 12.0f)

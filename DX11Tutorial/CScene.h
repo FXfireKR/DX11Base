@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CObjectManager.h"
 #include "GameWorldHeader.h"
 
@@ -10,7 +10,6 @@ enum class SCENE_TYPE : unsigned char
 	INIT_SCENE,
 	GAME_SCENE,
 	TEST_SCENE,
-
 
 	END_SCENE,
 };
@@ -24,21 +23,20 @@ public:
 
 	virtual void OnCreate(CGameWorld& gameWorld);
 
-public: // Object 라이프 사이클
-	virtual void Awake() {} // next Load 단계
-	virtual void Start(); // current 활성화 단계
+public:
+	virtual void Awake() {}
+	virtual void Start();
 
-	// Physics
+	virtual void InputUpdate(float fDelta);
 	virtual void FixedUpdate(float fDelta);
 	virtual void Update(float fDelta);
 	virtual void LateUpdate(float fDelta);
 	virtual void Build();
 
-	// Building Frame
 	virtual void CommitFrameFence();
 	virtual void BuildRenderFrame() {};
 
-public: // Object API
+public:
 	OBJECT_ID AddObject(const string& strName_);
 	CObject* AddAndGetObject(const string& strName_);
 
@@ -67,7 +65,7 @@ protected:
 	CObjectManager m_objectManager;
 	CCamera* m_pCurrentCamera = nullptr;
 
-	CRenderWorld* m_pRenderWorld = nullptr; 
+	CRenderWorld* m_pRenderWorld = nullptr;
 	CAudioSystem* m_pAudioSystem = nullptr;
 
 	bool m_bChangeSceneReq = false;

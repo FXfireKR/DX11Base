@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CGameWorld.h"
 #include "CRenderWorld.h"
 #include "CBlockBreakParticleSystem.h"
@@ -33,7 +33,10 @@ void CGameWorld::Tick()
 	m_fAccumulatedTime += fDelta;
 	m_iFixedUpdateProcCnt = 0;
 
-	// fixed-update logic
+	// InputManager state is refreshed in Application::_BeginFrame().
+	// Convert the current frame input to gameplay commands before fixed simulation.
+	m_sceneManager.InputUpdate(fDelta);
+
 	while (m_fAccumulatedTime >= FIXED_DELTA && m_iFixedUpdateProcCnt < MAX_FIXED_STEP)
 	{
 		m_sceneManager.FixedUpdate(FIXED_DELTA);

@@ -33,8 +33,9 @@ private:
 	CAudioSystem* m_pAudioSystem = nullptr;
 
 private: // fixed-update logic elements
-	const float FIXED_DELTA = 1.0f / 60.0f; // 120.f는 추후
-	const int MAX_FIXED_STEP = 5; // 5 * (FIXED_DELTA) = 약 83ms
+	const float FIXED_DELTA = 1.0f / 120.f;
+	const int MAX_FIXED_STEP = 10; // 10 * (FIXED_DELTA) = 약 83ms
+
 	float m_fAccumulatedTime = 0.0f;
 	int m_iFixedUpdateProcCnt = 0;
 };

@@ -90,8 +90,14 @@ BLOCK_ID → BLOCK_DEF   (1 : 1)
 
 역할:
 
-* blockstate JSON 기반 variant / multipart 해석
+* blockstate JSON 기반 `variants` 해석
 * 상태값 → 모델 결과 매핑
+
+현재 구현 범위:
+
+* `variants` parsing / condition matching 지원
+* `multipart` interpretation은 아직 구현하지 않음
+* `AppliedModel::weight` 값은 parse하지만, 현재 optimized mesher에서는 weighted random model selection을 적용하지 않고 첫 번째 적용 모델을 사용함
 
 예:
 
